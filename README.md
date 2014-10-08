@@ -1,4 +1,5 @@
-narrative_method_store
+Narrative Method Store
 ======================
 
-KBase service for accessing specifications and documentation on available narrative methods
+KBase service for accessing specifications and documentation on available narrative methods.
+
