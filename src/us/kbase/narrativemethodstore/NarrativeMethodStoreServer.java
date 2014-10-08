@@ -1,7 +1,11 @@
 package us.kbase.narrativemethodstore;
 
+import java.io.File;
 import java.util.List;
 import java.util.Map;
+
+import org.ini4j.Ini;
+
 import us.kbase.common.service.JsonServerMethod;
 import us.kbase.common.service.JsonServerServlet;
 
@@ -17,6 +21,44 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
     private static final long serialVersionUID = 1L;
 
     //BEGIN_CLASS_HEADER
+    public static final String SYS_PROP_KB_DEPLOYMENT_CONFIG = "KB_DEPLOYMENT_CONFIG";
+    public static final String SERVICE_DEPLOYMENT_NAME = "NarrativeMethodStore";
+    public static final String CFG_PROP_GITHUB_RESOURCE_URL = "github-resource-url";
+    
+    private static Throwable configError = null;
+    private static Map<String, String> config = null;
+
+    static {
+		String configPath = System.getProperty(SYS_PROP_KB_DEPLOYMENT_CONFIG);
+		if (configPath == null)
+			configPath = System.getenv(SYS_PROP_KB_DEPLOYMENT_CONFIG);
+		if (configPath == null) {
+			configError = new IllegalStateException("Configuration file was not defined");
+		} else {
+			System.out.println(NarrativeMethodStoreServer.class.getName() + ": Deployment config path was defined: " + configPath);
+			try {
+				config = new Ini(new File(configPath)).get(SERVICE_DEPLOYMENT_NAME);
+			} catch (Throwable ex) {
+				System.out.println(NarrativeMethodStoreServer.class.getName() + ": Error loading deployment config-file: " + ex.getMessage());
+				configError = ex;
+			}
+		}
+    }
+
+    private Map<String, String> config() {
+    	if (config != null)
+    		return config;
+        if (configError != null)
+        	throw new IllegalStateException("There was an error while loading configuration", configError);
+    	throw new IllegalStateException("There was unknown error while service initialization");
+    }
+    
+    private String getGithubResourceUrl() {
+    	String ret = config().get(CFG_PROP_GITHUB_RESOURCE_URL);
+    	if (ret == null)
+    		throw new IllegalStateException("Parameter " + CFG_PROP_GITHUB_RESOURCE_URL + " is not defined in configuration");
+    	return ret;
+    }
     //END_CLASS_HEADER
 
     public NarrativeMethodStoreServer() throws Exception {
@@ -36,6 +78,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
     public String ver() throws Exception {
         String returnVal = null;
         //BEGIN ver
+        config();
         //END ver
         return returnVal;
     }
