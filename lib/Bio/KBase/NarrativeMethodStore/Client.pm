@@ -1,17 +1,10 @@
 package Bio::KBase::NarrativeMethodStore::Client;
 
 use JSON::RPC::Client;
-use POSIX;
 use strict;
 use Data::Dumper;
 use URI;
 use Bio::KBase::Exceptions;
-my $get_time = sub { time, 0 };
-eval {
-    require Time::HiRes;
-    $get_time = sub { Time::HiRes::gettimeofday() };
-};
-
 
 # Client version should match Impl version
 # This is a Semantic Version number,
@@ -42,41 +35,7 @@ sub new
     my $self = {
 	client => Bio::KBase::NarrativeMethodStore::Client::RpcClient->new,
 	url => $url,
-	headers => [],
     };
-
-    chomp($self->{hostname} = `hostname`);
-    $self->{hostname} ||= 'unknown-host';
-
-    #
-    # Set up for propagating KBRPC_TAG and KBRPC_METADATA environment variables through
-    # to invoked services. If these values are not set, we create a new tag
-    # and a metadata field with basic information about the invoking script.
-    #
-    if ($ENV{KBRPC_TAG})
-    {
-	$self->{kbrpc_tag} = $ENV{KBRPC_TAG};
-    }
-    else
-    {
-	my ($t, $us) = &$get_time();
-	$us = sprintf("%06d", $us);
-	my $ts = strftime("%Y-%m-%dT%H:%M:%S.${us}Z", gmtime $t);
-	$self->{kbrpc_tag} = "C:$0:$self->{hostname}:$$:$ts";
-    }
-    push(@{$self->{headers}}, 'Kbrpc-Tag', $self->{kbrpc_tag});
-
-    if ($ENV{KBRPC_METADATA})
-    {
-	$self->{kbrpc_metadata} = $ENV{KBRPC_METADATA};
-	push(@{$self->{headers}}, 'Kbrpc-Metadata', $self->{kbrpc_metadata});
-    }
-
-    if ($ENV{KBRPC_ERROR_DEST})
-    {
-	$self->{kbrpc_error_dest} = $ENV{KBRPC_ERROR_DEST};
-	push(@{$self->{headers}}, 'Kbrpc-Errordest', $self->{kbrpc_error_dest});
-    }
 
 
     my $ua = $self->{client}->ua;	 
@@ -134,7 +93,7 @@ sub ver
 							       "Invalid argument count for function ver (received $n, expecting 0)");
     }
 
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
+    my $result = $self->{client}->call($self->{url}, {
 	method => "NarrativeMethodStore.ver",
 	params => \@args,
     });
@@ -237,7 +196,7 @@ sub list_methods
 	}
     }
 
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
+    my $result = $self->{client}->call($self->{url}, {
 	method => "NarrativeMethodStore.list_methods",
 	params => \@args,
     });
@@ -360,7 +319,7 @@ sub list_methods_full_info
 	}
     }
 
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
+    my $result = $self->{client}->call($self->{url}, {
 	method => "NarrativeMethodStore.list_methods_full_info",
 	params => \@args,
     });
@@ -563,7 +522,7 @@ sub list_methods_spec
 	}
     }
 
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
+    my $result = $self->{client}->call($self->{url}, {
 	method => "NarrativeMethodStore.list_methods_spec",
 	params => \@args,
     });
@@ -631,7 +590,7 @@ sub list_method_ids_and_names
 							       "Invalid argument count for function list_method_ids_and_names (received $n, expecting 0)");
     }
 
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
+    my $result = $self->{client}->call($self->{url}, {
 	method => "NarrativeMethodStore.list_method_ids_and_names",
 	params => \@args,
     });
@@ -649,6 +608,107 @@ sub list_method_ids_and_names
         Bio::KBase::Exceptions::HTTP->throw(error => "Error invoking method list_method_ids_and_names",
 					    status_line => $self->{client}->status_line,
 					    method_name => 'list_method_ids_and_names',
+				       );
+    }
+}
+
+
+
+=head2 get_method_brief_info
+
+  $return = $obj->get_method_brief_info($params)
+
+=over 4
+
+=item Parameter and return types
+
+=begin html
+
+<pre>
+$params is a NarrativeMethodStore.GetMethodParams
+$return is a reference to a list where each element is a NarrativeMethodStore.MethodBriefInfo
+GetMethodParams is a reference to a hash where the following keys are defined:
+	ids has a value which is a reference to a list where each element is a string
+MethodBriefInfo is a reference to a hash where the following keys are defined:
+	id has a value which is a string
+	name has a value which is a string
+	ver has a value which is a string
+	subtitle has a value which is a string
+	tooltip has a value which is a string
+	categorizations has a value which is a reference to a list where each element is a NarrativeMethodStore.categorization
+categorization is a reference to a list where each element is a string
+
+</pre>
+
+=end html
+
+=begin text
+
+$params is a NarrativeMethodStore.GetMethodParams
+$return is a reference to a list where each element is a NarrativeMethodStore.MethodBriefInfo
+GetMethodParams is a reference to a hash where the following keys are defined:
+	ids has a value which is a reference to a list where each element is a string
+MethodBriefInfo is a reference to a hash where the following keys are defined:
+	id has a value which is a string
+	name has a value which is a string
+	ver has a value which is a string
+	subtitle has a value which is a string
+	tooltip has a value which is a string
+	categorizations has a value which is a reference to a list where each element is a NarrativeMethodStore.categorization
+categorization is a reference to a list where each element is a string
+
+
+=end text
+
+=item Description
+
+
+
+=back
+
+=cut
+
+sub get_method_brief_info
+{
+    my($self, @args) = @_;
+
+# Authentication: none
+
+    if ((my $n = @args) != 1)
+    {
+	Bio::KBase::Exceptions::ArgumentValidationError->throw(error =>
+							       "Invalid argument count for function get_method_brief_info (received $n, expecting 1)");
+    }
+    {
+	my($params) = @args;
+
+	my @_bad_arguments;
+        (ref($params) eq 'HASH') or push(@_bad_arguments, "Invalid type for argument 1 \"params\" (value was \"$params\")");
+        if (@_bad_arguments) {
+	    my $msg = "Invalid arguments passed to get_method_brief_info:\n" . join("", map { "\t$_\n" } @_bad_arguments);
+	    Bio::KBase::Exceptions::ArgumentValidationError->throw(error => $msg,
+								   method_name => 'get_method_brief_info');
+	}
+    }
+
+    my $result = $self->{client}->call($self->{url}, {
+	method => "NarrativeMethodStore.get_method_brief_info",
+	params => \@args,
+    });
+    if ($result) {
+	if ($result->is_error) {
+	    Bio::KBase::Exceptions::JSONRPC->throw(error => $result->error_message,
+					       code => $result->content->{error}->{code},
+					       method_name => 'get_method_brief_info',
+					       data => $result->content->{error}->{error} # JSON::RPC::ReturnObject only supports JSONRPC 1.1 or 1.O
+					      );
+	} else {
+	    return wantarray ? @{$result->result} : $result->result->[0];
+	}
+    } else {
+        Bio::KBase::Exceptions::HTTP->throw(error => "Error invoking method get_method_brief_info",
+					    status_line => $self->{client}->status_line,
+					    method_name => 'get_method_brief_info',
 				       );
     }
 }
@@ -752,7 +812,7 @@ sub get_method_full_info
 	}
     }
 
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
+    my $result = $self->{client}->call($self->{url}, {
 	method => "NarrativeMethodStore.get_method_full_info",
 	params => \@args,
     });
@@ -953,7 +1013,7 @@ sub get_method_spec
 	}
     }
 
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
+    my $result = $self->{client}->call($self->{url}, {
 	method => "NarrativeMethodStore.get_method_spec",
 	params => \@args,
     });
@@ -979,7 +1039,7 @@ sub get_method_spec
 
 sub version {
     my ($self) = @_;
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
+    my $result = $self->{client}->call($self->{url}, {
         method => "NarrativeMethodStore.version",
         params => [],
     });
@@ -1724,6 +1784,12 @@ behavior has a value which is a NarrativeMethodStore.MethodBehavior
 
 
 
+=item Description
+
+limit - optional field (default value is 0)
+offset - optional field (default value is 0)
+
+
 =item Definition
 
 =begin html
@@ -1784,27 +1850,21 @@ ids has a value which is a reference to a list where each element is a string
 
 package Bio::KBase::NarrativeMethodStore::Client::RpcClient;
 use base 'JSON::RPC::Client';
-use POSIX;
-use strict;
 
 #
 # Override JSON::RPC::Client::call because it doesn't handle error returns properly.
 #
 
 sub call {
-    my ($self, $uri, $headers, $obj) = @_;
+    my ($self, $uri, $obj) = @_;
     my $result;
 
-
-    {
-	if ($uri =~ /\?/) {
-	    $result = $self->_get($uri);
-	}
-	else {
-	    Carp::croak "not hashref." unless (ref $obj eq 'HASH');
-	    $result = $self->_post($uri, $headers, $obj);
-	}
-
+    if ($uri =~ /\?/) {
+       $result = $self->_get($uri);
+    }
+    else {
+        Carp::croak "not hashref." unless (ref $obj eq 'HASH');
+        $result = $self->_post($uri, $obj);
     }
 
     my $service = $obj->{method} =~ /^system\./ if ( $obj );
@@ -1832,7 +1892,7 @@ sub call {
 
 
 sub _post {
-    my ($self, $uri, $headers, $obj) = @_;
+    my ($self, $uri, $obj) = @_;
     my $json = $self->json;
 
     $obj->{version} ||= $self->{version} || '1.1';
@@ -1859,7 +1919,6 @@ sub _post {
         Content_Type   => $self->{content_type},
         Content        => $content,
         Accept         => 'application/json',
-	@$headers,
 	($self->{token} ? (Authorization => $self->{token}) : ()),
     );
 }

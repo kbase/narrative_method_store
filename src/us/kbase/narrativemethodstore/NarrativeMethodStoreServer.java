@@ -100,6 +100,21 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
     }
 
     /**
+     * <p>Original spec-file function name: get_method_brief_info</p>
+     * <pre>
+     * </pre>
+     * @param   params   instance of type {@link us.kbase.narrativemethodstore.GetMethodParams GetMethodParams}
+     * @return   instance of list of type {@link us.kbase.narrativemethodstore.MethodBriefInfo MethodBriefInfo}
+     */
+    @JsonServerMethod(rpc = "NarrativeMethodStore.get_method_brief_info")
+    public List<MethodBriefInfo> getMethodBriefInfo(GetMethodParams params) throws Exception {
+        List<MethodBriefInfo> returnVal = null;
+        //BEGIN get_method_brief_info
+        //END get_method_brief_info
+        return returnVal;
+    }
+
+    /**
      * <p>Original spec-file function name: get_method_full_info</p>
      * <pre>
      * </pre>

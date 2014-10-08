@@ -13,7 +13,10 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 /**
  * <p>Original spec-file type: ListParams</p>
- * 
+ * <pre>
+ * limit - optional field (default value is 0)
+ * offset - optional field (default value is 0)
+ * </pre>
  * 
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)

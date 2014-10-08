@@ -152,7 +152,10 @@ module NarrativeMethodStore {
 
 
 
-
+	/*
+		limit - optional field (default value is 0)
+		offset - optional field (default value is 0)
+	*/
     typedef structure {
         int limit;
         int offset;
@@ -170,6 +173,8 @@ module NarrativeMethodStore {
     typedef structure {
         list <string> ids;
     } GetMethodParams;
+
+    funcdef get_method_brief_info(GetMethodParams params) returns (list<MethodBriefInfo>);
     
     funcdef get_method_full_info(GetMethodParams params) returns (list<MethodFullInfo>);
     

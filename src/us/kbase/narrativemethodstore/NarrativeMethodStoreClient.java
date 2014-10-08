@@ -144,6 +144,23 @@ public class NarrativeMethodStoreClient {
     }
 
     /**
+     * <p>Original spec-file function name: get_method_brief_info</p>
+     * <pre>
+     * </pre>
+     * @param   params   instance of type {@link us.kbase.narrativemethodstore.GetMethodParams GetMethodParams}
+     * @return   instance of list of type {@link us.kbase.narrativemethodstore.MethodBriefInfo MethodBriefInfo}
+     * @throws IOException if an IO exception occurs
+     * @throws JsonClientException if a JSON RPC exception occurs
+     */
+    public List<MethodBriefInfo> getMethodBriefInfo(GetMethodParams params) throws IOException, JsonClientException {
+        List<Object> args = new ArrayList<Object>();
+        args.add(params);
+        TypeReference<List<List<MethodBriefInfo>>> retType = new TypeReference<List<List<MethodBriefInfo>>>() {};
+        List<List<MethodBriefInfo>> res = caller.jsonrpcCall("NarrativeMethodStore.get_method_brief_info", args, retType, true, false);
+        return res.get(0);
+    }
+
+    /**
      * <p>Original spec-file function name: get_method_full_info</p>
      * <pre>
      * </pre>
