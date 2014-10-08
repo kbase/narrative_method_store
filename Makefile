@@ -55,8 +55,8 @@ build-libs:
 	$(ANT) compile
 
 build-bin:
-	rm -rf bin/lib
-	$(ANT) bin
+	#rm -rf bin/lib
+	#$(ANT) bin
 	#echo "#!/bin/sh" > $(SCRIPTBINDESTINATION)/toc-convert
 	#echo "export JAVA_HOME=$(JAVA_HOME)" >> $(SCRIPTBINDESTINATION)/toc-convert
 	#echo "export PATH=\$$JAVA_HOME/bin:\$$PATH" >> $(SCRIPTBINDESTINATION)/toc-convert
@@ -122,7 +122,7 @@ deploy-docs:
 	cp  -r docs/* $(SERVICE_DIR)/webroot/.
 
 deploy-scripts:
-	cp bin/
+	#cp bin/
 
 deploy-service: deploy-service-libs deploy-service-scripts deploy-cfg
 
