@@ -11,6 +11,7 @@ import java.util.Map;
 import us.kbase.auth.AuthToken;
 import us.kbase.common.service.JsonClientCaller;
 import us.kbase.common.service.JsonClientException;
+import us.kbase.common.service.Tuple2;
 
 /**
  * <p>Original spec-file module name: NarrativeMethodStore</p>
@@ -75,6 +76,23 @@ public class NarrativeMethodStoreClient {
         TypeReference<List<String>> retType = new TypeReference<List<String>>() {};
         List<String> res = caller.jsonrpcCall("NarrativeMethodStore.ver", args, retType, true, false);
         return res.get(0);
+    }
+
+    /**
+     * <p>Original spec-file function name: list_categories</p>
+     * <pre>
+     * </pre>
+     * @param   params   instance of type {@link us.kbase.narrativemethodstore.ListCategoriesParams ListCategoriesParams}
+     * @return   multiple set: (1) parameter "categories" of mapping from String to type {@link us.kbase.narrativemethodstore.Category Category}, (2) parameter "methods" of mapping from String to type {@link us.kbase.narrativemethodstore.MethodBriefInfo MethodBriefInfo}
+     * @throws IOException if an IO exception occurs
+     * @throws JsonClientException if a JSON RPC exception occurs
+     */
+    public Tuple2<Map<String,Category>, Map<String,MethodBriefInfo>> listCategories(ListCategoriesParams params) throws IOException, JsonClientException {
+        List<Object> args = new ArrayList<Object>();
+        args.add(params);
+        TypeReference<Tuple2<Map<String,Category>, Map<String,MethodBriefInfo>>> retType = new TypeReference<Tuple2<Map<String,Category>, Map<String,MethodBriefInfo>>>() {};
+        Tuple2<Map<String,Category>, Map<String,MethodBriefInfo>> res = caller.jsonrpcCall("NarrativeMethodStore.list_categories", args, retType, true, false);
+        return res;
     }
 
     /**

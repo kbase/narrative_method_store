@@ -13,8 +13,20 @@ module NarrativeMethodStore {
     typedef string username;
     typedef string email;
 
+	typedef structure {
+		string id;
+		string name;
+		string ver;
+		string tooltip;
+		string description;
+		list<string> parent_ids;
+	} Category;
+
     /* Organization of where in a menu the method should appear */
-    typedef list<string> categorization;
+    typedef structure {
+    	string category_id;
+    	list<string> named_path;
+    } categorization;
     
     /* Minimal information about a method suitable for displaying the method in a menu or navigator. */
     typedef structure {
@@ -25,7 +37,6 @@ module NarrativeMethodStore {
         string tooltip;
         list<categorization> categorizations;
     } MethodBriefInfo;
-    
     
     typedef structure {
         url url;
@@ -150,6 +161,15 @@ module NarrativeMethodStore {
     } MethodSpec;
 
 
+	/*
+		load_methods - optional field (default value is 1)
+	*/
+	typedef structure {
+		boolean load_methods;
+	} ListCategoriesParams;
+
+	funcdef list_categories(ListCategoriesParams params) 
+		returns (mapping<string, Category> categories, mapping<string, MethodBriefInfo> methods);
 
 
 	/*

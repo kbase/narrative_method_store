@@ -1,17 +1,10 @@
 package Bio::KBase::NarrativeMethodStore::Client;
 
 use JSON::RPC::Client;
-use POSIX;
 use strict;
 use Data::Dumper;
 use URI;
 use Bio::KBase::Exceptions;
-my $get_time = sub { time, 0 };
-eval {
-    require Time::HiRes;
-    $get_time = sub { Time::HiRes::gettimeofday() };
-};
-
 
 # Client version should match Impl version
 # This is a Semantic Version number,
@@ -42,41 +35,7 @@ sub new
     my $self = {
 	client => Bio::KBase::NarrativeMethodStore::Client::RpcClient->new,
 	url => $url,
-	headers => [],
     };
-
-    chomp($self->{hostname} = `hostname`);
-    $self->{hostname} ||= 'unknown-host';
-
-    #
-    # Set up for propagating KBRPC_TAG and KBRPC_METADATA environment variables through
-    # to invoked services. If these values are not set, we create a new tag
-    # and a metadata field with basic information about the invoking script.
-    #
-    if ($ENV{KBRPC_TAG})
-    {
-	$self->{kbrpc_tag} = $ENV{KBRPC_TAG};
-    }
-    else
-    {
-	my ($t, $us) = &$get_time();
-	$us = sprintf("%06d", $us);
-	my $ts = strftime("%Y-%m-%dT%H:%M:%S.${us}Z", gmtime $t);
-	$self->{kbrpc_tag} = "C:$0:$self->{hostname}:$$:$ts";
-    }
-    push(@{$self->{headers}}, 'Kbrpc-Tag', $self->{kbrpc_tag});
-
-    if ($ENV{KBRPC_METADATA})
-    {
-	$self->{kbrpc_metadata} = $ENV{KBRPC_METADATA};
-	push(@{$self->{headers}}, 'Kbrpc-Metadata', $self->{kbrpc_metadata});
-    }
-
-    if ($ENV{KBRPC_ERROR_DEST})
-    {
-	$self->{kbrpc_error_dest} = $ENV{KBRPC_ERROR_DEST};
-	push(@{$self->{headers}}, 'Kbrpc-Errordest', $self->{kbrpc_error_dest});
-    }
 
 
     my $ua = $self->{client}->ua;	 
@@ -134,7 +93,7 @@ sub ver
 							       "Invalid argument count for function ver (received $n, expecting 0)");
     }
 
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
+    my $result = $self->{client}->call($self->{url}, {
 	method => "NarrativeMethodStore.ver",
 	params => \@args,
     });
@@ -152,6 +111,129 @@ sub ver
         Bio::KBase::Exceptions::HTTP->throw(error => "Error invoking method ver",
 					    status_line => $self->{client}->status_line,
 					    method_name => 'ver',
+				       );
+    }
+}
+
+
+
+=head2 list_categories
+
+  $categories, $methods = $obj->list_categories($params)
+
+=over 4
+
+=item Parameter and return types
+
+=begin html
+
+<pre>
+$params is a NarrativeMethodStore.ListCategoriesParams
+$categories is a reference to a hash where the key is a string and the value is a NarrativeMethodStore.Category
+$methods is a reference to a hash where the key is a string and the value is a NarrativeMethodStore.MethodBriefInfo
+ListCategoriesParams is a reference to a hash where the following keys are defined:
+	load_methods has a value which is a NarrativeMethodStore.boolean
+boolean is an int
+Category is a reference to a hash where the following keys are defined:
+	id has a value which is a string
+	name has a value which is a string
+	ver has a value which is a string
+	tooltip has a value which is a string
+	description has a value which is a string
+	parent_ids has a value which is a reference to a list where each element is a string
+MethodBriefInfo is a reference to a hash where the following keys are defined:
+	id has a value which is a string
+	name has a value which is a string
+	ver has a value which is a string
+	subtitle has a value which is a string
+	tooltip has a value which is a string
+	categorizations has a value which is a reference to a list where each element is a NarrativeMethodStore.categorization
+categorization is a reference to a hash where the following keys are defined:
+	category_id has a value which is a string
+	named_path has a value which is a reference to a list where each element is a string
+
+</pre>
+
+=end html
+
+=begin text
+
+$params is a NarrativeMethodStore.ListCategoriesParams
+$categories is a reference to a hash where the key is a string and the value is a NarrativeMethodStore.Category
+$methods is a reference to a hash where the key is a string and the value is a NarrativeMethodStore.MethodBriefInfo
+ListCategoriesParams is a reference to a hash where the following keys are defined:
+	load_methods has a value which is a NarrativeMethodStore.boolean
+boolean is an int
+Category is a reference to a hash where the following keys are defined:
+	id has a value which is a string
+	name has a value which is a string
+	ver has a value which is a string
+	tooltip has a value which is a string
+	description has a value which is a string
+	parent_ids has a value which is a reference to a list where each element is a string
+MethodBriefInfo is a reference to a hash where the following keys are defined:
+	id has a value which is a string
+	name has a value which is a string
+	ver has a value which is a string
+	subtitle has a value which is a string
+	tooltip has a value which is a string
+	categorizations has a value which is a reference to a list where each element is a NarrativeMethodStore.categorization
+categorization is a reference to a hash where the following keys are defined:
+	category_id has a value which is a string
+	named_path has a value which is a reference to a list where each element is a string
+
+
+=end text
+
+=item Description
+
+
+
+=back
+
+=cut
+
+sub list_categories
+{
+    my($self, @args) = @_;
+
+# Authentication: none
+
+    if ((my $n = @args) != 1)
+    {
+	Bio::KBase::Exceptions::ArgumentValidationError->throw(error =>
+							       "Invalid argument count for function list_categories (received $n, expecting 1)");
+    }
+    {
+	my($params) = @args;
+
+	my @_bad_arguments;
+        (ref($params) eq 'HASH') or push(@_bad_arguments, "Invalid type for argument 1 \"params\" (value was \"$params\")");
+        if (@_bad_arguments) {
+	    my $msg = "Invalid arguments passed to list_categories:\n" . join("", map { "\t$_\n" } @_bad_arguments);
+	    Bio::KBase::Exceptions::ArgumentValidationError->throw(error => $msg,
+								   method_name => 'list_categories');
+	}
+    }
+
+    my $result = $self->{client}->call($self->{url}, {
+	method => "NarrativeMethodStore.list_categories",
+	params => \@args,
+    });
+    if ($result) {
+	if ($result->is_error) {
+	    Bio::KBase::Exceptions::JSONRPC->throw(error => $result->error_message,
+					       code => $result->content->{error}->{code},
+					       method_name => 'list_categories',
+					       data => $result->content->{error}->{error} # JSON::RPC::ReturnObject only supports JSONRPC 1.1 or 1.O
+					      );
+	} else {
+	    return wantarray ? @{$result->result} : $result->result->[0];
+	}
+    } else {
+        Bio::KBase::Exceptions::HTTP->throw(error => "Error invoking method list_categories",
+					    status_line => $self->{client}->status_line,
+					    method_name => 'list_categories',
 				       );
     }
 }
@@ -181,7 +263,9 @@ MethodBriefInfo is a reference to a hash where the following keys are defined:
 	subtitle has a value which is a string
 	tooltip has a value which is a string
 	categorizations has a value which is a reference to a list where each element is a NarrativeMethodStore.categorization
-categorization is a reference to a list where each element is a string
+categorization is a reference to a hash where the following keys are defined:
+	category_id has a value which is a string
+	named_path has a value which is a reference to a list where each element is a string
 
 </pre>
 
@@ -201,7 +285,9 @@ MethodBriefInfo is a reference to a hash where the following keys are defined:
 	subtitle has a value which is a string
 	tooltip has a value which is a string
 	categorizations has a value which is a reference to a list where each element is a NarrativeMethodStore.categorization
-categorization is a reference to a list where each element is a string
+categorization is a reference to a hash where the following keys are defined:
+	category_id has a value which is a string
+	named_path has a value which is a reference to a list where each element is a string
 
 
 =end text
@@ -237,7 +323,7 @@ sub list_methods
 	}
     }
 
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
+    my $result = $self->{client}->call($self->{url}, {
 	method => "NarrativeMethodStore.list_methods",
 	params => \@args,
     });
@@ -291,7 +377,9 @@ MethodFullInfo is a reference to a hash where the following keys are defined:
 	screenshots has a value which is a reference to a list where each element is a NarrativeMethodStore.ScreenShot
 username is a string
 email is a string
-categorization is a reference to a list where each element is a string
+categorization is a reference to a hash where the following keys are defined:
+	category_id has a value which is a string
+	named_path has a value which is a reference to a list where each element is a string
 ScreenShot is a reference to a hash where the following keys are defined:
 	url has a value which is a NarrativeMethodStore.url
 url is a string
@@ -321,7 +409,9 @@ MethodFullInfo is a reference to a hash where the following keys are defined:
 	screenshots has a value which is a reference to a list where each element is a NarrativeMethodStore.ScreenShot
 username is a string
 email is a string
-categorization is a reference to a list where each element is a string
+categorization is a reference to a hash where the following keys are defined:
+	category_id has a value which is a string
+	named_path has a value which is a reference to a list where each element is a string
 ScreenShot is a reference to a hash where the following keys are defined:
 	url has a value which is a NarrativeMethodStore.url
 url is a string
@@ -360,7 +450,7 @@ sub list_methods_full_info
 	}
     }
 
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
+    my $result = $self->{client}->call($self->{url}, {
 	method => "NarrativeMethodStore.list_methods_full_info",
 	params => \@args,
     });
@@ -412,7 +502,9 @@ MethodBriefInfo is a reference to a hash where the following keys are defined:
 	subtitle has a value which is a string
 	tooltip has a value which is a string
 	categorizations has a value which is a reference to a list where each element is a NarrativeMethodStore.categorization
-categorization is a reference to a list where each element is a string
+categorization is a reference to a hash where the following keys are defined:
+	category_id has a value which is a string
+	named_path has a value which is a reference to a list where each element is a string
 WidgetSpec is a reference to a hash where the following keys are defined:
 	input has a value which is a string
 	output has a value which is a string
@@ -482,7 +574,9 @@ MethodBriefInfo is a reference to a hash where the following keys are defined:
 	subtitle has a value which is a string
 	tooltip has a value which is a string
 	categorizations has a value which is a reference to a list where each element is a NarrativeMethodStore.categorization
-categorization is a reference to a list where each element is a string
+categorization is a reference to a hash where the following keys are defined:
+	category_id has a value which is a string
+	named_path has a value which is a reference to a list where each element is a string
 WidgetSpec is a reference to a hash where the following keys are defined:
 	input has a value which is a string
 	output has a value which is a string
@@ -563,7 +657,7 @@ sub list_methods_spec
 	}
     }
 
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
+    my $result = $self->{client}->call($self->{url}, {
 	method => "NarrativeMethodStore.list_methods_spec",
 	params => \@args,
     });
@@ -631,7 +725,7 @@ sub list_method_ids_and_names
 							       "Invalid argument count for function list_method_ids_and_names (received $n, expecting 0)");
     }
 
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
+    my $result = $self->{client}->call($self->{url}, {
 	method => "NarrativeMethodStore.list_method_ids_and_names",
 	params => \@args,
     });
@@ -677,7 +771,9 @@ MethodBriefInfo is a reference to a hash where the following keys are defined:
 	subtitle has a value which is a string
 	tooltip has a value which is a string
 	categorizations has a value which is a reference to a list where each element is a NarrativeMethodStore.categorization
-categorization is a reference to a list where each element is a string
+categorization is a reference to a hash where the following keys are defined:
+	category_id has a value which is a string
+	named_path has a value which is a reference to a list where each element is a string
 
 </pre>
 
@@ -696,7 +792,9 @@ MethodBriefInfo is a reference to a hash where the following keys are defined:
 	subtitle has a value which is a string
 	tooltip has a value which is a string
 	categorizations has a value which is a reference to a list where each element is a NarrativeMethodStore.categorization
-categorization is a reference to a list where each element is a string
+categorization is a reference to a hash where the following keys are defined:
+	category_id has a value which is a string
+	named_path has a value which is a reference to a list where each element is a string
 
 
 =end text
@@ -732,7 +830,7 @@ sub get_method_brief_info
 	}
     }
 
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
+    my $result = $self->{client}->call($self->{url}, {
 	method => "NarrativeMethodStore.get_method_brief_info",
 	params => \@args,
     });
@@ -785,7 +883,9 @@ MethodFullInfo is a reference to a hash where the following keys are defined:
 	screenshots has a value which is a reference to a list where each element is a NarrativeMethodStore.ScreenShot
 username is a string
 email is a string
-categorization is a reference to a list where each element is a string
+categorization is a reference to a hash where the following keys are defined:
+	category_id has a value which is a string
+	named_path has a value which is a reference to a list where each element is a string
 ScreenShot is a reference to a hash where the following keys are defined:
 	url has a value which is a NarrativeMethodStore.url
 url is a string
@@ -814,7 +914,9 @@ MethodFullInfo is a reference to a hash where the following keys are defined:
 	screenshots has a value which is a reference to a list where each element is a NarrativeMethodStore.ScreenShot
 username is a string
 email is a string
-categorization is a reference to a list where each element is a string
+categorization is a reference to a hash where the following keys are defined:
+	category_id has a value which is a string
+	named_path has a value which is a reference to a list where each element is a string
 ScreenShot is a reference to a hash where the following keys are defined:
 	url has a value which is a NarrativeMethodStore.url
 url is a string
@@ -853,7 +955,7 @@ sub get_method_full_info
 	}
     }
 
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
+    my $result = $self->{client}->call($self->{url}, {
 	method => "NarrativeMethodStore.get_method_full_info",
 	params => \@args,
     });
@@ -904,7 +1006,9 @@ MethodBriefInfo is a reference to a hash where the following keys are defined:
 	subtitle has a value which is a string
 	tooltip has a value which is a string
 	categorizations has a value which is a reference to a list where each element is a NarrativeMethodStore.categorization
-categorization is a reference to a list where each element is a string
+categorization is a reference to a hash where the following keys are defined:
+	category_id has a value which is a string
+	named_path has a value which is a reference to a list where each element is a string
 WidgetSpec is a reference to a hash where the following keys are defined:
 	input has a value which is a string
 	output has a value which is a string
@@ -973,7 +1077,9 @@ MethodBriefInfo is a reference to a hash where the following keys are defined:
 	subtitle has a value which is a string
 	tooltip has a value which is a string
 	categorizations has a value which is a reference to a list where each element is a NarrativeMethodStore.categorization
-categorization is a reference to a list where each element is a string
+categorization is a reference to a hash where the following keys are defined:
+	category_id has a value which is a string
+	named_path has a value which is a reference to a list where each element is a string
 WidgetSpec is a reference to a hash where the following keys are defined:
 	input has a value which is a string
 	output has a value which is a string
@@ -1054,7 +1160,7 @@ sub get_method_spec
 	}
     }
 
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
+    my $result = $self->{client}->call($self->{url}, {
 	method => "NarrativeMethodStore.get_method_spec",
 	params => \@args,
     });
@@ -1080,7 +1186,7 @@ sub get_method_spec
 
 sub version {
     my ($self) = @_;
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
+    my $result = $self->{client}->call($self->{url}, {
         method => "NarrativeMethodStore.version",
         params => [],
     });
@@ -1244,6 +1350,46 @@ a string
 
 
 
+=head2 Category
+
+=over 4
+
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a reference to a hash where the following keys are defined:
+id has a value which is a string
+name has a value which is a string
+ver has a value which is a string
+tooltip has a value which is a string
+description has a value which is a string
+parent_ids has a value which is a reference to a list where each element is a string
+
+</pre>
+
+=end html
+
+=begin text
+
+a reference to a hash where the following keys are defined:
+id has a value which is a string
+name has a value which is a string
+ver has a value which is a string
+tooltip has a value which is a string
+description has a value which is a string
+parent_ids has a value which is a reference to a list where each element is a string
+
+
+=end text
+
+=back
+
+
+
 =head2 categorization
 
 =over 4
@@ -1260,14 +1406,20 @@ Organization of where in a menu the method should appear
 =begin html
 
 <pre>
-a reference to a list where each element is a string
+a reference to a hash where the following keys are defined:
+category_id has a value which is a string
+named_path has a value which is a reference to a list where each element is a string
+
 </pre>
 
 =end html
 
 =begin text
 
-a reference to a list where each element is a string
+a reference to a hash where the following keys are defined:
+category_id has a value which is a string
+named_path has a value which is a reference to a list where each element is a string
+
 
 =end text
 
@@ -1819,6 +1971,41 @@ behavior has a value which is a NarrativeMethodStore.MethodBehavior
 
 
 
+=head2 ListCategoriesParams
+
+=over 4
+
+
+
+=item Description
+
+load_methods - optional field (default value is 1)
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a reference to a hash where the following keys are defined:
+load_methods has a value which is a NarrativeMethodStore.boolean
+
+</pre>
+
+=end html
+
+=begin text
+
+a reference to a hash where the following keys are defined:
+load_methods has a value which is a NarrativeMethodStore.boolean
+
+
+=end text
+
+=back
+
+
+
 =head2 ListParams
 
 =over 4
@@ -1891,27 +2078,21 @@ ids has a value which is a reference to a list where each element is a string
 
 package Bio::KBase::NarrativeMethodStore::Client::RpcClient;
 use base 'JSON::RPC::Client';
-use POSIX;
-use strict;
 
 #
 # Override JSON::RPC::Client::call because it doesn't handle error returns properly.
 #
 
 sub call {
-    my ($self, $uri, $headers, $obj) = @_;
+    my ($self, $uri, $obj) = @_;
     my $result;
 
-
-    {
-	if ($uri =~ /\?/) {
-	    $result = $self->_get($uri);
-	}
-	else {
-	    Carp::croak "not hashref." unless (ref $obj eq 'HASH');
-	    $result = $self->_post($uri, $headers, $obj);
-	}
-
+    if ($uri =~ /\?/) {
+       $result = $self->_get($uri);
+    }
+    else {
+        Carp::croak "not hashref." unless (ref $obj eq 'HASH');
+        $result = $self->_post($uri, $obj);
     }
 
     my $service = $obj->{method} =~ /^system\./ if ( $obj );
@@ -1939,7 +2120,7 @@ sub call {
 
 
 sub _post {
-    my ($self, $uri, $headers, $obj) = @_;
+    my ($self, $uri, $obj) = @_;
     my $json = $self->json;
 
     $obj->{version} ||= $self->{version} || '1.1';
@@ -1966,7 +2147,6 @@ sub _post {
         Content_Type   => $self->{content_type},
         Content        => $content,
         Accept         => 'application/json',
-	@$headers,
 	($self->{token} ? (Authorization => $self->{token}) : ()),
     );
 }

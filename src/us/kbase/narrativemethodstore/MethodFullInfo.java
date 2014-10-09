@@ -55,7 +55,7 @@ public class MethodFullInfo {
     @JsonProperty("technical_description")
     private java.lang.String technicalDescription;
     @JsonProperty("categorizations")
-    private List<List<String>> categorizations;
+    private List<Categorization> categorizations;
     @JsonProperty("screenshots")
     private List<ScreenShot> screenshots;
     private Map<java.lang.String, Object> additionalProperties = new HashMap<java.lang.String, Object>();
@@ -196,16 +196,16 @@ public class MethodFullInfo {
     }
 
     @JsonProperty("categorizations")
-    public List<List<String>> getCategorizations() {
+    public List<Categorization> getCategorizations() {
         return categorizations;
     }
 
     @JsonProperty("categorizations")
-    public void setCategorizations(List<List<String>> categorizations) {
+    public void setCategorizations(List<Categorization> categorizations) {
         this.categorizations = categorizations;
     }
 
-    public MethodFullInfo withCategorizations(List<List<String>> categorizations) {
+    public MethodFullInfo withCategorizations(List<Categorization> categorizations) {
         this.categorizations = categorizations;
         return this;
     }

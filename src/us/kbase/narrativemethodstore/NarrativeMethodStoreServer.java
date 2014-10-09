@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import us.kbase.common.service.JsonServerMethod;
 import us.kbase.common.service.JsonServerServlet;
+import us.kbase.common.service.Tuple2;
 
 //BEGIN_HEADER
 import java.io.File;
@@ -120,6 +121,25 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
         //BEGIN ver
         config();
         //END ver
+        return returnVal;
+    }
+
+    /**
+     * <p>Original spec-file function name: list_categories</p>
+     * <pre>
+     * </pre>
+     * @param   params   instance of type {@link us.kbase.narrativemethodstore.ListCategoriesParams ListCategoriesParams}
+     * @return   multiple set: (1) parameter "categories" of mapping from String to type {@link us.kbase.narrativemethodstore.Category Category}, (2) parameter "methods" of mapping from String to type {@link us.kbase.narrativemethodstore.MethodBriefInfo MethodBriefInfo}
+     */
+    @JsonServerMethod(rpc = "NarrativeMethodStore.list_categories", tuple = true)
+    public Tuple2<Map<String,Category>, Map<String,MethodBriefInfo>> listCategories(ListCategoriesParams params) throws Exception {
+        Map<String,Category> return1 = null;
+        Map<String,MethodBriefInfo> return2 = null;
+        //BEGIN list_categories
+        //END list_categories
+        Tuple2<Map<String,Category>, Map<String,MethodBriefInfo>> returnVal = new Tuple2<Map<String,Category>, Map<String,MethodBriefInfo>>();
+        returnVal.setE1(return1);
+        returnVal.setE2(return2);
         return returnVal;
     }
 

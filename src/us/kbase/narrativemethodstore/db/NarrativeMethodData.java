@@ -5,6 +5,7 @@ import java.util.ArrayList;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
+import us.kbase.narrativemethodstore.Categorization;
 import us.kbase.narrativemethodstore.MethodBriefInfo;
 import us.kbase.narrativemethodstore.MethodFullInfo;
 import us.kbase.narrativemethodstore.MethodSpec;
@@ -39,14 +40,14 @@ public class NarrativeMethodData {
 	public void update(String methodId, JsonNode spec, String descriptionHtml, String technicalDescriptionHtml) {
 		this.methodId = methodId;
 		
-		List <List<String>> categorizations = new ArrayList<List<String>>(1);
+		List <Categorization> categorizations = new ArrayList<Categorization>(1);
 		JsonNode cats = spec.get("categorizations");
 		for(int k=0; k<cats.size(); k++) {
 			List<String> catPath = new ArrayList<String>(1);
 			for(int i=0; i<cats.get(k).size(); i++) {
 				catPath.add(cats.get(k).get(i).asText());
 			}
-			categorizations.add(catPath);
+			categorizations.add(new Categorization().withNamedPath(catPath));
 		}
 		
 		briefInfo = new MethodBriefInfo()
