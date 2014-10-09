@@ -2,6 +2,7 @@ package us.kbase.narrativemethodstore.db;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Map;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -13,8 +14,8 @@ import us.kbase.narrativemethodstore.MethodSpec;
 public class NarrativeMethodData {
 
 	
-	public NarrativeMethodData(String methodId, JsonNode spec, String descriptionHtml, String technicalDescriptionHtml) {
-		update(methodId, spec,descriptionHtml,technicalDescriptionHtml);
+	public NarrativeMethodData(String methodId, JsonNode spec, Map<String, Object> display, String descriptionHtml, String technicalDescriptionHtml) {
+		update(methodId, spec, display, descriptionHtml,technicalDescriptionHtml);
 	}
 	
 	protected String methodId;
@@ -37,26 +38,22 @@ public class NarrativeMethodData {
 	}
 	
 	
-	public void update(String methodId, JsonNode spec, String descriptionHtml, String technicalDescriptionHtml) {
+	public void update(String methodId, JsonNode spec, Map<String, Object> display, String descriptionHtml, String technicalDescriptionHtml) {
 		this.methodId = methodId;
 		
-		List <Categorization> categorizations = new ArrayList<Categorization>(1);
-		JsonNode cats = spec.get("categorizations");
-		for(int k=0; k<cats.size(); k++) {
-			List<String> catPath = new ArrayList<String>(1);
-			for(int i=0; i<cats.get(k).size(); i++) {
-				catPath.add(cats.get(k).get(i).asText());
-			}
-			categorizations.add(new Categorization().withNamedPath(catPath));
-		}
+		//List <String> categories = new ArrayList<String>(1);
+		//JsonNode cats = spec.get("categories");
+		//for(int k=0; k<cats.size(); k++) {
+		//	categories.add(cats.get(k).asText());
+		//}
 		
 		briefInfo = new MethodBriefInfo()
 							.withId(this.methodId)
-							.withName(spec.get("name").asText())
+							.withName((String)display.get("name"))
 							.withVer(spec.get("ver").asText())
-							.withSubtitle(spec.get("subtitle").asText())
-							.withTooltip(spec.get("tooltip").asText())
-							.withCategorizations(categorizations);
+							.withSubtitle((String)display.get("subtitle"))
+							.withTooltip((String)display.get("tooltip"));
+							//.withCategories(categories);
 		
 		List <String> authors = new ArrayList<String>(2);
 		for(int a=0; a<spec.get("authors").size(); a++) {
@@ -65,11 +62,11 @@ public class NarrativeMethodData {
 		
 		fullInfo = new MethodFullInfo()
 							.withId(this.methodId)
-							.withName(spec.get("name").asText())
+							.withName((String)display.get("name"))
 							.withVer(spec.get("ver").asText())
-							.withSubtitle(spec.get("subtitle").asText())
-							.withTooltip(spec.get("tooltip").asText())
-							.withCategorizations(categorizations)
+							.withSubtitle((String)display.get("subtitle"))
+							.withTooltip((String)display.get("tooltip"))
+							//.withCategories(categories)
 							
 							.withAuthors(null)
 							.withContact(spec.get("contact").asText())

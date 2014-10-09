@@ -1,11 +1,17 @@
 package us.kbase.narrativemethodstore.db.github;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Map;
+
+import org.yaml.snakeyaml.Yaml;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -23,6 +29,7 @@ public class GitHubDB implements MethodSpecDB {
 	public static final String GITHUB_RAW_CONTENT_URL_DEFAULT = "https://raw.githubusercontent.com";
 	
 	private final ObjectMapper mapper = new ObjectMapper();
+	private final Yaml yaml = new Yaml();
 	
 	// github config variables
 	private String GITHUB_API_URL;
@@ -100,18 +107,18 @@ public class GitHubDB implements MethodSpecDB {
 	
 	//protected boolean isUpToDate
 	
-	
+	//public loadMethodIndex()
 	
 	public NarrativeMethodData loadMethodData(String methodId) throws JsonProcessingException, IOException {
 		
-		JsonNode spec     = getResourceAsJson("methods/"+methodId+"/spec.json");
-		String description      = getResource("methods/"+methodId+"/description.html");
-		String techdescription  = getResource("methods/"+methodId+"/technical_description.html");
+		JsonNode spec                 = getResourceAsJson("methods/"+methodId+"/spec.json");
+		String description                  = getResource("methods/"+methodId+"/description.html");
+		String techdescription              = getResource("methods/"+methodId+"/technical_description.html");
+		Map<String,Object> display = getResourceAsYamlMap("methods/"+methodId+"/display.yaml");
 		
-		NarrativeMethodData data = new NarrativeMethodData(methodId, spec, description, techdescription);
+		NarrativeMethodData data = new NarrativeMethodData(methodId, spec, display, description, techdescription);
 		return data;
 	}
-	
 	
 	
 	protected JsonNode getResourceAsJson(String path) throws JsonProcessingException, IOException {
@@ -124,6 +131,16 @@ public class GitHubDB implements MethodSpecDB {
 		return get(url);
 	}
 	
+	protected Map<String,Object> getResourceAsYamlMap(String path) throws IOException {
+		URL url = new URL(GITHUB_RAW_CONTENT_URL + "/" + owner + "/" + repo + "/"+branch+"/"+path);
+		String document = get(url);
+		@SuppressWarnings("unchecked")
+		Map<String,Object> data = (Map<String, Object>) yaml.load(document);
+		return data;
+	}
+
+	
+	
 	protected JsonNode getAsJson(URL url) throws JsonProcessingException, IOException {
 		return mapper.readTree(get(url));
 	}
@@ -134,7 +151,7 @@ public class GitHubDB implements MethodSpecDB {
 		BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
 		String line;
 		while ((line = in.readLine()) != null) 
-			response.append(line);
+			response.append(line+"\n");
 		in.close();
 		return response.toString();
 	}
