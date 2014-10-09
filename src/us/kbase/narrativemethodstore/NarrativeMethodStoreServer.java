@@ -23,7 +23,12 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
     //BEGIN_CLASS_HEADER
     public static final String SYS_PROP_KB_DEPLOYMENT_CONFIG = "KB_DEPLOYMENT_CONFIG";
     public static final String SERVICE_DEPLOYMENT_NAME = "NarrativeMethodStore";
+    
     public static final String CFG_PROP_GITHUB_RESOURCE_URL = "github-resource-url";
+    public static final String      CFG_PROP_GITHUB_API_URL = "github-api-url";
+    public static final String        CFG_PROP_GITHUB_OWNER = "github-owner";
+    public static final String         CFG_PROP_GITHUB_REPO = "github-repo";
+    public static final String       CFG_PROP_GITHUB_BRANCH = "github-branch";
     
     private static Throwable configError = null;
     private static Map<String, String> config = null;
@@ -50,7 +55,8 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
     		return config;
         if (configError != null)
         	throw new IllegalStateException("There was an error while loading configuration", configError);
-    	throw new IllegalStateException("There was unknown error while service initialization");
+    	throw new IllegalStateException("There was unknown error in service initialization when checking"
+    			+ "the configuration: is the ["+SERVICE_DEPLOYMENT_NAME+"] config group defined?");
     }
     
     private String getGithubResourceUrl() {
@@ -59,11 +65,45 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
     		throw new IllegalStateException("Parameter " + CFG_PROP_GITHUB_RESOURCE_URL + " is not defined in configuration");
     	return ret;
     }
+    private String getGithubApiUrl() {
+    	String ret = config().get(CFG_PROP_GITHUB_API_URL);
+    	if (ret == null)
+    		throw new IllegalStateException("Parameter " + CFG_PROP_GITHUB_API_URL + " is not defined in configuration");
+    	return ret;
+    }
+    private String getGithubOwner() {
+    	String ret = config().get(CFG_PROP_GITHUB_OWNER);
+    	if (ret == null)
+    		throw new IllegalStateException("Parameter " + CFG_PROP_GITHUB_OWNER + " is not defined in configuration");
+    	return ret;
+    }
+    private String getGithubRepo() {
+    	String ret = config().get(CFG_PROP_GITHUB_REPO);
+    	if (ret == null)
+    		throw new IllegalStateException("Parameter " + CFG_PROP_GITHUB_REPO + " is not defined in configuration");
+    	return ret;
+    }
+    private String getGithubBranch() {
+    	String ret = config().get(CFG_PROP_GITHUB_BRANCH);
+    	if (ret == null)
+    		throw new IllegalStateException("Parameter " + CFG_PROP_GITHUB_BRANCH + " is not defined in configuration");
+    	return ret;
+    }
     //END_CLASS_HEADER
 
     public NarrativeMethodStoreServer() throws Exception {
         super("NarrativeMethodStore");
         //BEGIN_CONSTRUCTOR
+        
+        // create the GitHubDB backend
+        System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_GITHUB_RESOURCE_URL +" = " + getGithubResourceUrl());
+        System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_GITHUB_API_URL +" = " + getGithubApiUrl());
+        System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_GITHUB_OWNER +" = " + getGithubOwner());
+        System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_GITHUB_REPO +" = " + getGithubRepo());
+        System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_GITHUB_BRANCH +" = " + getGithubBranch());
+        
+        
+        
         //END_CONSTRUCTOR
     }
 

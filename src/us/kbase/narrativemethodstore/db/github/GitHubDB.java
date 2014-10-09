@@ -3,7 +3,6 @@ package us.kbase.narrativemethodstore.db.github;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 
@@ -18,32 +17,42 @@ import us.kbase.narrativemethodstore.db.MethodSpecDB;
 
 public class GitHubDB implements MethodSpecDB {
 
-	public static final String GITHUB_API_URL = "https://api.github.com";
-	public static final String GITHUB_RAW_CONTENT_URL = "https://raw.githubusercontent.com";
+	public static final String GITHUB_API_URL_DEFAULT = "https://api.github.com";
+	public static final String GITHUB_RAW_CONTENT_URL_DEFAULT = "https://raw.githubusercontent.com";
 	
 	private final ObjectMapper mapper = new ObjectMapper();
 	
+	// github config variables
+	private String GITHUB_API_URL;
+	private String GITHUB_RAW_CONTENT_URL;
+	protected String owner;
+	protected String repo;
+	protected String branch;
+	
+	protected String latest_sha;
+	
 	public GitHubDB(String owner, String repo, String branch) throws JsonProcessingException, IOException {
+		this.initalize(owner, repo, branch, GITHUB_API_URL_DEFAULT, GITHUB_RAW_CONTENT_URL_DEFAULT);
+	}
+	
+	public GitHubDB(String owner, String repo, String branch, String githubApiUrl, String githubResourceUrl) throws JsonProcessingException, IOException {
+		this.initalize(owner, repo, branch, githubApiUrl, githubResourceUrl);
+	}
+	
+	
+	
+	
+	
+	
+	protected void initalize(String owner, String repo, String branch, String githubApiUrl, String githubResourceUrl) {
+		this.GITHUB_API_URL = githubApiUrl;
+		this.GITHUB_RAW_CONTENT_URL = githubResourceUrl;
 		this.owner = owner;
 		this.repo = repo;
 		this.branch = branch;
+		
 		this.latest_sha = "";
-		this.initalize();
-		this.refreshMethodIndex();
-		System.out.println(newDataAvailable());
-	}
-	
-	
-	public String getGithubStatus() {
 		
-		
-		
-		return "";
-	}
-	
-	
-	protected void initalize() {
-
 		try {
 			URL repoInfoUrl = new URL(GITHUB_API_URL + "/repos/" + owner + "/" + repo + "/git/refs/heads/" + branch);
 			JsonNode repoInfo = getAsJson(repoInfoUrl);
@@ -109,11 +118,7 @@ public class GitHubDB implements MethodSpecDB {
 	}
 	 
 	
-	protected String owner;
-	protected String repo;
-	protected String branch;
 	
-	protected String latest_sha;
 	
 	
 	
