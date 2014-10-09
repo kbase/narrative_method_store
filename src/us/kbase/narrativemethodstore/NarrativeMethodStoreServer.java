@@ -1,17 +1,15 @@
 package us.kbase.narrativemethodstore;
 
-import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import org.ini4j.Ini;
-
 import us.kbase.common.service.JsonServerMethod;
 import us.kbase.common.service.JsonServerServlet;
-import us.kbase.narrativemethodstore.db.github.GitHubDB;
 
 //BEGIN_HEADER
+import java.io.File;
+import java.util.ArrayList;
+import org.ini4j.Ini;
+import us.kbase.narrativemethodstore.db.github.GitHubDB;
 //END_HEADER
 
 /**
