@@ -14,8 +14,8 @@ import us.kbase.narrativemethodstore.MethodSpec;
 public class NarrativeMethodData {
 
 	
-	public NarrativeMethodData(String methodId, JsonNode spec, Map<String, Object> display, String descriptionHtml, String technicalDescriptionHtml) {
-		update(methodId, spec, display, descriptionHtml,technicalDescriptionHtml);
+	public NarrativeMethodData(String methodId, JsonNode spec, Map<String, Object> display) {
+		update(methodId, spec, display);
 	}
 	
 	protected String methodId;
@@ -38,22 +38,22 @@ public class NarrativeMethodData {
 	}
 	
 	
-	public void update(String methodId, JsonNode spec, Map<String, Object> display, String descriptionHtml, String technicalDescriptionHtml) {
+	public void update(String methodId, JsonNode spec, Map<String, Object> display) {
 		this.methodId = methodId;
 		
-		//List <String> categories = new ArrayList<String>(1);
-		//JsonNode cats = spec.get("categories");
-		//for(int k=0; k<cats.size(); k++) {
-		//	categories.add(cats.get(k).asText());
-		//}
+		List <String> categories = new ArrayList<String>(1);
+		JsonNode cats = spec.get("categories");
+		for(int k=0; k<cats.size(); k++) {
+			categories.add(cats.get(k).asText());
+		}
 		
 		briefInfo = new MethodBriefInfo()
 							.withId(this.methodId)
 							.withName((String)display.get("name"))
 							.withVer(spec.get("ver").asText())
 							.withSubtitle((String)display.get("subtitle"))
-							.withTooltip((String)display.get("tooltip"));
-							//.withCategories(categories);
+							.withTooltip((String)display.get("tooltip"))
+							.withCategories(categories);
 		
 		List <String> authors = new ArrayList<String>(2);
 		for(int a=0; a<spec.get("authors").size(); a++) {
@@ -66,16 +66,13 @@ public class NarrativeMethodData {
 							.withVer(spec.get("ver").asText())
 							.withSubtitle((String)display.get("subtitle"))
 							.withTooltip((String)display.get("tooltip"))
-							//.withCategories(categories)
+							.withCategories(categories)
 							
 							.withAuthors(null)
 							.withContact(spec.get("contact").asText())
 							
-							.withDescription(descriptionHtml)
-							.withTechnicalDescription(technicalDescriptionHtml);
-		
-		
-		
+							.withDescription((String)display.get("description"))
+							.withTechnicalDescription((String)display.get("technical-description"));
 	}
 	
 	

@@ -72,10 +72,7 @@ public class GitHubDB implements MethodSpecDB {
 		}
 	}
 	
-	
-	
-	
-	/* returns true if the latest commit we have does not match the head commit, false otherwise; if we cannot
+	/** returns true if the latest commit we have does not match the head commit, false otherwise; if we cannot
 	 * connect to github, then we just report that new data is not available */
 	protected boolean newDataAvailable() {
 		URL repoInfoUrl;
@@ -97,26 +94,25 @@ public class GitHubDB implements MethodSpecDB {
 	
 	
 	protected void refreshMethodIndex() throws JsonProcessingException, IOException {
-		//URL methodIndexUrl = new URL(GITHUB_API_URL + "/repos/" + owner + "/" + repo + "/contents/methods/index.json" + "?ref="+branch);
-
 		URL methodIndexUrl = new URL(GITHUB_RAW_CONTENT_URL + "/" + owner + "/" + repo + "/"+branch+"/methods/index.json");
 		
 		JsonNode methodIndex = getAsJson(methodIndexUrl);
 		System.out.println(methodIndex);
 	}
 	
-	//protected boolean isUpToDate
 	
-	//public loadMethodIndex()
+	/*public void loadMethodIndex() {
+		
+	}*/
+	
 	
 	public NarrativeMethodData loadMethodData(String methodId) throws JsonProcessingException, IOException {
-		
-		JsonNode spec                 = getResourceAsJson("methods/"+methodId+"/spec.json");
-		String description                  = getResource("methods/"+methodId+"/description.html");
-		String techdescription              = getResource("methods/"+methodId+"/technical_description.html");
+		// Fetch the resources needed
+		JsonNode spec = getResourceAsJson("methods/"+methodId+"/spec.json");
 		Map<String,Object> display = getResourceAsYamlMap("methods/"+methodId+"/display.yaml");
 		
-		NarrativeMethodData data = new NarrativeMethodData(methodId, spec, display, description, techdescription);
+		// Initialize the actual data
+		NarrativeMethodData data = new NarrativeMethodData(methodId, spec, display);
 		return data;
 	}
 	
@@ -136,9 +132,9 @@ public class GitHubDB implements MethodSpecDB {
 		String document = get(url);
 		@SuppressWarnings("unchecked")
 		Map<String,Object> data = (Map<String, Object>) yaml.load(document);
+		//System.out.println("fetched yaml ("+url+"):\n"+yaml.dump(data));
 		return data;
 	}
-
 	
 	
 	protected JsonNode getAsJson(URL url) throws JsonProcessingException, IOException {
@@ -170,7 +166,7 @@ public class GitHubDB implements MethodSpecDB {
 		
 		NarrativeMethodData data = githubDB.loadMethodData("test_method_1");
 		
-		System.out.println(data);
+		System.out.println(data.getMethodFullInfo().getDescription());
 		
 		return;
 	}
