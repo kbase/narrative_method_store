@@ -3,6 +3,7 @@ package us.kbase.narrativemethodstore.db.github;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 
@@ -11,6 +12,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import us.kbase.narrativemethodstore.db.MethodSpecDB;
+import us.kbase.narrativemethodstore.db.NarrativeMethodData;
 
 
 
@@ -100,7 +102,27 @@ public class GitHubDB implements MethodSpecDB {
 	
 	
 	
+	public NarrativeMethodData loadMethodData(String methodId) throws JsonProcessingException, IOException {
+		
+		JsonNode spec     = getResourceAsJson("methods/"+methodId+"/spec.json");
+		String description      = getResource("methods/"+methodId+"/description.html");
+		String techdescription  = getResource("methods/"+methodId+"/technical_description.html");
+		
+		NarrativeMethodData data = new NarrativeMethodData(methodId, spec, description, techdescription);
+		return data;
+	}
 	
+	
+	
+	protected JsonNode getResourceAsJson(String path) throws JsonProcessingException, IOException {
+		URL url = new URL(GITHUB_RAW_CONTENT_URL + "/" + owner + "/" + repo + "/"+branch+"/"+path);
+		return getAsJson(url);
+	}
+	
+	protected String getResource(String path) throws IOException {
+		URL url = new URL(GITHUB_RAW_CONTENT_URL + "/" + owner + "/" + repo + "/"+branch+"/"+path);
+		return get(url);
+	}
 	
 	protected JsonNode getAsJson(URL url) throws JsonProcessingException, IOException {
 		return mapper.readTree(get(url));
@@ -129,7 +151,9 @@ public class GitHubDB implements MethodSpecDB {
 		
 		GitHubDB githubDB = new GitHubDB("msneddon","narrative_method_specs","master");
 		
+		NarrativeMethodData data = githubDB.loadMethodData("test_method_1");
 		
+		System.out.println(data);
 		
 		return;
 	}

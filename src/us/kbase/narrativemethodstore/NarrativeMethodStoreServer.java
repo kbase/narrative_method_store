@@ -1,6 +1,7 @@
 package us.kbase.narrativemethodstore;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -8,6 +9,7 @@ import org.ini4j.Ini;
 
 import us.kbase.common.service.JsonServerMethod;
 import us.kbase.common.service.JsonServerServlet;
+import us.kbase.narrativemethodstore.db.github.GitHubDB;
 
 //BEGIN_HEADER
 //END_HEADER
@@ -193,6 +195,19 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
     public List<MethodBriefInfo> getMethodBriefInfo(GetMethodParams params) throws Exception {
         List<MethodBriefInfo> returnVal = null;
         //BEGIN get_method_brief_info
+        
+        /// SIMPLE TEST
+        /// TODO switch to proper cached version, this always pulls everything fresh from git
+        List <String> methodIds = params.getIds();
+        returnVal = new ArrayList<MethodBriefInfo>(methodIds.size());
+        
+        GitHubDB githubDB = new GitHubDB(getGithubOwner(),getGithubRepo(), getGithubBranch(), getGithubApiUrl(), getGithubResourceUrl());
+        for(String id: methodIds) {
+        	returnVal.add(githubDB.loadMethodData(id).getMethodBriefInfo());
+        }
+        /// END SIMPLE TEST
+        
+        
         //END get_method_brief_info
         return returnVal;
     }
@@ -208,6 +223,19 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
     public List<MethodFullInfo> getMethodFullInfo(GetMethodParams params) throws Exception {
         List<MethodFullInfo> returnVal = null;
         //BEGIN get_method_full_info
+        
+      /// SIMPLE TEST
+        /// TODO switch to proper cached version, this always pulls everything fresh from git
+        List <String> methodIds = params.getIds();
+        returnVal = new ArrayList<MethodFullInfo>(methodIds.size());
+        
+        GitHubDB githubDB = new GitHubDB(getGithubOwner(),getGithubRepo(), getGithubBranch(), getGithubApiUrl(), getGithubResourceUrl());
+        for(String id: methodIds) {
+        	returnVal.add(githubDB.loadMethodData(id).getMethodFullInfo());
+        }
+        /// END SIMPLE TEST
+        
+        
         //END get_method_full_info
         return returnVal;
     }
