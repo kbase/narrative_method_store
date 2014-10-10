@@ -18,6 +18,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import us.kbase.narrativemethodstore.db.NarrativeCategoriesIndex;
 import us.kbase.narrativemethodstore.db.NarrativeMethodData;
 import us.kbase.narrativemethodstore.exceptions.NarrativeMethodStoreException;
 import us.kbase.narrativemethodstore.exceptions.NarrativeMethodStoreInitializationException;
@@ -29,11 +30,16 @@ public class LocalGitDB {
 	protected final String gitBranch;
 	protected final File gitLocalPath;
 	protected final int refreshTimeInMinutes;
+	
 	protected final ObjectMapper mapper = new ObjectMapper();
 	protected final Yaml yaml = new Yaml();
 	
 	protected long lastPullTime = -1;
-
+	
+	protected NarrativeCategoriesIndex narCatIndex;
+	// TODO add method data cache
+	//protected NarrativeMethodDataCache narMethodCache; ????
+	
 	public LocalGitDB(URL gitRepoUrl, String branch, File localPath, 
 			int refreshTimeInMinutes) throws NarrativeMethodStoreInitializationException {
 		this.gitRepoUrl = gitRepoUrl;
@@ -43,6 +49,11 @@ public class LocalGitDB {
 		if (!localPath.exists())
 			localPath.mkdirs();
 		initializeLocalRepo();
+		try {
+			loadCategoriesIndex();
+		} catch(NarrativeMethodStoreException e) {
+			throw new NarrativeMethodStoreInitializationException(e.getMessage(), e);
+		}
 	}
 	
 	protected void initializeLocalRepo() throws NarrativeMethodStoreInitializationException {
@@ -54,7 +65,6 @@ public class LocalGitDB {
 		String cloneStatus = gitClone();
 		this.lastPullTime = System.currentTimeMillis();
 		System.out.println(cloneStatus);
-		//System.out.println(gitPull());
 	}
 
 	/**
@@ -68,6 +78,13 @@ public class LocalGitDB {
 		} catch (IOException e) {
 			throw new NarrativeMethodStoreInitializationException("Cannot clone "+gitRepoUrl+": " + e.getMessage(), e);
 		}
+	}
+	
+	/**
+	 * Runs a git pull on the local git spec repo.
+	 */
+	protected String gitPull() throws NarrativeMethodStoreInitializationException {
+		return gitCommand("git pull", "pull", gitLocalPath);
 	}
 	
 	protected String gitCommand(String fullCmd, String nameOfCmd, File curDir) throws NarrativeMethodStoreInitializationException {
@@ -110,12 +127,6 @@ public class LocalGitDB {
 		return ret;
 	}
 	
-	/**
-	 * Runs a git pull on the local git spec repo.
-	 */
-	protected String gitPull() throws NarrativeMethodStoreInitializationException {
-		return gitCommand("git pull", "pull", gitLocalPath);
-	}
 	
 	/**
 	 * We need to call this method at the beginning of every public access method.
@@ -134,6 +145,10 @@ public class LocalGitDB {
 				if (ret.contains(" categories/") || ret.contains(" methods/")) {
 					// Refresh all caches here
 					System.out.println("Need to refresh caches");
+					
+					// recreate the categories index
+					loadCategoriesIndex();
+					
 				} else {
 					System.out.println("There was some change in repo but it didn't touch methods or categories");
 				}
@@ -183,6 +198,54 @@ public class LocalGitDB {
 			throw new NarrativeMethodStoreException(ex);
 		}
 	}
+	
+	
+	public List<String> listCategoryIds() throws NarrativeMethodStoreException {
+		checkForChanges();
+		List <String> catList = new ArrayList<String>();
+		for (File sub : getCategoriesDir().listFiles()) {
+			if (sub.isDirectory())
+				catList.add(sub.getName());
+		}
+		return catList;
+	}
+	
+	
+	public NarrativeCategoriesIndex getCategoriesIndex() {
+		checkForChanges();
+		return narCatIndex;
+	}
+	
+	/**
+	 * Reloads from files the entire categories index
+	 */
+	protected synchronized void loadCategoriesIndex() throws NarrativeMethodStoreException {
+		
+		narCatIndex = new NarrativeCategoriesIndex();  // create a new index
+		try {
+			List<String> catIds = listCategoryIds(); // iterate over each category
+			for(String catId : catIds) {
+				JsonNode spec = getResourceAsJson("categories/"+catId+"/spec.json");
+				//Map<String,Object> display = getResourceAsYamlMap("categories/"+catId+"/display.yaml");
+				Map<String,Object> display = null;
+				narCatIndex.addOrUpdateCategory(catId, spec, display);
+			}
+			
+			List<String> methIds = listMethodIds(); // iterate over each category
+			for(String mId : methIds) {
+				// TODO: check cache for data instead of loading it all directly
+				NarrativeMethodData data = loadMethodData(mId);
+				narCatIndex.addOrUpdateMethod(mId, data.getMethodBriefInfo());
+			}
+		} catch (IOException e) {
+			throw new NarrativeMethodStoreException("Cannot load category index : "+e.getMessage(),e);
+		}
+		
+		return;
+	}
+	
+	
+	
 	
 	
 	protected JsonNode getResourceAsJson(String path) throws JsonProcessingException, IOException {
@@ -238,6 +301,8 @@ public class LocalGitDB {
 		String mId = db.listMethodIds().get(0);
 		NarrativeMethodData data = db.loadMethodData(mId);
 		System.out.println(mId + ", " + data.getMethodFullInfo().getDescription());
+		
+		
 	}
 
 }

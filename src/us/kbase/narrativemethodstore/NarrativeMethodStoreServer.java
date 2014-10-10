@@ -1,11 +1,14 @@
 package us.kbase.narrativemethodstore;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import us.kbase.common.service.JsonServerMethod;
 import us.kbase.common.service.JsonServerServlet;
 import us.kbase.common.service.Tuple2;
+
+
 
 
 
@@ -16,6 +19,7 @@ import java.util.ArrayList;
 
 import org.ini4j.Ini;
 
+import us.kbase.narrativemethodstore.db.NarrativeCategoriesIndex;
 import us.kbase.narrativemethodstore.db.github.LocalGitDB;
 //END_HEADER
 
@@ -136,6 +140,19 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
         Map<String,Category> return1 = null;
         Map<String,MethodBriefInfo> return2 = null;
         //BEGIN list_categories
+        boolean returnLoadedMethods = false;
+        if(params.getLoadMethods()!=null) {
+        	if(params.getLoadMethods()==1) {
+        		returnLoadedMethods = true;
+        	}
+        }
+        NarrativeCategoriesIndex narCatIndex = localGitDB.getCategoriesIndex();
+        return1 = narCatIndex.getCategories();
+        if(returnLoadedMethods) {
+        	return2 = narCatIndex.getMethods();
+        } else {
+        	return2 = new HashMap<String,MethodBriefInfo>();
+        }
         //END list_categories
         Tuple2<Map<String,Category>, Map<String,MethodBriefInfo>> returnVal = new Tuple2<Map<String,Category>, Map<String,MethodBriefInfo>>();
         returnVal.setE1(return1);
