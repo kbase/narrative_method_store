@@ -6,10 +6,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.PrintStream;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -42,7 +39,9 @@ public class GitHubDB implements MethodSpecDB {
 	protected String branch;
 	
 	protected String latest_sha;
-	
+
+	protected File repoRootDir = new File("../narrative_method_specs");
+
 	public GitHubDB(String owner, String repo, String branch) throws JsonProcessingException, IOException {
 		this.initalize(owner, repo, branch, GITHUB_API_URL_DEFAULT, GITHUB_RAW_CONTENT_URL_DEFAULT);
 	}
@@ -65,19 +64,19 @@ public class GitHubDB implements MethodSpecDB {
 		
 		this.latest_sha = "";
 		
-		try {
+		/*try {
 			URL repoInfoUrl = new URL(GITHUB_API_URL + "/repos/" + owner + "/" + repo + "/git/refs/heads/" + branch);
 			JsonNode repoInfo = getAsJson(repoInfoUrl);
 			latest_sha = repoInfo.get("object").get("sha").textValue();
 			System.out.println(latest_sha);
 		} catch (IOException e) {
 			
-		}
+		}*/
 	}
 	
 	/** returns true if the latest commit we have does not match the head commit, false otherwise; if we cannot
 	 * connect to github, then we just report that new data is not available */
-	protected boolean newDataAvailable() {
+	/*protected boolean newDataAvailable() {
 		URL repoInfoUrl;
 		try {
 			repoInfoUrl = new URL(GITHUB_API_URL + "/repos/" + owner + "/" + repo + "/git/refs/heads/" + branch);
@@ -91,27 +90,35 @@ public class GitHubDB implements MethodSpecDB {
 		} catch (IOException e) {
 			return false;
 		}
-	}
+	}*/
 	
 	protected JsonNode methodIndex;
 	
 	
-	protected void refreshMethodIndex() throws JsonProcessingException, IOException {
+	/*protected void refreshMethodIndex() throws JsonProcessingException, IOException {
 		URL methodIndexUrl = new URL(GITHUB_RAW_CONTENT_URL + "/" + owner + "/" + repo + "/"+branch+"/methods/index.json");
 		
 		JsonNode methodIndex = getAsJson(methodIndexUrl);
 		System.out.println(methodIndex);
+	}*/
+	
+	protected File getMethodsDir() {
+		return new File(repoRootDir, "methods");
 	}
 	
-	
-	public void loadMethodIndex() throws JsonProcessingException, MalformedURLException, IOException {
-		JsonNode methodListJson = getAsJson(new URL(GITHUB_API_URL + "/repos/" + owner + "/" + repo + "/contents/methods?ref=" + branch));
+	public List<String> listMethodIds() throws IOException {
+		//JsonNode methodListJson = getAsJson(new URL(GITHUB_API_URL + "/repos/" + owner + "/" + repo + "/contents/methods?ref=" + branch));
 		
-		List <String> methodList = new ArrayList<String>(methodListJson.size());
-		for(int m=0; m<methodListJson.size(); m++) {
+		List <String> methodList = new ArrayList<String>();  //methodListJson.size());
+		/*for(int m=0; m<methodListJson.size(); m++) {
 			if(methodListJson.get(m).get("type").asText().equals("dir")) {
 				methodList.add(methodListJson.get(m).get("name").asText());
 			}
+		}*/
+		
+		for (File sub : getMethodsDir().listFiles()) {
+			if (sub.isDirectory())
+				methodList.add(sub.getName());
 		}
 		
 		System.out.println("method list:");
@@ -119,6 +126,7 @@ public class GitHubDB implements MethodSpecDB {
 			System.out.println(" --- "+id);
 		}
 		
+		return methodList;
 	}
 	
 	
@@ -134,18 +142,18 @@ public class GitHubDB implements MethodSpecDB {
 	
 	
 	protected JsonNode getResourceAsJson(String path) throws JsonProcessingException, IOException {
-		URL url = new URL(GITHUB_RAW_CONTENT_URL + "/" + owner + "/" + repo + "/"+branch+"/"+path);
-		return getAsJson(url);
+		File f = new File(repoRootDir, path);
+		return getAsJson(f);
 	}
 	
 	protected String getResource(String path) throws IOException {
-		URL url = new URL(GITHUB_RAW_CONTENT_URL + "/" + owner + "/" + repo + "/"+branch+"/"+path);
-		return get(url);
+		File f = new File(repoRootDir, path);
+		return get(f);
 	}
 	
 	protected Map<String,Object> getResourceAsYamlMap(String path) throws IOException {
-		URL url = new URL(GITHUB_RAW_CONTENT_URL + "/" + owner + "/" + repo + "/"+branch+"/"+path);
-		String document = get(url);
+		File f = new File(repoRootDir, path);
+		String document = get(f);
 		@SuppressWarnings("unchecked")
 		Map<String,Object> data = (Map<String, Object>) yaml.load(document);
 		//System.out.println("fetched yaml ("+url+"):\n"+yaml.dump(data));
@@ -153,14 +161,21 @@ public class GitHubDB implements MethodSpecDB {
 	}
 	
 	
-	protected JsonNode getAsJson(URL url) throws JsonProcessingException, IOException {
-		return mapper.readTree(get(url));
+	protected JsonNode getAsJson(File f) throws JsonProcessingException, IOException {
+		return mapper.readTree(get(f));
 	}
 	
 	protected String get(URL url) throws IOException {
+		return get(url.openStream());
+	}
+	
+	protected String get(File f) throws IOException {
+		return get(new FileInputStream(f));
+	}
+	
+	protected String get(InputStream is) throws IOException {
 		StringBuilder response = new StringBuilder();
-		URLConnection conn = url.openConnection();
-		BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+		BufferedReader in = new BufferedReader(new InputStreamReader(is));
 		String line;
 		while ((line = in.readLine()) != null) 
 			response.append(line+"\n");
@@ -179,11 +194,12 @@ public class GitHubDB implements MethodSpecDB {
 		
 		
 		GitHubDB githubDB = new GitHubDB("msneddon","narrative_method_specs","master");
+
+		String mId = githubDB.listMethodIds().get(0);
+
+		NarrativeMethodData data = githubDB.loadMethodData(mId);
 		
-		NarrativeMethodData data = githubDB.loadMethodData("test_method_1");
-		
-		System.out.println(data.getMethodFullInfo().getDescription());
-		githubDB.loadMethodIndex();
+		System.out.println(mId + ", " + data.getMethodFullInfo().getDescription());
 		return;
 	}
 	
