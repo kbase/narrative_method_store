@@ -27,127 +27,127 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
     "ver",
     "subtitle",
     "tooltip",
-    "categorizations"
+    "categories"
 })
 public class MethodBriefInfo {
 
     @JsonProperty("id")
-    private String id;
+    private java.lang.String id;
     @JsonProperty("name")
-    private String name;
+    private java.lang.String name;
     @JsonProperty("ver")
-    private String ver;
+    private java.lang.String ver;
     @JsonProperty("subtitle")
-    private String subtitle;
+    private java.lang.String subtitle;
     @JsonProperty("tooltip")
-    private String tooltip;
-    @JsonProperty("categorizations")
-    private List<Categorization> categorizations;
-    private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+    private java.lang.String tooltip;
+    @JsonProperty("categories")
+    private List<String> categories;
+    private Map<java.lang.String, Object> additionalProperties = new HashMap<java.lang.String, Object>();
 
     @JsonProperty("id")
-    public String getId() {
+    public java.lang.String getId() {
         return id;
     }
 
     @JsonProperty("id")
-    public void setId(String id) {
+    public void setId(java.lang.String id) {
         this.id = id;
     }
 
-    public MethodBriefInfo withId(String id) {
+    public MethodBriefInfo withId(java.lang.String id) {
         this.id = id;
         return this;
     }
 
     @JsonProperty("name")
-    public String getName() {
+    public java.lang.String getName() {
         return name;
     }
 
     @JsonProperty("name")
-    public void setName(String name) {
+    public void setName(java.lang.String name) {
         this.name = name;
     }
 
-    public MethodBriefInfo withName(String name) {
+    public MethodBriefInfo withName(java.lang.String name) {
         this.name = name;
         return this;
     }
 
     @JsonProperty("ver")
-    public String getVer() {
+    public java.lang.String getVer() {
         return ver;
     }
 
     @JsonProperty("ver")
-    public void setVer(String ver) {
+    public void setVer(java.lang.String ver) {
         this.ver = ver;
     }
 
-    public MethodBriefInfo withVer(String ver) {
+    public MethodBriefInfo withVer(java.lang.String ver) {
         this.ver = ver;
         return this;
     }
 
     @JsonProperty("subtitle")
-    public String getSubtitle() {
+    public java.lang.String getSubtitle() {
         return subtitle;
     }
 
     @JsonProperty("subtitle")
-    public void setSubtitle(String subtitle) {
+    public void setSubtitle(java.lang.String subtitle) {
         this.subtitle = subtitle;
     }
 
-    public MethodBriefInfo withSubtitle(String subtitle) {
+    public MethodBriefInfo withSubtitle(java.lang.String subtitle) {
         this.subtitle = subtitle;
         return this;
     }
 
     @JsonProperty("tooltip")
-    public String getTooltip() {
+    public java.lang.String getTooltip() {
         return tooltip;
     }
 
     @JsonProperty("tooltip")
-    public void setTooltip(String tooltip) {
+    public void setTooltip(java.lang.String tooltip) {
         this.tooltip = tooltip;
     }
 
-    public MethodBriefInfo withTooltip(String tooltip) {
+    public MethodBriefInfo withTooltip(java.lang.String tooltip) {
         this.tooltip = tooltip;
         return this;
     }
 
-    @JsonProperty("categorizations")
-    public List<Categorization> getCategorizations() {
-        return categorizations;
+    @JsonProperty("categories")
+    public List<String> getCategories() {
+        return categories;
     }
 
-    @JsonProperty("categorizations")
-    public void setCategorizations(List<Categorization> categorizations) {
-        this.categorizations = categorizations;
+    @JsonProperty("categories")
+    public void setCategories(List<String> categories) {
+        this.categories = categories;
     }
 
-    public MethodBriefInfo withCategorizations(List<Categorization> categorizations) {
-        this.categorizations = categorizations;
+    public MethodBriefInfo withCategories(List<String> categories) {
+        this.categories = categories;
         return this;
     }
 
     @JsonAnyGetter
-    public Map<String, Object> getAdditionalProperties() {
+    public Map<java.lang.String, Object> getAdditionalProperties() {
         return this.additionalProperties;
     }
 
     @JsonAnySetter
-    public void setAdditionalProperties(String name, Object value) {
+    public void setAdditionalProperties(java.lang.String name, Object value) {
         this.additionalProperties.put(name, value);
     }
 
     @Override
-    public String toString() {
-        return ((((((((((((((("MethodBriefInfo"+" [id=")+ id)+", name=")+ name)+", ver=")+ ver)+", subtitle=")+ subtitle)+", tooltip=")+ tooltip)+", categorizations=")+ categorizations)+", additionalProperties=")+ additionalProperties)+"]");
+    public java.lang.String toString() {
+        return ((((((((((((((("MethodBriefInfo"+" [id=")+ id)+", name=")+ name)+", ver=")+ ver)+", subtitle=")+ subtitle)+", tooltip=")+ tooltip)+", categories=")+ categories)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }

@@ -71,6 +71,7 @@
     <include name="apache_commons/commons-lang-2.4.jar"/>
     <include name="apache_commons/commons-logging-1.1.1.jar"/>
     <include name="apache_commons/commons-configuration-1.10.jar"/>
+    <include name="snakeyaml/snakeyaml-1.11.jar"/>
   </fileset>
 	
   <union id="serverside">

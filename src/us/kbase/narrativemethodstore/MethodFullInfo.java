@@ -31,7 +31,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
     "tooltip",
     "description",
     "technical_description",
-    "categorizations",
+    "categories",
     "screenshots"
 })
 public class MethodFullInfo {
@@ -54,8 +54,8 @@ public class MethodFullInfo {
     private java.lang.String description;
     @JsonProperty("technical_description")
     private java.lang.String technicalDescription;
-    @JsonProperty("categorizations")
-    private List<Categorization> categorizations;
+    @JsonProperty("categories")
+    private List<String> categories;
     @JsonProperty("screenshots")
     private List<ScreenShot> screenshots;
     private Map<java.lang.String, Object> additionalProperties = new HashMap<java.lang.String, Object>();
@@ -195,18 +195,18 @@ public class MethodFullInfo {
         return this;
     }
 
-    @JsonProperty("categorizations")
-    public List<Categorization> getCategorizations() {
-        return categorizations;
+    @JsonProperty("categories")
+    public List<String> getCategories() {
+        return categories;
     }
 
-    @JsonProperty("categorizations")
-    public void setCategorizations(List<Categorization> categorizations) {
-        this.categorizations = categorizations;
+    @JsonProperty("categories")
+    public void setCategories(List<String> categories) {
+        this.categories = categories;
     }
 
-    public MethodFullInfo withCategorizations(List<Categorization> categorizations) {
-        this.categorizations = categorizations;
+    public MethodFullInfo withCategories(List<String> categories) {
+        this.categories = categories;
         return this;
     }
 
@@ -237,7 +237,7 @@ public class MethodFullInfo {
 
     @Override
     public java.lang.String toString() {
-        return ((((((((((((((((((((((((("MethodFullInfo"+" [id=")+ id)+", name=")+ name)+", ver=")+ ver)+", authors=")+ authors)+", contact=")+ contact)+", subtitle=")+ subtitle)+", tooltip=")+ tooltip)+", description=")+ description)+", technicalDescription=")+ technicalDescription)+", categorizations=")+ categorizations)+", screenshots=")+ screenshots)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((((((((((((((((((((("MethodFullInfo"+" [id=")+ id)+", name=")+ name)+", ver=")+ ver)+", authors=")+ authors)+", contact=")+ contact)+", subtitle=")+ subtitle)+", tooltip=")+ tooltip)+", description=")+ description)+", technicalDescription=")+ technicalDescription)+", categories=")+ categories)+", screenshots=")+ screenshots)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }

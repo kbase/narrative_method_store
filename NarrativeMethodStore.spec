@@ -13,21 +13,15 @@ module NarrativeMethodStore {
     typedef string username;
     typedef string email;
 
-	typedef structure {
-		string id;
-		string name;
-		string ver;
-		string tooltip;
-		string description;
-		list<string> parent_ids;
-	} Category;
-
-    /* Organization of where in a menu the method should appear */
     typedef structure {
-    	string category_id;
-    	list<string> named_path;
-    } categorization;
-    
+	string id;
+	string name;
+	string ver;
+	string tooltip;
+	string description;
+	list<string> parent_ids;
+    } Category;
+
     /* Minimal information about a method suitable for displaying the method in a menu or navigator. */
     typedef structure {
         string id;
@@ -35,7 +29,7 @@ module NarrativeMethodStore {
         string ver;
         string subtitle;
         string tooltip;
-        list<categorization> categorizations;
+        list<string> categories;
     } MethodBriefInfo;
     
     typedef structure {
@@ -55,7 +49,7 @@ module NarrativeMethodStore {
         string description;
         string technical_description;
         
-        list<categorization> categorizations;
+        list<string> categories;
         
         list<ScreenShot> screenshots;
         
