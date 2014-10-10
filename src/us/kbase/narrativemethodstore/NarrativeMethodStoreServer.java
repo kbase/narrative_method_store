@@ -2,15 +2,21 @@ package us.kbase.narrativemethodstore;
 
 import java.util.List;
 import java.util.Map;
+
 import us.kbase.common.service.JsonServerMethod;
 import us.kbase.common.service.JsonServerServlet;
 import us.kbase.common.service.Tuple2;
 
+
+
 //BEGIN_HEADER
 import java.io.File;
+import java.net.URL;
 import java.util.ArrayList;
+
 import org.ini4j.Ini;
-import us.kbase.narrativemethodstore.db.github.GitHubDB;
+
+import us.kbase.narrativemethodstore.db.github.LocalGitDB;
 //END_HEADER
 
 /**
@@ -25,11 +31,10 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
     public static final String SYS_PROP_KB_DEPLOYMENT_CONFIG = "KB_DEPLOYMENT_CONFIG";
     public static final String SERVICE_DEPLOYMENT_NAME = "NarrativeMethodStore";
     
-    public static final String CFG_PROP_GITHUB_RESOURCE_URL = "github-resource-url";
-    public static final String      CFG_PROP_GITHUB_API_URL = "github-api-url";
-    public static final String        CFG_PROP_GITHUB_OWNER = "github-owner";
-    public static final String         CFG_PROP_GITHUB_REPO = "github-repo";
-    public static final String       CFG_PROP_GITHUB_BRANCH = "github-branch";
+    public static final String         CFG_PROP_GIT_REPO = "method-spec-git-repo";
+    public static final String       CFG_PROP_GIT_BRANCH = "method-spec-git-repo-branch";
+    public static final String    CFG_PROP_GIT_LOCAL_DIR = "method-spec-git-repo-local-dir";
+    public static final String CFG_PROP_GIT_REFRESH_RATE = "method-spec-git-repo-refresh-rate";
     
     private static Throwable configError = null;
     private static Map<String, String> config = null;
@@ -60,50 +65,45 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
     			+ "the configuration: is the ["+SERVICE_DEPLOYMENT_NAME+"] config group defined?");
     }
     
-    private String getGithubResourceUrl() {
-    	String ret = config().get(CFG_PROP_GITHUB_RESOURCE_URL);
+    private String getGitRepo() {
+    	String ret = config().get(CFG_PROP_GIT_REPO);
     	if (ret == null)
-    		throw new IllegalStateException("Parameter " + CFG_PROP_GITHUB_RESOURCE_URL + " is not defined in configuration");
+    		throw new IllegalStateException("Parameter " + CFG_PROP_GIT_REPO + " is not defined in configuration");
     	return ret;
     }
-    private String getGithubApiUrl() {
-    	String ret = config().get(CFG_PROP_GITHUB_API_URL);
+    private String getGitBranch() {
+    	String ret = config().get(CFG_PROP_GIT_BRANCH);
     	if (ret == null)
-    		throw new IllegalStateException("Parameter " + CFG_PROP_GITHUB_API_URL + " is not defined in configuration");
+    		throw new IllegalStateException("Parameter " + CFG_PROP_GIT_BRANCH + " is not defined in configuration");
     	return ret;
     }
-    private String getGithubOwner() {
-    	String ret = config().get(CFG_PROP_GITHUB_OWNER);
+    private String getGitLocalDir() {
+    	String ret = config().get(CFG_PROP_GIT_LOCAL_DIR);
     	if (ret == null)
-    		throw new IllegalStateException("Parameter " + CFG_PROP_GITHUB_OWNER + " is not defined in configuration");
+    		throw new IllegalStateException("Parameter " + CFG_PROP_GIT_LOCAL_DIR + " is not defined in configuration");
     	return ret;
     }
-    private String getGithubRepo() {
-    	String ret = config().get(CFG_PROP_GITHUB_REPO);
+    private String getGitRefreshRate() {
+    	String ret = config().get(CFG_PROP_GIT_REFRESH_RATE);
     	if (ret == null)
-    		throw new IllegalStateException("Parameter " + CFG_PROP_GITHUB_REPO + " is not defined in configuration");
+    		throw new IllegalStateException("Parameter " + CFG_PROP_GIT_REFRESH_RATE + " is not defined in configuration");
     	return ret;
     }
-    private String getGithubBranch() {
-    	String ret = config().get(CFG_PROP_GITHUB_BRANCH);
-    	if (ret == null)
-    		throw new IllegalStateException("Parameter " + CFG_PROP_GITHUB_BRANCH + " is not defined in configuration");
-    	return ret;
-    }
+    
+    private LocalGitDB localGitDB;
+    
     //END_CLASS_HEADER
 
     public NarrativeMethodStoreServer() throws Exception {
         super("NarrativeMethodStore");
         //BEGIN_CONSTRUCTOR
         
-        // create the GitHubDB backend
-        System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_GITHUB_RESOURCE_URL +" = " + getGithubResourceUrl());
-        System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_GITHUB_API_URL +" = " + getGithubApiUrl());
-        System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_GITHUB_OWNER +" = " + getGithubOwner());
-        System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_GITHUB_REPO +" = " + getGithubRepo());
-        System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_GITHUB_BRANCH +" = " + getGithubBranch());
+        System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_GIT_REPO +" = " + getGitRepo());
+        System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_GIT_BRANCH +" = " + getGitBranch());
+        System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_GIT_LOCAL_DIR +" = " + getGitLocalDir());
+        System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_GIT_REFRESH_RATE +" = " + getGitRefreshRate());
         
-        
+        localGitDB = new LocalGitDB(new URL(getGitRepo()), getGitBranch(), new File(getGitLocalDir()), Integer.parseInt(getGitRefreshRate()));
         
         //END_CONSTRUCTOR
     }
@@ -218,10 +218,8 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
         /// TODO switch to proper cached version, this always pulls everything fresh from git
         List <String> methodIds = params.getIds();
         returnVal = new ArrayList<MethodBriefInfo>(methodIds.size());
-        
-        GitHubDB githubDB = new GitHubDB(getGithubOwner(),getGithubRepo(), getGithubBranch(), getGithubApiUrl(), getGithubResourceUrl());
         for(String id: methodIds) {
-        	returnVal.add(githubDB.loadMethodData(id).getMethodBriefInfo());
+        	returnVal.add(localGitDB.loadMethodData(id).getMethodBriefInfo());
         }
         /// END SIMPLE TEST
         
@@ -241,15 +239,10 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
     public List<MethodFullInfo> getMethodFullInfo(GetMethodParams params) throws Exception {
         List<MethodFullInfo> returnVal = null;
         //BEGIN get_method_full_info
-        
-      /// SIMPLE TEST
-        /// TODO switch to proper cached version, this always pulls everything fresh from git
         List <String> methodIds = params.getIds();
         returnVal = new ArrayList<MethodFullInfo>(methodIds.size());
-        
-        GitHubDB githubDB = new GitHubDB(getGithubOwner(),getGithubRepo(), getGithubBranch(), getGithubApiUrl(), getGithubResourceUrl());
         for(String id: methodIds) {
-        	returnVal.add(githubDB.loadMethodData(id).getMethodFullInfo());
+        	returnVal.add(localGitDB.loadMethodData(id).getMethodFullInfo());
         }
         /// END SIMPLE TEST
         
