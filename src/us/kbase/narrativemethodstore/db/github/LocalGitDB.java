@@ -6,7 +6,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,16 +25,21 @@ import us.kbase.narrativemethodstore.exceptions.NarrativeMethodStoreInitializati
 public class LocalGitDB {
 
 	
-	protected URL gitRepoUrl;
-	protected String gitBranch;
-	protected File gitLocalPath;
-	private final ObjectMapper mapper = new ObjectMapper();
-	private final Yaml yaml = new Yaml();
+	protected final URL gitRepoUrl;
+	protected final String gitBranch;
+	protected final File gitLocalPath;
+	protected final int refreshTimeInMinutes;
+	protected final ObjectMapper mapper = new ObjectMapper();
+	protected final Yaml yaml = new Yaml();
 	
-	public LocalGitDB(URL gitRepoUrl, String branch, File localPath) throws NarrativeMethodStoreInitializationException {
+	protected long lastPullTime = -1;
+
+	public LocalGitDB(URL gitRepoUrl, String branch, File localPath, 
+			int refreshTimeInMinutes) throws NarrativeMethodStoreInitializationException {
 		this.gitRepoUrl = gitRepoUrl;
 		this.gitBranch = branch;
 		this.gitLocalPath = localPath;
+		this.refreshTimeInMinutes = refreshTimeInMinutes;
 		if (!localPath.exists())
 			localPath.mkdirs();
 		initializeLocalRepo();
@@ -48,8 +52,9 @@ public class LocalGitDB {
 			throw new NarrativeMethodStoreInitializationException("Cannot clone "+gitRepoUrl+", error deleting old directory: " + e.getMessage(), e);
 		}
 		String cloneStatus = gitClone();
+		this.lastPullTime = System.currentTimeMillis();
 		System.out.println(cloneStatus);
-		System.out.println(gitPull());
+		//System.out.println(gitPull());
 	}
 
 	/**
@@ -112,25 +117,33 @@ public class LocalGitDB {
 		return gitCommand("git pull", "pull", gitLocalPath);
 	}
 	
-	
-	
-	
-	public static void main(String[] args) throws NarrativeMethodStoreInitializationException, 
-			MalformedURLException, NarrativeMethodStoreException {
-		
-		String giturl = "https://github.com/msneddon/narrative_method_specs.git";
-		String branch = "dev";
-		//String localpath = "/kb/deployment/services/narrative_method_store/narrative_method_specs";
-		String localpath = "temp_files/narrative_method_specs";
-		LocalGitDB db = new LocalGitDB(new URL(giturl), branch, new File(localpath));
-		
-		String mId = db.listMethodIds().get(0);
-
-		NarrativeMethodData data = db.loadMethodData(mId);
-		
-		System.out.println(mId + ", " + data.getMethodFullInfo().getDescription());
-	}
-	
+	/**
+	 * We need to call this method at the beginning of every public access method.
+	 * This method refreshes file copy of specs-repo if it's necessary and clear
+	 * caches in case something was changed.
+	 */
+	protected synchronized void checkForChanges() {
+		if (System.currentTimeMillis() < lastPullTime + refreshTimeInMinutes * 60000)
+			return;
+		lastPullTime = System.currentTimeMillis();
+		try {
+			String ret = gitPull();
+			if (ret != null && ret.startsWith("Already up-to-date."))
+				return;
+			if (ret.contains("Updating") && ret.contains("Fast-forward")) {
+				if (ret.contains(" categories/") || ret.contains(" methods/")) {
+					// Refresh all caches here
+					System.out.println("Need to refresh caches");
+				} else {
+					System.out.println("There was some change in repo but it didn't touch methods or categories");
+				}
+			} else {
+				System.err.println("Problems doing git pull:\n" + ret);
+			}
+		} catch (Exception ex) {
+			System.err.println("Error doing git pull: " + ex.getMessage());
+		}
+	}	
 	
 	protected File getMethodsDir() {
 		return new File(gitLocalPath, "methods");
@@ -141,6 +154,7 @@ public class LocalGitDB {
 	}
 
 	public List<String> listMethodIds() throws NarrativeMethodStoreException {
+		checkForChanges();
 		List <String> methodList = new ArrayList<String>();  //methodListJson.size());
 		for (File sub : getMethodsDir().listFiles()) {
 			if (sub.isDirectory())
@@ -156,6 +170,7 @@ public class LocalGitDB {
 
 	
 	public NarrativeMethodData loadMethodData(String methodId) throws NarrativeMethodStoreException {
+		checkForChanges();
 		try {
 			// Fetch the resources needed
 			JsonNode spec = getResourceAsJson("methods/"+methodId+"/spec.json");
@@ -211,4 +226,18 @@ public class LocalGitDB {
 		in.close();
 		return response.toString();
 	}
+	
+	public static void main(String[] args) throws Exception {
+
+		String giturl = "https://github.com/msneddon/narrative_method_specs.git";
+		String branch = "dev";
+		//String localpath = "/kb/deployment/services/narrative_method_store/narrative_method_specs";
+		String localpath = "temp_files/narrative_method_specs";
+		LocalGitDB db = new LocalGitDB(new URL(giturl), branch, new File(localpath), 1);
+
+		String mId = db.listMethodIds().get(0);
+		NarrativeMethodData data = db.loadMethodData(mId);
+		System.out.println(mId + ", " + data.getMethodFullInfo().getDescription());
+	}
+
 }
