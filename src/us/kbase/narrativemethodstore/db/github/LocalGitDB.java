@@ -10,6 +10,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 import org.apache.commons.io.FileUtils;
 import org.yaml.snakeyaml.Yaml;
@@ -17,19 +18,27 @@ import org.yaml.snakeyaml.Yaml;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 
+import us.kbase.narrativemethodstore.MethodBriefInfo;
+import us.kbase.narrativemethodstore.MethodFullInfo;
+import us.kbase.narrativemethodstore.MethodSpec;
+import us.kbase.narrativemethodstore.db.MethodSpecDB;
 import us.kbase.narrativemethodstore.db.NarrativeCategoriesIndex;
 import us.kbase.narrativemethodstore.db.NarrativeMethodData;
 import us.kbase.narrativemethodstore.exceptions.NarrativeMethodStoreException;
 import us.kbase.narrativemethodstore.exceptions.NarrativeMethodStoreInitializationException;
 
-public class LocalGitDB {
+public class LocalGitDB implements MethodSpecDB {
 
 	
 	protected final URL gitRepoUrl;
 	protected final String gitBranch;
 	protected final File gitLocalPath;
 	protected final int refreshTimeInMinutes;
+	protected final int cacheSize;
 	
 	protected final ObjectMapper mapper = new ObjectMapper();
 	protected final Yaml yaml = new Yaml();
@@ -37,15 +46,30 @@ public class LocalGitDB {
 	protected long lastPullTime = -1;
 	
 	protected NarrativeCategoriesIndex narCatIndex;
-	// TODO add method data cache
-	//protected NarrativeMethodDataCache narMethodCache; ????
+	protected final LoadingCache<String, MethodFullInfo> methodFullInfoCache;
+	protected final LoadingCache<String, MethodSpec> methodSpecCache;
 	
 	public LocalGitDB(URL gitRepoUrl, String branch, File localPath, 
-			int refreshTimeInMinutes) throws NarrativeMethodStoreInitializationException {
+			int refreshTimeInMinutes, int cacheSize) throws NarrativeMethodStoreInitializationException {
 		this.gitRepoUrl = gitRepoUrl;
 		this.gitBranch = branch;
 		this.gitLocalPath = localPath;
 		this.refreshTimeInMinutes = refreshTimeInMinutes;
+		this.cacheSize = cacheSize;
+		this.methodFullInfoCache = CacheBuilder.newBuilder().maximumSize(cacheSize).build(
+				new CacheLoader<String, MethodFullInfo>() {
+					@Override
+					public MethodFullInfo load(String methodId) throws NarrativeMethodStoreException {
+						return loadMethodDataUncached(methodId).getMethodFullInfo();
+					}
+				});
+		this.methodSpecCache = CacheBuilder.newBuilder().maximumSize(cacheSize).build(
+				new CacheLoader<String, MethodSpec>() {
+					@Override
+					public MethodSpec load(String methodId) throws NarrativeMethodStoreException {
+						return loadMethodDataUncached(methodId).getMethodSpec();
+					}
+				});
 		if (!localPath.exists())
 			localPath.mkdirs();
 		initializeLocalRepo();
@@ -148,6 +172,8 @@ public class LocalGitDB {
 					
 					// recreate the categories index
 					loadCategoriesIndex();
+					methodFullInfoCache.invalidateAll();
+					methodSpecCache.invalidateAll();
 					
 				} else {
 					System.out.println("There was some change in repo but it didn't touch methods or categories");
@@ -168,24 +194,22 @@ public class LocalGitDB {
 		return new File(gitLocalPath, "categories");
 	}
 
-	public List<String> listMethodIds() throws NarrativeMethodStoreException {
-		checkForChanges();
-		List <String> methodList = new ArrayList<String>();  //methodListJson.size());
+	protected List<String> listMethodIdsUncached() {
+		List <String> methodList = new ArrayList<String>();
 		for (File sub : getMethodsDir().listFiles()) {
 			if (sub.isDirectory())
 				methodList.add(sub.getName());
 		}
-		
-		//System.out.println("method list:");
-		//for(String id : methodList) 
-		//	System.out.println(" --- "+id);
-		
 		return methodList;
 	}
 
-	
-	public NarrativeMethodData loadMethodData(String methodId) throws NarrativeMethodStoreException {
+	@Override
+	public List<String> listMethodIds() {
 		checkForChanges();
+		return new ArrayList<String>(narCatIndex.getMethods().keySet());
+	}
+	
+	protected NarrativeMethodData loadMethodDataUncached(String methodId) throws NarrativeMethodStoreException {
 		try {
 			// Fetch the resources needed
 			JsonNode spec = getResourceAsJson("methods/"+methodId+"/spec.json");
@@ -198,7 +222,39 @@ public class LocalGitDB {
 			throw new NarrativeMethodStoreException(ex);
 		}
 	}
+
+	@Override
+	public MethodBriefInfo getMethodBriefInfo(String methodId)
+			throws NarrativeMethodStoreException {
+		checkForChanges();
+		return narCatIndex.getMethods().get(methodId);
+	}
 	
+	@Override
+	public MethodFullInfo getMethodFullInfo(String methodId)
+			throws NarrativeMethodStoreException {
+		checkForChanges();
+		try {
+			return methodFullInfoCache.get(methodId);
+		} catch (ExecutionException e) {
+			if (e.getCause() != null && e.getCause() instanceof NarrativeMethodStoreException)
+				throw (NarrativeMethodStoreException)e.getCause();
+			throw new NarrativeMethodStoreException("Error loading full info for method id=" + methodId + " (" + e.getMessage() + ")", e);
+		}
+	}
+	
+	@Override
+	public MethodSpec getMethodSpec(String methodId)
+			throws NarrativeMethodStoreException {
+		checkForChanges();
+		try {
+			return methodSpecCache.get(methodId);
+		} catch (ExecutionException e) {
+			if (e.getCause() != null && e.getCause() instanceof NarrativeMethodStoreException)
+				throw (NarrativeMethodStoreException)e.getCause();
+			throw new NarrativeMethodStoreException("Error loading full info for method id=" + methodId + " (" + e.getMessage() + ")", e);
+		}
+	}
 	
 	public List<String> listCategoryIds() throws NarrativeMethodStoreException {
 		checkForChanges();
@@ -231,10 +287,10 @@ public class LocalGitDB {
 				narCatIndex.addOrUpdateCategory(catId, spec, display);
 			}
 			
-			List<String> methIds = listMethodIds(); // iterate over each category
+			List<String> methIds = listMethodIdsUncached(); // iterate over each category
 			for(String mId : methIds) {
 				// TODO: check cache for data instead of loading it all directly
-				NarrativeMethodData data = loadMethodData(mId);
+				NarrativeMethodData data = loadMethodDataUncached(mId);
 				narCatIndex.addOrUpdateMethod(mId, data.getMethodBriefInfo());
 			}
 		} catch (IOException e) {
@@ -296,11 +352,12 @@ public class LocalGitDB {
 		String branch = "dev";
 		//String localpath = "/kb/deployment/services/narrative_method_store/narrative_method_specs";
 		String localpath = "temp_files/narrative_method_specs";
-		LocalGitDB db = new LocalGitDB(new URL(giturl), branch, new File(localpath), 1);
+		LocalGitDB db = new LocalGitDB(new URL(giturl), branch, new File(localpath), 1, 10000);
 
 		String mId = db.listMethodIds().get(0);
-		NarrativeMethodData data = db.loadMethodData(mId);
-		System.out.println(mId + ", " + data.getMethodFullInfo().getDescription());
+		MethodBriefInfo data1 = db.getMethodBriefInfo(mId);
+		MethodFullInfo data2 = db.getMethodFullInfo(mId);
+		System.out.println(mId + ", " + data1.getTooltip() + ", " + data2.getDescription());
 		
 		
 	}

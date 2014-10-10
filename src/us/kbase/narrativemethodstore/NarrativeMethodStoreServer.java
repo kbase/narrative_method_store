@@ -107,7 +107,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
         System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_GIT_LOCAL_DIR +" = " + getGitLocalDir());
         System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_GIT_REFRESH_RATE +" = " + getGitRefreshRate());
         
-        localGitDB = new LocalGitDB(new URL(getGitRepo()), getGitBranch(), new File(getGitLocalDir()), Integer.parseInt(getGitRefreshRate()));
+        localGitDB = new LocalGitDB(new URL(getGitRepo()), getGitBranch(), new File(getGitLocalDir()), Integer.parseInt(getGitRefreshRate()), 10000);
         
         //END_CONSTRUCTOR
     }
@@ -236,7 +236,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
         List <String> methodIds = params.getIds();
         returnVal = new ArrayList<MethodBriefInfo>(methodIds.size());
         for(String id: methodIds) {
-        	returnVal.add(localGitDB.loadMethodData(id).getMethodBriefInfo());
+        	returnVal.add(localGitDB.getMethodBriefInfo(id));
         }
         /// END SIMPLE TEST
         
@@ -259,7 +259,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
         List <String> methodIds = params.getIds();
         returnVal = new ArrayList<MethodFullInfo>(methodIds.size());
         for(String id: methodIds) {
-        	returnVal.add(localGitDB.loadMethodData(id).getMethodFullInfo());
+        	returnVal.add(localGitDB.getMethodFullInfo(id));
         }
         /// END SIMPLE TEST
         

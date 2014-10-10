@@ -16,8 +16,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import us.kbase.narrativemethodstore.MethodBriefInfo;
+import us.kbase.narrativemethodstore.MethodFullInfo;
+import us.kbase.narrativemethodstore.MethodSpec;
 import us.kbase.narrativemethodstore.db.MethodSpecDB;
 import us.kbase.narrativemethodstore.db.NarrativeMethodData;
+import us.kbase.narrativemethodstore.exceptions.NarrativeMethodStoreException;
 
 
 
@@ -99,8 +103,16 @@ public class GitHubDB implements MethodSpecDB {
 		System.out.println(methodIndex);
 	}
 	
+	@Override
+	public List<String> listMethodIds() {
+		try {
+			return loadMethodIndex();
+		} catch (Exception e) {
+			throw new IllegalStateException(e);
+		}
+	}
 	
-	public void loadMethodIndex() throws JsonProcessingException, MalformedURLException, IOException {
+	public List<String> loadMethodIndex() throws JsonProcessingException, MalformedURLException, IOException {
 		JsonNode methodListJson = getAsJson(new URL(GITHUB_API_URL + "/repos/" + owner + "/" + repo + "/contents/methods?ref=" + branch));
 		
 		List <String> methodList = new ArrayList<String>(methodListJson.size());
@@ -114,7 +126,7 @@ public class GitHubDB implements MethodSpecDB {
 		for(String id : methodList) {
 			System.out.println(" --- "+id);
 		}
-		
+		return methodList;		
 	}
 	
 	
@@ -128,6 +140,35 @@ public class GitHubDB implements MethodSpecDB {
 		return data;
 	}
 	
+	@Override
+	public MethodBriefInfo getMethodBriefInfo(String methodId)
+			throws NarrativeMethodStoreException {
+		try {
+			return loadMethodData(methodId).getMethodBriefInfo();
+		} catch (Exception e) {
+			throw new NarrativeMethodStoreException(e);
+		}
+	}
+	
+	@Override
+	public MethodFullInfo getMethodFullInfo(String methodId)
+			throws NarrativeMethodStoreException {
+		try {
+			return loadMethodData(methodId).getMethodFullInfo();
+		} catch (Exception e) {
+			throw new NarrativeMethodStoreException(e);
+		}
+	}
+	
+	@Override
+	public MethodSpec getMethodSpec(String methodId)
+			throws NarrativeMethodStoreException {
+		try {
+			return loadMethodData(methodId).getMethodSpec();
+		} catch (Exception e) {
+			throw new NarrativeMethodStoreException(e);
+		}
+	}
 	
 	protected JsonNode getResourceAsJson(String path) throws JsonProcessingException, IOException {
 		URL url = new URL(GITHUB_RAW_CONTENT_URL + "/" + owner + "/" + repo + "/"+branch+"/"+path);
