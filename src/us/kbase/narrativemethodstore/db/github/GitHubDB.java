@@ -6,9 +6,12 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.PrintStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.yaml.snakeyaml.Yaml;
@@ -101,9 +104,22 @@ public class GitHubDB implements MethodSpecDB {
 	}
 	
 	
-	/*public void loadMethodIndex() {
+	public void loadMethodIndex() throws JsonProcessingException, MalformedURLException, IOException {
+		JsonNode methodListJson = getAsJson(new URL(GITHUB_API_URL + "/repos/" + owner + "/" + repo + "/contents/methods?ref=" + branch));
 		
-	}*/
+		List <String> methodList = new ArrayList<String>(methodListJson.size());
+		for(int m=0; m<methodListJson.size(); m++) {
+			if(methodListJson.get(m).get("type").asText().equals("dir")) {
+				methodList.add(methodListJson.get(m).get("name").asText());
+			}
+		}
+		
+		System.out.println("method list:");
+		for(String id : methodList) {
+			System.out.println(" --- "+id);
+		}
+		
+	}
 	
 	
 	public NarrativeMethodData loadMethodData(String methodId) throws JsonProcessingException, IOException {
@@ -167,7 +183,7 @@ public class GitHubDB implements MethodSpecDB {
 		NarrativeMethodData data = githubDB.loadMethodData("test_method_1");
 		
 		System.out.println(data.getMethodFullInfo().getDescription());
-		
+		githubDB.loadMethodIndex();
 		return;
 	}
 	
