@@ -10,6 +10,7 @@ import us.kbase.narrativemethodstore.Categorization;
 import us.kbase.narrativemethodstore.MethodBriefInfo;
 import us.kbase.narrativemethodstore.MethodFullInfo;
 import us.kbase.narrativemethodstore.MethodSpec;
+import us.kbase.narrativemethodstore.ScreenShot;
 
 public class NarrativeMethodData {
 
@@ -60,6 +61,13 @@ public class NarrativeMethodData {
 			authors.add(spec.get("authors").get(a).asText());
 		}
 		
+		List<ScreenShot> screenshots = new ArrayList<ScreenShot>();
+		List<String> imageNames = (List<String>)display.get("screenshots");
+		if (imageNames != null) {
+			for (String imageName : imageNames)
+				screenshots.add(new ScreenShot().withUrl("img?method_id=" + this.methodId + "&image_name=" + imageName));
+		}
+		
 		fullInfo = new MethodFullInfo()
 							.withId(this.methodId)
 							.withName((String)display.get("name"))
@@ -72,7 +80,8 @@ public class NarrativeMethodData {
 							.withContact(spec.get("contact").asText())
 							
 							.withDescription((String)display.get("description"))
-							.withTechnicalDescription((String)display.get("technical-description"));
+							.withTechnicalDescription((String)display.get("technical-description"))
+							.withScreenshots(screenshots);
 	}
 	
 	

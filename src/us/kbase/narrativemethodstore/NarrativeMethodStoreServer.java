@@ -60,7 +60,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
 		}
     }
 
-    private Map<String, String> config() {
+    public static Map<String, String> config() {
     	if (config != null)
     		return config;
         if (configError != null)
