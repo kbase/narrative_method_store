@@ -1,8 +1,10 @@
 package us.kbase.narrativemethodstore;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import us.kbase.common.service.JsonServerMethod;
 import us.kbase.common.service.JsonServerServlet;
@@ -39,9 +41,14 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
     public static final String       CFG_PROP_GIT_BRANCH = "method-spec-git-repo-branch";
     public static final String    CFG_PROP_GIT_LOCAL_DIR = "method-spec-git-repo-local-dir";
     public static final String CFG_PROP_GIT_REFRESH_RATE = "method-spec-git-repo-refresh-rate";
+    public static final String       CFG_PROP_CACHE_SIZE = "method-spec-cache-size";
+    
+    public static final String VERSION = "0.0.1";
     
     private static Throwable configError = null;
     private static Map<String, String> config = null;
+
+    private LocalGitDB localGitDB;
 
     static {
 		String configPath = System.getProperty(SYS_PROP_KB_DEPLOYMENT_CONFIG);
@@ -87,15 +94,36 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
     		throw new IllegalStateException("Parameter " + CFG_PROP_GIT_LOCAL_DIR + " is not defined in configuration");
     	return ret;
     }
-    private String getGitRefreshRate() {
+    private int getGitRefreshRate() {
     	String ret = config().get(CFG_PROP_GIT_REFRESH_RATE);
     	if (ret == null)
     		throw new IllegalStateException("Parameter " + CFG_PROP_GIT_REFRESH_RATE + " is not defined in configuration");
-    	return ret;
+    	try {
+    		return Integer.parseInt(ret);
+    	} catch (NumberFormatException ex) {
+    		throw new IllegalStateException("Parameter " + CFG_PROP_GIT_REFRESH_RATE + " is not defined in configuration as integer: " + ret);
+    	}
+    }
+    private int getCacheSize() {
+    	String ret = config().get(CFG_PROP_CACHE_SIZE);
+    	if (ret == null)
+    		throw new IllegalStateException("Parameter " + CFG_PROP_CACHE_SIZE + " is not defined in configuration");
+    	try {
+    		return Integer.parseInt(ret);
+    	} catch (NumberFormatException ex) {
+    		throw new IllegalStateException("Parameter " + CFG_PROP_CACHE_SIZE + " is not defined in configuration as integer: " + ret);
+    	}
     }
     
-    private LocalGitDB localGitDB;
-    
+    private static <T> List<T> trim(List<T> data, ListParams params) {
+    	if (params.getOffset() == null && params.getLimit() == null)
+    		return data;
+    	int from = params.getOffset() != null && params.getOffset() > 0 ? (int)(long)params.getOffset() : 0;
+    	int to = data.size();
+    	if (params.getLimit() != null && params.getLimit() > 0 && from + params.getLimit() < to)
+    		to = from + (int)(long)params.getLimit();
+    	return data.subList(from, to);
+    }
     //END_CLASS_HEADER
 
     public NarrativeMethodStoreServer() throws Exception {
@@ -106,8 +134,9 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
         System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_GIT_BRANCH +" = " + getGitBranch());
         System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_GIT_LOCAL_DIR +" = " + getGitLocalDir());
         System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_GIT_REFRESH_RATE +" = " + getGitRefreshRate());
+        System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_CACHE_SIZE +" = " + getCacheSize());
         
-        localGitDB = new LocalGitDB(new URL(getGitRepo()), getGitBranch(), new File(getGitLocalDir()), Integer.parseInt(getGitRefreshRate()), 10000);
+        localGitDB = new LocalGitDB(new URL(getGitRepo()), getGitBranch(), new File(getGitLocalDir()), getGitRefreshRate(), getCacheSize());
         
         //END_CONSTRUCTOR
     }
@@ -124,6 +153,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
         String returnVal = null;
         //BEGIN ver
         config();
+        returnVal = VERSION;
         //END ver
         return returnVal;
     }
@@ -171,6 +201,8 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
     public List<MethodBriefInfo> listMethods(ListParams params) throws Exception {
         List<MethodBriefInfo> returnVal = null;
         //BEGIN list_methods
+        returnVal = new ArrayList<MethodBriefInfo>(localGitDB.getCategoriesIndex().getMethods().values());
+        returnVal = trim(returnVal, params);
         //END list_methods
         return returnVal;
     }
@@ -186,6 +218,9 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
     public List<MethodFullInfo> listMethodsFullInfo(ListParams params) throws Exception {
         List<MethodFullInfo> returnVal = null;
         //BEGIN list_methods_full_info
+        List<String> methodIds = new ArrayList<String>(localGitDB.listMethodIds());
+        methodIds = trim(methodIds, params);
+        returnVal = getMethodFullInfo(new GetMethodParams().withIds(methodIds));
         //END list_methods_full_info
         return returnVal;
     }
@@ -201,6 +236,9 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
     public List<MethodSpec> listMethodsSpec(ListParams params) throws Exception {
         List<MethodSpec> returnVal = null;
         //BEGIN list_methods_spec
+        List<String> methodIds = new ArrayList<String>(localGitDB.listMethodIds());
+        methodIds = trim(methodIds, params);
+        returnVal = getMethodSpec(new GetMethodParams().withIds(methodIds));
         //END list_methods_spec
         return returnVal;
     }
@@ -215,6 +253,9 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
     public Map<String,String> listMethodIdsAndNames() throws Exception {
         Map<String,String> returnVal = null;
         //BEGIN list_method_ids_and_names
+        returnVal = new TreeMap<String, String>();
+        for (Map.Entry<String, MethodBriefInfo> entry : localGitDB.getCategoriesIndex().getMethods().entrySet())
+        	returnVal.put(entry.getKey(), entry.getValue().getName());
         //END list_method_ids_and_names
         return returnVal;
     }
@@ -230,17 +271,11 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
     public List<MethodBriefInfo> getMethodBriefInfo(GetMethodParams params) throws Exception {
         List<MethodBriefInfo> returnVal = null;
         //BEGIN get_method_brief_info
-        
-        /// SIMPLE TEST
-        /// TODO switch to proper cached version, this always pulls everything fresh from git
         List <String> methodIds = params.getIds();
         returnVal = new ArrayList<MethodBriefInfo>(methodIds.size());
         for(String id: methodIds) {
         	returnVal.add(localGitDB.getMethodBriefInfo(id));
         }
-        /// END SIMPLE TEST
-        
-        
         //END get_method_brief_info
         return returnVal;
     }
@@ -261,9 +296,6 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
         for(String id: methodIds) {
         	returnVal.add(localGitDB.getMethodFullInfo(id));
         }
-        /// END SIMPLE TEST
-        
-        
         //END get_method_full_info
         return returnVal;
     }
@@ -279,6 +311,10 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
     public List<MethodSpec> getMethodSpec(GetMethodParams params) throws Exception {
         List<MethodSpec> returnVal = null;
         //BEGIN get_method_spec
+        List<String> methodIds = params.getIds();
+        returnVal = new ArrayList<MethodSpec>(methodIds.size());
+        for (String id : methodIds)
+        	returnVal.add(localGitDB.getMethodSpec(id));
         //END get_method_spec
         return returnVal;
     }
