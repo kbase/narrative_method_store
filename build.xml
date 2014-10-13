@@ -198,16 +198,18 @@
   </target>
 
   <target name="test" depends="compile" description="run tests">
+    <fail unless="test.temp-dir" message="test.temp-dir not set"/>
     <fail unless="test.method-spec-git-repo" message="test.method-spec-git-repo not set"/>
-    <fail unless="test.method-spec-git-repo-local-dir" message="test.method-spec-git-repo-local-dir not set"/>
+    <fail unless="test.method-spec-git-repo-branch" message="test.method-spec-git-branch not set"/>
     <fail unless="test.method-spec-git-repo-refresh-rate" message="test.method-spec-git-repo-refresh-rate not set"/>
     <fail unless="test.method-spec-cache-size" message="test.method-spec-cache-size not set"/>
     <echo message="starting ${package} tests"/>
     <junit fork="yes" maxmemory="3G" failureproperty="test.failed">
       <classpath refid="test.classpath"/>
       <formatter type="plain" usefile="false" />
+      <sysproperty key="test.temp-dir" value="${test.temp-dir}"/>
       <sysproperty key="test.method-spec-git-repo" value="${test.method-spec-git-repo}"/>
-      <sysproperty key="test.method-spec-git-repo-local-dir" value="${test.method-spec-git-repo-local-dir}"/>
+      <sysproperty key="test.method-spec-git-repo-branch" value="${test.method-spec-git-repo-branch}"/>
       <sysproperty key="test.method-spec-git-repo-refresh-rate" value="${test.method-spec-git-repo-refresh-rate}"/>
       <sysproperty key="test.method-spec-cache-size" value="${test.method-spec-cache-size}"/>
       <test name="us.kbase.narrativemethodstore.test.FullServerTest"/>

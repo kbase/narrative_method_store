@@ -22,18 +22,16 @@ import org.junit.Test;
 import us.kbase.narrativemethodstore.NarrativeMethodStoreServer;
 
 /*
- * These tests are specifically for testing the WS CLI written in perl.
- * The actual tests for scripts are written in perl and can be executed individually
- * against a WS server running on localhost on the default port set in deploy.cfg.
  * 
- * This class is designed to wrap all of these tests, instantiate a new temporary
- * test WS service, and run the script tests against this service.
  * 
  */
 public class FullServerTest {
 	
 	final private static String TMP_FILE_SUBDIR = "tempForScriptTestRunner";
+
+	private static File tempDir;
 	
+	private static NarrativeMethodStoreServer SERVER;
 	
 	private static class ServerThread extends Thread {
 		private NarrativeMethodStoreServer server;
@@ -66,113 +64,77 @@ public class FullServerTest {
 	@Test
 	public void runTestServerUp() {
 		System.out.println("test...");
+		System.out.println(getTestURL());
 	}
 	
 	
 	
-	/*
+	
 	private static String getTestURL() {
 		int testport = SERVER.getServerPort();
-		return "http://localhost:"+testport;
+		return "http://localhost:"+testport+"/rpc";
 	}
 	
 	
 	@BeforeClass
 	public static void setUpClass() throws Exception {
-		USER1 = System.getProperty("test.user1");
-		USER2 = System.getProperty("test.user2");
-		String u3 = System.getProperty("test.user3");
-		if (USER1.equals(USER2)) {
-			throw new TestException("All the test users must be unique: " + 
-					StringUtils.join(Arrays.asList(USER1, USER2, u3), " "));
-		}
-		if (USER1.equals(u3)) {
-			throw new TestException("All the test users must be unique: " + 
-					StringUtils.join(Arrays.asList(USER1, USER2, u3), " "));
-		}
-		if (USER2.equals(u3)) {
-			throw new TestException("All the test users must be unique: " + 
-					StringUtils.join(Arrays.asList(USER1, USER2, u3), " "));
-		}
-		String p1 = System.getProperty("test.pwd1");
-		String p2 = System.getProperty("test.pwd2");
-		String p3 = System.getProperty("test.pwd3");
-		
-		try {
-			AuthService.login(u3, p3);
-		} catch (Exception e) {
-			throw new TestException("Could not log in test user test.user3: " + u3, e);
-		}
-		
-		WorkspaceTestCommon.stfuLoggers();
-		
-		String tempDir = Paths.get(WorkspaceTestCommon.getTempDir())
-							.resolve(TMP_FILE_SUBDIR).toString();
-		
-		MONGO = new MongoController(WorkspaceTestCommon.getMongoExe(),
-				Paths.get(tempDir));
-		System.out.println("Using Mongo temp dir " + MONGO.getTempDir());
-		final String mongohost = "localhost:" + MONGO.getServerPort();
-		MongoClient mongoClient = new MongoClient(mongohost);
 
-		SHOCK = new ShockController(
-				WorkspaceTestCommon.getShockExe(),
-				Paths.get(tempDir),
-				u3,
-				mongohost,
-				"JSONRPCLayerHandleTest_ShockDB",
-				"foo",
-				"foo");
-		System.out.println("Using Shock temp dir " + SHOCK.getTempDir());
+		// Parse the test config variables
+		String tempDirName = System.getProperty("test.temp-dir");
+		
+		String gitRepo = System.getProperty("test.method-spec-git-repo");
+		String gitRepoBranch = System.getProperty("test.method-spec-git-repo-branch");
+		String gitRepoRefreshRate = System.getProperty("test.method-spec-git-repo-refresh-rate");
+		String gitRepoCacheSize = System.getProperty("test.method-spec-cache-size");
+		
+		System.out.println("test.temp-dir    = " + tempDirName);
+		
+		System.out.println("test.method-spec-git-repo              = " + gitRepo);
+		System.out.println("test.method-spec-git-repo-branch       = " + gitRepoBranch);
+		System.out.println("test.method-spec-git-repo-refresh-rate = " + gitRepoRefreshRate);
+		System.out.println("test.method-spec-cache-size            = " + gitRepoCacheSize);
+		
+		
+		//create the temp directory for this test
+		tempDir = new File(tempDirName);
+		if (!tempDir.exists())
+			tempDir.mkdirs();
+		
+		//create the server config file
+		File iniFile = File.createTempFile("test", ".cfg", tempDir);
+		if (iniFile.exists()) {
+			iniFile.delete();
+		}
+		System.out.println("Created temporary config file: " + iniFile.getAbsolutePath());
+		
+		Ini ini = new Ini();
+		Section ws = ini.add("NarrativeMethodStore");
+		ws.add("method-spec-git-repo", gitRepo);
+		ws.add("method-spec-git-repo-branch", gitRepoBranch);
+		ws.add("method-spec-git-repo-local-dir", tempDir.getAbsolutePath()+"/narrative_method_specs");
+		ws.add("method-spec-git-repo-refresh-rate", gitRepoRefreshRate);
+		ws.add("method-spec-cache-size", gitRepoCacheSize);
+		
+		ini.store(iniFile);
+		iniFile.deleteOnExit();
 
-		MYSQL = new MySQLController(
-				WorkspaceTestCommon.getMySQLExe(),
-				WorkspaceTestCommon.getMySQLInstallExe(),
-				Paths.get(tempDir));
-		System.out.println("Using MySQL temp dir " + MYSQL.getTempDir());
-		
-		HANDLE = new HandleServiceController(
-				WorkspaceTestCommon.getPlackupExe(),
-				WorkspaceTestCommon.getHandleServicePSGI(),
-				WorkspaceTestCommon.getHandleManagerPSGI(),
-				u3,
-				MYSQL,
-				"http://localhost:" + SHOCK.getServerPort(),
-				u3,
-				p3,
-				WorkspaceTestCommon.getHandlePERL5LIB(),
-				Paths.get(tempDir));
-		System.out.println("Using Handle Service temp dir " +
-				HANDLE.getTempDir());
-		
-		
-		SERVER = startupServer(mongohost,
-				mongoClient.getDB("JSONRPCLayerHandleTester"), 
-				"JSONRPCLayerHandleTester_types",
-				u3, p3);
-		int port = SERVER.getServerPort();
-		System.out.println("Started test workspace server on port " + port);
-		try {
-			CLIENT1 = new WorkspaceClient(new URL("http://localhost:" + port), USER1, p1);
-		} catch (UnauthorizedException ue) {
-			throw new TestException("Unable to login with test.user1: " + USER1 +
-					"\nPlease check the credentials in the test configuration.", ue);
+		Map<String, String> env = getenv();
+		env.put("KB_DEPLOYMENT_CONFIG", iniFile.getAbsolutePath());
+		env.put("KB_SERVICE_NAME", "Workspace");
+
+		//NarrativeMethodStoreServer.clearConfigForTests();
+		SERVER = new NarrativeMethodStoreServer();
+		new ServerThread(SERVER).start();
+		System.out.println("Main thread waiting for server to start up");
+		while (SERVER.getServerPort() == null) {
+			Thread.sleep(100);
 		}
-		try {
-			CLIENT2 = new WorkspaceClient(new URL("http://localhost:" + port), USER2, p2);
-		} catch (UnauthorizedException ue) {
-			throw new TestException("Unable to login with test.user2: " + USER2 +
-					"\nPlease check the credentials in the test configuration.", ue);
-		}
-		CLIENT1.setIsInsecureHttpConnectionAllowed(true);
-		CLIENT2.setIsInsecureHttpConnectionAllowed(true);
 		
-		HANDLE_CLIENT = new AbstractHandleClient(new URL("http://localhost:" +
-				HANDLE.getHandleServerPort()), USER1, p1);
-		HANDLE_CLIENT.setIsInsecureHttpConnectionAllowed(true);
 		
 	}
 	
+	
+	/*
 	private static NarrativeMethodStoreServer startupServer(
 			String mongohost,
 			DB db,
