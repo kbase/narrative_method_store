@@ -26,7 +26,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
     "info",
     "widgets",
     "parameters",
-    "behavior"
+    "behavior",
+    "job_id_output_field"
 })
 public class MethodSpec {
 
@@ -60,6 +61,8 @@ public class MethodSpec {
      */
     @JsonProperty("behavior")
     private MethodBehavior behavior;
+    @JsonProperty("job_id_output_field")
+    private String jobIdOutputField;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
     /**
@@ -166,6 +169,21 @@ public class MethodSpec {
         return this;
     }
 
+    @JsonProperty("job_id_output_field")
+    public String getJobIdOutputField() {
+        return jobIdOutputField;
+    }
+
+    @JsonProperty("job_id_output_field")
+    public void setJobIdOutputField(String jobIdOutputField) {
+        this.jobIdOutputField = jobIdOutputField;
+    }
+
+    public MethodSpec withJobIdOutputField(String jobIdOutputField) {
+        this.jobIdOutputField = jobIdOutputField;
+        return this;
+    }
+
     @JsonAnyGetter
     public Map<String, Object> getAdditionalProperties() {
         return this.additionalProperties;
@@ -178,7 +196,7 @@ public class MethodSpec {
 
     @Override
     public String toString() {
-        return ((((((((((("MethodSpec"+" [info=")+ info)+", widgets=")+ widgets)+", parameters=")+ parameters)+", behavior=")+ behavior)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((((((((("MethodSpec"+" [info=")+ info)+", widgets=")+ widgets)+", parameters=")+ parameters)+", behavior=")+ behavior)+", jobIdOutputField=")+ jobIdOutputField)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }

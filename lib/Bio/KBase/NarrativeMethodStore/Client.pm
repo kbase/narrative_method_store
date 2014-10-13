@@ -141,16 +141,15 @@ Category is a reference to a hash where the following keys are defined:
 	tooltip has a value which is a string
 	description has a value which is a string
 	parent_ids has a value which is a reference to a list where each element is a string
+	loading_error has a value which is a string
 MethodBriefInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
 	name has a value which is a string
 	ver has a value which is a string
 	subtitle has a value which is a string
 	tooltip has a value which is a string
-	categorizations has a value which is a reference to a list where each element is a NarrativeMethodStore.categorization
-categorization is a reference to a hash where the following keys are defined:
-	category_id has a value which is a string
-	named_path has a value which is a reference to a list where each element is a string
+	categories has a value which is a reference to a list where each element is a string
+	loading_error has a value which is a string
 
 </pre>
 
@@ -171,16 +170,15 @@ Category is a reference to a hash where the following keys are defined:
 	tooltip has a value which is a string
 	description has a value which is a string
 	parent_ids has a value which is a reference to a list where each element is a string
+	loading_error has a value which is a string
 MethodBriefInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
 	name has a value which is a string
 	ver has a value which is a string
 	subtitle has a value which is a string
 	tooltip has a value which is a string
-	categorizations has a value which is a reference to a list where each element is a NarrativeMethodStore.categorization
-categorization is a reference to a hash where the following keys are defined:
-	category_id has a value which is a string
-	named_path has a value which is a reference to a list where each element is a string
+	categories has a value which is a reference to a list where each element is a string
+	loading_error has a value which is a string
 
 
 =end text
@@ -262,10 +260,8 @@ MethodBriefInfo is a reference to a hash where the following keys are defined:
 	ver has a value which is a string
 	subtitle has a value which is a string
 	tooltip has a value which is a string
-	categorizations has a value which is a reference to a list where each element is a NarrativeMethodStore.categorization
-categorization is a reference to a hash where the following keys are defined:
-	category_id has a value which is a string
-	named_path has a value which is a reference to a list where each element is a string
+	categories has a value which is a reference to a list where each element is a string
+	loading_error has a value which is a string
 
 </pre>
 
@@ -284,10 +280,8 @@ MethodBriefInfo is a reference to a hash where the following keys are defined:
 	ver has a value which is a string
 	subtitle has a value which is a string
 	tooltip has a value which is a string
-	categorizations has a value which is a reference to a list where each element is a NarrativeMethodStore.categorization
-categorization is a reference to a hash where the following keys are defined:
-	category_id has a value which is a string
-	named_path has a value which is a reference to a list where each element is a string
+	categories has a value which is a reference to a list where each element is a string
+	loading_error has a value which is a string
 
 
 =end text
@@ -373,13 +367,10 @@ MethodFullInfo is a reference to a hash where the following keys are defined:
 	tooltip has a value which is a string
 	description has a value which is a string
 	technical_description has a value which is a string
-	categorizations has a value which is a reference to a list where each element is a NarrativeMethodStore.categorization
+	categories has a value which is a reference to a list where each element is a string
 	screenshots has a value which is a reference to a list where each element is a NarrativeMethodStore.ScreenShot
 username is a string
 email is a string
-categorization is a reference to a hash where the following keys are defined:
-	category_id has a value which is a string
-	named_path has a value which is a reference to a list where each element is a string
 ScreenShot is a reference to a hash where the following keys are defined:
 	url has a value which is a NarrativeMethodStore.url
 url is a string
@@ -405,13 +396,10 @@ MethodFullInfo is a reference to a hash where the following keys are defined:
 	tooltip has a value which is a string
 	description has a value which is a string
 	technical_description has a value which is a string
-	categorizations has a value which is a reference to a list where each element is a NarrativeMethodStore.categorization
+	categories has a value which is a reference to a list where each element is a string
 	screenshots has a value which is a reference to a list where each element is a NarrativeMethodStore.ScreenShot
 username is a string
 email is a string
-categorization is a reference to a hash where the following keys are defined:
-	category_id has a value which is a string
-	named_path has a value which is a reference to a list where each element is a string
 ScreenShot is a reference to a hash where the following keys are defined:
 	url has a value which is a NarrativeMethodStore.url
 url is a string
@@ -495,16 +483,15 @@ MethodSpec is a reference to a hash where the following keys are defined:
 	widgets has a value which is a NarrativeMethodStore.WidgetSpec
 	parameters has a value which is a reference to a list where each element is a NarrativeMethodStore.MethodParameter
 	behavior has a value which is a NarrativeMethodStore.MethodBehavior
+	job_id_output_field has a value which is a string
 MethodBriefInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
 	name has a value which is a string
 	ver has a value which is a string
 	subtitle has a value which is a string
 	tooltip has a value which is a string
-	categorizations has a value which is a reference to a list where each element is a NarrativeMethodStore.categorization
-categorization is a reference to a hash where the following keys are defined:
-	category_id has a value which is a string
-	named_path has a value which is a reference to a list where each element is a string
+	categories has a value which is a reference to a list where each element is a string
+	loading_error has a value which is a string
 WidgetSpec is a reference to a hash where the following keys are defined:
 	input has a value which is a string
 	output has a value which is a string
@@ -567,16 +554,15 @@ MethodSpec is a reference to a hash where the following keys are defined:
 	widgets has a value which is a NarrativeMethodStore.WidgetSpec
 	parameters has a value which is a reference to a list where each element is a NarrativeMethodStore.MethodParameter
 	behavior has a value which is a NarrativeMethodStore.MethodBehavior
+	job_id_output_field has a value which is a string
 MethodBriefInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
 	name has a value which is a string
 	ver has a value which is a string
 	subtitle has a value which is a string
 	tooltip has a value which is a string
-	categorizations has a value which is a reference to a list where each element is a NarrativeMethodStore.categorization
-categorization is a reference to a hash where the following keys are defined:
-	category_id has a value which is a string
-	named_path has a value which is a reference to a list where each element is a string
+	categories has a value which is a reference to a list where each element is a string
+	loading_error has a value which is a string
 WidgetSpec is a reference to a hash where the following keys are defined:
 	input has a value which is a string
 	output has a value which is a string
@@ -770,10 +756,8 @@ MethodBriefInfo is a reference to a hash where the following keys are defined:
 	ver has a value which is a string
 	subtitle has a value which is a string
 	tooltip has a value which is a string
-	categorizations has a value which is a reference to a list where each element is a NarrativeMethodStore.categorization
-categorization is a reference to a hash where the following keys are defined:
-	category_id has a value which is a string
-	named_path has a value which is a reference to a list where each element is a string
+	categories has a value which is a reference to a list where each element is a string
+	loading_error has a value which is a string
 
 </pre>
 
@@ -791,10 +775,8 @@ MethodBriefInfo is a reference to a hash where the following keys are defined:
 	ver has a value which is a string
 	subtitle has a value which is a string
 	tooltip has a value which is a string
-	categorizations has a value which is a reference to a list where each element is a NarrativeMethodStore.categorization
-categorization is a reference to a hash where the following keys are defined:
-	category_id has a value which is a string
-	named_path has a value which is a reference to a list where each element is a string
+	categories has a value which is a reference to a list where each element is a string
+	loading_error has a value which is a string
 
 
 =end text
@@ -879,13 +861,10 @@ MethodFullInfo is a reference to a hash where the following keys are defined:
 	tooltip has a value which is a string
 	description has a value which is a string
 	technical_description has a value which is a string
-	categorizations has a value which is a reference to a list where each element is a NarrativeMethodStore.categorization
+	categories has a value which is a reference to a list where each element is a string
 	screenshots has a value which is a reference to a list where each element is a NarrativeMethodStore.ScreenShot
 username is a string
 email is a string
-categorization is a reference to a hash where the following keys are defined:
-	category_id has a value which is a string
-	named_path has a value which is a reference to a list where each element is a string
 ScreenShot is a reference to a hash where the following keys are defined:
 	url has a value which is a NarrativeMethodStore.url
 url is a string
@@ -910,13 +889,10 @@ MethodFullInfo is a reference to a hash where the following keys are defined:
 	tooltip has a value which is a string
 	description has a value which is a string
 	technical_description has a value which is a string
-	categorizations has a value which is a reference to a list where each element is a NarrativeMethodStore.categorization
+	categories has a value which is a reference to a list where each element is a string
 	screenshots has a value which is a reference to a list where each element is a NarrativeMethodStore.ScreenShot
 username is a string
 email is a string
-categorization is a reference to a hash where the following keys are defined:
-	category_id has a value which is a string
-	named_path has a value which is a reference to a list where each element is a string
 ScreenShot is a reference to a hash where the following keys are defined:
 	url has a value which is a NarrativeMethodStore.url
 url is a string
@@ -999,16 +975,15 @@ MethodSpec is a reference to a hash where the following keys are defined:
 	widgets has a value which is a NarrativeMethodStore.WidgetSpec
 	parameters has a value which is a reference to a list where each element is a NarrativeMethodStore.MethodParameter
 	behavior has a value which is a NarrativeMethodStore.MethodBehavior
+	job_id_output_field has a value which is a string
 MethodBriefInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
 	name has a value which is a string
 	ver has a value which is a string
 	subtitle has a value which is a string
 	tooltip has a value which is a string
-	categorizations has a value which is a reference to a list where each element is a NarrativeMethodStore.categorization
-categorization is a reference to a hash where the following keys are defined:
-	category_id has a value which is a string
-	named_path has a value which is a reference to a list where each element is a string
+	categories has a value which is a reference to a list where each element is a string
+	loading_error has a value which is a string
 WidgetSpec is a reference to a hash where the following keys are defined:
 	input has a value which is a string
 	output has a value which is a string
@@ -1070,16 +1045,15 @@ MethodSpec is a reference to a hash where the following keys are defined:
 	widgets has a value which is a NarrativeMethodStore.WidgetSpec
 	parameters has a value which is a reference to a list where each element is a NarrativeMethodStore.MethodParameter
 	behavior has a value which is a NarrativeMethodStore.MethodBehavior
+	job_id_output_field has a value which is a string
 MethodBriefInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
 	name has a value which is a string
 	ver has a value which is a string
 	subtitle has a value which is a string
 	tooltip has a value which is a string
-	categorizations has a value which is a reference to a list where each element is a NarrativeMethodStore.categorization
-categorization is a reference to a hash where the following keys are defined:
-	category_id has a value which is a string
-	named_path has a value which is a reference to a list where each element is a string
+	categories has a value which is a reference to a list where each element is a string
+	loading_error has a value which is a string
 WidgetSpec is a reference to a hash where the following keys are defined:
 	input has a value which is a string
 	output has a value which is a string
@@ -1368,6 +1342,7 @@ ver has a value which is a string
 tooltip has a value which is a string
 description has a value which is a string
 parent_ids has a value which is a reference to a list where each element is a string
+loading_error has a value which is a string
 
 </pre>
 
@@ -1382,43 +1357,7 @@ ver has a value which is a string
 tooltip has a value which is a string
 description has a value which is a string
 parent_ids has a value which is a reference to a list where each element is a string
-
-
-=end text
-
-=back
-
-
-
-=head2 categorization
-
-=over 4
-
-
-
-=item Description
-
-Organization of where in a menu the method should appear
-
-
-=item Definition
-
-=begin html
-
-<pre>
-a reference to a hash where the following keys are defined:
-category_id has a value which is a string
-named_path has a value which is a reference to a list where each element is a string
-
-</pre>
-
-=end html
-
-=begin text
-
-a reference to a hash where the following keys are defined:
-category_id has a value which is a string
-named_path has a value which is a reference to a list where each element is a string
+loading_error has a value which is a string
 
 
 =end text
@@ -1449,7 +1388,8 @@ name has a value which is a string
 ver has a value which is a string
 subtitle has a value which is a string
 tooltip has a value which is a string
-categorizations has a value which is a reference to a list where each element is a NarrativeMethodStore.categorization
+categories has a value which is a reference to a list where each element is a string
+loading_error has a value which is a string
 
 </pre>
 
@@ -1463,7 +1403,8 @@ name has a value which is a string
 ver has a value which is a string
 subtitle has a value which is a string
 tooltip has a value which is a string
-categorizations has a value which is a reference to a list where each element is a NarrativeMethodStore.categorization
+categories has a value which is a reference to a list where each element is a string
+loading_error has a value which is a string
 
 
 =end text
@@ -1528,7 +1469,7 @@ subtitle has a value which is a string
 tooltip has a value which is a string
 description has a value which is a string
 technical_description has a value which is a string
-categorizations has a value which is a reference to a list where each element is a NarrativeMethodStore.categorization
+categories has a value which is a reference to a list where each element is a string
 screenshots has a value which is a reference to a list where each element is a NarrativeMethodStore.ScreenShot
 
 </pre>
@@ -1547,7 +1488,7 @@ subtitle has a value which is a string
 tooltip has a value which is a string
 description has a value which is a string
 technical_description has a value which is a string
-categorizations has a value which is a reference to a list where each element is a NarrativeMethodStore.categorization
+categories has a value which is a reference to a list where each element is a string
 screenshots has a value which is a reference to a list where each element is a NarrativeMethodStore.ScreenShot
 
 
@@ -1951,6 +1892,7 @@ info has a value which is a NarrativeMethodStore.MethodBriefInfo
 widgets has a value which is a NarrativeMethodStore.WidgetSpec
 parameters has a value which is a reference to a list where each element is a NarrativeMethodStore.MethodParameter
 behavior has a value which is a NarrativeMethodStore.MethodBehavior
+job_id_output_field has a value which is a string
 
 </pre>
 
@@ -1963,6 +1905,7 @@ info has a value which is a NarrativeMethodStore.MethodBriefInfo
 widgets has a value which is a NarrativeMethodStore.WidgetSpec
 parameters has a value which is a reference to a list where each element is a NarrativeMethodStore.MethodParameter
 behavior has a value which is a NarrativeMethodStore.MethodBehavior
+job_id_output_field has a value which is a string
 
 
 =end text

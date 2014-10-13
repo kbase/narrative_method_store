@@ -27,7 +27,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
     "ver",
     "subtitle",
     "tooltip",
-    "categories"
+    "categories",
+    "loading_error"
 })
 public class MethodBriefInfo {
 
@@ -43,6 +44,8 @@ public class MethodBriefInfo {
     private java.lang.String tooltip;
     @JsonProperty("categories")
     private List<String> categories;
+    @JsonProperty("loading_error")
+    private java.lang.String loadingError;
     private Map<java.lang.String, Object> additionalProperties = new HashMap<java.lang.String, Object>();
 
     @JsonProperty("id")
@@ -135,6 +138,21 @@ public class MethodBriefInfo {
         return this;
     }
 
+    @JsonProperty("loading_error")
+    public java.lang.String getLoadingError() {
+        return loadingError;
+    }
+
+    @JsonProperty("loading_error")
+    public void setLoadingError(java.lang.String loadingError) {
+        this.loadingError = loadingError;
+    }
+
+    public MethodBriefInfo withLoadingError(java.lang.String loadingError) {
+        this.loadingError = loadingError;
+        return this;
+    }
+
     @JsonAnyGetter
     public Map<java.lang.String, Object> getAdditionalProperties() {
         return this.additionalProperties;
@@ -147,7 +165,7 @@ public class MethodBriefInfo {
 
     @Override
     public java.lang.String toString() {
-        return ((((((((((((((("MethodBriefInfo"+" [id=")+ id)+", name=")+ name)+", ver=")+ ver)+", subtitle=")+ subtitle)+", tooltip=")+ tooltip)+", categories=")+ categories)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((((((((((((("MethodBriefInfo"+" [id=")+ id)+", name=")+ name)+", ver=")+ ver)+", subtitle=")+ subtitle)+", tooltip=")+ tooltip)+", categories=")+ categories)+", loadingError=")+ loadingError)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }

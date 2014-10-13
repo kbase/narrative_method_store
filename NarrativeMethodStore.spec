@@ -20,6 +20,7 @@ module NarrativeMethodStore {
 	string tooltip;
 	string description;
 	list<string> parent_ids;
+	string loading_error;
     } Category;
 
     /* Minimal information about a method suitable for displaying the method in a menu or navigator. */
@@ -30,6 +31,7 @@ module NarrativeMethodStore {
         string subtitle;
         string tooltip;
         list<string> categories;
+		string loading_error;
     } MethodBriefInfo;
     
     typedef structure {
@@ -152,6 +154,8 @@ module NarrativeMethodStore {
         list<MethodParameter> parameters;
         
         MethodBehavior behavior;
+
+        string job_id_output_field;
     } MethodSpec;
 
 

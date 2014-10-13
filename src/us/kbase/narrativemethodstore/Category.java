@@ -25,7 +25,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
     "ver",
     "tooltip",
     "description",
-    "parent_ids"
+    "parent_ids",
+    "loading_error"
 })
 public class Category {
 
@@ -41,6 +42,8 @@ public class Category {
     private java.lang.String description;
     @JsonProperty("parent_ids")
     private List<String> parentIds;
+    @JsonProperty("loading_error")
+    private java.lang.String loadingError;
     private Map<java.lang.String, Object> additionalProperties = new HashMap<java.lang.String, Object>();
 
     @JsonProperty("id")
@@ -133,6 +136,21 @@ public class Category {
         return this;
     }
 
+    @JsonProperty("loading_error")
+    public java.lang.String getLoadingError() {
+        return loadingError;
+    }
+
+    @JsonProperty("loading_error")
+    public void setLoadingError(java.lang.String loadingError) {
+        this.loadingError = loadingError;
+    }
+
+    public Category withLoadingError(java.lang.String loadingError) {
+        this.loadingError = loadingError;
+        return this;
+    }
+
     @JsonAnyGetter
     public Map<java.lang.String, Object> getAdditionalProperties() {
         return this.additionalProperties;
@@ -145,7 +163,7 @@ public class Category {
 
     @Override
     public java.lang.String toString() {
-        return ((((((((((((((("Category"+" [id=")+ id)+", name=")+ name)+", ver=")+ ver)+", tooltip=")+ tooltip)+", description=")+ description)+", parentIds=")+ parentIds)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((((((((((((("Category"+" [id=")+ id)+", name=")+ name)+", ver=")+ ver)+", tooltip=")+ tooltip)+", description=")+ description)+", parentIds=")+ parentIds)+", loadingError=")+ loadingError)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }

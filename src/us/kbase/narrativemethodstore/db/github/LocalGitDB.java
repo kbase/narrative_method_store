@@ -25,6 +25,7 @@ import com.google.common.cache.LoadingCache;
 import us.kbase.narrativemethodstore.MethodBriefInfo;
 import us.kbase.narrativemethodstore.MethodFullInfo;
 import us.kbase.narrativemethodstore.MethodSpec;
+import us.kbase.narrativemethodstore.db.MethodFileLookup;
 import us.kbase.narrativemethodstore.db.MethodSpecDB;
 import us.kbase.narrativemethodstore.db.NarrativeCategoriesIndex;
 import us.kbase.narrativemethodstore.db.NarrativeMethodData;
@@ -209,14 +210,25 @@ public class LocalGitDB implements MethodSpecDB {
 		return new ArrayList<String>(narCatIndex.getMethods().keySet());
 	}
 	
-	protected NarrativeMethodData loadMethodDataUncached(String methodId) throws NarrativeMethodStoreException {
+	protected NarrativeMethodData loadMethodDataUncached(final String methodId) throws NarrativeMethodStoreException {
 		try {
 			// Fetch the resources needed
 			JsonNode spec = getResourceAsJson("methods/"+methodId+"/spec.json");
 			Map<String,Object> display = getResourceAsYamlMap("methods/"+methodId+"/display.yaml");
 
 			// Initialize the actual data
-			NarrativeMethodData data = new NarrativeMethodData(methodId, spec, display);
+			NarrativeMethodData data = new NarrativeMethodData(methodId, spec, display,
+					new MethodFileLookup() {
+						@Override
+						public String loadFileContent(String fileName) {
+							File f = new File(new File(getMethodsDir(), methodId), fileName);
+							if (f.exists())
+								try {
+									return get(f);
+								} catch (IOException ignore) {}
+							return null;
+						}
+					});
 			return data;
 		} catch (Exception ex) {
 			throw new NarrativeMethodStoreException(ex);
@@ -289,7 +301,9 @@ public class LocalGitDB implements MethodSpecDB {
 			
 			List<String> methIds = listMethodIdsUncached(); // iterate over each category
 			for(String mId : methIds) {
-				// TODO: check cache for data instead of loading it all directly
+				// TODO: check cache for data instead of loading it all directly; Roman: I doubt it's a good 
+				// idea to check cache first cause narrative engine more likely loads list of all categories 
+				// before any full infos and specs.
 				NarrativeMethodData data = loadMethodDataUncached(mId);
 				narCatIndex.addOrUpdateMethod(mId, data.getMethodBriefInfo());
 			}

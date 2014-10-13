@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import us.kbase.common.service.JsonServerMethod;
 import us.kbase.common.service.JsonServerServlet;
+import us.kbase.common.service.Tuple2;
 
 //BEGIN_HEADER
 import java.io.File;
@@ -13,8 +14,6 @@ import java.util.HashMap;
 import java.util.TreeMap;
 
 import org.ini4j.Ini;
-
-import us.kbase.common.service.Tuple2;
 
 import us.kbase.narrativemethodstore.db.NarrativeCategoriesIndex;
 import us.kbase.narrativemethodstore.db.github.LocalGitDB;
