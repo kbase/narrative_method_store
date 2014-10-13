@@ -13,6 +13,7 @@ ANT = 'ant'
 CFG_SECTION = 'NarrativeMethodStoreTest'
 
 CONFIG_OPTS = ['test.temp-dir',
+               'test.remove-temp-dir',  
                'test.method-spec-git-repo',
                'test.method-spec-git-repo-branch',
                'test.method-spec-git-repo-refresh-rate',
