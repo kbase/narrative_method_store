@@ -1,25 +1,20 @@
 package us.kbase.narrativemethodstore;
 
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
-
 import us.kbase.common.service.JsonServerMethod;
 import us.kbase.common.service.JsonServerServlet;
-import us.kbase.common.service.Tuple2;
-
-
-
-
 
 //BEGIN_HEADER
 import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.TreeMap;
 
 import org.ini4j.Ini;
+
+import us.kbase.common.service.Tuple2;
 
 import us.kbase.narrativemethodstore.db.NarrativeCategoriesIndex;
 import us.kbase.narrativemethodstore.db.github.LocalGitDB;
@@ -50,7 +45,11 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
 
     private LocalGitDB localGitDB;
 
-    static {
+    public static Map<String, String> config() {
+    	if (config != null)
+    		return config;
+        if (configError != null)
+        	throw new IllegalStateException("There was an error while loading configuration", configError);
 		String configPath = System.getProperty(SYS_PROP_KB_DEPLOYMENT_CONFIG);
 		if (configPath == null)
 			configPath = System.getenv(SYS_PROP_KB_DEPLOYMENT_CONFIG);
@@ -65,15 +64,10 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
 				configError = ex;
 			}
 		}
-    }
-
-    public static Map<String, String> config() {
-    	if (config != null)
-    		return config;
-        if (configError != null)
-        	throw new IllegalStateException("There was an error while loading configuration", configError);
-    	throw new IllegalStateException("There was unknown error in service initialization when checking"
-    			+ "the configuration: is the ["+SERVICE_DEPLOYMENT_NAME+"] config group defined?");
+		if (config == null)
+			throw new IllegalStateException("There was unknown error in service initialization when checking"
+					+ "the configuration: is the ["+SERVICE_DEPLOYMENT_NAME+"] config group defined?");
+		return config;
     }
     
     private String getGitRepo() {
