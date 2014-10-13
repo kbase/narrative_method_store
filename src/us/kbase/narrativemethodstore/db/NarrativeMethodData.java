@@ -93,7 +93,7 @@ public class NarrativeMethodData {
 		JsonNode widgetsNode = spec.get("widgets");
 		WidgetSpec widgets = new WidgetSpec()
 							.withInput(getTextOrNull(widgetsNode.get("input")))
-							.withInput(getTextOrNull(widgetsNode.get("output")));
+							.withOutput(getTextOrNull(widgetsNode.get("output")));
 		JsonNode behaviorNode = spec.get("behavior");
 		JsonNode serviceMappingNode = behaviorNode.get("service-mapping");
 		MethodBehavior behavior = new MethodBehavior()
@@ -104,6 +104,7 @@ public class NarrativeMethodData {
 				.withKbServiceMethod(getTextOrNull(behaviorNode.get("method")));
 		List<MethodParameter> parameters = new ArrayList<MethodParameter>();
 		JsonNode parametersNode = spec.get("parameters");
+		@SuppressWarnings("unchecked")
 		Map<String, Map<String, String>> paramsDisplays = (Map<String, Map<String, String>>)display.get("parameters"); 
 		for (int i = 0; i < parametersNode.size(); i++) {
 			JsonNode paramNode = parametersNode.get(i);
