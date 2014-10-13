@@ -169,6 +169,11 @@ module NarrativeMethodStore {
 	funcdef list_categories(ListCategoriesParams params) 
 		returns (mapping<string, Category> categories, mapping<string, MethodBriefInfo> methods);
 
+    typedef structure {
+        list <string> ids;
+    } GetCategoryParams;
+
+    funcdef get_category(GetCategoryParams params) returns (list<Category>);
 
 	/*
 		limit - optional field (default value is 0)

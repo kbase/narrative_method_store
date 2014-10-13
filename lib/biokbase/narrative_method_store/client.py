@@ -109,7 +109,7 @@ class NarrativeMethodStore(object):
                  password=None, token=None, ignore_authrc=False,
                  trust_all_ssl_certificates=False):
         if url is None:
-            url = 'https://kbase.us/services/narrative_method_store/'
+            url = 'https://kbase.us/services/narrative_method_store/rpc'
         scheme, _, _, _, _, _ = _urlparse.urlparse(url)
         if scheme not in _URL_SCHEME:
             raise ValueError(url + " isn't a valid http url")
@@ -174,6 +174,11 @@ class NarrativeMethodStore(object):
         resp = self._call('NarrativeMethodStore.list_categories',
                           [params])
         return resp
+
+    def get_category(self, params):
+        resp = self._call('NarrativeMethodStore.get_category',
+                          [params])
+        return resp[0]
 
     def list_methods(self, params):
         resp = self._call('NarrativeMethodStore.list_methods',

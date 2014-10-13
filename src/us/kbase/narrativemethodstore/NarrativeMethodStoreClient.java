@@ -23,7 +23,7 @@ public class NarrativeMethodStoreClient {
     private static URL DEFAULT_URL = null;
     static {
         try {
-            DEFAULT_URL = new URL("https://kbase.us/services/narrative_method_store/");
+            DEFAULT_URL = new URL("https://kbase.us/services/narrative_method_store/rpc");
         } catch (MalformedURLException mue) {
             throw new RuntimeException("Compile error in client - bad url compiled");
         }
@@ -93,6 +93,23 @@ public class NarrativeMethodStoreClient {
         TypeReference<Tuple2<Map<String,Category>, Map<String,MethodBriefInfo>>> retType = new TypeReference<Tuple2<Map<String,Category>, Map<String,MethodBriefInfo>>>() {};
         Tuple2<Map<String,Category>, Map<String,MethodBriefInfo>> res = caller.jsonrpcCall("NarrativeMethodStore.list_categories", args, retType, true, false);
         return res;
+    }
+
+    /**
+     * <p>Original spec-file function name: get_category</p>
+     * <pre>
+     * </pre>
+     * @param   params   instance of type {@link us.kbase.narrativemethodstore.GetCategoryParams GetCategoryParams}
+     * @return   instance of list of type {@link us.kbase.narrativemethodstore.Category Category}
+     * @throws IOException if an IO exception occurs
+     * @throws JsonClientException if a JSON RPC exception occurs
+     */
+    public List<Category> getCategory(GetCategoryParams params) throws IOException, JsonClientException {
+        List<Object> args = new ArrayList<Object>();
+        args.add(params);
+        TypeReference<List<List<Category>>> retType = new TypeReference<List<List<Category>>>() {};
+        List<List<Category>> res = caller.jsonrpcCall("NarrativeMethodStore.get_category", args, retType, true, false);
+        return res.get(0);
     }
 
     /**

@@ -163,6 +163,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
         Map<String,Category> return1 = null;
         Map<String,MethodBriefInfo> return2 = null;
         //BEGIN list_categories
+        config();
         boolean returnLoadedMethods = false;
         if(params.getLoadMethods()!=null) {
         	if(params.getLoadMethods()==1) {
@@ -184,6 +185,29 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
     }
 
     /**
+     * <p>Original spec-file function name: get_category</p>
+     * <pre>
+     * </pre>
+     * @param   params   instance of type {@link us.kbase.narrativemethodstore.GetCategoryParams GetCategoryParams}
+     * @return   instance of list of type {@link us.kbase.narrativemethodstore.Category Category}
+     */
+    @JsonServerMethod(rpc = "NarrativeMethodStore.get_category")
+    public List<Category> getCategory(GetCategoryParams params) throws Exception {
+        List<Category> returnVal = null;
+        //BEGIN get_category
+        config();
+        returnVal = new ArrayList<Category>();
+        for (String catId : params.getIds()) {
+        	Category cat = localGitDB.getCategoriesIndex().getCategories().get(catId);
+        	if (cat == null)
+        		throw new IllegalStateException("No category with id=" + catId);
+        	returnVal.add(cat);
+        }
+        //END get_category
+        return returnVal;
+    }
+
+    /**
      * <p>Original spec-file function name: list_methods</p>
      * <pre>
      * </pre>
@@ -194,6 +218,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
     public List<MethodBriefInfo> listMethods(ListParams params) throws Exception {
         List<MethodBriefInfo> returnVal = null;
         //BEGIN list_methods
+        config();
         returnVal = new ArrayList<MethodBriefInfo>(localGitDB.getCategoriesIndex().getMethods().values());
         returnVal = trim(returnVal, params);
         //END list_methods
@@ -211,6 +236,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
     public List<MethodFullInfo> listMethodsFullInfo(ListParams params) throws Exception {
         List<MethodFullInfo> returnVal = null;
         //BEGIN list_methods_full_info
+        config();
         List<String> methodIds = new ArrayList<String>(localGitDB.listMethodIds());
         methodIds = trim(methodIds, params);
         returnVal = getMethodFullInfo(new GetMethodParams().withIds(methodIds));
@@ -229,6 +255,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
     public List<MethodSpec> listMethodsSpec(ListParams params) throws Exception {
         List<MethodSpec> returnVal = null;
         //BEGIN list_methods_spec
+        config();
         List<String> methodIds = new ArrayList<String>(localGitDB.listMethodIds());
         methodIds = trim(methodIds, params);
         returnVal = getMethodSpec(new GetMethodParams().withIds(methodIds));
@@ -246,6 +273,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
     public Map<String,String> listMethodIdsAndNames() throws Exception {
         Map<String,String> returnVal = null;
         //BEGIN list_method_ids_and_names
+        config();
         returnVal = new TreeMap<String, String>();
         for (Map.Entry<String, MethodBriefInfo> entry : localGitDB.getCategoriesIndex().getMethods().entrySet())
         	returnVal.put(entry.getKey(), entry.getValue().getName());
@@ -264,6 +292,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
     public List<MethodBriefInfo> getMethodBriefInfo(GetMethodParams params) throws Exception {
         List<MethodBriefInfo> returnVal = null;
         //BEGIN get_method_brief_info
+        config();
         List <String> methodIds = params.getIds();
         returnVal = new ArrayList<MethodBriefInfo>(methodIds.size());
         for(String id: methodIds) {
@@ -284,6 +313,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
     public List<MethodFullInfo> getMethodFullInfo(GetMethodParams params) throws Exception {
         List<MethodFullInfo> returnVal = null;
         //BEGIN get_method_full_info
+        config();
         List <String> methodIds = params.getIds();
         returnVal = new ArrayList<MethodFullInfo>(methodIds.size());
         for(String id: methodIds) {
@@ -304,6 +334,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
     public List<MethodSpec> getMethodSpec(GetMethodParams params) throws Exception {
         List<MethodSpec> returnVal = null;
         //BEGIN get_method_spec
+        config();
         List<String> methodIds = params.getIds();
         returnVal = new ArrayList<MethodSpec>(methodIds.size());
         for (String id : methodIds)
