@@ -1,24 +1,24 @@
 package us.kbase.narrativemethodstore.test;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.lang.reflect.Field;
-import java.net.URL;
-import java.net.UnknownHostException;
-import java.nio.file.Paths;
-import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.io.FileUtils;
 import org.ini4j.Ini;
 import org.ini4j.Profile.Section;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import us.kbase.common.service.Tuple2;
+import us.kbase.narrativemethodstore.Category;
+import us.kbase.narrativemethodstore.ListCategoriesParams;
+import us.kbase.narrativemethodstore.ListParams;
+import us.kbase.narrativemethodstore.MethodBriefInfo;
 import us.kbase.narrativemethodstore.NarrativeMethodStoreServer;
 
 /*
@@ -27,19 +27,17 @@ import us.kbase.narrativemethodstore.NarrativeMethodStoreServer;
  */
 public class FullServerTest {
 	
-	final private static String TMP_FILE_SUBDIR = "tempForScriptTestRunner";
-
 	private static File tempDir;
 	
 	private static NarrativeMethodStoreServer SERVER;
 	
+	private static boolean removeTempDir;
+	
 	private static class ServerThread extends Thread {
 		private NarrativeMethodStoreServer server;
-		
 		private ServerThread(NarrativeMethodStoreServer server) {
 			this.server = server;
 		}
-		
 		public void run() {
 			try {
 				server.startupServer();
@@ -61,19 +59,68 @@ public class FullServerTest {
 		return (Map<String, String>) m.get(unmodifiable);
 	}
 	
+	
+	
 	@Test
-	public void runTestServerUp() {
-		System.out.println("test...");
-		System.out.println(getTestURL());
+	public void testListMethodIds() throws Exception {
+		Map<String, String> methods = SERVER.listMethodIdsAndNames();
+		assertTrue("Testing that test_method_1 returns from listMethodIdsAndNames()",
+				methods.get("test_method_1").equals("Test Method 1"));
+	}
+	
+	@Test
+	public void testListMethods() throws Exception {
+		ListParams params = new ListParams();
+		List<MethodBriefInfo> methods = SERVER.listMethods(params);
+		boolean foundTestMethod1 = false;
+		for(MethodBriefInfo m : methods) {
+			
+			// check specific things in specific test methods
+			if(m.getId().equals("test_method_1")) {
+				foundTestMethod1 = true;
+				
+				assertTrue("Testing that test_method_1 name in brief info from listMethods is correct",
+						m.getName().equals("Test Method 1"));
+				assertTrue("Testing that test_method_1 ver in brief info from listMethods is correct",
+						m.getVer().equals("1.0.1"));
+				assertTrue("Testing that test_method_1 id in brief info from listMethods is correct",
+						m.getId().equals("test_method_1"));
+				assertTrue("Testing that test_method_1 categories in brief info from listMethods is correct",
+						m.getCategories().get(0).equals("testmethods"));
+			}
+		}
+
+		assertTrue("Testing that test_method_1 was returned from listMethods",
+				foundTestMethod1);
+	}
+	
+	@Test
+	public void testListCategories() throws Exception {
+		ListCategoriesParams params = new ListCategoriesParams().withLoadMethods(0L);
+		Tuple2<Map<String, Category>, Map<String, MethodBriefInfo>> methods = SERVER.listCategories(params);
+		
+		//first just check that the method did not return methods if we did not request them
+		assertTrue("We should not get methods from listCategories if we did not ask.", methods.getE2().size()==0);
+		assertTrue("We should get categories from listCategories.", methods.getE1().size()>0);
+		assertTrue("We should get the proper category name for testmethods.", methods.getE1().get("testmethods").getName().equals("Test Methods"));
+		
+		params = new ListCategoriesParams().withLoadMethods(1L);
+		methods = SERVER.listCategories(params);
+		
+		//first just check that the method did not return methods if we did not request them
+		assertTrue("We should get methods from listCategories if we asked for it.", methods.getE2().size()>0);
+		assertTrue("We should get a proper method in the methods returned by listCategories.", methods.getE2().get("test_method_1").getName().equals("Test Method 1"));
+		assertTrue("We should get categories from listCategories.", methods.getE1().size()>0);
+		assertTrue("We should get the proper category name for testmethods.", methods.getE1().get("testmethods").getName().equals("Test Methods"));
 	}
 	
 	
 	
 	
-	private static String getTestURL() {
-		int testport = SERVER.getServerPort();
-		return "http://localhost:"+testport+"/rpc";
-	}
+	
+	
+	
+	
 	
 	
 	@BeforeClass
@@ -87,13 +134,20 @@ public class FullServerTest {
 		String gitRepoRefreshRate = System.getProperty("test.method-spec-git-repo-refresh-rate");
 		String gitRepoCacheSize = System.getProperty("test.method-spec-cache-size");
 		
+		String s = System.getProperty("test.remove-temp-dir");
+		removeTempDir = false;
+		if(s!=null) {
+			if(s.trim().equals("1") || s.trim().equals("yes")) {
+				removeTempDir = true;
+			}
+		}
+		
 		System.out.println("test.temp-dir    = " + tempDirName);
 		
 		System.out.println("test.method-spec-git-repo              = " + gitRepo);
 		System.out.println("test.method-spec-git-repo-branch       = " + gitRepoBranch);
 		System.out.println("test.method-spec-git-repo-refresh-rate = " + gitRepoRefreshRate);
 		System.out.println("test.method-spec-cache-size            = " + gitRepoCacheSize);
-		
 		
 		//create the temp directory for this test
 		tempDir = new File(tempDirName);
@@ -120,102 +174,27 @@ public class FullServerTest {
 
 		Map<String, String> env = getenv();
 		env.put("KB_DEPLOYMENT_CONFIG", iniFile.getAbsolutePath());
-		env.put("KB_SERVICE_NAME", "Workspace");
+		env.put("KB_SERVICE_NAME", "NarrativeMethodStore");
 
-		//NarrativeMethodStoreServer.clearConfigForTests();
 		SERVER = new NarrativeMethodStoreServer();
 		new ServerThread(SERVER).start();
 		System.out.println("Main thread waiting for server to start up");
 		while (SERVER.getServerPort() == null) {
 			Thread.sleep(100);
 		}
-		
-		
+		System.out.println("Test server listening on "+SERVER.getServerPort() );
 	}
-	
-	
-	/*
-	private static NarrativeMethodStoreServer startupServer(
-			String mongohost,
-			DB db,
-			String typedb,
-			String handleUser,
-			String handlePwd)
-			throws InvalidHostException, UnknownHostException, IOException,
-			NoSuchFieldException, IllegalAccessException, Exception,
-			InterruptedException {
-		
-		WorkspaceTestCommon.initializeGridFSWorkspaceDB(db, typedb);
-
-		//write the server config file:
-		File iniFile = File.createTempFile("test", ".cfg",
-				new File(WorkspaceTestCommon.getTempDir()));
-		if (iniFile.exists()) {
-			iniFile.delete();
-		}
-		System.out.println("Created temporary config file: " +
-				iniFile.getAbsolutePath());
-		Ini ini = new Ini();
-		Section ws = ini.add("Workspace");
-		ws.add("mongodb-host", mongohost);
-		ws.add("mongodb-database", db.getName());
-		ws.add("backend-secret", "foo");
-		ws.add("handle-service-url", "http://localhost:" +
-				HANDLE.getHandleServerPort());
-		ws.add("handle-manager-url", "http://localhost:" +
-				HANDLE.getHandleManagerPort());
-		ws.add("handle-manager-user", handleUser);
-		ws.add("handle-manager-pwd", handlePwd);
-		ws.add("ws-admin", USER2);
-		ws.add("temp-dir", Paths.get(WorkspaceTestCommon.getTempDir())
-				.resolve(TMP_FILE_SUBDIR));
-		ini.store(iniFile);
-		iniFile.deleteOnExit();
-
-		//set up env
-		Map<String, String> env = getenv();
-		env.put("KB_DEPLOYMENT_CONFIG", iniFile.getAbsolutePath());
-		env.put("KB_SERVICE_NAME", "Workspace");
-
-		WorkspaceServer.clearConfigForTests();
-		WorkspaceServer server = new WorkspaceServer();
-		new ServerThread(server).start();
-		System.out.println("Main thread waiting for server to start up");
-		while (server.getServerPort() == null) {
-			Thread.sleep(1000);
-		}
-		return server;
-	}
-	
 	
 	@AfterClass
 	public static void tearDownClass() throws Exception {
 		if (SERVER != null) {
-			System.out.print("Killing workspace server... ");
+			System.out.print("Killing narrative method store server... ");
 			SERVER.stopServer();
 			System.out.println("Done");
 		}
-		if (HANDLE != null) {
-			System.out.print("Destroying handle service... ");
-			HANDLE.destroy(WorkspaceTestCommon.getDeleteTempFiles());
-			System.out.println("Done");
-		}
-		if (SHOCK != null) {
-			System.out.print("Destroying shock service... ");
-			SHOCK.destroy(WorkspaceTestCommon.getDeleteTempFiles());
-			System.out.println("Done");
-		}
-		if (MONGO != null) {
-			System.out.print("Destroying mongo test service... ");
-			MONGO.destroy(WorkspaceTestCommon.getDeleteTempFiles());
-			System.out.println("Done");
-		}
-		if (MYSQL != null) {
-			System.out.print("Destroying mysql test service... ");
-			MYSQL.destroy(WorkspaceTestCommon.getDeleteTempFiles());
-			System.out.println("Done");
+		if(removeTempDir) {
+			FileUtils.deleteDirectory(tempDir);
 		}
 	}
-	*/
 	
 }
