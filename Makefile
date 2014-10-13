@@ -5,9 +5,9 @@ SERVICE_CAPS = NarrativeMethodStore
 SPEC_FILE = NarrativeMethodStore.spec
 CLIENT_JAR = NarrativeMethodStoreClient.jar
 WAR = NarrativeMethodStoreService.war
-URL = https://kbase.us/services/narrative_method_store/
+URL = https://kbase.us/services/narrative_method_store/rpc
 DEFAULT_SCRIPT_URL = $(URL)
-DEV_SCRIPT_URL = http://dev19.berkeley.kbase.us:$(SERVICE_PORT)
+DEV_SCRIPT_URL = http://dev19.berkeley.kbase.us:$(SERVICE_PORT)/rpc
 
 #End of user defined variables
 

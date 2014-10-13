@@ -162,7 +162,9 @@ class CommandGlassfishDomain(object):
             'deploy', '--virtualservers', 'server-' + portstr,
             '--contextroot', '/', '--name', 'app-' + portstr, war).rstrip())
         try:
-            urllib2.urlopen('http://localhost:' + portstr)
+            localCheckUrl = 'http://localhost:' + portstr + '/rpc'
+            print('Attempting to check if rpc service is up here: '+localCheckUrl)
+            urllib2.urlopen(localCheckUrl)
         except urllib2.HTTPError as h:
             resp = h.read()
         else:
