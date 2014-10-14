@@ -97,6 +97,7 @@ public class NarrativeMethodData {
 		JsonNode behaviorNode = spec.get("behavior");
 		JsonNode serviceMappingNode = behaviorNode.get("service-mapping");
 		MethodBehavior behavior = new MethodBehavior()
+							.withPythonClass(getTextOrNull(behaviorNode.get("python_class")))
 							.withPythonFunction(getTextOrNull(behaviorNode.get("python_function")));
 		if (serviceMappingNode != null)
 			behavior

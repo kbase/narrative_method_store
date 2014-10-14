@@ -138,6 +138,7 @@ module NarrativeMethodStore {
         @optional python_function kb_service_name kb_service_method
     */
     typedef structure {
+        string python_class;
         string python_function;
         string kb_service_name;
         string kb_service_method;

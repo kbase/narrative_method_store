@@ -635,6 +635,7 @@ RadioOptions is a reference to a hash where the following keys are defined:
 	ids_to_options has a value which is a reference to a hash where the key is a string and the value is a string
 	ids_to_tooltip has a value which is a reference to a hash where the key is a string and the value is a string
 MethodBehavior is a reference to a hash where the following keys are defined:
+	python_class has a value which is a string
 	python_function has a value which is a string
 	kb_service_name has a value which is a string
 	kb_service_method has a value which is a string
@@ -706,6 +707,7 @@ RadioOptions is a reference to a hash where the following keys are defined:
 	ids_to_options has a value which is a reference to a hash where the key is a string and the value is a string
 	ids_to_tooltip has a value which is a reference to a hash where the key is a string and the value is a string
 MethodBehavior is a reference to a hash where the following keys are defined:
+	python_class has a value which is a string
 	python_function has a value which is a string
 	kb_service_name has a value which is a string
 	kb_service_method has a value which is a string
@@ -1127,6 +1129,7 @@ RadioOptions is a reference to a hash where the following keys are defined:
 	ids_to_options has a value which is a reference to a hash where the key is a string and the value is a string
 	ids_to_tooltip has a value which is a reference to a hash where the key is a string and the value is a string
 MethodBehavior is a reference to a hash where the following keys are defined:
+	python_class has a value which is a string
 	python_function has a value which is a string
 	kb_service_name has a value which is a string
 	kb_service_method has a value which is a string
@@ -1197,6 +1200,7 @@ RadioOptions is a reference to a hash where the following keys are defined:
 	ids_to_options has a value which is a reference to a hash where the key is a string and the value is a string
 	ids_to_tooltip has a value which is a reference to a hash where the key is a string and the value is a string
 MethodBehavior is a reference to a hash where the following keys are defined:
+	python_class has a value which is a string
 	python_function has a value which is a string
 	kb_service_name has a value which is a string
 	kb_service_method has a value which is a string
@@ -1949,6 +1953,7 @@ Determines how the method is handled when run.
 
 <pre>
 a reference to a hash where the following keys are defined:
+python_class has a value which is a string
 python_function has a value which is a string
 kb_service_name has a value which is a string
 kb_service_method has a value which is a string
@@ -1960,6 +1965,7 @@ kb_service_method has a value which is a string
 =begin text
 
 a reference to a hash where the following keys are defined:
+python_class has a value which is a string
 python_function has a value which is a string
 kb_service_name has a value which is a string
 kb_service_method has a value which is a string

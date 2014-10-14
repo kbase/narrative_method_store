@@ -22,12 +22,15 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Generated("com.googlecode.jsonschema2pojo")
 @JsonPropertyOrder({
+    "python_class",
     "python_function",
     "kb_service_name",
     "kb_service_method"
 })
 public class MethodBehavior {
 
+    @JsonProperty("python_class")
+    private String pythonClass;
     @JsonProperty("python_function")
     private String pythonFunction;
     @JsonProperty("kb_service_name")
@@ -35,6 +38,21 @@ public class MethodBehavior {
     @JsonProperty("kb_service_method")
     private String kbServiceMethod;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+
+    @JsonProperty("python_class")
+    public String getPythonClass() {
+        return pythonClass;
+    }
+
+    @JsonProperty("python_class")
+    public void setPythonClass(String pythonClass) {
+        this.pythonClass = pythonClass;
+    }
+
+    public MethodBehavior withPythonClass(String pythonClass) {
+        this.pythonClass = pythonClass;
+        return this;
+    }
 
     @JsonProperty("python_function")
     public String getPythonFunction() {
@@ -93,7 +111,7 @@ public class MethodBehavior {
 
     @Override
     public String toString() {
-        return ((((((((("MethodBehavior"+" [pythonFunction=")+ pythonFunction)+", kbServiceName=")+ kbServiceName)+", kbServiceMethod=")+ kbServiceMethod)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((((((("MethodBehavior"+" [pythonClass=")+ pythonClass)+", pythonFunction=")+ pythonFunction)+", kbServiceName=")+ kbServiceName)+", kbServiceMethod=")+ kbServiceMethod)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }
