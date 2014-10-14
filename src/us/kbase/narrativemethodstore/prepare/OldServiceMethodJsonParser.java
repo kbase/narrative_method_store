@@ -59,8 +59,8 @@ public class OldServiceMethodJsonParser {
 				spec.put("name", met.title);
 				display.append("#\n# Define basic display information\n#\n");
 				display.append("name     : ").append(met.title).append("\n");
-				display.append("subtitle : ").append(met.description).append("\n");
-				display.append("tooltip  : ").append(met.description).append("\n");
+				display.append("subtitle : |\n    ").append(met.description).append("\n");
+				display.append("tooltip  : |\n    ").append(met.description).append("\n");
 				display.append("\nscreenshots :\n    []\n");
 				display.append("\n#\n# Define the set of other narrative methods that should be suggested to the user.\n");
 				display.append("#\nmethod-suggestions :\n    related :\n        []\n    next :\n        []\n\n\n");
@@ -75,10 +75,11 @@ public class OldServiceMethodJsonParser {
 					visibleMethods++;
 				spec.put("categories", Arrays.asList(catId));
 				spec.put("widgets", met.properties.widgets);
-				Map<String, Object> params = new LinkedHashMap<String, Object>();
+				List<Object> params = new ArrayList<Object>();
 				for (String paramId : met.properties.parameters.keySet()) {
 					OldMethodParam param = met.properties.parameters.get(paramId);
 					Map<String, Object> paramMap = new LinkedHashMap<String, Object>();
+					params.add(paramMap);
 					paramMap.put("id", paramId);
 					paramMap.put("optional", false);
 					paramMap.put("advanced", false);
@@ -99,12 +100,13 @@ public class OldServiceMethodJsonParser {
 					textOptions.put("valid_ws_types", validWsTypes);
 					paramMap.put("text_options", textOptions);
 					display.append("    " + paramId + " :\n");
-					display.append("        ui-name : " + param.ui_name + "\n");
-					display.append("        short-hint : " + param.description + "\n");
+					display.append("        ui-name : |\n            " + param.ui_name + "\n");
+					display.append("        short-hint : |\n            " + param.description + "\n");
 					display.append("        long-hint  : |\n            " + param.description + "\n\n\n");
 				}
 				spec.put("parameters", params);
 				Map<String, Object> behavior = new LinkedHashMap<String, Object>();
+				behavior.put("python_class", catName);
 				behavior.put("python_function", met.title);
 				spec.put("behavior", behavior);
 				display.append("description : |\n    " + met.description + "\n\n\n");
