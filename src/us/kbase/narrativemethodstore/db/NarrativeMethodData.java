@@ -1,5 +1,6 @@
 package us.kbase.narrativemethodstore.db;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
@@ -14,6 +15,7 @@ import us.kbase.narrativemethodstore.MethodSpec;
 import us.kbase.narrativemethodstore.ScreenShot;
 import us.kbase.narrativemethodstore.TextOptions;
 import us.kbase.narrativemethodstore.WidgetSpec;
+import us.kbase.narrativemethodstore.exceptions.NarrativeMethodStoreException;
 
 public class NarrativeMethodData {
 	protected String methodId;
@@ -22,8 +24,18 @@ public class NarrativeMethodData {
 	protected MethodSpec methodSpec;
 	
 	public NarrativeMethodData(String methodId, JsonNode spec, Map<String, Object> display,
-			MethodFileLookup lookup) {
-		update(methodId, spec, display, lookup);
+			MethodFileLookup lookup) throws NarrativeMethodStoreException {
+		try {
+			update(methodId, spec, display, lookup);
+		} catch (Throwable ex) {
+			if (briefInfo.getName() == null)
+				briefInfo.withName(briefInfo.getId());
+			if (briefInfo.getCategories() == null)
+				briefInfo.withCategories(Arrays.asList("error"));
+				NarrativeMethodStoreException ret = new NarrativeMethodStoreException(ex.getMessage(), ex);
+				briefInfo.setLoadingError(ex.getMessage());
+				ret.setErrorMethod(briefInfo);
+		}
 	}
 	
 	public MethodBriefInfo getMethodBriefInfo() {
@@ -40,36 +52,38 @@ public class NarrativeMethodData {
 	
 	
 	public void update(String methodId, JsonNode spec, Map<String, Object> display,
-			MethodFileLookup lookup) {
+			MethodFileLookup lookup) throws NarrativeMethodStoreException {
 		this.methodId = methodId;
-		
+
+		briefInfo = new MethodBriefInfo()
+							.withId(this.methodId);
+
 		List <String> categories = new ArrayList<String>(1);
-		JsonNode cats = spec.get("categories");
+		JsonNode cats = get(spec, "categories");
 		for(int k=0; k<cats.size(); k++) {
 			categories.add(cats.get(k).asText());
 		}
+		briefInfo.withCategories(categories);
 		
 		String methodName = getDisplayProp(display, "name", lookup);
+		briefInfo.withName(methodName);
 		String methodSubtitle = getDisplayProp(display, "subtitle", lookup);
+		briefInfo.withSubtitle(methodSubtitle);
 		String methodTooltip = getDisplayProp(display, "tooltip", lookup);
+		briefInfo.withTooltip(methodTooltip);
 		String methodDescription = getDisplayProp(display, "description", lookup);
 		String methodTechnicalDescr = getDisplayProp(display, "technical-description", lookup);
 		
-		briefInfo = new MethodBriefInfo()
-							.withId(this.methodId)
-							.withName(methodName)
-							.withVer(spec.get("ver").asText())
-							.withSubtitle(methodSubtitle)
-							.withTooltip(methodTooltip)
-							.withCategories(categories);
+		briefInfo.withVer(get(spec, "ver").asText());
 		
 		List <String> authors = new ArrayList<String>(2);
-		for(int a=0; a<spec.get("authors").size(); a++) {
-			authors.add(spec.get("authors").get(a).asText());
+		for(int a=0; a< get(spec, "authors").size(); a++) {
+			authors.add(get(spec, "authors").get(a).asText());
 		}
 		
 		List<ScreenShot> screenshots = new ArrayList<ScreenShot>();
-		List<String> imageNames = (List<String>)display.get("screenshots");
+		@SuppressWarnings("unchecked")
+		List<String> imageNames = (List<String>)getDisplayProp("/", display, "screenshots");
 		if (imageNames != null) {
 			for (String imageName : imageNames)
 				screenshots.add(new ScreenShot().withUrl("img?method_id=" + this.methodId + "&image_name=" + imageName));
@@ -78,56 +92,58 @@ public class NarrativeMethodData {
 		fullInfo = new MethodFullInfo()
 							.withId(this.methodId)
 							.withName(methodName)
-							.withVer(spec.get("ver").asText())
+							.withVer(briefInfo.getVer())
 							.withSubtitle(methodSubtitle)
 							.withTooltip(methodTooltip)
 							.withCategories(categories)
 							
 							.withAuthors(null)
-							.withContact(spec.get("contact").asText())
+							.withContact(get(spec, "contact").asText())
 							
 							.withDescription(methodDescription)
 							.withTechnicalDescription(methodTechnicalDescr)
 							.withScreenshots(screenshots);
 		
-		JsonNode widgetsNode = spec.get("widgets");
+		JsonNode widgetsNode = get(spec, "widgets");
 		WidgetSpec widgets = new WidgetSpec()
 							.withInput(getTextOrNull(widgetsNode.get("input")))
 							.withOutput(getTextOrNull(widgetsNode.get("output")));
-		JsonNode behaviorNode = spec.get("behavior");
+		JsonNode behaviorNode = get(spec, "behavior");
 		JsonNode serviceMappingNode = behaviorNode.get("service-mapping");
 		MethodBehavior behavior = new MethodBehavior()
 							.withPythonClass(getTextOrNull(behaviorNode.get("python_class")))
 							.withPythonFunction(getTextOrNull(behaviorNode.get("python_function")));
 		if (serviceMappingNode != null)
 			behavior
-				.withKbServiceName(getTextOrNull(behaviorNode.get("url")))
-				.withKbServiceMethod(getTextOrNull(behaviorNode.get("method")));
+				.withKbServiceName(getTextOrNull(get("behavior/service-mapping", serviceMappingNode, "url")))
+				.withKbServiceMethod(getTextOrNull(get("behavior/service-mapping", serviceMappingNode, "method")));
 		List<MethodParameter> parameters = new ArrayList<MethodParameter>();
-		JsonNode parametersNode = spec.get("parameters");
+		JsonNode parametersNode = get(spec, "parameters");
 		@SuppressWarnings("unchecked")
-		Map<String, Map<String, String>> paramsDisplays = (Map<String, Map<String, String>>)display.get("parameters"); 
+		Map<String, Object> paramsDisplays = (Map<String, Object>)getDisplayProp("/", display, "parameters"); 
 		for (int i = 0; i < parametersNode.size(); i++) {
 			JsonNode paramNode = parametersNode.get(i);
-			String paramId = paramNode.get("id").asText();
-			Map<String, String> paramDisplay = paramsDisplays.get(paramId);
+			String paramPath = "parameters/" + i;
+			String paramId = get(paramPath, paramNode, "id").asText();
+			@SuppressWarnings("unchecked")
+			Map<String, Object> paramDisplay = (Map<String, Object>)getDisplayProp("parameters", paramsDisplays, paramId);
 			TextOptions textOpt = null;
 			if (paramNode.has("text_options")) {
-				JsonNode optNode = paramNode.get("text_options");
+				JsonNode optNode = get(paramPath, paramNode, "text_options");
 				textOpt = new TextOptions()
 							.withValidWsTypes(jsonListToStringList(optNode.get("valid_ws_types")))
 							.withValidateAs(getTextOrNull(optNode.get("validate_as")));
 			}
 			MethodParameter param = new MethodParameter()
 							.withId(paramId)
-							.withUiName(paramDisplay.get("ui-name"))
-							.withShortHint(paramDisplay.get("short-hint"))
-							.withLongHint(paramDisplay.get("long-hint"))
-							.withOptional(jsonBooleanToRPC(paramNode.get("optional")))
-							.withAdvanced(jsonBooleanToRPC(paramNode.get("advanced")))
-							.withAllowMultiple(jsonBooleanToRPC(paramNode.get("allow_multiple")))
-							.withDefaultValues(jsonListToStringList(paramNode.get("default_values")))
-							.withFieldType(paramNode.get("field_type").asText())
+							.withUiName((String)getDisplayProp("parameters/" + paramId, paramDisplay, "ui-name"))
+							.withShortHint((String)getDisplayProp("parameters/" + paramId, paramDisplay, "short-hint"))
+							.withLongHint((String)getDisplayProp("parameters/" + paramId, paramDisplay, "long-hint"))
+							.withOptional(jsonBooleanToRPC(get(paramPath, paramNode, "optional")))
+							.withAdvanced(jsonBooleanToRPC(get(paramPath, paramNode, "advanced")))
+							.withAllowMultiple(jsonBooleanToRPC(get(paramPath, paramNode, "allow_multiple")))
+							.withDefaultValues(jsonListToStringList(get(paramPath, paramNode, "default_values")))
+							.withFieldType(get(paramPath, paramNode, "field_type").asText())
 							.withTextOptions(textOpt);
 			parameters.add(param);
 		}
@@ -136,6 +152,18 @@ public class NarrativeMethodData {
 							.withWidgets(widgets)
 							.withBehavior(behavior)
 							.withParameters(parameters);
+	}
+
+	private static JsonNode get(JsonNode node, String childName) {
+		return get(null, node, childName);
+	}
+	
+	private static JsonNode get(String nodePath, JsonNode node, String childName) {
+		JsonNode ret = node.get(childName);
+		if (ret == null)
+			throw new IllegalStateException("Can't find sub-node [" + childName + "] within " +
+					"path [" + (nodePath == null ? "/" : nodePath) + "] in spec.json");
+		return ret;
 	}
 	
 	private static String getDisplayProp(Map<String, Object> display, String propName, 
@@ -147,7 +175,15 @@ public class NarrativeMethodData {
 			MethodFileLookup lookup, String lookupName) {
 		String ret = lookup.loadFileContent(lookupName + ".html");
 		if (ret == null)
-			ret = (String)display.get(propName);
+			ret = (String)getDisplayProp("/", display, propName);
+		return ret;
+	}
+	
+	private static Object getDisplayProp(String path, Map<String, Object> display, String propName) {
+		Object ret = display.get(propName);
+		if (ret == null)
+			throw new IllegalStateException("Can't find property [" + propName + "] within path [" + 
+					path + "] in display.yaml");
 		return ret;
 	}
 

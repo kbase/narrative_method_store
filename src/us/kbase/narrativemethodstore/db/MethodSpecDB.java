@@ -8,7 +8,7 @@ import us.kbase.narrativemethodstore.MethodSpec;
 import us.kbase.narrativemethodstore.exceptions.NarrativeMethodStoreException;
 
 public interface MethodSpecDB {
-	public List<String> listMethodIds();
+	public List<String> listMethodIds(boolean withErrors);
 	public MethodBriefInfo getMethodBriefInfo(String methodId) throws NarrativeMethodStoreException;
 	public MethodFullInfo getMethodFullInfo(String methodId) throws NarrativeMethodStoreException;
 	public MethodSpec getMethodSpec(String methodId) throws NarrativeMethodStoreException;

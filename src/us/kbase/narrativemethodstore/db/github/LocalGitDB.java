@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -205,9 +206,15 @@ public class LocalGitDB implements MethodSpecDB {
 	}
 
 	@Override
-	public List<String> listMethodIds() {
+	public List<String> listMethodIds(boolean withErrors) {
 		checkForChanges();
-		return new ArrayList<String>(narCatIndex.getMethods().keySet());
+		List<String> ret = new ArrayList<String>();
+		for (Map.Entry<String, MethodBriefInfo> entry : narCatIndex.getMethods().entrySet()) {
+			if (entry.getValue().getLoadingError() != null && !withErrors)
+				continue;
+			ret.add(entry.getKey());
+		}
+		return ret;
 	}
 	
 	protected NarrativeMethodData loadMethodDataUncached(final String methodId) throws NarrativeMethodStoreException {
@@ -230,8 +237,13 @@ public class LocalGitDB implements MethodSpecDB {
 						}
 					});
 			return data;
+		} catch (NarrativeMethodStoreException ex) {
+			throw ex;
 		} catch (Exception ex) {
-			throw new NarrativeMethodStoreException(ex);
+			NarrativeMethodStoreException ret = new NarrativeMethodStoreException(ex);
+			ret.setErrorMethod(new MethodBriefInfo().withCategories(Arrays.asList("error"))
+					.withId(methodId).withName(methodId));
+			throw ret;
 		}
 	}
 
@@ -304,8 +316,14 @@ public class LocalGitDB implements MethodSpecDB {
 				// TODO: check cache for data instead of loading it all directly; Roman: I doubt it's a good 
 				// idea to check cache first cause narrative engine more likely loads list of all categories 
 				// before any full infos and specs.
-				NarrativeMethodData data = loadMethodDataUncached(mId);
-				narCatIndex.addOrUpdateMethod(mId, data.getMethodBriefInfo());
+				MethodBriefInfo mbi;
+				try {
+					NarrativeMethodData data = loadMethodDataUncached(mId);
+					mbi = data.getMethodBriefInfo();
+				} catch (NarrativeMethodStoreException ex) {
+					mbi = ex.getErrorMethod();
+				}
+				narCatIndex.addOrUpdateMethod(mId, mbi);
 			}
 		} catch (IOException e) {
 			throw new NarrativeMethodStoreException("Cannot load category index : "+e.getMessage(),e);
@@ -368,7 +386,7 @@ public class LocalGitDB implements MethodSpecDB {
 		String localpath = "temp_files/narrative_method_specs";
 		LocalGitDB db = new LocalGitDB(new URL(giturl), branch, new File(localpath), 1, 10000);
 
-		String mId = db.listMethodIds().get(0);
+		String mId = db.listMethodIds(false).get(0);
 		MethodBriefInfo data1 = db.getMethodBriefInfo(mId);
 		MethodFullInfo data2 = db.getMethodFullInfo(mId);
 		System.out.println(mId + ", " + data1.getTooltip() + ", " + data2.getDescription());

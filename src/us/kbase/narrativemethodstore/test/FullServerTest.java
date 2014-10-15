@@ -4,9 +4,12 @@ import static org.junit.Assert.*;
 
 import java.io.File;
 import java.lang.reflect.Field;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+
+import junit.framework.Assert;
 
 import org.apache.commons.io.FileUtils;
 import org.ini4j.Ini;
@@ -23,6 +26,7 @@ import us.kbase.narrativemethodstore.ListParams;
 import us.kbase.narrativemethodstore.MethodBriefInfo;
 import us.kbase.narrativemethodstore.MethodFullInfo;
 import us.kbase.narrativemethodstore.MethodSpec;
+import us.kbase.narrativemethodstore.NarrativeMethodStoreClient;
 import us.kbase.narrativemethodstore.NarrativeMethodStoreServer;
 
 /*
@@ -34,6 +38,7 @@ public class FullServerTest {
 	private static File tempDir;
 	
 	private static NarrativeMethodStoreServer SERVER;
+	private static NarrativeMethodStoreClient CLIENT;
 	
 	private static boolean removeTempDir;
 	
@@ -66,7 +71,7 @@ public class FullServerTest {
 	
 	@Test
 	public void testListMethodIds() throws Exception {
-		Map<String, String> methods = SERVER.listMethodIdsAndNames();
+		Map<String, String> methods = CLIENT.listMethodIdsAndNames();
 		assertTrue("Testing that test_method_1 returns from listMethodIdsAndNames()",
 				methods.get("test_method_1").equals("Test Method 1"));
 	}
@@ -75,7 +80,7 @@ public class FullServerTest {
 	@Test
 	public void testListMethods() throws Exception {
 		ListParams params = new ListParams();
-		List<MethodBriefInfo> methods = SERVER.listMethods(params);
+		List<MethodBriefInfo> methods = CLIENT.listMethods(params);
 		boolean foundTestMethod1 = false;
 		for(MethodBriefInfo m : methods) {
 			
@@ -102,7 +107,7 @@ public class FullServerTest {
 	@Test
 	public void testListCategories() throws Exception {
 		ListCategoriesParams params = new ListCategoriesParams().withLoadMethods(0L);
-		Tuple2<Map<String, Category>, Map<String, MethodBriefInfo>> methods = SERVER.listCategories(params);
+		Tuple2<Map<String, Category>, Map<String, MethodBriefInfo>> methods = CLIENT.listCategories(params);
 		
 		//first just check that the method did not return methods if we did not request them
 		assertTrue("We should not get methods from listCategories if we did not ask.", methods.getE2().size()==0);
@@ -110,7 +115,7 @@ public class FullServerTest {
 		assertTrue("We should get the proper category name for testmethods.", methods.getE1().get("testmethods").getName().equals("Test Methods"));
 		
 		params = new ListCategoriesParams().withLoadMethods(1L);
-		methods = SERVER.listCategories(params);
+		methods = CLIENT.listCategories(params);
 		
 		//first just check that the method did not return methods if we did not request them
 		assertTrue("We should get methods from listCategories if we asked for it.", methods.getE2().size()>0);
@@ -124,7 +129,7 @@ public class FullServerTest {
 	@Test
 	public void testListMethodsFullInfo() throws Exception {
 		ListParams params = new ListParams();
-		List<MethodFullInfo> methods = SERVER.listMethodsFullInfo(params);
+		List<MethodFullInfo> methods = CLIENT.listMethodsFullInfo(params);
 		boolean foundTestMethod1 = false;
 		for(MethodFullInfo m : methods) {
 			
@@ -155,7 +160,7 @@ public class FullServerTest {
 	@Test
 	public void testListMethodsSpec() throws Exception {
 		ListParams params = new ListParams();
-		List<MethodSpec> methods = SERVER.listMethodsSpec(params);
+		List<MethodSpec> methods = CLIENT.listMethodsSpec(params);
 		boolean foundTestMethod1 = false;
 		for(MethodSpec m : methods) {
 			
@@ -200,7 +205,7 @@ public class FullServerTest {
 	@Test
 	public void getMethodBriefInfo() throws Exception {
 		GetMethodParams params = new GetMethodParams().withIds(Arrays.asList("test_method_1"));
-		List<MethodBriefInfo> methods = SERVER.getMethodBriefInfo(params);
+		List<MethodBriefInfo> methods = CLIENT.getMethodBriefInfo(params);
 		assertTrue("Testing that test_method_1 can be fetched from getMethodBriefInfo",
 				methods.size()==1);
 		
@@ -219,7 +224,7 @@ public class FullServerTest {
 	@Test
 	public void testGetMethodFullInfo() throws Exception {
 		GetMethodParams params = new GetMethodParams().withIds(Arrays.asList("test_method_1"));
-		List<MethodFullInfo> methods = SERVER.getMethodFullInfo(params);
+		List<MethodFullInfo> methods = CLIENT.getMethodFullInfo(params);
 		assertTrue("Testing that test_method_1 can be fetched from getMethodFullInfo",
 				methods.size()==1);
 		
@@ -243,7 +248,7 @@ public class FullServerTest {
 	@Test
 	public void testGetMethodSpec() throws Exception {
 		GetMethodParams params = new GetMethodParams().withIds(Arrays.asList("test_method_1"));
-		List<MethodSpec> methods = SERVER.getMethodSpec(params);
+		List<MethodSpec> methods = CLIENT.getMethodSpec(params);
 		assertTrue("Testing that test_method_1 can be fetched from getMethodSpec",
 				methods.size()==1);
 		
@@ -277,7 +282,20 @@ public class FullServerTest {
 				m.getWidgets().getOutput().equals("KBaseDefaultViewer"));
 	}
 	
-	
+	@Test
+	public void testErrors() throws Exception {
+		Map<String, MethodBriefInfo> methodBriefInfo = CLIENT.listCategories(new ListCategoriesParams().withLoadMethods(1L)).getE2();
+		MethodBriefInfo error1 = methodBriefInfo.get("test_error_1");
+		Assert.assertTrue(error1.getLoadingError(), error1.getLoadingError().contains("Unexpected character ('{' (code 123)): was expecting double-quote to start field name\n at [Source: java.io.StringReader"));
+		MethodBriefInfo error2 = methodBriefInfo.get("test_error_2");
+		Assert.assertEquals(error2.getLoadingError(), "Can't find sub-node [parameters] within path [/] in spec.json");
+		MethodBriefInfo error3 = methodBriefInfo.get("test_error_3");
+		Assert.assertEquals(error3.getLoadingError(), "Can't find sub-node [id] within path [parameters/0] in spec.json");
+		MethodBriefInfo error4 = methodBriefInfo.get("test_error_4");
+		Assert.assertEquals(error4.getLoadingError(), "Can't find property [name] within path [/] in display.yaml");
+		MethodBriefInfo error5 = methodBriefInfo.get("test_error_5");
+		Assert.assertEquals(error5.getLoadingError(), "Can't find property [ui-name] within path [parameters/genome] in display.yaml");
+	}
 	
 	
 	@BeforeClass
@@ -340,6 +358,7 @@ public class FullServerTest {
 			Thread.sleep(100);
 		}
 		System.out.println("Test server listening on "+SERVER.getServerPort() );
+		CLIENT = new NarrativeMethodStoreClient(new URL("http://localhost:" + SERVER.getServerPort()));
 	}
 	
 	@AfterClass

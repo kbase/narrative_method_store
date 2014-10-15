@@ -105,7 +105,7 @@ public class GitHubDB implements MethodSpecDB {
 	}
 	
 	@Override
-	public List<String> listMethodIds() {
+	public List<String> listMethodIds(boolean withErrors) {
 		try {
 			return loadMethodIndex();
 		} catch (Exception e) {
@@ -131,7 +131,8 @@ public class GitHubDB implements MethodSpecDB {
 	}
 	
 	
-	public NarrativeMethodData loadMethodData(final String methodId) throws JsonProcessingException, IOException {
+	public NarrativeMethodData loadMethodData(final String methodId) 
+			throws JsonProcessingException, IOException, NarrativeMethodStoreException {
 		// Fetch the resources needed
 		JsonNode spec = getResourceAsJson("methods/"+methodId+"/spec.json");
 		Map<String,Object> display = getResourceAsYamlMap("methods/"+methodId+"/display.yaml");
@@ -222,7 +223,7 @@ public class GitHubDB implements MethodSpecDB {
 	
 	
 	
-	public static void main(String[] args) throws JsonProcessingException, IOException {
+	public static void main(String[] args) throws Exception {
 		System.out.println("testing github db");
 		
 		
