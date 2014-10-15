@@ -6,7 +6,7 @@
 
 
   <!-- set global properties for this build -->
-  <property name="package" value="typed object converter service"/>
+  <property name="package" value="narrative method store service"/>
   <property name="src" location="src"/>
   <property name="lib" location="lib"/>
   <property name="dist" location="dist"/>
