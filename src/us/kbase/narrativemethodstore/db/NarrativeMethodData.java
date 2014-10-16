@@ -1,9 +1,13 @@
 package us.kbase.narrativemethodstore.db;
 
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -11,6 +15,7 @@ import us.kbase.narrativemethodstore.MethodBehavior;
 import us.kbase.narrativemethodstore.MethodBriefInfo;
 import us.kbase.narrativemethodstore.MethodFullInfo;
 import us.kbase.narrativemethodstore.MethodParameter;
+import us.kbase.narrativemethodstore.MethodParameterMapping;
 import us.kbase.narrativemethodstore.MethodSpec;
 import us.kbase.narrativemethodstore.ScreenShot;
 import us.kbase.narrativemethodstore.TextOptions;
@@ -113,18 +118,39 @@ public class NarrativeMethodData {
 		MethodBehavior behavior = new MethodBehavior()
 							.withPythonClass(getTextOrNull(behaviorNode.get("python_class")))
 							.withPythonFunction(getTextOrNull(behaviorNode.get("python_function")));
-		if (serviceMappingNode != null)
+		if (serviceMappingNode != null) {
+			JsonNode paramsMappingNode = serviceMappingNode.get("parameters_mapping");
+			Map<String, MethodParameterMapping> paramsMapping = new TreeMap<String, MethodParameterMapping>();
+			for (Iterator<String> it = paramsMappingNode.fieldNames(); it.hasNext(); ) {
+				String paramId = it.next();
+				JsonNode paramMappingNode = paramsMappingNode.get(paramId);
+				String path = "behavior/service-mapping/parameters_mapping/" + paramId;
+				MethodParameterMapping paramMapping = parseMethodParameterMapping(paramMappingNode, path);
+				paramsMapping.put(paramId, paramMapping);
+			}
+			MethodParameterMapping workspaceNameMapping = null;
+			JsonNode workspaceNameMappingNode = serviceMappingNode.get("workspace_name_mapping");
+			if (workspaceNameMappingNode != null)
+				workspaceNameMapping = parseMethodParameterMapping(workspaceNameMappingNode, 
+						"behavior/service-mapping/workspace_name_mapping");
 			behavior
-				.withKbServiceName(getTextOrNull(get("behavior/service-mapping", serviceMappingNode, "url")))
-				.withKbServiceMethod(getTextOrNull(get("behavior/service-mapping", serviceMappingNode, "method")));
+				.withKbServiceUrl(getTextOrNull(get("behavior/service-mapping", serviceMappingNode, "url")))
+				.withKbServiceName(getTextOrNull(serviceMappingNode.get("name")))
+				.withKbServiceMethod(getTextOrNull(get("behavior/service-mapping", serviceMappingNode, "method")))
+				.withKbServiceParametersMapping(paramsMapping);
+			if (workspaceNameMapping != null)
+				behavior.withKbServiceWorkspaceNameMapping(workspaceNameMapping);
+		}
 		List<MethodParameter> parameters = new ArrayList<MethodParameter>();
 		JsonNode parametersNode = get(spec, "parameters");
 		@SuppressWarnings("unchecked")
-		Map<String, Object> paramsDisplays = (Map<String, Object>)getDisplayProp("/", display, "parameters"); 
+		Map<String, Object> paramsDisplays = (Map<String, Object>)getDisplayProp("/", display, "parameters");
+		Set<String> paramIds = new TreeSet<String>();
 		for (int i = 0; i < parametersNode.size(); i++) {
 			JsonNode paramNode = parametersNode.get(i);
 			String paramPath = "parameters/" + i;
 			String paramId = get(paramPath, paramNode, "id").asText();
+			paramIds.add(paramId);
 			@SuppressWarnings("unchecked")
 			Map<String, Object> paramDisplay = (Map<String, Object>)getDisplayProp("parameters", paramsDisplays, paramId);
 			TextOptions textOpt = null;
@@ -147,11 +173,37 @@ public class NarrativeMethodData {
 							.withTextOptions(textOpt);
 			parameters.add(param);
 		}
+		if (behavior.getKbServiceParametersMapping() != null) {
+			for (String paramId : behavior.getKbServiceParametersMapping().keySet()) {
+				if (!paramIds.contains(paramId)) {
+					throw new IllegalStateException("Undeclared parameter [" + paramId + "] found " +
+							"within path [behavior/service-mapping/parameters_mapping]");
+				}
+			}
+		}
 		methodSpec = new MethodSpec()
 							.withInfo(briefInfo)
 							.withWidgets(widgets)
 							.withBehavior(behavior)
 							.withParameters(parameters);
+	}
+
+	private MethodParameterMapping parseMethodParameterMapping(JsonNode paramMappingNode, String path) {
+		MethodParameterMapping paramMapping = new MethodParameterMapping();
+		for (Iterator<String> it2 = paramMappingNode.fieldNames(); it2.hasNext(); ) {
+			String field = it2.next();
+			if (field.equals("target_argument_position")) {
+				paramMapping.withTargetArgumentPosition(getLongOrNull(paramMappingNode.get(field)));
+			} else if (field.equals("target_property")) {
+				paramMapping.withTargetProperty(getTextOrNull(paramMappingNode.get(field)));
+			} else if (field.equals("target_type_transform")) {
+				paramMapping.withTargetTypeTransform(getTextOrNull(paramMappingNode.get(field)));
+			} else {
+				throw new IllegalStateException("Unknown field [" + "] in method parameter mapping " +
+						"structure within path " + path);
+			}
+		}
+		return paramMapping;
 	}
 
 	private static JsonNode get(JsonNode node, String childName) {
@@ -190,7 +242,11 @@ public class NarrativeMethodData {
 	private static String getTextOrNull(JsonNode node) {
 		return node == null ? null : node.asText();
 	}
-	
+
+	private static Long getLongOrNull(JsonNode node) {
+		return node == null || node.isNull() ? null : node.asLong();
+	}
+
 	private static Long jsonBooleanToRPC(JsonNode node) {
 		return node.asBoolean() ? 1L : 0L;
 	}

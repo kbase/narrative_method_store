@@ -297,6 +297,16 @@ public class FullServerTest {
 		Assert.assertEquals(error5.getLoadingError(), "Can't find property [ui-name] within path [parameters/genome] in display.yaml");
 	}
 	
+	@Test
+	public void testParamMapping() throws Exception {
+		MethodSpec spec = CLIENT.getMethodSpec(new GetMethodParams().withIds(Arrays.asList("test_method_2"))).get(0);
+		Assert.assertNotNull(spec.getBehavior().getKbServiceUrl());
+		Assert.assertNotNull(spec.getBehavior().getKbServiceName());
+		Assert.assertNotNull(spec.getBehavior().getKbServiceMethod());
+		Assert.assertNotNull(spec.getBehavior().getKbServiceParametersMapping().get("genome").getTargetProperty());
+		Assert.assertNotNull(spec.getBehavior().getKbServiceParametersMapping().get("genome").getTargetTypeTransform());
+		Assert.assertNotNull(spec.getBehavior().getKbServiceWorkspaceNameMapping().getTargetArgumentPosition());
+	}
 	
 	@BeforeClass
 	public static void setUpClass() throws Exception {

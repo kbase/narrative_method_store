@@ -178,7 +178,8 @@ public class LocalGitDB implements MethodSpecDB {
 					methodSpecCache.invalidateAll();
 					
 				} else {
-					System.out.println("There was some change in repo but it didn't touch methods or categories");
+					System.out.println("There was some change in repo but it didn't touch methods or categories. Here is output:");
+					System.out.println(ret);
 				}
 			} else {
 				System.err.println("Problems doing git pull:\n" + ret);

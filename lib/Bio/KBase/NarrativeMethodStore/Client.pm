@@ -637,8 +637,15 @@ RadioOptions is a reference to a hash where the following keys are defined:
 MethodBehavior is a reference to a hash where the following keys are defined:
 	python_class has a value which is a string
 	python_function has a value which is a string
+	kb_service_url has a value which is a string
 	kb_service_name has a value which is a string
 	kb_service_method has a value which is a string
+	kb_service_parameters_mapping has a value which is a reference to a hash where the key is a string and the value is a NarrativeMethodStore.MethodParameterMapping
+	kb_service_workspace_name_mapping has a value which is a NarrativeMethodStore.MethodParameterMapping
+MethodParameterMapping is a reference to a hash where the following keys are defined:
+	target_argument_position has a value which is an int
+	target_property has a value which is a string
+	target_type_transform has a value which is a string
 
 </pre>
 
@@ -709,8 +716,15 @@ RadioOptions is a reference to a hash where the following keys are defined:
 MethodBehavior is a reference to a hash where the following keys are defined:
 	python_class has a value which is a string
 	python_function has a value which is a string
+	kb_service_url has a value which is a string
 	kb_service_name has a value which is a string
 	kb_service_method has a value which is a string
+	kb_service_parameters_mapping has a value which is a reference to a hash where the key is a string and the value is a NarrativeMethodStore.MethodParameterMapping
+	kb_service_workspace_name_mapping has a value which is a NarrativeMethodStore.MethodParameterMapping
+MethodParameterMapping is a reference to a hash where the following keys are defined:
+	target_argument_position has a value which is an int
+	target_property has a value which is a string
+	target_type_transform has a value which is a string
 
 
 =end text
@@ -1131,8 +1145,15 @@ RadioOptions is a reference to a hash where the following keys are defined:
 MethodBehavior is a reference to a hash where the following keys are defined:
 	python_class has a value which is a string
 	python_function has a value which is a string
+	kb_service_url has a value which is a string
 	kb_service_name has a value which is a string
 	kb_service_method has a value which is a string
+	kb_service_parameters_mapping has a value which is a reference to a hash where the key is a string and the value is a NarrativeMethodStore.MethodParameterMapping
+	kb_service_workspace_name_mapping has a value which is a NarrativeMethodStore.MethodParameterMapping
+MethodParameterMapping is a reference to a hash where the following keys are defined:
+	target_argument_position has a value which is an int
+	target_property has a value which is a string
+	target_type_transform has a value which is a string
 
 </pre>
 
@@ -1202,8 +1223,15 @@ RadioOptions is a reference to a hash where the following keys are defined:
 MethodBehavior is a reference to a hash where the following keys are defined:
 	python_class has a value which is a string
 	python_function has a value which is a string
+	kb_service_url has a value which is a string
 	kb_service_name has a value which is a string
 	kb_service_method has a value which is a string
+	kb_service_parameters_mapping has a value which is a reference to a hash where the key is a string and the value is a NarrativeMethodStore.MethodParameterMapping
+	kb_service_workspace_name_mapping has a value which is a NarrativeMethodStore.MethodParameterMapping
+MethodParameterMapping is a reference to a hash where the following keys are defined:
+	target_argument_position has a value which is an int
+	target_property has a value which is a string
+	target_type_transform has a value which is a string
 
 
 =end text
@@ -1935,6 +1963,51 @@ radio_options has a value which is a NarrativeMethodStore.RadioOptions
 
 
 
+=head2 MethodParameterMapping
+
+=over 4
+
+
+
+=item Description
+
+target_argument_position - position of argument in RPC-method call, optional field, default value is 0.
+target_property - name of field inside structure that will be send as arguement. Optional field,
+    in case this field is not defined (or null) whole object will be sent as method argument instead of
+    wrapping it by structure with inner property defined by 'target_property'.
+target_type_transform - none/string/int/float/list<type>/mapping<type>/ref, optional field, default is 
+    no transformation.
+@optional target_argument_position target_property target_type_transform
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a reference to a hash where the following keys are defined:
+target_argument_position has a value which is an int
+target_property has a value which is a string
+target_type_transform has a value which is a string
+
+</pre>
+
+=end html
+
+=begin text
+
+a reference to a hash where the following keys are defined:
+target_argument_position has a value which is an int
+target_property has a value which is a string
+target_type_transform has a value which is a string
+
+
+=end text
+
+=back
+
+
+
 =head2 MethodBehavior
 
 =over 4
@@ -1944,7 +2017,12 @@ radio_options has a value which is a NarrativeMethodStore.RadioOptions
 =item Description
 
 Determines how the method is handled when run.
-@optional python_function kb_service_name kb_service_method
+kb_service_name - name of service which will be part of fully qualified method name, optional field (in
+    case it's not defined developer should enter fully qualified name with dot into 'kb_service_method'.
+kb_service_parameters_mapping - mapping from parameter_id to service method arguments (in case
+    mapping is not described for some parameter it will be mapped into structure with target_property
+    equal to parameter id.
+@optional python_function kb_service_name kb_service_method kb_service_parameters_mapping kb_service_workspace_name_mapping
 
 
 =item Definition
@@ -1955,8 +2033,11 @@ Determines how the method is handled when run.
 a reference to a hash where the following keys are defined:
 python_class has a value which is a string
 python_function has a value which is a string
+kb_service_url has a value which is a string
 kb_service_name has a value which is a string
 kb_service_method has a value which is a string
+kb_service_parameters_mapping has a value which is a reference to a hash where the key is a string and the value is a NarrativeMethodStore.MethodParameterMapping
+kb_service_workspace_name_mapping has a value which is a NarrativeMethodStore.MethodParameterMapping
 
 </pre>
 
@@ -1967,8 +2048,11 @@ kb_service_method has a value which is a string
 a reference to a hash where the following keys are defined:
 python_class has a value which is a string
 python_function has a value which is a string
+kb_service_url has a value which is a string
 kb_service_name has a value which is a string
 kb_service_method has a value which is a string
+kb_service_parameters_mapping has a value which is a reference to a hash where the key is a string and the value is a NarrativeMethodStore.MethodParameterMapping
+kb_service_workspace_name_mapping has a value which is a NarrativeMethodStore.MethodParameterMapping
 
 
 =end text

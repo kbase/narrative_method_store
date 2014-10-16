@@ -132,16 +132,38 @@ module NarrativeMethodStore {
         
     } MethodParameter;
     
+    /*
+        target_argument_position - position of argument in RPC-method call, optional field, default value is 0.
+        target_property - name of field inside structure that will be send as arguement. Optional field,
+            in case this field is not defined (or null) whole object will be sent as method argument instead of
+            wrapping it by structure with inner property defined by 'target_property'.
+        target_type_transform - none/string/int/float/list<type>/mapping<type>/ref, optional field, default is 
+            no transformation.
+        @optional target_argument_position target_property target_type_transform
+    */
+    typedef structure {
+        int target_argument_position;
+        string target_property;
+        string target_type_transform;
+    } MethodParameterMapping;
 
     /*
         Determines how the method is handled when run.
-        @optional python_function kb_service_name kb_service_method
+        kb_service_name - name of service which will be part of fully qualified method name, optional field (in
+            case it's not defined developer should enter fully qualified name with dot into 'kb_service_method'.
+        kb_service_parameters_mapping - mapping from parameter_id to service method arguments (in case
+            mapping is not described for some parameter it will be mapped into structure with target_property
+            equal to parameter id.
+        @optional python_function kb_service_name kb_service_method kb_service_parameters_mapping kb_service_workspace_name_mapping
     */
     typedef structure {
         string python_class;
         string python_function;
+        string kb_service_url;
         string kb_service_name;
         string kb_service_method;
+        mapping<string, MethodParameterMapping> kb_service_parameters_mapping;
+        MethodParameterMapping kb_service_workspace_name_mapping;
     } MethodBehavior;
 
     /*

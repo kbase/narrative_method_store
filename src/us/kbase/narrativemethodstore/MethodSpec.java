@@ -55,7 +55,12 @@ public class MethodSpec {
      * <p>Original spec-file type: MethodBehavior</p>
      * <pre>
      * Determines how the method is handled when run.
-     * @optional python_function kb_service_name kb_service_method
+     * kb_service_name - name of service which will be part of fully qualified method name, optional field (in
+     *     case it's not defined developer should enter fully qualified name with dot into 'kb_service_method'.
+     * kb_service_parameters_mapping - mapping from parameter_id to service method arguments (in case
+     *     mapping is not described for some parameter it will be mapped into structure with target_property
+     *     equal to parameter id.
+     * @optional python_function kb_service_name kb_service_method kb_service_parameters_mapping kb_service_workspace_name_mapping
      * </pre>
      * 
      */
@@ -142,7 +147,12 @@ public class MethodSpec {
      * <p>Original spec-file type: MethodBehavior</p>
      * <pre>
      * Determines how the method is handled when run.
-     * @optional python_function kb_service_name kb_service_method
+     * kb_service_name - name of service which will be part of fully qualified method name, optional field (in
+     *     case it's not defined developer should enter fully qualified name with dot into 'kb_service_method'.
+     * kb_service_parameters_mapping - mapping from parameter_id to service method arguments (in case
+     *     mapping is not described for some parameter it will be mapped into structure with target_property
+     *     equal to parameter id.
+     * @optional python_function kb_service_name kb_service_method kb_service_parameters_mapping kb_service_workspace_name_mapping
      * </pre>
      * 
      */
@@ -155,7 +165,12 @@ public class MethodSpec {
      * <p>Original spec-file type: MethodBehavior</p>
      * <pre>
      * Determines how the method is handled when run.
-     * @optional python_function kb_service_name kb_service_method
+     * kb_service_name - name of service which will be part of fully qualified method name, optional field (in
+     *     case it's not defined developer should enter fully qualified name with dot into 'kb_service_method'.
+     * kb_service_parameters_mapping - mapping from parameter_id to service method arguments (in case
+     *     mapping is not described for some parameter it will be mapped into structure with target_property
+     *     equal to parameter id.
+     * @optional python_function kb_service_name kb_service_method kb_service_parameters_mapping kb_service_workspace_name_mapping
      * </pre>
      * 
      */
