@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -76,7 +78,19 @@ public class OldServiceMethodJsonParser {
 				spec.put("categories", Arrays.asList(catId));
 				spec.put("widgets", met.properties.widgets);
 				List<Object> params = new ArrayList<Object>();
-				for (String paramId : met.properties.parameters.keySet()) {
+				List<String> paramIds = new ArrayList<String>(met.properties.parameters.keySet());
+				Collections.sort(paramIds, new Comparator<String>() {
+					@Override
+					public int compare(String o1, String o2) {
+						if (o1.startsWith("param") && o2.startsWith("param")) {
+							int val1 = Integer.parseInt(o1.substring(5));
+							int val2 = Integer.parseInt(o2.substring(5));
+							return Integer.compare(val1, val2);
+						}
+						return o1.compareTo(o2);
+					}
+				});
+				for (String paramId : paramIds) {
 					OldMethodParam param = met.properties.parameters.get(paramId);
 					Map<String, Object> paramMap = new LinkedHashMap<String, Object>();
 					params.add(paramMap);
