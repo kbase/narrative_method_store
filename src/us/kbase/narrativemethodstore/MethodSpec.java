@@ -57,10 +57,9 @@ public class MethodSpec {
      * Determines how the method is handled when run.
      * kb_service_name - name of service which will be part of fully qualified method name, optional field (in
      *     case it's not defined developer should enter fully qualified name with dot into 'kb_service_method'.
-     * kb_service_parameters_mapping - mapping from parameter_id to service method arguments (in case
-     *     mapping is not described for some parameter it will be mapped into structure with target_property
-     *     equal to parameter id.
-     * @optional python_function kb_service_name kb_service_method kb_service_parameters_mapping kb_service_workspace_name_mapping
+     * kb_service_input_mapping - mapping from input parameters to input service method arguments.
+     * kb_service_output_mapping - mapping from output of service method to final output of narrative method.
+     * @optional python_function kb_service_name kb_service_method kb_service_input_mapping kb_service_output_mapping
      * </pre>
      * 
      */
@@ -149,10 +148,9 @@ public class MethodSpec {
      * Determines how the method is handled when run.
      * kb_service_name - name of service which will be part of fully qualified method name, optional field (in
      *     case it's not defined developer should enter fully qualified name with dot into 'kb_service_method'.
-     * kb_service_parameters_mapping - mapping from parameter_id to service method arguments (in case
-     *     mapping is not described for some parameter it will be mapped into structure with target_property
-     *     equal to parameter id.
-     * @optional python_function kb_service_name kb_service_method kb_service_parameters_mapping kb_service_workspace_name_mapping
+     * kb_service_input_mapping - mapping from input parameters to input service method arguments.
+     * kb_service_output_mapping - mapping from output of service method to final output of narrative method.
+     * @optional python_function kb_service_name kb_service_method kb_service_input_mapping kb_service_output_mapping
      * </pre>
      * 
      */
@@ -167,10 +165,9 @@ public class MethodSpec {
      * Determines how the method is handled when run.
      * kb_service_name - name of service which will be part of fully qualified method name, optional field (in
      *     case it's not defined developer should enter fully qualified name with dot into 'kb_service_method'.
-     * kb_service_parameters_mapping - mapping from parameter_id to service method arguments (in case
-     *     mapping is not described for some parameter it will be mapped into structure with target_property
-     *     equal to parameter id.
-     * @optional python_function kb_service_name kb_service_method kb_service_parameters_mapping kb_service_workspace_name_mapping
+     * kb_service_input_mapping - mapping from input parameters to input service method arguments.
+     * kb_service_output_mapping - mapping from output of service method to final output of narrative method.
+     * @optional python_function kb_service_name kb_service_method kb_service_input_mapping kb_service_output_mapping
      * </pre>
      * 
      */

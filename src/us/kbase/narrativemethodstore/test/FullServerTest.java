@@ -332,12 +332,18 @@ public class FullServerTest {
 	@Test
 	public void testParamMapping() throws Exception {
 		MethodSpec spec = CLIENT.getMethodSpec(new GetMethodParams().withIds(Arrays.asList("test_method_2"))).get(0);
-		Assert.assertNotNull(spec.getBehavior().getKbServiceUrl());
-		Assert.assertNotNull(spec.getBehavior().getKbServiceName());
-		Assert.assertNotNull(spec.getBehavior().getKbServiceMethod());
-		Assert.assertNotNull(spec.getBehavior().getKbServiceParametersMapping().get("genome").getTargetProperty());
-		Assert.assertNotNull(spec.getBehavior().getKbServiceParametersMapping().get("genome").getTargetTypeTransform());
-		Assert.assertNotNull(spec.getBehavior().getKbServiceWorkspaceNameMapping().getTargetArgumentPosition());
+		assertNotNull(spec.getBehavior().getKbServiceUrl());
+		assertNotNull(spec.getBehavior().getKbServiceName());
+		assertNotNull(spec.getBehavior().getKbServiceMethod());
+		assertEquals("genome", spec.getBehavior().getKbServiceInputMapping().get(0).getInputParameter());
+		assertNotNull(spec.getBehavior().getKbServiceInputMapping().get(0).getTargetProperty());
+		assertNotNull(spec.getBehavior().getKbServiceInputMapping().get(0).getTargetTypeTransform());
+		assertEquals("workspace", spec.getBehavior().getKbServiceInputMapping().get(1).getNarrativeSystemVariable());		
+		assertNotNull(spec.getBehavior().getKbServiceInputMapping().get(1).getTargetArgumentPosition());
+		assertEquals("[0,\"1\",2.0]", spec.getBehavior().getKbServiceOutputMapping().get(0).getConstantValue().toJsonString());
+		assertEquals("ret1", spec.getBehavior().getKbServiceOutputMapping().get(0).getTargetProperty());
+		assertEquals("[key1, key2]", spec.getBehavior().getKbServiceOutputMapping().get(1).getServiceMethodOutputPath().toString());
+		assertEquals("re2", spec.getBehavior().getKbServiceOutputMapping().get(1).getTargetProperty());
 	}
 	
 	@BeforeClass

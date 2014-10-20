@@ -12,6 +12,7 @@ import java.util.TreeSet;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
+import us.kbase.common.service.UObject;
 import us.kbase.narrativemethodstore.CheckboxOptions;
 import us.kbase.narrativemethodstore.DropdownOptions;
 import us.kbase.narrativemethodstore.FloatSliderOptions;
@@ -20,10 +21,11 @@ import us.kbase.narrativemethodstore.MethodBehavior;
 import us.kbase.narrativemethodstore.MethodBriefInfo;
 import us.kbase.narrativemethodstore.MethodFullInfo;
 import us.kbase.narrativemethodstore.MethodParameter;
-import us.kbase.narrativemethodstore.MethodParameterMapping;
 import us.kbase.narrativemethodstore.MethodSpec;
 import us.kbase.narrativemethodstore.RadioOptions;
 import us.kbase.narrativemethodstore.ScreenShot;
+import us.kbase.narrativemethodstore.ServiceMethodInputMapping;
+import us.kbase.narrativemethodstore.ServiceMethodOutputMapping;
 import us.kbase.narrativemethodstore.TextAreaOptions;
 import us.kbase.narrativemethodstore.TextOptions;
 import us.kbase.narrativemethodstore.WidgetSpec;
@@ -126,27 +128,66 @@ public class NarrativeMethodData {
 							.withPythonClass(getTextOrNull(behaviorNode.get("python_class")))
 							.withPythonFunction(getTextOrNull(behaviorNode.get("python_function")));
 		if (serviceMappingNode != null) {
-			JsonNode paramsMappingNode = serviceMappingNode.get("parameters_mapping");
-			Map<String, MethodParameterMapping> paramsMapping = new TreeMap<String, MethodParameterMapping>();
-			for (Iterator<String> it = paramsMappingNode.fieldNames(); it.hasNext(); ) {
-				String paramId = it.next();
-				JsonNode paramMappingNode = paramsMappingNode.get(paramId);
-				String path = "behavior/service-mapping/parameters_mapping/" + paramId;
-				MethodParameterMapping paramMapping = parseMethodParameterMapping(paramMappingNode, path);
-				paramsMapping.put(paramId, paramMapping);
+			JsonNode paramsMappingNode = get("behavior/service-mapping", serviceMappingNode, "input_mapping");
+			List<ServiceMethodInputMapping> paramsMapping = new ArrayList<ServiceMethodInputMapping>();
+			for (int j = 0; j < paramsMappingNode.size(); j++) {
+				JsonNode paramMappingNode = paramsMappingNode.get(j);
+				String path = "behavior/service-mapping/input_mapping/" + j;
+				ServiceMethodInputMapping paramMapping = new ServiceMethodInputMapping();
+				for (Iterator<String> it2 = paramMappingNode.fieldNames(); it2.hasNext(); ) {
+					String field = it2.next();
+					if (field.equals("target_argument_position")) {
+						paramMapping.withTargetArgumentPosition(getLongOrNull(paramMappingNode.get(field)));
+					} else if (field.equals("target_property")) {
+						paramMapping.withTargetProperty(getTextOrNull(paramMappingNode.get(field)));
+					} else if (field.equals("target_type_transform")) {
+						paramMapping.withTargetTypeTransform(getTextOrNull(paramMappingNode.get(field)));
+					} else if (field.equals("input_parameter")) {
+						paramMapping.withInputParameter(paramMappingNode.get(field).asText());
+					} else if (field.equals("narrative_system_variable")) {
+						paramMapping.withNarrativeSystemVariable(paramMappingNode.get(field).asText());
+					} else if (field.equals("constant_value")) {
+						paramMapping.withConstantValue(new UObject(paramMappingNode.get(field)));
+					} else {
+						throw new IllegalStateException("Unknown field [" + field + "] in method parameter " +
+								"mapping structure within path " + path);
+					}
+				}
+				paramsMapping.add(paramMapping);
 			}
-			MethodParameterMapping workspaceNameMapping = null;
-			JsonNode workspaceNameMappingNode = serviceMappingNode.get("workspace_name_mapping");
-			if (workspaceNameMappingNode != null)
-				workspaceNameMapping = parseMethodParameterMapping(workspaceNameMappingNode, 
-						"behavior/service-mapping/workspace_name_mapping");
+			List<ServiceMethodOutputMapping> outputMapping = new ArrayList<ServiceMethodOutputMapping>();
+			JsonNode outputMappingNode = get("behavior/service-mapping", serviceMappingNode, "output_mapping");
+			for (int j = 0; j < outputMappingNode.size(); j++) {
+				JsonNode paramMappingNode = outputMappingNode.get(j);
+				String path = "behavior/service-mapping/output_mapping/" + j;
+				ServiceMethodOutputMapping paramMapping = new ServiceMethodOutputMapping();
+				for (Iterator<String> it2 = paramMappingNode.fieldNames(); it2.hasNext(); ) {
+					String field = it2.next();
+					if (field.equals("target_property")) {
+						paramMapping.withTargetProperty(getTextOrNull(paramMappingNode.get(field)));
+					} else if (field.equals("target_type_transform")) {
+						paramMapping.withTargetTypeTransform(getTextOrNull(paramMappingNode.get(field)));
+					} else if (field.equals("input_parameter")) {
+						paramMapping.withInputParameter(paramMappingNode.get(field).asText());
+					} else if (field.equals("narrative_system_variable")) {
+						paramMapping.withNarrativeSystemVariable(paramMappingNode.get(field).asText());
+					} else if (field.equals("constant_value")) {
+						paramMapping.withConstantValue(new UObject(paramMappingNode.get(field)));
+					} else if (field.equals("service_method_output_path")) {
+						paramMapping.withServiceMethodOutputPath(jsonListToStringList(paramMappingNode.get(field)));
+					} else {
+						throw new IllegalStateException("Unknown field [" + field + "] in method output " +
+								"mapping structure within path " + path);
+					}
+				}
+				outputMapping.add(paramMapping);
+			}
 			behavior
 				.withKbServiceUrl(getTextOrNull(get("behavior/service-mapping", serviceMappingNode, "url")))
 				.withKbServiceName(getTextOrNull(serviceMappingNode.get("name")))
 				.withKbServiceMethod(getTextOrNull(get("behavior/service-mapping", serviceMappingNode, "method")))
-				.withKbServiceParametersMapping(paramsMapping);
-			if (workspaceNameMapping != null)
-				behavior.withKbServiceWorkspaceNameMapping(workspaceNameMapping);
+				.withKbServiceInputMapping(paramsMapping)
+				.withKbServiceOutputMapping(outputMapping);
 		}
 		List<MethodParameter> parameters = new ArrayList<MethodParameter>();
 		JsonNode parametersNode = get(spec, "parameters");
@@ -243,11 +284,23 @@ public class NarrativeMethodData {
 							.withTextareaOptions(taOpt);
 			parameters.add(param);
 		}
-		if (behavior.getKbServiceParametersMapping() != null) {
-			for (String paramId : behavior.getKbServiceParametersMapping().keySet()) {
-				if (!paramIds.contains(paramId)) {
+		if (behavior.getKbServiceInputMapping() != null) {
+			for (int i = 0; i < behavior.getKbServiceInputMapping().size(); i++) {
+				ServiceMethodInputMapping mapping = behavior.getKbServiceInputMapping().get(i);
+				String paramId = mapping.getInputParameter();
+				if (paramId != null && !paramIds.contains(paramId)) {
 					throw new IllegalStateException("Undeclared parameter [" + paramId + "] found " +
-							"within path [behavior/service-mapping/parameters_mapping]");
+							"within path [behavior/service-mapping/input_mapping/" + i + "]");
+				}
+			}
+		}
+		if (behavior.getKbServiceOutputMapping() != null) {
+			for (int i = 0; i < behavior.getKbServiceOutputMapping().size(); i++) {
+				ServiceMethodOutputMapping mapping = behavior.getKbServiceOutputMapping().get(i);
+				String paramId = mapping.getInputParameter();
+				if (paramId != null && !paramIds.contains(paramId)) {
+					throw new IllegalStateException("Undeclared parameter [" + paramId + "] found " +
+							"within path [behavior/service-mapping/output_mapping/" + i + "]");
 				}
 			}
 		}
@@ -256,24 +309,6 @@ public class NarrativeMethodData {
 							.withWidgets(widgets)
 							.withBehavior(behavior)
 							.withParameters(parameters);
-	}
-
-	private MethodParameterMapping parseMethodParameterMapping(JsonNode paramMappingNode, String path) {
-		MethodParameterMapping paramMapping = new MethodParameterMapping();
-		for (Iterator<String> it2 = paramMappingNode.fieldNames(); it2.hasNext(); ) {
-			String field = it2.next();
-			if (field.equals("target_argument_position")) {
-				paramMapping.withTargetArgumentPosition(getLongOrNull(paramMappingNode.get(field)));
-			} else if (field.equals("target_property")) {
-				paramMapping.withTargetProperty(getTextOrNull(paramMappingNode.get(field)));
-			} else if (field.equals("target_type_transform")) {
-				paramMapping.withTargetTypeTransform(getTextOrNull(paramMappingNode.get(field)));
-			} else {
-				throw new IllegalStateException("Unknown field [" + "] in method parameter mapping " +
-						"structure within path " + path);
-			}
-		}
-		return paramMapping;
 	}
 
 	private static JsonNode get(JsonNode node, String childName) {

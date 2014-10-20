@@ -133,28 +133,63 @@ module NarrativeMethodStore {
     } MethodParameter;
     
     /*
+        input_parameter - parameter_id, if not specified then one of 'constant_value' or 
+            'narrative_system_variable' should be set.
+        constant_value - constant value, could be even map/array, if not specified then 'input_parameter' or
+            'narrative_system_variable' should be set.
+        narrative_system_variable - name of internal narrative framework property, currently only these names are
+            supported: 'workspace', 'token', 'user_id'; if not specified then one of 'input_parameter' or
+            'constant_value' should be set.
         target_argument_position - position of argument in RPC-method call, optional field, default value is 0.
         target_property - name of field inside structure that will be send as arguement. Optional field,
             in case this field is not defined (or null) whole object will be sent as method argument instead of
             wrapping it by structure with inner property defined by 'target_property'.
         target_type_transform - none/string/int/float/list<type>/mapping<type>/ref, optional field, default is 
             no transformation.
-        @optional target_argument_position target_property target_type_transform
+        @optional input_parameter constant_value narrative_system_variable target_argument_position target_property target_type_transform
     */
     typedef structure {
+        string input_parameter;
+        UnspecifiedObject constant_value;
+        string narrative_system_variable;
         int target_argument_position;
         string target_property;
         string target_type_transform;
-    } MethodParameterMapping;
+    } ServiceMethodInputMapping;
+
+    /*
+        input_parameter - parameter_id, if not specified then one of 'constant_value' or 
+            'narrative_system_variable' should be set.
+        service_method_output_path - list of properties and array element positions defining JSON-path traversing
+            through which we can find necessary value. 
+        constant_value - constant value, could be even map/array, if not specified then 'input_parameter' or
+            'narrative_system_variable' should be set.
+        narrative_system_variable - name of internal narrative framework property, currently only these names are
+            supported: 'workspace', 'token', 'user_id'; if not specified then one of 'input_parameter' or
+            'constant_value' should be set.
+        target_property - name of field inside structure that will be send as arguement. Optional field,
+            in case this field is not defined (or null) whole object will be sent as method argument instead of
+            wrapping it by structure with inner property defined by 'target_property'.
+        target_type_transform - none/string/int/float/list<type>/mapping<type>/ref, optional field, default is 
+            no transformation.
+        @optional input_parameter service_method_output_path constant_value narrative_system_variable target_property target_type_transform
+    */
+    typedef structure {
+        string input_parameter;
+        list<string> service_method_output_path;
+        UnspecifiedObject constant_value;
+        string narrative_system_variable;
+        string target_property;
+        string target_type_transform;
+    } ServiceMethodOutputMapping;
 
     /*
         Determines how the method is handled when run.
         kb_service_name - name of service which will be part of fully qualified method name, optional field (in
             case it's not defined developer should enter fully qualified name with dot into 'kb_service_method'.
-        kb_service_parameters_mapping - mapping from parameter_id to service method arguments (in case
-            mapping is not described for some parameter it will be mapped into structure with target_property
-            equal to parameter id.
-        @optional python_function kb_service_name kb_service_method kb_service_parameters_mapping kb_service_workspace_name_mapping
+        kb_service_input_mapping - mapping from input parameters to input service method arguments.
+        kb_service_output_mapping - mapping from output of service method to final output of narrative method.
+        @optional python_function kb_service_name kb_service_method kb_service_input_mapping kb_service_output_mapping
     */
     typedef structure {
         string python_class;
@@ -162,8 +197,8 @@ module NarrativeMethodStore {
         string kb_service_url;
         string kb_service_name;
         string kb_service_method;
-        mapping<string, MethodParameterMapping> kb_service_parameters_mapping;
-        MethodParameterMapping kb_service_workspace_name_mapping;
+        list<ServiceMethodInputMapping> kb_service_input_mapping;
+        list<ServiceMethodOutputMapping> kb_service_output_mapping;
     } MethodBehavior;
 
     /*
