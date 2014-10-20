@@ -2,6 +2,7 @@ package us.kbase.narrativemethodstore.db;
 
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
@@ -11,13 +12,19 @@ import java.util.TreeSet;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
+import us.kbase.narrativemethodstore.CheckboxOptions;
+import us.kbase.narrativemethodstore.DropdownOptions;
+import us.kbase.narrativemethodstore.FloatSliderOptions;
+import us.kbase.narrativemethodstore.IntSliderOptions;
 import us.kbase.narrativemethodstore.MethodBehavior;
 import us.kbase.narrativemethodstore.MethodBriefInfo;
 import us.kbase.narrativemethodstore.MethodFullInfo;
 import us.kbase.narrativemethodstore.MethodParameter;
 import us.kbase.narrativemethodstore.MethodParameterMapping;
 import us.kbase.narrativemethodstore.MethodSpec;
+import us.kbase.narrativemethodstore.RadioOptions;
 import us.kbase.narrativemethodstore.ScreenShot;
+import us.kbase.narrativemethodstore.TextAreaOptions;
 import us.kbase.narrativemethodstore.TextOptions;
 import us.kbase.narrativemethodstore.WidgetSpec;
 import us.kbase.narrativemethodstore.exceptions.NarrativeMethodStoreException;
@@ -160,6 +167,63 @@ public class NarrativeMethodData {
 							.withValidWsTypes(jsonListToStringList(optNode.get("valid_ws_types")))
 							.withValidateAs(getTextOrNull(optNode.get("validate_as")));
 			}
+			CheckboxOptions cbOpt = null;
+			if (paramNode.has("checkbox_options")) {
+				JsonNode optNode = get(paramPath, paramNode, "checkbox_options");
+				long checkedValue = get(paramPath + "/checkbox_options", optNode, "checked_value").asLong();
+				long uncheckedValue = get(paramPath + "/checkbox_options", optNode, "unchecked_value").asLong();
+				cbOpt = new CheckboxOptions().withCheckedValue(checkedValue).withUncheckedValue(uncheckedValue);
+			}
+			DropdownOptions ddOpt = null;
+			if (paramNode.has("dropdown_options")) {
+				JsonNode optNode = get(paramPath, paramNode, "dropdown_options");
+				optNode = get(paramPath + "/dropdown_options", optNode, "options");
+				Map<String, String> options = new LinkedHashMap<String, String>();
+				for (int j = 0; j < optNode.size(); j++) {
+					JsonNode itemNode = optNode.get(j);
+					String id = get(paramPath + "/dropdown_options/" + j, itemNode, "id").asText();
+					String uiName = get(paramPath + "/dropdown_options/" + j, itemNode, "ui_name").asText();
+					options.put(id, uiName);
+				}
+				ddOpt = new DropdownOptions().withIdsToOptions(options);
+			}
+			FloatSliderOptions floatOpt = null;
+			if (paramNode.has("floatslider_options")) {
+				JsonNode optNode = get(paramPath, paramNode, "floatslider_options");
+				double min = get(paramPath + "/floatslider_options", optNode, "min").asDouble();
+				double max = get(paramPath + "/floatslider_options", optNode, "max").asDouble();
+				floatOpt = new FloatSliderOptions().withMin(min).withMax(max);
+			}
+			IntSliderOptions intOpt = null;
+			if (paramNode.has("intslider_options")) {
+				JsonNode optNode = get(paramPath, paramNode, "intslider_options");
+				long min = get(paramPath + "/intslider_options", optNode, "min").asLong();
+				long max = get(paramPath + "/intslider_options", optNode, "max").asLong();
+				long step = get(paramPath + "/intslider_options", optNode, "step").asLong();
+				intOpt = new IntSliderOptions().withMin(min).withMax(max).withStep(step);
+			}
+			RadioOptions radioOpt = null;
+			if (paramNode.has("radio_options")) {
+				JsonNode optNode = get(paramPath, paramNode, "radio_options");
+				optNode = get(paramPath + "/radio_options", optNode, "options");
+				Map<String, String> options = new LinkedHashMap<String, String>();
+				Map<String, String> tooltips = new LinkedHashMap<String, String>();
+				for (int j = 0; j < optNode.size(); j++) {
+					JsonNode itemNode = optNode.get(j);
+					String id = get(paramPath + "/radio_options/" + j, itemNode, "id").asText();
+					String uiName = get(paramPath + "/radio_options/" + j, itemNode, "ui_name").asText();
+					String uiTooltip = get(paramPath + "/radio_options/" + j, itemNode, "ui_tooltip").asText();
+					options.put(id, uiName);
+					tooltips.put(id, uiTooltip);
+				}
+				radioOpt = new RadioOptions().withIdsToOptions(options).withIdsToTooltip(tooltips);
+			}
+			TextAreaOptions taOpt = null;
+			if (paramNode.has("textarea_options")) {
+				JsonNode optNode = get(paramPath, paramNode, "textarea_options");
+				long nRows = get(paramPath + "/textarea_options", optNode, "n_rows").asLong();
+				taOpt = new TextAreaOptions().withNRows(nRows);
+			}
 			MethodParameter param = new MethodParameter()
 							.withId(paramId)
 							.withUiName((String)getDisplayProp("parameters/" + paramId, paramDisplay, "ui-name"))
@@ -170,7 +234,13 @@ public class NarrativeMethodData {
 							.withAllowMultiple(jsonBooleanToRPC(get(paramPath, paramNode, "allow_multiple")))
 							.withDefaultValues(jsonListToStringList(get(paramPath, paramNode, "default_values")))
 							.withFieldType(get(paramPath, paramNode, "field_type").asText())
-							.withTextOptions(textOpt);
+							.withTextOptions(textOpt)
+							.withCheckboxOptions(cbOpt)
+							.withDropdownOptions(ddOpt)
+							.withFloatsliderOptions(floatOpt)
+							.withIntsliderOptions(intOpt)
+							.withRadioOptions(radioOpt)
+							.withTextareaOptions(taOpt);
 			parameters.add(param);
 		}
 		if (behavior.getKbServiceParametersMapping() != null) {
@@ -257,6 +327,17 @@ public class NarrativeMethodData {
 		List<String> ret = new ArrayList<String>();
 		for (int i = 0; i < node.size(); i++)
 			ret.add(node.get(i).asText());
+		return ret;
+	}
+
+	private static Map<String, String> jsonMapToStringMap(JsonNode node) {
+		if (node == null)
+			return null;
+		Map<String, String> ret = new LinkedHashMap<String, String>();
+		for (Iterator<String> it = node.fieldNames(); it.hasNext(); ) {
+			String key = it.next();
+			ret.put(key, node.get(key).asText());
+		}
 		return ret;
 	}
 }

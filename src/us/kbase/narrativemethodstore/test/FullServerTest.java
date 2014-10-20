@@ -163,7 +163,6 @@ public class FullServerTest {
 		List<MethodSpec> methods = CLIENT.listMethodsSpec(params);
 		boolean foundTestMethod1 = false;
 		for(MethodSpec m : methods) {
-			
 			// check specific things in specific test methods
 			if(m.getInfo().getId().equals("test_method_1")) {
 				foundTestMethod1 = true;
@@ -195,6 +194,33 @@ public class FullServerTest {
 				
 				assertTrue("Testing that test_method_1 output widget from listMethodSpec is correct",
 						m.getWidgets().getOutput().equals("KBaseDefaultViewer"));
+			} else if (m.getInfo().getId().equals("test_method_3")) {
+				assertEquals(5, m.getParameters().size());
+				////////////////////////
+				assertEquals("param0", m.getParameters().get(0).getId());
+				assertEquals("checkbox", m.getParameters().get(0).getFieldType());
+				assertEquals(10L, (long)m.getParameters().get(0).getCheckboxOptions().getCheckedValue());
+				assertEquals(-10L, (long)m.getParameters().get(0).getCheckboxOptions().getUncheckedValue());
+				////////////////////////
+				assertEquals("param1", m.getParameters().get(1).getId());
+				assertEquals("floatslider", m.getParameters().get(1).getFieldType());
+				assertEquals(1.0, (double)m.getParameters().get(1).getFloatsliderOptions().getMin(), 1e-10);
+				assertEquals(10.0, (double)m.getParameters().get(1).getFloatsliderOptions().getMax(), 1e-10);
+				////////////////////////
+				assertEquals("param2", m.getParameters().get(2).getId());
+				assertEquals("textarea", m.getParameters().get(2).getFieldType());
+				assertEquals(10L, (long)m.getParameters().get(2).getTextareaOptions().getNRows());
+				////////////////////////
+				assertEquals("param3", m.getParameters().get(3).getId());
+				assertEquals("dropdown", m.getParameters().get(3).getFieldType());
+				assertEquals(2, m.getParameters().get(3).getDropdownOptions().getIdsToOptions().size());
+				assertEquals("First", m.getParameters().get(3).getDropdownOptions().getIdsToOptions().get("item0"));
+				////////////////////////
+				assertEquals("param4", m.getParameters().get(4).getId());
+				assertEquals("radio", m.getParameters().get(4).getFieldType());
+				assertEquals(2, m.getParameters().get(4).getRadioOptions().getIdsToOptions().size());
+				assertEquals("First", m.getParameters().get(4).getRadioOptions().getIdsToOptions().get("item0"));
+				assertEquals("First tooltip", m.getParameters().get(4).getRadioOptions().getIdsToTooltip().get("item0"));
 			}
 		}
 		assertTrue("Testing that test_method_1 was returned from listMethodSpec",
@@ -295,6 +321,12 @@ public class FullServerTest {
 		Assert.assertEquals(error4.getLoadingError(), "Can't find property [name] within path [/] in display.yaml");
 		MethodBriefInfo error5 = methodBriefInfo.get("test_error_5");
 		Assert.assertEquals(error5.getLoadingError(), "Can't find property [ui-name] within path [parameters/genome] in display.yaml");
+		for (String errorId : methodBriefInfo.keySet()) {
+			if (methodBriefInfo.get(errorId).getLoadingError() != null && !errorId.startsWith("test_error_")) {
+				System.out.println("Unexpected error: " + methodBriefInfo.get(errorId).getLoadingError());
+				Assert.fail(methodBriefInfo.get(errorId).getLoadingError());
+			}
+		}
 	}
 	
 	@Test
