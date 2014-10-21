@@ -338,6 +338,9 @@ public class FullServerTest {
 		assertEquals("genome", spec.getBehavior().getKbServiceInputMapping().get(0).getInputParameter());
 		assertNotNull(spec.getBehavior().getKbServiceInputMapping().get(0).getTargetProperty());
 		assertNotNull(spec.getBehavior().getKbServiceInputMapping().get(0).getTargetTypeTransform());
+		assertEquals("genome_", spec.getBehavior().getKbServiceInputMapping().get(0).getGeneratedValue().getPrefix());
+		assertEquals(8L, (long)spec.getBehavior().getKbServiceInputMapping().get(0).getGeneratedValue().getSymbols());
+		assertEquals(".obj", spec.getBehavior().getKbServiceInputMapping().get(0).getGeneratedValue().getSuffix());
 		assertEquals("workspace", spec.getBehavior().getKbServiceInputMapping().get(1).getNarrativeSystemVariable());		
 		assertNotNull(spec.getBehavior().getKbServiceInputMapping().get(1).getTargetArgumentPosition());
 		assertEquals("[0,\"1\",2.0]", spec.getBehavior().getKbServiceOutputMapping().get(0).getConstantValue().toJsonString());

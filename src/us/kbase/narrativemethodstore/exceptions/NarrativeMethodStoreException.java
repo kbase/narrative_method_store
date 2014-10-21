@@ -27,7 +27,10 @@ public class NarrativeMethodStoreException extends Exception {
 	
 	public void setErrorMethod(MethodBriefInfo errorMethod) {
 		this.errorMethod = errorMethod;
-		this.errorMethod.setLoadingError(getMessage());
+		String msg = getMessage();
+		if (msg == null)
+			msg = getCause().getClass().getName();
+		this.errorMethod.setLoadingError(msg);
 	}
 	
 	public Category getErrorCategory() {
@@ -36,6 +39,9 @@ public class NarrativeMethodStoreException extends Exception {
 	
 	public void setErrorCategory(Category errorCategory) {
 		this.errorCategory = errorCategory;
-		this.errorCategory.setLoadingError(getMessage());
+		String msg = getMessage();
+		if (getCause() != null)
+			msg = getCause().getClass().getName() + ": " + msg;
+		this.errorCategory.setLoadingError(msg);
 	}
 }

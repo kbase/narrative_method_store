@@ -30,7 +30,8 @@ import us.kbase.common.service.UObject;
  *     wrapping it by structure with inner property defined by 'target_property'.
  * target_type_transform - none/string/int/float/list<type>/mapping<type>/ref, optional field, default is 
  *     no transformation.
- * @optional input_parameter service_method_output_path constant_value narrative_system_variable target_property target_type_transform
+ * @optional input_parameter service_method_output_path constant_value narrative_system_variable 
+ * @optional target_property target_type_transform
  * </pre>
  * 
  */
