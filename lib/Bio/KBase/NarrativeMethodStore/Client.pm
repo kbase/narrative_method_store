@@ -1202,7 +1202,7 @@ AppSteps is a reference to a hash where the following keys are defined:
 	input_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.AppStepInputMapping
 AppStepInputMapping is a reference to a hash where the following keys are defined:
 	step_source has a value which is a string
-	isFromInput has a value which is a NarrativeMethodStore.boolean
+	is_from_input has a value which is a NarrativeMethodStore.boolean
 	from has a value which is a string
 	to has a value which is a string
 boolean is an int
@@ -1235,7 +1235,7 @@ AppSteps is a reference to a hash where the following keys are defined:
 	input_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.AppStepInputMapping
 AppStepInputMapping is a reference to a hash where the following keys are defined:
 	step_source has a value which is a string
-	isFromInput has a value which is a NarrativeMethodStore.boolean
+	is_from_input has a value which is a NarrativeMethodStore.boolean
 	from has a value which is a string
 	to has a value which is a string
 boolean is an int
@@ -2089,7 +2089,7 @@ AppSteps is a reference to a hash where the following keys are defined:
 	input_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.AppStepInputMapping
 AppStepInputMapping is a reference to a hash where the following keys are defined:
 	step_source has a value which is a string
-	isFromInput has a value which is a NarrativeMethodStore.boolean
+	is_from_input has a value which is a NarrativeMethodStore.boolean
 	from has a value which is a string
 	to has a value which is a string
 boolean is an int
@@ -2121,7 +2121,7 @@ AppSteps is a reference to a hash where the following keys are defined:
 	input_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.AppStepInputMapping
 AppStepInputMapping is a reference to a hash where the following keys are defined:
 	step_source has a value which is a string
-	isFromInput has a value which is a NarrativeMethodStore.boolean
+	is_from_input has a value which is a NarrativeMethodStore.boolean
 	from has a value which is a string
 	to has a value which is a string
 boolean is an int
@@ -3241,7 +3241,7 @@ transformation - not supported yet, but may be used to indicate if a transformat
 <pre>
 a reference to a hash where the following keys are defined:
 step_source has a value which is a string
-isFromInput has a value which is a NarrativeMethodStore.boolean
+is_from_input has a value which is a NarrativeMethodStore.boolean
 from has a value which is a string
 to has a value which is a string
 
@@ -3253,7 +3253,7 @@ to has a value which is a string
 
 a reference to a hash where the following keys are defined:
 step_source has a value which is a string
-isFromInput has a value which is a NarrativeMethodStore.boolean
+is_from_input has a value which is a NarrativeMethodStore.boolean
 from has a value which is a string
 to has a value which is a string
 

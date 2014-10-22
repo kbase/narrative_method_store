@@ -33,7 +33,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @Generated("com.googlecode.jsonschema2pojo")
 @JsonPropertyOrder({
     "step_source",
-    "isFromInput",
+    "is_from_input",
     "from",
     "to"
 })
@@ -41,7 +41,7 @@ public class AppStepInputMapping {
 
     @JsonProperty("step_source")
     private String stepSource;
-    @JsonProperty("isFromInput")
+    @JsonProperty("is_from_input")
     private Long isFromInput;
     @JsonProperty("from")
     private String from;
@@ -64,12 +64,12 @@ public class AppStepInputMapping {
         return this;
     }
 
-    @JsonProperty("isFromInput")
+    @JsonProperty("is_from_input")
     public Long getIsFromInput() {
         return isFromInput;
     }
 
-    @JsonProperty("isFromInput")
+    @JsonProperty("is_from_input")
     public void setIsFromInput(Long isFromInput) {
         this.isFromInput = isFromInput;
     }

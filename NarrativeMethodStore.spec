@@ -283,7 +283,7 @@ module NarrativeMethodStore {
     */
     typedef structure {
         string step_source;
-        boolean isFromInput;
+        boolean is_from_input;
         string from;
         string to;
     } AppStepInputMapping;
