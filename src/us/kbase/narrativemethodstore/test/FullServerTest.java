@@ -18,7 +18,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import us.kbase.common.service.Tuple2;
+import us.kbase.common.service.Tuple3;
 import us.kbase.narrativemethodstore.Category;
 import us.kbase.narrativemethodstore.GetMethodParams;
 import us.kbase.narrativemethodstore.ListCategoriesParams;
@@ -26,6 +26,7 @@ import us.kbase.narrativemethodstore.ListParams;
 import us.kbase.narrativemethodstore.MethodBriefInfo;
 import us.kbase.narrativemethodstore.MethodFullInfo;
 import us.kbase.narrativemethodstore.MethodSpec;
+import us.kbase.narrativemethodstore.AppBriefInfo;
 import us.kbase.narrativemethodstore.NarrativeMethodStoreClient;
 import us.kbase.narrativemethodstore.NarrativeMethodStoreServer;
 
@@ -107,7 +108,7 @@ public class FullServerTest {
 	@Test
 	public void testListCategories() throws Exception {
 		ListCategoriesParams params = new ListCategoriesParams().withLoadMethods(0L);
-		Tuple2<Map<String, Category>, Map<String, MethodBriefInfo>> methods = CLIENT.listCategories(params);
+		Tuple3<Map<String, Category>, Map<String, MethodBriefInfo>, Map<String, AppBriefInfo>> methods = CLIENT.listCategories(params);
 		
 		//first just check that the method did not return methods if we did not request them
 		assertTrue("We should not get methods from listCategories if we did not ask.", methods.getE2().size()==0);

@@ -14,6 +14,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 /**
  * <p>Original spec-file type: ListParams</p>
  * <pre>
+ * These parameters do nothing currently, but are a placeholder for future options
+ * on listing methods or apps
  * limit - optional field (default value is 0)
  * offset - optional field (default value is 0)
  * </pre>

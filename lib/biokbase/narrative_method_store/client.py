@@ -46,10 +46,10 @@ def _get_token(user_id, password,
 def _read_rcfile(file=_os.environ['HOME'] + '/.authrc'):  # @ReservedAssignment
     # Another bandaid to read in the ~/.authrc file if one is present
     authdata = None
-    if os.path.exists(file):
+    if _os.path.exists(file):
         try:
             with open(file) as authrc:
-                rawdata = json.load(authrc)
+                rawdata = _json.load(authrc)
                 # strip down whatever we read to only what is legit
                 authdata = {x: rawdata.get(x) for x in (
                     'user_id', 'token', 'client_secret', 'keyfile',
@@ -60,8 +60,8 @@ def _read_rcfile(file=_os.environ['HOME'] + '/.authrc'):  # @ReservedAssignment
 
 
 def _read_inifile(file=_os.environ.get(  # @ReservedAssignment
-                      'KB_DEPLOYMENT_CONFIG', _os.environ['HOME'] +
-                      '/.kbase_config')):
+                  'KB_DEPLOYMENT_CONFIG', _os.environ['HOME'] +
+                  '/.kbase_config')):
     # Another bandaid to read in the ~/.kbase_config file if one is present
     authdata = None
     if _os.path.exists(file):
@@ -71,9 +71,9 @@ def _read_inifile(file=_os.environ.get(  # @ReservedAssignment
             # strip down whatever we read to only what is legit
             authdata = {x: config.get('authentication', x)
                         if config.has_option('authentication', x)
-                        else None for x in
-                           ('user_id', 'token', 'client_secret',
-                            'keyfile', 'keyfile_passphrase', 'password')}
+                        else None for x in ('user_id', 'token',
+                                            'client_secret', 'keyfile',
+                                            'keyfile_passphrase', 'password')}
         except Exception, e:
             print "Error while reading INI file %s: %s" % (file, e)
     return authdata
@@ -147,8 +147,8 @@ class NarrativeMethodStore(object):
 
         body = _json.dumps(arg_hash, cls=_JSONObjectEncoder)
         ret = _requests.post(self.url, data=body, headers=self._headers,
-                                timeout=self.timeout,
-                                verify=not self.trust_all_ssl_certificates)
+                             timeout=self.timeout,
+                             verify=not self.trust_all_ssl_certificates)
         if ret.status_code == _requests.codes.server_error:
             if _CT in ret.headers and ret.headers[_CT] == _AJ:
                 err = _json.loads(ret.text)
@@ -200,6 +200,26 @@ class NarrativeMethodStore(object):
                           [])
         return resp[0]
 
+    def list_apps(self, params):
+        resp = self._call('NarrativeMethodStore.list_apps',
+                          [params])
+        return resp[0]
+
+    def list_apps_full_info(self, params):
+        resp = self._call('NarrativeMethodStore.list_apps_full_info',
+                          [params])
+        return resp[0]
+
+    def list_apps_spec(self, params):
+        resp = self._call('NarrativeMethodStore.list_apps_spec',
+                          [params])
+        return resp[0]
+
+    def list_app_ids_and_names(self):
+        resp = self._call('NarrativeMethodStore.list_app_ids_and_names',
+                          [])
+        return resp[0]
+
     def get_method_brief_info(self, params):
         resp = self._call('NarrativeMethodStore.get_method_brief_info',
                           [params])
@@ -212,5 +232,20 @@ class NarrativeMethodStore(object):
 
     def get_method_spec(self, params):
         resp = self._call('NarrativeMethodStore.get_method_spec',
+                          [params])
+        return resp[0]
+
+    def get_app_brief_info(self, params):
+        resp = self._call('NarrativeMethodStore.get_app_brief_info',
+                          [params])
+        return resp[0]
+
+    def get_app_full_info(self, params):
+        resp = self._call('NarrativeMethodStore.get_app_full_info',
+                          [params])
+        return resp[0]
+
+    def get_app_spec(self, params):
+        resp = self._call('NarrativeMethodStore.get_app_spec',
                           [params])
         return resp[0]

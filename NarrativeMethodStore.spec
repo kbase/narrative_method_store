@@ -31,7 +31,7 @@ module NarrativeMethodStore {
         string subtitle;
         string tooltip;
         list<string> categories;
-		string loading_error;
+        string loading_error;
     } MethodBriefInfo;
     
     typedef structure {
@@ -235,15 +235,93 @@ module NarrativeMethodStore {
     } MethodSpec;
 
 
-	/*
-		load_methods - optional field (default value is 1)
-	*/
-	typedef structure {
-		boolean load_methods;
-	} ListCategoriesParams;
 
-	funcdef list_categories(ListCategoriesParams params) 
-		returns (mapping<string, Category> categories, mapping<string, MethodBriefInfo> methods);
+    
+    typedef structure {
+        string id;
+        string name;
+        string ver;
+        string subtitle;
+        string tooltip;
+        list<string> categories;
+        string loading_error;
+    } AppBriefInfo;
+
+    typedef structure {
+        string id;
+        string name;
+        string ver;
+        list <username> authors;
+        email contact;
+        
+        string subtitle;
+        string tooltip;
+        
+        string header;
+        
+        string description;
+        string technical_description;
+        
+        list<string> categories;
+        
+        list<ScreenShot> screenshots;
+    } AppFullInfo;
+    
+    /*
+        Defines how any input to a particular step should be
+        populated based 
+        step_source - the id of the step to pull the parameter from
+        isFromInput - set to true (1) to indicate that the input should be pulled from the input
+            parameters of the step_source.  This is the only supported option.  In the future, it
+            may be possible to pull the input from the output of the previous step (which would
+            require special handling of the app runner).
+        from - the id of the input parameter/output field in step_source to retrieve the value
+        to - the name of the parameter to automatically populate in this step
+        transformation - not supported yet, but may be used to indicate if a transformation of the
+            value should occur when mapping the input to this step
+        //@optional transformation
+    */
+    typedef structure {
+        string step_source;
+        boolean isFromInput;
+        string from;
+        string to;
+    } AppStepInputMapping;
+    
+    typedef structure {
+        string step_id;
+        string method_id;
+        list<AppStepInputMapping> input_mapping;
+    } AppSteps;
+    
+    /* typedef structure {
+    
+    } AppBehavior; */
+    
+    typedef structure {
+        AppBriefInfo info;
+        
+        list<AppSteps> steps;
+
+    } AppSpec;
+
+
+
+
+    /*
+        List all the categories.  Optionally, if load_methods or load_apps are set to 1,
+        information about all the methods and apps is provided.  This is important
+        load_methods - optional field (default value is 1)
+    */
+    typedef structure {
+        boolean load_methods;
+        boolean load_apps;
+    } ListCategoriesParams;
+
+    funcdef list_categories(ListCategoriesParams params) 
+                returns ( mapping<string, Category> categories,
+                          mapping<string, MethodBriefInfo> methods,
+                          mapping<string, AppBriefInfo> apps);
 
     typedef structure {
         list <string> ids;
@@ -251,10 +329,12 @@ module NarrativeMethodStore {
 
     funcdef get_category(GetCategoryParams params) returns (list<Category>);
 
-	/*
-		limit - optional field (default value is 0)
-		offset - optional field (default value is 0)
-	*/
+    /*
+        These parameters do nothing currently, but are a placeholder for future options
+        on listing methods or apps
+        limit - optional field (default value is 0)
+        offset - optional field (default value is 0)
+    */
     typedef structure {
         int limit;
         int offset;
@@ -269,6 +349,15 @@ module NarrativeMethodStore {
     funcdef list_method_ids_and_names() returns (mapping<string,string>);
     
     
+    funcdef list_apps(ListParams params) returns (list<AppBriefInfo>);
+    
+    funcdef list_apps_full_info(ListParams params) returns (list<AppFullInfo>);
+    
+    funcdef list_apps_spec(ListParams params) returns (list<AppSpec>);
+    
+    funcdef list_app_ids_and_names() returns (mapping<string,string>);
+    
+    
     typedef structure {
         list <string> ids;
     } GetMethodParams;
@@ -278,5 +367,18 @@ module NarrativeMethodStore {
     funcdef get_method_full_info(GetMethodParams params) returns (list<MethodFullInfo>);
     
     funcdef get_method_spec(GetMethodParams params) returns (list<MethodSpec>);
+    
+    
+    
+    typedef structure {
+        list <string> ids;
+    } GetAppParams;
+
+    funcdef get_app_brief_info(GetAppParams params) returns (list<AppBriefInfo>);
+    
+    funcdef get_app_full_info(GetAppParams params) returns (list<AppFullInfo>);
+    
+    funcdef get_app_spec(GetAppParams params) returns (list<AppSpec>);
+    
 
 };

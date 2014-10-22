@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Map;
 import us.kbase.common.service.JsonServerMethod;
 import us.kbase.common.service.JsonServerServlet;
-import us.kbase.common.service.Tuple2;
+import us.kbase.common.service.Tuple3;
 
 //BEGIN_HEADER
 import java.io.File;
@@ -156,12 +156,13 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
      * <pre>
      * </pre>
      * @param   params   instance of type {@link us.kbase.narrativemethodstore.ListCategoriesParams ListCategoriesParams}
-     * @return   multiple set: (1) parameter "categories" of mapping from String to type {@link us.kbase.narrativemethodstore.Category Category}, (2) parameter "methods" of mapping from String to type {@link us.kbase.narrativemethodstore.MethodBriefInfo MethodBriefInfo}
+     * @return   multiple set: (1) parameter "categories" of mapping from String to type {@link us.kbase.narrativemethodstore.Category Category}, (2) parameter "methods" of mapping from String to type {@link us.kbase.narrativemethodstore.MethodBriefInfo MethodBriefInfo}, (3) parameter "apps" of mapping from String to type {@link us.kbase.narrativemethodstore.AppBriefInfo AppBriefInfo}
      */
     @JsonServerMethod(rpc = "NarrativeMethodStore.list_categories", tuple = true)
-    public Tuple2<Map<String,Category>, Map<String,MethodBriefInfo>> listCategories(ListCategoriesParams params) throws Exception {
+    public Tuple3<Map<String,Category>, Map<String,MethodBriefInfo>, Map<String,AppBriefInfo>> listCategories(ListCategoriesParams params) throws Exception {
         Map<String,Category> return1 = null;
         Map<String,MethodBriefInfo> return2 = null;
+        Map<String,AppBriefInfo> return3 = null;
         //BEGIN list_categories
         config();
         boolean returnLoadedMethods = false;
@@ -178,9 +179,10 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
         	return2 = new HashMap<String,MethodBriefInfo>();
         }
         //END list_categories
-        Tuple2<Map<String,Category>, Map<String,MethodBriefInfo>> returnVal = new Tuple2<Map<String,Category>, Map<String,MethodBriefInfo>>();
+        Tuple3<Map<String,Category>, Map<String,MethodBriefInfo>, Map<String,AppBriefInfo>> returnVal = new Tuple3<Map<String,Category>, Map<String,MethodBriefInfo>, Map<String,AppBriefInfo>>();
         returnVal.setE1(return1);
         returnVal.setE2(return2);
+        returnVal.setE3(return3);
         return returnVal;
     }
 
@@ -282,6 +284,65 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
     }
 
     /**
+     * <p>Original spec-file function name: list_apps</p>
+     * <pre>
+     * </pre>
+     * @param   params   instance of type {@link us.kbase.narrativemethodstore.ListParams ListParams}
+     * @return   instance of list of type {@link us.kbase.narrativemethodstore.AppBriefInfo AppBriefInfo}
+     */
+    @JsonServerMethod(rpc = "NarrativeMethodStore.list_apps")
+    public List<AppBriefInfo> listApps(ListParams params) throws Exception {
+        List<AppBriefInfo> returnVal = null;
+        //BEGIN list_apps
+        //END list_apps
+        return returnVal;
+    }
+
+    /**
+     * <p>Original spec-file function name: list_apps_full_info</p>
+     * <pre>
+     * </pre>
+     * @param   params   instance of type {@link us.kbase.narrativemethodstore.ListParams ListParams}
+     * @return   instance of list of type {@link us.kbase.narrativemethodstore.AppFullInfo AppFullInfo}
+     */
+    @JsonServerMethod(rpc = "NarrativeMethodStore.list_apps_full_info")
+    public List<AppFullInfo> listAppsFullInfo(ListParams params) throws Exception {
+        List<AppFullInfo> returnVal = null;
+        //BEGIN list_apps_full_info
+        //END list_apps_full_info
+        return returnVal;
+    }
+
+    /**
+     * <p>Original spec-file function name: list_apps_spec</p>
+     * <pre>
+     * </pre>
+     * @param   params   instance of type {@link us.kbase.narrativemethodstore.ListParams ListParams}
+     * @return   instance of list of type {@link us.kbase.narrativemethodstore.AppSpec AppSpec}
+     */
+    @JsonServerMethod(rpc = "NarrativeMethodStore.list_apps_spec")
+    public List<AppSpec> listAppsSpec(ListParams params) throws Exception {
+        List<AppSpec> returnVal = null;
+        //BEGIN list_apps_spec
+        //END list_apps_spec
+        return returnVal;
+    }
+
+    /**
+     * <p>Original spec-file function name: list_app_ids_and_names</p>
+     * <pre>
+     * </pre>
+     * @return   instance of mapping from String to String
+     */
+    @JsonServerMethod(rpc = "NarrativeMethodStore.list_app_ids_and_names")
+    public Map<String,String> listAppIdsAndNames() throws Exception {
+        Map<String,String> returnVal = null;
+        //BEGIN list_app_ids_and_names
+        //END list_app_ids_and_names
+        return returnVal;
+    }
+
+    /**
      * <p>Original spec-file function name: get_method_brief_info</p>
      * <pre>
      * </pre>
@@ -340,6 +401,51 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
         for (String id : methodIds)
         	returnVal.add(localGitDB.getMethodSpec(id));
         //END get_method_spec
+        return returnVal;
+    }
+
+    /**
+     * <p>Original spec-file function name: get_app_brief_info</p>
+     * <pre>
+     * </pre>
+     * @param   params   instance of type {@link us.kbase.narrativemethodstore.GetAppParams GetAppParams}
+     * @return   instance of list of type {@link us.kbase.narrativemethodstore.AppBriefInfo AppBriefInfo}
+     */
+    @JsonServerMethod(rpc = "NarrativeMethodStore.get_app_brief_info")
+    public List<AppBriefInfo> getAppBriefInfo(GetAppParams params) throws Exception {
+        List<AppBriefInfo> returnVal = null;
+        //BEGIN get_app_brief_info
+        //END get_app_brief_info
+        return returnVal;
+    }
+
+    /**
+     * <p>Original spec-file function name: get_app_full_info</p>
+     * <pre>
+     * </pre>
+     * @param   params   instance of type {@link us.kbase.narrativemethodstore.GetAppParams GetAppParams}
+     * @return   instance of list of type {@link us.kbase.narrativemethodstore.AppFullInfo AppFullInfo}
+     */
+    @JsonServerMethod(rpc = "NarrativeMethodStore.get_app_full_info")
+    public List<AppFullInfo> getAppFullInfo(GetAppParams params) throws Exception {
+        List<AppFullInfo> returnVal = null;
+        //BEGIN get_app_full_info
+        //END get_app_full_info
+        return returnVal;
+    }
+
+    /**
+     * <p>Original spec-file function name: get_app_spec</p>
+     * <pre>
+     * </pre>
+     * @param   params   instance of type {@link us.kbase.narrativemethodstore.GetAppParams GetAppParams}
+     * @return   instance of list of type {@link us.kbase.narrativemethodstore.AppSpec AppSpec}
+     */
+    @JsonServerMethod(rpc = "NarrativeMethodStore.get_app_spec")
+    public List<AppSpec> getAppSpec(GetAppParams params) throws Exception {
+        List<AppSpec> returnVal = null;
+        //BEGIN get_app_spec
+        //END get_app_spec
         return returnVal;
     }
 
