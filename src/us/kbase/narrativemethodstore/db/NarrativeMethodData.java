@@ -326,7 +326,8 @@ public class NarrativeMethodData {
 							.withInfo(briefInfo)
 							.withWidgets(widgets)
 							.withBehavior(behavior)
-							.withParameters(parameters);
+							.withParameters(parameters)
+							.withJobIdOutputField(getTextOrNull(spec.get("job_id_output_field")));
 	}
 
 	private static JsonNode get(JsonNode node, String childName) {

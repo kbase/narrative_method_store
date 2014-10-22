@@ -348,6 +348,7 @@ public class FullServerTest {
 		assertEquals("ret1", spec.getBehavior().getKbServiceOutputMapping().get(0).getTargetProperty());
 		assertEquals("[key1, key2]", spec.getBehavior().getKbServiceOutputMapping().get(1).getServiceMethodOutputPath().toString());
 		assertEquals("re2", spec.getBehavior().getKbServiceOutputMapping().get(1).getTargetProperty());
+		assertEquals("re2", spec.getJobIdOutputField());
 	}
 	
 	@BeforeClass
