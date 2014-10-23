@@ -23,11 +23,15 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 
+import us.kbase.narrativemethodstore.AppBriefInfo;
+import us.kbase.narrativemethodstore.AppFullInfo;
+import us.kbase.narrativemethodstore.AppSpec;
 import us.kbase.narrativemethodstore.MethodBriefInfo;
 import us.kbase.narrativemethodstore.MethodFullInfo;
 import us.kbase.narrativemethodstore.MethodSpec;
-import us.kbase.narrativemethodstore.db.MethodFileLookup;
+import us.kbase.narrativemethodstore.db.FileLookup;
 import us.kbase.narrativemethodstore.db.MethodSpecDB;
+import us.kbase.narrativemethodstore.db.NarrativeAppData;
 import us.kbase.narrativemethodstore.db.NarrativeCategoriesIndex;
 import us.kbase.narrativemethodstore.db.NarrativeMethodData;
 import us.kbase.narrativemethodstore.exceptions.NarrativeMethodStoreException;
@@ -50,6 +54,8 @@ public class LocalGitDB implements MethodSpecDB {
 	protected NarrativeCategoriesIndex narCatIndex;
 	protected final LoadingCache<String, MethodFullInfo> methodFullInfoCache;
 	protected final LoadingCache<String, MethodSpec> methodSpecCache;
+	protected final LoadingCache<String, AppFullInfo> appFullInfoCache;
+	protected final LoadingCache<String, AppSpec> appSpecCache;
 	
 	public LocalGitDB(URL gitRepoUrl, String branch, File localPath, 
 			int refreshTimeInMinutes, int cacheSize) throws NarrativeMethodStoreInitializationException {
@@ -70,6 +76,20 @@ public class LocalGitDB implements MethodSpecDB {
 					@Override
 					public MethodSpec load(String methodId) throws NarrativeMethodStoreException {
 						return loadMethodDataUncached(methodId).getMethodSpec();
+					}
+				});
+		this.appFullInfoCache = CacheBuilder.newBuilder().maximumSize(cacheSize).build(
+				new CacheLoader<String, AppFullInfo>() {
+					@Override
+					public AppFullInfo load(String methodId) throws NarrativeMethodStoreException {
+						return loadAppDataUncached(methodId).getAppFullInfo();
+					}
+				});
+		this.appSpecCache = CacheBuilder.newBuilder().maximumSize(cacheSize).build(
+				new CacheLoader<String, AppSpec>() {
+					@Override
+					public AppSpec load(String methodId) throws NarrativeMethodStoreException {
+						return loadAppDataUncached(methodId).getAppSpec();
 					}
 				});
 		if (!localPath.exists())
@@ -168,7 +188,7 @@ public class LocalGitDB implements MethodSpecDB {
 			if (ret != null && ret.startsWith("Already up-to-date."))
 				return;
 			if (ret.contains("Updating") && ret.contains("Fast-forward")) {
-				if (ret.contains(" categories/") || ret.contains(" methods/")) {
+				if (ret.contains(" categories/") || ret.contains(" methods/") || ret.contains(" apps/")) {
 					// Refresh all caches here
 					System.out.println("Need to refresh caches");
 					
@@ -197,6 +217,10 @@ public class LocalGitDB implements MethodSpecDB {
 		return new File(gitLocalPath, "categories");
 	}
 
+	protected File getAppsDir() {
+		return new File(gitLocalPath, "apps");
+	}
+
 	protected List<String> listMethodIdsUncached() {
 		List <String> methodList = new ArrayList<String>();
 		for (File sub : getMethodsDir().listFiles()) {
@@ -204,6 +228,15 @@ public class LocalGitDB implements MethodSpecDB {
 				methodList.add(sub.getName());
 		}
 		return methodList;
+	}
+
+	protected List<String> listAppIdsUncached() {
+		List <String> appList = new ArrayList<String>();
+		for (File sub : getAppsDir().listFiles()) {
+			if (sub.isDirectory())
+				appList.add(sub.getName());
+		}
+		return appList;
 	}
 
 	@Override
@@ -217,7 +250,18 @@ public class LocalGitDB implements MethodSpecDB {
 		}
 		return ret;
 	}
-	
+
+	public List<String> listAppIds(boolean withErrors) {
+		checkForChanges();
+		List<String> ret = new ArrayList<String>();
+		for (Map.Entry<String, AppBriefInfo> entry : narCatIndex.getApps().entrySet()) {
+			if (entry.getValue().getLoadingError() != null && !withErrors)
+				continue;
+			ret.add(entry.getKey());
+		}
+		return ret;
+	}
+
 	protected NarrativeMethodData loadMethodDataUncached(final String methodId) throws NarrativeMethodStoreException {
 		try {
 			// Fetch the resources needed
@@ -226,17 +270,7 @@ public class LocalGitDB implements MethodSpecDB {
 
 			// Initialize the actual data
 			NarrativeMethodData data = new NarrativeMethodData(methodId, spec, display,
-					new MethodFileLookup() {
-						@Override
-						public String loadFileContent(String fileName) {
-							File f = new File(new File(getMethodsDir(), methodId), fileName);
-							if (f.exists())
-								try {
-									return get(f);
-								} catch (IOException ignore) {}
-							return null;
-						}
-					});
+					createFileLookup(new File(getMethodsDir(), methodId)));
 			return data;
 		} catch (NarrativeMethodStoreException ex) {
 			throw ex;
@@ -248,13 +282,53 @@ public class LocalGitDB implements MethodSpecDB {
 		}
 	}
 
+	protected FileLookup createFileLookup(final File dir) {
+		return new FileLookup() {
+			@Override
+			public String loadFileContent(String fileName) {
+				File f = new File(dir, fileName);
+				if (f.exists())
+					try {
+						return get(f);
+					} catch (IOException ignore) {}
+				return null;
+			}
+		};
+	}
+
+	protected NarrativeAppData loadAppDataUncached(final String appId) throws NarrativeMethodStoreException {
+		try {
+			// Fetch the resources needed
+			JsonNode spec = getResourceAsJson("apps/"+appId+"/spec.json");
+			Map<String,Object> display = getResourceAsYamlMap("apps/"+appId+"/display.yaml");
+
+			// Initialize the actual data
+			NarrativeAppData data = new NarrativeAppData(appId, spec, display,
+					createFileLookup(new File(getAppsDir(), appId)));
+			return data;
+		} catch (NarrativeMethodStoreException ex) {
+			throw ex;
+		} catch (Exception ex) {
+			NarrativeMethodStoreException ret = new NarrativeMethodStoreException(ex);
+			ret.setErrorApp(new AppBriefInfo().withCategories(Arrays.asList("error"))
+					.withId(appId).withName(appId));
+			throw ret;
+		}
+	}
+
 	@Override
 	public MethodBriefInfo getMethodBriefInfo(String methodId)
 			throws NarrativeMethodStoreException {
 		checkForChanges();
 		return narCatIndex.getMethods().get(methodId);
 	}
-	
+
+	public AppBriefInfo getAppBriefInfo(String appId)
+			throws NarrativeMethodStoreException {
+		checkForChanges();
+		return narCatIndex.getApps().get(appId);
+	}
+
 	@Override
 	public MethodFullInfo getMethodFullInfo(String methodId)
 			throws NarrativeMethodStoreException {
@@ -267,7 +341,19 @@ public class LocalGitDB implements MethodSpecDB {
 			throw new NarrativeMethodStoreException("Error loading full info for method id=" + methodId + " (" + e.getMessage() + ")", e);
 		}
 	}
-	
+
+	public AppFullInfo getAppFullInfo(String appId)
+			throws NarrativeMethodStoreException {
+		checkForChanges();
+		try {
+			return appFullInfoCache.get(appId);
+		} catch (ExecutionException e) {
+			if (e.getCause() != null && e.getCause() instanceof NarrativeMethodStoreException)
+				throw (NarrativeMethodStoreException)e.getCause();
+			throw new NarrativeMethodStoreException("Error loading full info for app id=" + appId + " (" + e.getMessage() + ")", e);
+		}
+	}
+
 	@Override
 	public MethodSpec getMethodSpec(String methodId)
 			throws NarrativeMethodStoreException {
@@ -280,7 +366,19 @@ public class LocalGitDB implements MethodSpecDB {
 			throw new NarrativeMethodStoreException("Error loading full info for method id=" + methodId + " (" + e.getMessage() + ")", e);
 		}
 	}
-	
+
+	public AppSpec getAppSpec(String appId)
+			throws NarrativeMethodStoreException {
+		checkForChanges();
+		try {
+			return appSpecCache.get(appId);
+		} catch (ExecutionException e) {
+			if (e.getCause() != null && e.getCause() instanceof NarrativeMethodStoreException)
+				throw (NarrativeMethodStoreException)e.getCause();
+			throw new NarrativeMethodStoreException("Error loading full info for app id=" + appId + " (" + e.getMessage() + ")", e);
+		}
+	}
+
 	public List<String> listCategoryIds() throws NarrativeMethodStoreException {
 		checkForChanges();
 		List <String> catList = new ArrayList<String>();
@@ -325,6 +423,18 @@ public class LocalGitDB implements MethodSpecDB {
 					mbi = ex.getErrorMethod();
 				}
 				narCatIndex.addOrUpdateMethod(mId, mbi);
+			}
+
+			List<String> appIds = listAppIdsUncached(); // iterate over each category
+			for(String appId : appIds) {
+				AppBriefInfo abi;
+				try {
+					NarrativeAppData data = loadAppDataUncached(appId);
+					abi = data.getAppBriefInfo();
+				} catch (NarrativeMethodStoreException ex) {
+					abi = ex.getErrorApp();
+				}
+				narCatIndex.addOrUpdateApp(appId, abi);
 			}
 		} catch (IOException e) {
 			throw new NarrativeMethodStoreException("Cannot load category index : "+e.getMessage(),e);

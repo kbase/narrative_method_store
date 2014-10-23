@@ -7,6 +7,7 @@ import java.util.Map;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
+import us.kbase.narrativemethodstore.AppBriefInfo;
 import us.kbase.narrativemethodstore.Category;
 import us.kbase.narrativemethodstore.MethodBriefInfo;
 
@@ -14,15 +15,18 @@ public class NarrativeCategoriesIndex {
 
 	protected Map<String, Category> categories;
 	protected Map<String, MethodBriefInfo> methods;
+	protected Map<String, AppBriefInfo> apps;
 	
 	public NarrativeCategoriesIndex() {
 		categories = new HashMap<String,Category>();
 		methods = new HashMap<String,MethodBriefInfo>();
+		apps = new HashMap<String, AppBriefInfo>();
 	}
 
 	public void clearIndex() {
 		categories = new HashMap<String,Category>();
 		methods = new HashMap<String,MethodBriefInfo>();
+		apps = new HashMap<String, AppBriefInfo>();
 	}
 	
 	public void updateAllCategories(Map<String,Category> categories) {
@@ -32,7 +36,11 @@ public class NarrativeCategoriesIndex {
 	public void updateAllMethods(Map<String,MethodBriefInfo> methods) {
 		this.methods = methods;
 	}
-	
+
+	public void updateAllApps(Map<String, AppBriefInfo> apps) {
+		this.apps = apps;
+	}
+
 	public void addOrUpdateCategory(String catId, JsonNode spec, Map<String,Object> display) {
 		
 		List<String> parentIds = new ArrayList<String>();
@@ -54,12 +62,20 @@ public class NarrativeCategoriesIndex {
 	public void addOrUpdateMethod(String methodId, MethodBriefInfo briefInfo) {
 		methods.put(methodId, briefInfo);
 	}
-	
+
+	public void addOrUpdateApp(String appId, AppBriefInfo briefInfo) {
+		apps.put(appId, briefInfo);
+	}
+
 	public Map<String,Category> getCategories() {
 		return categories;
 	}
 	
 	public Map<String,MethodBriefInfo> getMethods() {
 		return methods;
+	}
+	
+	public Map<String, AppBriefInfo> getApps() {
+		return apps;
 	}
 }

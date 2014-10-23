@@ -38,7 +38,7 @@ public class NarrativeMethodData {
 	protected MethodSpec methodSpec;
 	
 	public NarrativeMethodData(String methodId, JsonNode spec, Map<String, Object> display,
-			MethodFileLookup lookup) throws NarrativeMethodStoreException {
+			FileLookup lookup) throws NarrativeMethodStoreException {
 		try {
 			update(methodId, spec, display, lookup);
 		} catch (Throwable ex) {
@@ -66,7 +66,7 @@ public class NarrativeMethodData {
 	
 	
 	public void update(String methodId, JsonNode spec, Map<String, Object> display,
-			MethodFileLookup lookup) throws NarrativeMethodStoreException {
+			FileLookup lookup) throws NarrativeMethodStoreException {
 		this.methodId = methodId;
 
 		briefInfo = new MethodBriefInfo()
@@ -90,10 +90,7 @@ public class NarrativeMethodData {
 		
 		briefInfo.withVer(get(spec, "ver").asText());
 		
-		List <String> authors = new ArrayList<String>(2);
-		for(int a=0; a< get(spec, "authors").size(); a++) {
-			authors.add(get(spec, "authors").get(a).asText());
-		}
+		List <String> authors = jsonListToStringList(spec.get("authors"));
 		
 		List<ScreenShot> screenshots = new ArrayList<ScreenShot>();
 		@SuppressWarnings("unchecked")
@@ -111,7 +108,7 @@ public class NarrativeMethodData {
 							.withTooltip(methodTooltip)
 							.withCategories(categories)
 							
-							.withAuthors(null)
+							.withAuthors(authors)
 							.withContact(get(spec, "contact").asText())
 							
 							.withDescription(methodDescription)
@@ -343,12 +340,12 @@ public class NarrativeMethodData {
 	}
 	
 	private static String getDisplayProp(Map<String, Object> display, String propName, 
-			MethodFileLookup lookup) {
+			FileLookup lookup) {
 		return getDisplayProp(display, propName, lookup, propName);
 	}
 
 	private static String getDisplayProp(Map<String, Object> display, String propName, 
-			MethodFileLookup lookup, String lookupName) {
+			FileLookup lookup, String lookupName) {
 		String ret = lookup.loadFileContent(lookupName + ".html");
 		if (ret == null)
 			ret = (String)getDisplayProp("/", display, propName);

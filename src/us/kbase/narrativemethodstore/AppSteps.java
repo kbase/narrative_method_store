@@ -22,7 +22,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @JsonPropertyOrder({
     "step_id",
     "method_id",
-    "input_mapping"
+    "input_mapping",
+    "description"
 })
 public class AppSteps {
 
@@ -32,6 +33,8 @@ public class AppSteps {
     private String methodId;
     @JsonProperty("input_mapping")
     private List<AppStepInputMapping> inputMapping;
+    @JsonProperty("description")
+    private String description;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
     @JsonProperty("step_id")
@@ -79,6 +82,21 @@ public class AppSteps {
         return this;
     }
 
+    @JsonProperty("description")
+    public String getDescription() {
+        return description;
+    }
+
+    @JsonProperty("description")
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public AppSteps withDescription(String description) {
+        this.description = description;
+        return this;
+    }
+
     @JsonAnyGetter
     public Map<String, Object> getAdditionalProperties() {
         return this.additionalProperties;
@@ -91,7 +109,7 @@ public class AppSteps {
 
     @Override
     public String toString() {
-        return ((((((((("AppSteps"+" [stepId=")+ stepId)+", methodId=")+ methodId)+", inputMapping=")+ inputMapping)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((((((("AppSteps"+" [stepId=")+ stepId)+", methodId=")+ methodId)+", inputMapping=")+ inputMapping)+", description=")+ description)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }

@@ -53,8 +53,15 @@ public class ImageServlet extends HttpServlet {
 	public void doGet(HttpServletRequest request, HttpServletResponse response)  
             throws IOException { 
 		String methodId = request.getParameter("method_id");
-		if (methodId == null || methodId.contains("../") || methodId.trim().isEmpty())
-			throw new IllegalStateException("Parameter method_id is wrong");
+		String appId = request.getParameter("app_id");
+		if (methodId == null && appId == null) 
+			throw new IllegalStateException("Neither of parameters method_id and app_id is defined");			
+		if (methodId != null && appId != null) 
+			throw new IllegalStateException("Only one of parameters method_id or app_id should be defined");			
+		if (methodId != null && (methodId.contains("../") || methodId.trim().isEmpty()))
+			throw new IllegalStateException("Parameter method_id is wrong: " + methodId);
+		if (appId != null && (appId.contains("../") || appId.trim().isEmpty()))
+			throw new IllegalStateException("Parameter app_id is wrong: " + appId);
 		String imageName = request.getParameter("image_name");
 		if (imageName == null || imageName.contains("../") || imageName.trim().isEmpty())
 			throw new IllegalStateException("Parameter image_name is wrong");
@@ -67,7 +74,9 @@ public class ImageServlet extends HttpServlet {
 		}
 		if (path == null)
     		path = "../narrative_method_specs";
-    	File imageFile = new File(new File(new File(new File(path, "methods"), methodId), "img"), imageName);
+		File innerDir = methodId != null ? new File(new File(path, "methods"), methodId) :
+			new File(new File(path, "apps"), appId);
+    	File imageFile = new File(new File(innerDir, "img"), imageName);
 		setupResponseHeaders(request, response);
 		response.setContentType("image/" + imageExt);
 		OutputStream os = response.getOutputStream();

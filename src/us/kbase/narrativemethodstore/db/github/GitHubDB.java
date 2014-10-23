@@ -19,7 +19,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import us.kbase.narrativemethodstore.MethodBriefInfo;
 import us.kbase.narrativemethodstore.MethodFullInfo;
 import us.kbase.narrativemethodstore.MethodSpec;
-import us.kbase.narrativemethodstore.db.MethodFileLookup;
+import us.kbase.narrativemethodstore.db.FileLookup;
 import us.kbase.narrativemethodstore.db.MethodSpecDB;
 import us.kbase.narrativemethodstore.db.NarrativeMethodData;
 import us.kbase.narrativemethodstore.exceptions.NarrativeMethodStoreException;
@@ -139,7 +139,7 @@ public class GitHubDB implements MethodSpecDB {
 		
 		// Initialize the actual data
 		NarrativeMethodData data = new NarrativeMethodData(methodId, spec, display,
-				new MethodFileLookup() {
+				new FileLookup() {
 					@Override
 					public String loadFileContent(String fileName) {
 						try {

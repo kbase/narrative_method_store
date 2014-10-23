@@ -1,17 +1,10 @@
 package Bio::KBase::NarrativeMethodStore::Client;
 
 use JSON::RPC::Client;
-use POSIX;
 use strict;
 use Data::Dumper;
 use URI;
 use Bio::KBase::Exceptions;
-my $get_time = sub { time, 0 };
-eval {
-    require Time::HiRes;
-    $get_time = sub { Time::HiRes::gettimeofday() };
-};
-
 
 # Client version should match Impl version
 # This is a Semantic Version number,
@@ -42,41 +35,7 @@ sub new
     my $self = {
 	client => Bio::KBase::NarrativeMethodStore::Client::RpcClient->new,
 	url => $url,
-	headers => [],
     };
-
-    chomp($self->{hostname} = `hostname`);
-    $self->{hostname} ||= 'unknown-host';
-
-    #
-    # Set up for propagating KBRPC_TAG and KBRPC_METADATA environment variables through
-    # to invoked services. If these values are not set, we create a new tag
-    # and a metadata field with basic information about the invoking script.
-    #
-    if ($ENV{KBRPC_TAG})
-    {
-	$self->{kbrpc_tag} = $ENV{KBRPC_TAG};
-    }
-    else
-    {
-	my ($t, $us) = &$get_time();
-	$us = sprintf("%06d", $us);
-	my $ts = strftime("%Y-%m-%dT%H:%M:%S.${us}Z", gmtime $t);
-	$self->{kbrpc_tag} = "C:$0:$self->{hostname}:$$:$ts";
-    }
-    push(@{$self->{headers}}, 'Kbrpc-Tag', $self->{kbrpc_tag});
-
-    if ($ENV{KBRPC_METADATA})
-    {
-	$self->{kbrpc_metadata} = $ENV{KBRPC_METADATA};
-	push(@{$self->{headers}}, 'Kbrpc-Metadata', $self->{kbrpc_metadata});
-    }
-
-    if ($ENV{KBRPC_ERROR_DEST})
-    {
-	$self->{kbrpc_error_dest} = $ENV{KBRPC_ERROR_DEST};
-	push(@{$self->{headers}}, 'Kbrpc-Errordest', $self->{kbrpc_error_dest});
-    }
 
 
     my $ua = $self->{client}->ua;	 
@@ -134,7 +93,7 @@ sub ver
 							       "Invalid argument count for function ver (received $n, expecting 0)");
     }
 
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
+    my $result = $self->{client}->call($self->{url}, {
 	method => "NarrativeMethodStore.ver",
 	params => \@args,
     });
@@ -275,7 +234,7 @@ sub list_categories
 	}
     }
 
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
+    my $result = $self->{client}->call($self->{url}, {
 	method => "NarrativeMethodStore.list_categories",
 	params => \@args,
     });
@@ -376,7 +335,7 @@ sub get_category
 	}
     }
 
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
+    my $result = $self->{client}->call($self->{url}, {
 	method => "NarrativeMethodStore.get_category",
 	params => \@args,
     });
@@ -479,7 +438,7 @@ sub list_methods
 	}
     }
 
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
+    my $result = $self->{client}->call($self->{url}, {
 	method => "NarrativeMethodStore.list_methods",
 	params => \@args,
     });
@@ -600,7 +559,7 @@ sub list_methods_full_info
 	}
     }
 
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
+    my $result = $self->{client}->call($self->{url}, {
 	method => "NarrativeMethodStore.list_methods_full_info",
 	params => \@args,
     });
@@ -851,7 +810,7 @@ sub list_methods_spec
 	}
     }
 
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
+    my $result = $self->{client}->call($self->{url}, {
 	method => "NarrativeMethodStore.list_methods_spec",
 	params => \@args,
     });
@@ -919,7 +878,7 @@ sub list_method_ids_and_names
 							       "Invalid argument count for function list_method_ids_and_names (received $n, expecting 0)");
     }
 
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
+    my $result = $self->{client}->call($self->{url}, {
 	method => "NarrativeMethodStore.list_method_ids_and_names",
 	params => \@args,
     });
@@ -1022,7 +981,7 @@ sub list_apps
 	}
     }
 
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
+    my $result = $self->{client}->call($self->{url}, {
 	method => "NarrativeMethodStore.list_apps",
 	params => \@args,
     });
@@ -1145,7 +1104,7 @@ sub list_apps_full_info
 	}
     }
 
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
+    my $result = $self->{client}->call($self->{url}, {
 	method => "NarrativeMethodStore.list_apps_full_info",
 	params => \@args,
     });
@@ -1200,6 +1159,7 @@ AppSteps is a reference to a hash where the following keys are defined:
 	step_id has a value which is a string
 	method_id has a value which is a string
 	input_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.AppStepInputMapping
+	description has a value which is a string
 AppStepInputMapping is a reference to a hash where the following keys are defined:
 	step_source has a value which is a string
 	is_from_input has a value which is a NarrativeMethodStore.boolean
@@ -1233,6 +1193,7 @@ AppSteps is a reference to a hash where the following keys are defined:
 	step_id has a value which is a string
 	method_id has a value which is a string
 	input_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.AppStepInputMapping
+	description has a value which is a string
 AppStepInputMapping is a reference to a hash where the following keys are defined:
 	step_source has a value which is a string
 	is_from_input has a value which is a NarrativeMethodStore.boolean
@@ -1274,7 +1235,7 @@ sub list_apps_spec
 	}
     }
 
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
+    my $result = $self->{client}->call($self->{url}, {
 	method => "NarrativeMethodStore.list_apps_spec",
 	params => \@args,
     });
@@ -1342,7 +1303,7 @@ sub list_app_ids_and_names
 							       "Invalid argument count for function list_app_ids_and_names (received $n, expecting 0)");
     }
 
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
+    my $result = $self->{client}->call($self->{url}, {
 	method => "NarrativeMethodStore.list_app_ids_and_names",
 	params => \@args,
     });
@@ -1443,7 +1404,7 @@ sub get_method_brief_info
 	}
     }
 
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
+    my $result = $self->{client}->call($self->{url}, {
 	method => "NarrativeMethodStore.get_method_brief_info",
 	params => \@args,
     });
@@ -1562,7 +1523,7 @@ sub get_method_full_info
 	}
     }
 
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
+    my $result = $self->{client}->call($self->{url}, {
 	method => "NarrativeMethodStore.get_method_full_info",
 	params => \@args,
     });
@@ -1811,7 +1772,7 @@ sub get_method_spec
 	}
     }
 
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
+    my $result = $self->{client}->call($self->{url}, {
 	method => "NarrativeMethodStore.get_method_spec",
 	params => \@args,
     });
@@ -1912,7 +1873,7 @@ sub get_app_brief_info
 	}
     }
 
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
+    my $result = $self->{client}->call($self->{url}, {
 	method => "NarrativeMethodStore.get_app_brief_info",
 	params => \@args,
     });
@@ -2033,7 +1994,7 @@ sub get_app_full_info
 	}
     }
 
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
+    my $result = $self->{client}->call($self->{url}, {
 	method => "NarrativeMethodStore.get_app_full_info",
 	params => \@args,
     });
@@ -2087,6 +2048,7 @@ AppSteps is a reference to a hash where the following keys are defined:
 	step_id has a value which is a string
 	method_id has a value which is a string
 	input_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.AppStepInputMapping
+	description has a value which is a string
 AppStepInputMapping is a reference to a hash where the following keys are defined:
 	step_source has a value which is a string
 	is_from_input has a value which is a NarrativeMethodStore.boolean
@@ -2119,6 +2081,7 @@ AppSteps is a reference to a hash where the following keys are defined:
 	step_id has a value which is a string
 	method_id has a value which is a string
 	input_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.AppStepInputMapping
+	description has a value which is a string
 AppStepInputMapping is a reference to a hash where the following keys are defined:
 	step_source has a value which is a string
 	is_from_input has a value which is a NarrativeMethodStore.boolean
@@ -2160,7 +2123,7 @@ sub get_app_spec
 	}
     }
 
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
+    my $result = $self->{client}->call($self->{url}, {
 	method => "NarrativeMethodStore.get_app_spec",
 	params => \@args,
     });
@@ -2186,7 +2149,7 @@ sub get_app_spec
 
 sub version {
     my ($self) = @_;
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
+    my $result = $self->{client}->call($self->{url}, {
         method => "NarrativeMethodStore.version",
         params => [],
     });
@@ -3279,6 +3242,7 @@ a reference to a hash where the following keys are defined:
 step_id has a value which is a string
 method_id has a value which is a string
 input_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.AppStepInputMapping
+description has a value which is a string
 
 </pre>
 
@@ -3290,6 +3254,7 @@ a reference to a hash where the following keys are defined:
 step_id has a value which is a string
 method_id has a value which is a string
 input_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.AppStepInputMapping
+description has a value which is a string
 
 
 =end text
@@ -3510,27 +3475,21 @@ ids has a value which is a reference to a list where each element is a string
 
 package Bio::KBase::NarrativeMethodStore::Client::RpcClient;
 use base 'JSON::RPC::Client';
-use POSIX;
-use strict;
 
 #
 # Override JSON::RPC::Client::call because it doesn't handle error returns properly.
 #
 
 sub call {
-    my ($self, $uri, $headers, $obj) = @_;
+    my ($self, $uri, $obj) = @_;
     my $result;
 
-
-    {
-	if ($uri =~ /\?/) {
-	    $result = $self->_get($uri);
-	}
-	else {
-	    Carp::croak "not hashref." unless (ref $obj eq 'HASH');
-	    $result = $self->_post($uri, $headers, $obj);
-	}
-
+    if ($uri =~ /\?/) {
+       $result = $self->_get($uri);
+    }
+    else {
+        Carp::croak "not hashref." unless (ref $obj eq 'HASH');
+        $result = $self->_post($uri, $obj);
     }
 
     my $service = $obj->{method} =~ /^system\./ if ( $obj );
@@ -3558,7 +3517,7 @@ sub call {
 
 
 sub _post {
-    my ($self, $uri, $headers, $obj) = @_;
+    my ($self, $uri, $obj) = @_;
     my $json = $self->json;
 
     $obj->{version} ||= $self->{version} || '1.1';
@@ -3585,7 +3544,6 @@ sub _post {
         Content_Type   => $self->{content_type},
         Content        => $content,
         Accept         => 'application/json',
-	@$headers,
 	($self->{token} ? (Authorization => $self->{token}) : ()),
     );
 }

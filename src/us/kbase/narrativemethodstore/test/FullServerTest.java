@@ -19,7 +19,9 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import us.kbase.common.service.Tuple3;
+import us.kbase.narrativemethodstore.AppSpec;
 import us.kbase.narrativemethodstore.Category;
+import us.kbase.narrativemethodstore.GetAppParams;
 import us.kbase.narrativemethodstore.GetMethodParams;
 import us.kbase.narrativemethodstore.ListCategoriesParams;
 import us.kbase.narrativemethodstore.ListParams;
@@ -311,7 +313,9 @@ public class FullServerTest {
 	
 	@Test
 	public void testErrors() throws Exception {
-		Map<String, MethodBriefInfo> methodBriefInfo = CLIENT.listCategories(new ListCategoriesParams().withLoadMethods(1L)).getE2();
+		Tuple3<Map<String,Category>, Map<String,MethodBriefInfo>, Map<String,AppBriefInfo>> ret = 
+				CLIENT.listCategories(new ListCategoriesParams().withLoadMethods(1L));
+		Map<String, MethodBriefInfo> methodBriefInfo = ret.getE2();
 		MethodBriefInfo error1 = methodBriefInfo.get("test_error_1");
 		Assert.assertTrue(error1.getLoadingError(), error1.getLoadingError().contains("Unexpected character ('{' (code 123)): was expecting double-quote to start field name\n at [Source: java.io.StringReader"));
 		MethodBriefInfo error2 = methodBriefInfo.get("test_error_2");
@@ -328,6 +332,24 @@ public class FullServerTest {
 				Assert.fail(methodBriefInfo.get(errorId).getLoadingError());
 			}
 		}
+		Map<String, AppBriefInfo> appBriefInfo = ret.getE3();
+		for (String errorId : appBriefInfo.keySet()) {
+			if (appBriefInfo.get(errorId).getLoadingError() != null && !errorId.startsWith("test_error_")) {
+				System.out.println("Unexpected error: " + appBriefInfo.get(errorId).getLoadingError());
+				Assert.fail(appBriefInfo.get(errorId).getLoadingError());
+			}
+		}
+	}
+	
+	@Test
+	public void testApp() throws Exception {
+		Map<String, AppBriefInfo> appBriefInfo = CLIENT.listCategories(new ListCategoriesParams().withLoadMethods(1L).withLoadApps(1L)).getE3();
+		assertNotNull(appBriefInfo.get("test_app_1"));
+		System.out.println(appBriefInfo.get("test_app_1"));
+		AppSpec as = CLIENT.getAppSpec(new GetAppParams().withIds(Arrays.asList("test_app_1"))).get(0);
+		assertEquals(2, as.getSteps().size());
+		assertEquals("step_1", as.getSteps().get(0).getStepId());
+		assertEquals("step_1", as.getSteps().get(1).getInputMapping().get(0).getStepSource());
 	}
 	
 	@Test

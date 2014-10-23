@@ -1,5 +1,6 @@
 package us.kbase.narrativemethodstore.exceptions;
 
+import us.kbase.narrativemethodstore.AppBriefInfo;
 import us.kbase.narrativemethodstore.Category;
 import us.kbase.narrativemethodstore.MethodBriefInfo;
 
@@ -8,6 +9,7 @@ public class NarrativeMethodStoreException extends Exception {
 	private static final long serialVersionUID = 4313592688446078015L;
 	private MethodBriefInfo errorMethod = null;
 	private Category errorCategory = null;
+	private AppBriefInfo errorApp = null;
 	
 	public NarrativeMethodStoreException(String message) {
 		super(message);
@@ -43,5 +45,17 @@ public class NarrativeMethodStoreException extends Exception {
 		if (getCause() != null)
 			msg = getCause().getClass().getName() + ": " + msg;
 		this.errorCategory.setLoadingError(msg);
+	}
+
+	public AppBriefInfo getErrorApp() {
+		return errorApp;
+	}
+	
+	public void setErrorApp(AppBriefInfo errorApp) {
+		this.errorApp = errorApp;
+		String msg = getMessage();
+		if (msg == null)
+			msg = getCause().getClass().getName();
+		this.errorApp.setLoadingError(msg);
 	}
 }

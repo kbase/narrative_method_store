@@ -171,12 +171,23 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
         		returnLoadedMethods = true;
         	}
         }
+        boolean returnLoadedApps = false;
+        if(params.getLoadApps()!=null) {
+        	if(params.getLoadApps()==1) {
+        		returnLoadedApps = true;
+        	}
+        }
         NarrativeCategoriesIndex narCatIndex = localGitDB.getCategoriesIndex();
         return1 = narCatIndex.getCategories();
         if(returnLoadedMethods) {
         	return2 = narCatIndex.getMethods();
         } else {
         	return2 = new HashMap<String,MethodBriefInfo>();
+        }
+        if (returnLoadedApps) {
+        	return3 = narCatIndex.getApps();
+        } else {
+        	return3 = new HashMap<String, AppBriefInfo>();
         }
         //END list_categories
         Tuple3<Map<String,Category>, Map<String,MethodBriefInfo>, Map<String,AppBriefInfo>> returnVal = new Tuple3<Map<String,Category>, Map<String,MethodBriefInfo>, Map<String,AppBriefInfo>>();
@@ -294,6 +305,9 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
     public List<AppBriefInfo> listApps(ListParams params) throws Exception {
         List<AppBriefInfo> returnVal = null;
         //BEGIN list_apps
+        config();
+        returnVal = new ArrayList<AppBriefInfo>(localGitDB.getCategoriesIndex().getApps().values());
+        returnVal = trim(returnVal, params);
         //END list_apps
         return returnVal;
     }
@@ -309,6 +323,10 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
     public List<AppFullInfo> listAppsFullInfo(ListParams params) throws Exception {
         List<AppFullInfo> returnVal = null;
         //BEGIN list_apps_full_info
+        config();
+        List<String> appIds = new ArrayList<String>(localGitDB.listAppIds(false));
+        appIds = trim(appIds, params);
+        returnVal = getAppFullInfo(new GetAppParams().withIds(appIds));
         //END list_apps_full_info
         return returnVal;
     }
@@ -324,6 +342,10 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
     public List<AppSpec> listAppsSpec(ListParams params) throws Exception {
         List<AppSpec> returnVal = null;
         //BEGIN list_apps_spec
+        config();
+        List<String> appIds = new ArrayList<String>(localGitDB.listAppIds(false));
+        appIds = trim(appIds, params);
+        returnVal = getAppSpec(new GetAppParams().withIds(appIds));
         //END list_apps_spec
         return returnVal;
     }
@@ -338,6 +360,10 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
     public Map<String,String> listAppIdsAndNames() throws Exception {
         Map<String,String> returnVal = null;
         //BEGIN list_app_ids_and_names
+        config();
+        returnVal = new TreeMap<String, String>();
+        for (Map.Entry<String, AppBriefInfo> entry : localGitDB.getCategoriesIndex().getApps().entrySet())
+        	returnVal.put(entry.getKey(), entry.getValue().getName());
         //END list_app_ids_and_names
         return returnVal;
     }
@@ -415,6 +441,11 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
     public List<AppBriefInfo> getAppBriefInfo(GetAppParams params) throws Exception {
         List<AppBriefInfo> returnVal = null;
         //BEGIN get_app_brief_info
+        config();
+        List <String> appIds = params.getIds();
+        returnVal = new ArrayList<AppBriefInfo>(appIds.size());
+        for(String id: appIds)
+        	returnVal.add(localGitDB.getAppBriefInfo(id));
         //END get_app_brief_info
         return returnVal;
     }
@@ -430,6 +461,12 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
     public List<AppFullInfo> getAppFullInfo(GetAppParams params) throws Exception {
         List<AppFullInfo> returnVal = null;
         //BEGIN get_app_full_info
+        config();
+        List <String> appIds = params.getIds();
+        returnVal = new ArrayList<AppFullInfo>(appIds.size());
+        for(String id: appIds) {
+        	returnVal.add(localGitDB.getAppFullInfo(id));
+        }
         //END get_app_full_info
         return returnVal;
     }
@@ -445,6 +482,11 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
     public List<AppSpec> getAppSpec(GetAppParams params) throws Exception {
         List<AppSpec> returnVal = null;
         //BEGIN get_app_spec
+        config();
+        List<String> appIds = params.getIds();
+        returnVal = new ArrayList<AppSpec>(appIds.size());
+        for (String id : appIds)
+        	returnVal.add(localGitDB.getAppSpec(id));
         //END get_app_spec
         return returnVal;
     }

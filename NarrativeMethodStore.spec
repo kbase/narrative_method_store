@@ -292,6 +292,7 @@ module NarrativeMethodStore {
         string step_id;
         string method_id;
         list<AppStepInputMapping> input_mapping;
+        string description;
     } AppSteps;
     
     /* typedef structure {
