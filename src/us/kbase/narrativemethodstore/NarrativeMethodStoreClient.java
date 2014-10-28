@@ -58,6 +58,66 @@ public class NarrativeMethodStoreClient {
         this.caller.setConnectionReadTimeOut(milliseconds);
     }
 
+    /** Check if this client allows insecure http (vs https) connections.
+     * @return true if insecure connections are allowed.
+     */
+    public boolean isInsecureHttpConnectionAllowed() {
+        return caller.isInsecureHttpConnectionAllowed();
+    }
+
+    /** Deprecated. Use isInsecureHttpConnectionAllowed().
+     * @deprecated
+     */
+    public boolean isAuthAllowedForHttp() {
+        return caller.isAuthAllowedForHttp();
+    }
+
+    /** Set whether insecure http (vs https) connections should be allowed by
+     * this client.
+     * @param allowed true to allow insecure connections. Default false
+     */
+    public void setIsInsecureHttpConnectionAllowed(boolean allowed) {
+        caller.setInsecureHttpConnectionAllowed(allowed);
+    }
+
+    /** Deprecated. Use setInsecureHttpConnectionAllowed().
+     * @deprecated
+     */
+    public void setAuthAllowedForHttp(boolean isAuthAllowedForHttp) {
+        caller.setAuthAllowedForHttp(isAuthAllowedForHttp);
+    }
+
+    /** Set whether all SSL certificates, including self-signed certificates,
+     * should be trusted.
+     * @param trustAll true to trust all certificates. Default false.
+     */
+    public void setAllSSLCertificatesTrusted(final boolean trustAll) {
+        caller.setAllSSLCertificatesTrusted(trustAll);
+    }
+    
+    /** Check if this client trusts all SSL certificates, including
+     * self-signed certificates.
+     * @return true if all certificates are trusted.
+     */
+    public boolean isAllSSLCertificatesTrusted() {
+        return caller.isAllSSLCertificatesTrusted();
+    }
+    /** Sets streaming mode on. In this case, the data will be streamed to
+     * the server in chunks as it is read from disk rather than buffered in
+     * memory. Many servers are not compatible with this feature.
+     * @param streamRequest true to set streaming mode on, false otherwise.
+     */
+    public void setStreamingModeOn(boolean streamRequest) {
+        caller.setStreamingModeOn(streamRequest);
+    }
+
+    /** Returns true if streaming mode is on.
+     * @return true if streaming mode is on.
+     */
+    public boolean isStreamingModeOn() {
+        return caller.isStreamingModeOn();
+    }
+
     public void _setFileForNextRpcResponse(File f) {
         caller.setFileForNextRpcResponse(f);
     }
@@ -75,6 +135,23 @@ public class NarrativeMethodStoreClient {
         List<Object> args = new ArrayList<Object>();
         TypeReference<List<String>> retType = new TypeReference<List<String>>() {};
         List<String> res = caller.jsonrpcCall("NarrativeMethodStore.ver", args, retType, true, false);
+        return res.get(0);
+    }
+
+    /**
+     * <p>Original spec-file function name: status</p>
+     * <pre>
+     * Simply check the status of this service to see what Spec repository it is
+     * using, and what commit it is on
+     * </pre>
+     * @return   instance of type {@link us.kbase.narrativemethodstore.Status Status}
+     * @throws IOException if an IO exception occurs
+     * @throws JsonClientException if a JSON RPC exception occurs
+     */
+    public Status status() throws IOException, JsonClientException {
+        List<Object> args = new ArrayList<Object>();
+        TypeReference<List<Status>> retType = new TypeReference<List<Status>>() {};
+        List<Status> res = caller.jsonrpcCall("NarrativeMethodStore.status", args, retType, true, false);
         return res.get(0);
     }
 

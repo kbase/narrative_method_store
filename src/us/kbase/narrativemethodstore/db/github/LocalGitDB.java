@@ -239,6 +239,10 @@ public class LocalGitDB implements MethodSpecDB {
 		return appList;
 	}
 
+	public String getCommitInfo() throws NarrativeMethodStoreInitializationException {
+		return gitCommand("git log -n 1", "log -n 1", gitLocalPath);
+	}
+	
 	@Override
 	public List<String> listMethodIds(boolean withErrors) {
 		checkForChanges();

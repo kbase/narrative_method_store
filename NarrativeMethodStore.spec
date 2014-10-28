@@ -5,6 +5,18 @@ module NarrativeMethodStore {
 
     /* Returns the current running version of the NarrativeMethodStore. */
     funcdef ver() returns (string);
+    
+    typedef structure {
+    	string git_spec_url;
+    	string git_spec_branch;
+    	string git_spec_commit;
+    	string update_interval;
+    } Status;
+    
+    /* Simply check the status of this service to see what Spec repository it is
+    using, and what commit it is on */
+    funcdef status() returns (Status);
+
 
     /* @range [0,1] */
     typedef int boolean;

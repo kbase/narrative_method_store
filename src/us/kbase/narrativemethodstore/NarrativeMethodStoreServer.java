@@ -152,6 +152,28 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
     }
 
     /**
+     * <p>Original spec-file function name: status</p>
+     * <pre>
+     * Simply check the status of this service to see what Spec repository it is
+     * using, and what commit it is on
+     * </pre>
+     * @return   instance of type {@link us.kbase.narrativemethodstore.Status Status}
+     */
+    @JsonServerMethod(rpc = "NarrativeMethodStore.status")
+    public Status status() throws Exception {
+        Status returnVal = null;
+        //BEGIN status
+        config();
+        returnVal = new Status()
+        				.withGitSpecUrl(getGitRepo())
+        				.withGitSpecBranch(getGitBranch())
+        				.withGitSpecCommit(localGitDB.getCommitInfo())
+        				.withUpdateInterval(Integer.toString(getGitRefreshRate()));
+        //END status
+        return returnVal;
+    }
+
+    /**
      * <p>Original spec-file function name: list_categories</p>
      * <pre>
      * </pre>
