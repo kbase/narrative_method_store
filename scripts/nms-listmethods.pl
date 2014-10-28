@@ -8,9 +8,8 @@ use JSON;
 use Bio::KBase::NarrativeMethodStore::Client;
 
 my $DESCRIPTION = "
-nms-getmethod - get full method details from the narrative_method_store
+nms-listmethods - list the methods (brief info) from the narrative_method_store
   --url = set the url (optional)
-  args = method_id
 ";
 
 my $help = '';
