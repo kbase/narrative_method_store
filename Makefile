@@ -35,10 +35,14 @@ ASADMIN = $(GLASSFISH_HOME)/glassfish/bin/asadmin
 
 ANT = ant
 
+
+SRC_PERL = $(wildcard scripts/*.pl)
+BIN_PERL = $(addprefix $(BIN_DIR)/,$(basename $(notdir $(SRC_PERL))))
+
 # make sure our make test works
 .PHONY : test
 
-default: build-bin build-docs
+default: build-bin build-docs build-bin
 
 # fake deploy-cfg target for when this is run outside the dev_container
 deploy-cfg:
@@ -54,14 +58,7 @@ endif
 build-libs:
 	$(ANT) compile
 
-build-bin:
-	#rm -rf bin/lib
-	#$(ANT) bin
-	#echo "#!/bin/sh" > $(SCRIPTBINDESTINATION)/toc-convert
-	#echo "export JAVA_HOME=$(JAVA_HOME)" >> $(SCRIPTBINDESTINATION)/toc-convert
-	#echo "export PATH=\$$JAVA_HOME/bin:\$$PATH" >> $(SCRIPTBINDESTINATION)/toc-convert
-	#echo "java -jar $(DIR)/bin/toc-convert.jar \"\$$@\"" >> $(SCRIPTBINDESTINATION)/toc-convert
-	#chmod +x $(SCRIPTBINDESTINATION)/toc-convert
+build-bin: $(BIN_PERL)
 
 build-docs: build-libs
 	mkdir -p docs
