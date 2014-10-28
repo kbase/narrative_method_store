@@ -196,7 +196,8 @@ public class LocalGitDB implements MethodSpecDB {
 					loadCategoriesIndex();
 					methodFullInfoCache.invalidateAll();
 					methodSpecCache.invalidateAll();
-					
+					appFullInfoCache.invalidateAll();
+					appSpecCache.invalidateAll();
 				} else {
 					System.out.println("There was some change in repo but it didn't touch methods or categories. Here is output:");
 					System.out.println(ret);
