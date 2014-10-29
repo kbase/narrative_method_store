@@ -10,13 +10,16 @@ use Bio::KBase::NarrativeMethodStore::Client;
 my $DESCRIPTION = "
 nms-getmethod - get full method details from the narrative_method_store
   --url = set the url (optional)
+  --spec,-s = get spec instead
   args = method_id
 ";
 
 my $help = '';
+my $getspec = '';
 my $url = 'https://kbase.us/services/narrative_method_store';
 my $opt = GetOptions (
         "help|h" => \$help,
+        "spec|s" => \$getspec,
         "url=s" => \$url
         );
 
@@ -42,6 +45,9 @@ if ($n_args==1) {
     exit 1;
 }
 
-print to_json($nms->get_method_full_info({"ids"=>[$id]}),{utf8 => 1, pretty => 1});
-
+if ($getspec) {
+     print to_json($nms->get_method_spec({"ids"=>[$id]}),{utf8 => 1, pretty => 1});
+} else {
+     print to_json($nms->get_method_full_info({"ids"=>[$id]}),{utf8 => 1, pretty => 1});
+}
 exit 0;

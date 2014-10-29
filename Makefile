@@ -105,7 +105,7 @@ test-scripts:
 
 deploy: deploy-client deploy-service
 
-deploy-client: deploy-client-libs deploy-docs deploy-scripts
+deploy-client: deploy-client-libs deploy-docs deploy-perl-scripts
 
 deploy-client-libs:
 	mkdir -p $(TARGET)/lib/
@@ -117,9 +117,6 @@ deploy-client-libs:
 deploy-docs:
 	mkdir -p $(SERVICE_DIR)/webroot
 	cp  -r docs/* $(SERVICE_DIR)/webroot/.
-
-deploy-scripts:
-	#cp bin/
 
 deploy-service: deploy-service-libs deploy-service-scripts deploy-cfg
 
