@@ -9,6 +9,7 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -50,6 +51,7 @@ public class LocalGitDB implements MethodSpecDB {
 	protected final Yaml yaml = new Yaml();
 	
 	protected long lastPullTime = -1;
+	protected String lastCommit = null;
 	
 	protected NarrativeCategoriesIndex narCatIndex;
 	protected final LoadingCache<String, MethodFullInfo> methodFullInfoCache;
@@ -110,6 +112,7 @@ public class LocalGitDB implements MethodSpecDB {
 		}
 		String cloneStatus = gitClone();
 		this.lastPullTime = System.currentTimeMillis();
+		this.lastCommit = getCommitInfo();
 		System.out.println(cloneStatus);
 	}
 
@@ -187,23 +190,16 @@ public class LocalGitDB implements MethodSpecDB {
 			String ret = gitPull();
 			if (ret != null && ret.startsWith("Already up-to-date."))
 				return;
-			if (ret.contains("Updating") && ret.contains("Fast-forward")) {
-				if (ret.contains(" categories/") || ret.contains(" methods/") || ret.contains(" apps/")) {
-					// Refresh all caches here
-					System.out.println("Need to refresh caches");
-					
-					// recreate the categories index
-					loadCategoriesIndex();
-					methodFullInfoCache.invalidateAll();
-					methodSpecCache.invalidateAll();
-					appFullInfoCache.invalidateAll();
-					appSpecCache.invalidateAll();
-				} else {
-					System.out.println("There was some change in repo but it didn't touch methods or categories. Here is output:");
-					System.out.println(ret);
-				}
-			} else {
-				System.err.println("Problems doing git pull:\n" + ret);
+			String commit = getCommitInfo();
+			if (!commit.equals(lastCommit)) {
+				lastCommit = commit;
+				System.out.println("[" + new Date() + "] NarrativeMethodStore.LocalGitDB: refreshing caches");
+				// recreate the categories index
+				loadCategoriesIndex();
+				methodFullInfoCache.invalidateAll();
+				methodSpecCache.invalidateAll();
+				appFullInfoCache.invalidateAll();
+				appSpecCache.invalidateAll();
 			}
 		} catch (Exception ex) {
 			System.err.println("Error doing git pull: " + ex.getMessage());
