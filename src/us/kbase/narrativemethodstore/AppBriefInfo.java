@@ -25,6 +25,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
     "ver",
     "subtitle",
     "tooltip",
+    "header",
     "categories",
     "loading_error"
 })
@@ -40,6 +41,8 @@ public class AppBriefInfo {
     private java.lang.String subtitle;
     @JsonProperty("tooltip")
     private java.lang.String tooltip;
+    @JsonProperty("header")
+    private java.lang.String header;
     @JsonProperty("categories")
     private List<String> categories;
     @JsonProperty("loading_error")
@@ -121,6 +124,21 @@ public class AppBriefInfo {
         return this;
     }
 
+    @JsonProperty("header")
+    public java.lang.String getHeader() {
+        return header;
+    }
+
+    @JsonProperty("header")
+    public void setHeader(java.lang.String header) {
+        this.header = header;
+    }
+
+    public AppBriefInfo withHeader(java.lang.String header) {
+        this.header = header;
+        return this;
+    }
+
     @JsonProperty("categories")
     public List<String> getCategories() {
         return categories;
@@ -163,7 +181,7 @@ public class AppBriefInfo {
 
     @Override
     public java.lang.String toString() {
-        return ((((((((((((((((("AppBriefInfo"+" [id=")+ id)+", name=")+ name)+", ver=")+ ver)+", subtitle=")+ subtitle)+", tooltip=")+ tooltip)+", categories=")+ categories)+", loadingError=")+ loadingError)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((((((((((((((("AppBriefInfo"+" [id=")+ id)+", name=")+ name)+", ver=")+ ver)+", subtitle=")+ subtitle)+", tooltip=")+ tooltip)+", header=")+ header)+", categories=")+ categories)+", loadingError=")+ loadingError)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }

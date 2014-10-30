@@ -165,6 +165,8 @@ public class FullServerTest {
 		ListParams params = new ListParams();
 		List<MethodSpec> methods = CLIENT.listMethodsSpec(params);
 		boolean foundTestMethod1 = false;
+		boolean foundTestMethod3 = false;
+		boolean foundTestMethod4 = false;
 		for(MethodSpec m : methods) {
 			// check specific things in specific test methods
 			if(m.getInfo().getId().equals("test_method_1")) {
@@ -198,6 +200,8 @@ public class FullServerTest {
 				assertTrue("Testing that test_method_1 output widget from listMethodSpec is correct",
 						m.getWidgets().getOutput().equals("KBaseDefaultViewer"));
 			} else if (m.getInfo().getId().equals("test_method_3")) {
+				foundTestMethod3 = true;
+				
 				assertEquals(5, m.getParameters().size());
 				////////////////////////
 				assertEquals("param0", m.getParameters().get(0).getId());
@@ -224,10 +228,20 @@ public class FullServerTest {
 				assertEquals(2, m.getParameters().get(4).getRadioOptions().getIdsToOptions().size());
 				assertEquals("First", m.getParameters().get(4).getRadioOptions().getIdsToOptions().get("item0"));
 				assertEquals("First tooltip", m.getParameters().get(4).getRadioOptions().getIdsToTooltip().get("item0"));
+			} else if (m.getInfo().getId().equals("test_method_4")) {
+				foundTestMethod4 = true;
+				assertEquals("Test Method 4 was run on {{genome}} to produce a new genome named {{output_genome}}.\n", m.getReplacementText());
+				assertEquals(new Long(1), m.getParameters().get(1).getTextOptions().getIsOutputName());
 			}
 		}
 		assertTrue("Testing that test_method_1 was returned from listMethodSpec",
 				foundTestMethod1);
+
+		assertTrue("Testing that test_method_3 was returned from listMethodSpec",
+				foundTestMethod3);
+
+		assertTrue("Testing that test_method_4 was returned from listMethodSpec",
+				foundTestMethod4);
 	}
 	
 	
@@ -345,11 +359,16 @@ public class FullServerTest {
 	public void testApp() throws Exception {
 		Map<String, AppBriefInfo> appBriefInfo = CLIENT.listCategories(new ListCategoriesParams().withLoadMethods(1L).withLoadApps(1L)).getE3();
 		assertNotNull(appBriefInfo.get("test_app_1"));
-		System.out.println(appBriefInfo.get("test_app_1"));
+		//System.out.println(appBriefInfo.get("test_app_1"));
 		AppSpec as = CLIENT.getAppSpec(new GetAppParams().withIds(Arrays.asList("test_app_1"))).get(0);
 		assertEquals(2, as.getSteps().size());
 		assertEquals("step_1", as.getSteps().get(0).getStepId());
 		assertEquals("step_1", as.getSteps().get(1).getInputMapping().get(0).getStepSource());
+		
+
+		List<AppSpec> spec = CLIENT.getAppSpec(new GetAppParams().withIds(Arrays.asList("test_app_1")));
+		//System.out.println(spec.get(0));
+		assertEquals(1, spec.size());
 	}
 	
 	@Test

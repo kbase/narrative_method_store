@@ -66,6 +66,7 @@ public class MethodParameter {
      * <pre>
      * valid_ws_types  - list of valid ws types that can be used for input
      * validate_as     - int | float | nonnumeric | none
+     * is_output_name  - true if the user is specifying an output name, false otherwise, default is false
      * </pre>
      * 
      */
@@ -255,6 +256,7 @@ public class MethodParameter {
      * <pre>
      * valid_ws_types  - list of valid ws types that can be used for input
      * validate_as     - int | float | nonnumeric | none
+     * is_output_name  - true if the user is specifying an output name, false otherwise, default is false
      * </pre>
      * 
      */
@@ -268,6 +270,7 @@ public class MethodParameter {
      * <pre>
      * valid_ws_types  - list of valid ws types that can be used for input
      * validate_as     - int | float | nonnumeric | none
+     * is_output_name  - true if the user is specifying an output name, false otherwise, default is false
      * </pre>
      * 
      */

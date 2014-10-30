@@ -26,13 +26,13 @@ module NarrativeMethodStore {
     typedef string email;
 
     typedef structure {
-	string id;
-	string name;
-	string ver;
-	string tooltip;
-	string description;
-	list<string> parent_ids;
-	string loading_error;
+        string id;
+        string name;
+        string ver;
+        string tooltip;
+        string description;
+        list<string> parent_ids;
+        string loading_error;
     } Category;
 
     /* Minimal information about a method suitable for displaying the method in a menu or navigator. */
@@ -81,10 +81,12 @@ module NarrativeMethodStore {
     /*
         valid_ws_types  - list of valid ws types that can be used for input
         validate_as     - int | float | nonnumeric | none
+        is_output_name  - true if the user is specifying an output name, false otherwise, default is false
     */
     typedef structure {
         list <string> valid_ws_types;
         string validate_as;
+        boolean is_output_name;
     } TextOptions;
 
     typedef structure {
@@ -101,7 +103,6 @@ module NarrativeMethodStore {
         float min;
         float max;
     } FloatSliderOptions;
-    
     
     typedef structure {
         int checked_value;
@@ -234,9 +235,17 @@ module NarrativeMethodStore {
     /*
         The method specification which should provide enough information to render a default
         input widget for the method.
+        
+        replacement_text indicates the text that should replace the input boxes after the method
+        has run.  You can refer to parameters by putting them in double curly braces (on the front
+        end we will use the handlebars library).
+           for example:  Ran flux balance analysis on model {{model_param}} with parameter 2 set to {{param2}}.
+        
     */
     typedef structure {
         MethodBriefInfo info;
+        
+        string replacement_text;
         
         WidgetSpec widgets;
         list<MethodParameter> parameters;
@@ -255,6 +264,7 @@ module NarrativeMethodStore {
         string ver;
         string subtitle;
         string tooltip;
+        string header;
         list<string> categories;
         string loading_error;
     } AppBriefInfo;

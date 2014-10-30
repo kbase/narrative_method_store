@@ -17,6 +17,10 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
  * <pre>
  * The method specification which should provide enough information to render a default
  * input widget for the method.
+ * replacement_text indicates the text that should replace the input boxes after the method
+ * has run.  You can refer to parameters by putting them in double curly braces (on the front
+ * end we will use the handlebars library).
+ *    for example:  Ran flux balance analysis on model {{model_param}} with parameter 2 set to {{param2}}.
  * </pre>
  * 
  */
@@ -24,6 +28,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @Generated("com.googlecode.jsonschema2pojo")
 @JsonPropertyOrder({
     "info",
+    "replacement_text",
     "widgets",
     "parameters",
     "behavior",
@@ -40,6 +45,8 @@ public class MethodSpec {
      */
     @JsonProperty("info")
     private MethodBriefInfo info;
+    @JsonProperty("replacement_text")
+    private String replacementText;
     /**
      * <p>Original spec-file type: WidgetSpec</p>
      * <pre>
@@ -95,6 +102,21 @@ public class MethodSpec {
 
     public MethodSpec withInfo(MethodBriefInfo info) {
         this.info = info;
+        return this;
+    }
+
+    @JsonProperty("replacement_text")
+    public String getReplacementText() {
+        return replacementText;
+    }
+
+    @JsonProperty("replacement_text")
+    public void setReplacementText(String replacementText) {
+        this.replacementText = replacementText;
+    }
+
+    public MethodSpec withReplacementText(String replacementText) {
+        this.replacementText = replacementText;
         return this;
     }
 
@@ -208,7 +230,7 @@ public class MethodSpec {
 
     @Override
     public String toString() {
-        return ((((((((((((("MethodSpec"+" [info=")+ info)+", widgets=")+ widgets)+", parameters=")+ parameters)+", behavior=")+ behavior)+", jobIdOutputField=")+ jobIdOutputField)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((((((((((("MethodSpec"+" [info=")+ info)+", replacementText=")+ replacementText)+", widgets=")+ widgets)+", parameters=")+ parameters)+", behavior=")+ behavior)+", jobIdOutputField=")+ jobIdOutputField)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }

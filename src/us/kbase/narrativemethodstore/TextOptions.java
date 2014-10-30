@@ -17,6 +17,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
  * <pre>
  * valid_ws_types  - list of valid ws types that can be used for input
  * validate_as     - int | float | nonnumeric | none
+ * is_output_name  - true if the user is specifying an output name, false otherwise, default is false
  * </pre>
  * 
  */
@@ -24,7 +25,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @Generated("com.googlecode.jsonschema2pojo")
 @JsonPropertyOrder({
     "valid_ws_types",
-    "validate_as"
+    "validate_as",
+    "is_output_name"
 })
 public class TextOptions {
 
@@ -32,6 +34,8 @@ public class TextOptions {
     private List<String> validWsTypes;
     @JsonProperty("validate_as")
     private java.lang.String validateAs;
+    @JsonProperty("is_output_name")
+    private Long isOutputName;
     private Map<java.lang.String, Object> additionalProperties = new HashMap<java.lang.String, Object>();
 
     @JsonProperty("valid_ws_types")
@@ -64,6 +68,21 @@ public class TextOptions {
         return this;
     }
 
+    @JsonProperty("is_output_name")
+    public Long getIsOutputName() {
+        return isOutputName;
+    }
+
+    @JsonProperty("is_output_name")
+    public void setIsOutputName(Long isOutputName) {
+        this.isOutputName = isOutputName;
+    }
+
+    public TextOptions withIsOutputName(Long isOutputName) {
+        this.isOutputName = isOutputName;
+        return this;
+    }
+
     @JsonAnyGetter
     public Map<java.lang.String, Object> getAdditionalProperties() {
         return this.additionalProperties;
@@ -76,7 +95,7 @@ public class TextOptions {
 
     @Override
     public java.lang.String toString() {
-        return ((((((("TextOptions"+" [validWsTypes=")+ validWsTypes)+", validateAs=")+ validateAs)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((((("TextOptions"+" [validWsTypes=")+ validWsTypes)+", validateAs=")+ validateAs)+", isOutputName=")+ isOutputName)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }

@@ -88,6 +88,11 @@ public class NarrativeMethodData {
 		String methodDescription = getDisplayProp(display, "description", lookup);
 		String methodTechnicalDescr = getDisplayProp(display, "technical-description", lookup);
 		
+		// if replacement text is missing, do nothing, we just won't have any replacement text
+		String replacementText = null;
+		try { replacementText = getDisplayProp(display,"replacement-text",lookup); }
+		catch (IllegalStateException e) { }
+		
 		briefInfo.withVer(get(spec, "ver").asText());
 		
 		List <String> authors = jsonListToStringList(spec.get("authors"));
@@ -219,9 +224,17 @@ public class NarrativeMethodData {
 			TextOptions textOpt = null;
 			if (paramNode.has("text_options")) {
 				JsonNode optNode = get(paramPath, paramNode, "text_options");
+				JsonNode isOutputName = optNode.get("is_output_name");
+				long isOutputNameFlag = 0L;
+				if(isOutputName!=null) {
+					if(isOutputName.asBoolean()){
+						isOutputNameFlag = 1L;
+					}
+				}
 				textOpt = new TextOptions()
 							.withValidWsTypes(jsonListToStringList(optNode.get("valid_ws_types")))
-							.withValidateAs(getTextOrNull(optNode.get("validate_as")));
+							.withValidateAs(getTextOrNull(optNode.get("validate_as")))
+							.withIsOutputName(isOutputNameFlag);
 			}
 			CheckboxOptions cbOpt = null;
 			if (paramNode.has("checkbox_options")) {
@@ -319,8 +332,10 @@ public class NarrativeMethodData {
 				}
 			}
 		}
+		
 		methodSpec = new MethodSpec()
 							.withInfo(briefInfo)
+							.withReplacementText(replacementText)
 							.withWidgets(widgets)
 							.withBehavior(behavior)
 							.withParameters(parameters)

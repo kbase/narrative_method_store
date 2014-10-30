@@ -278,6 +278,7 @@ AppBriefInfo is a reference to a hash where the following keys are defined:
 	ver has a value which is a string
 	subtitle has a value which is a string
 	tooltip has a value which is a string
+	header has a value which is a string
 	categories has a value which is a reference to a list where each element is a string
 	loading_error has a value which is a string
 
@@ -317,6 +318,7 @@ AppBriefInfo is a reference to a hash where the following keys are defined:
 	ver has a value which is a string
 	subtitle has a value which is a string
 	tooltip has a value which is a string
+	header has a value which is a string
 	categories has a value which is a reference to a list where each element is a string
 	loading_error has a value which is a string
 
@@ -721,6 +723,7 @@ ListParams is a reference to a hash where the following keys are defined:
 	offset has a value which is an int
 MethodSpec is a reference to a hash where the following keys are defined:
 	info has a value which is a NarrativeMethodStore.MethodBriefInfo
+	replacement_text has a value which is a string
 	widgets has a value which is a NarrativeMethodStore.WidgetSpec
 	parameters has a value which is a reference to a list where each element is a NarrativeMethodStore.MethodParameter
 	behavior has a value which is a NarrativeMethodStore.MethodBehavior
@@ -757,6 +760,7 @@ boolean is an int
 TextOptions is a reference to a hash where the following keys are defined:
 	valid_ws_types has a value which is a reference to a list where each element is a string
 	validate_as has a value which is a string
+	is_output_name has a value which is a NarrativeMethodStore.boolean
 TextAreaOptions is a reference to a hash where the following keys are defined:
 	n_rows has a value which is an int
 IntSliderOptions is a reference to a hash where the following keys are defined:
@@ -815,6 +819,7 @@ ListParams is a reference to a hash where the following keys are defined:
 	offset has a value which is an int
 MethodSpec is a reference to a hash where the following keys are defined:
 	info has a value which is a NarrativeMethodStore.MethodBriefInfo
+	replacement_text has a value which is a string
 	widgets has a value which is a NarrativeMethodStore.WidgetSpec
 	parameters has a value which is a reference to a list where each element is a NarrativeMethodStore.MethodParameter
 	behavior has a value which is a NarrativeMethodStore.MethodBehavior
@@ -851,6 +856,7 @@ boolean is an int
 TextOptions is a reference to a hash where the following keys are defined:
 	valid_ws_types has a value which is a reference to a list where each element is a string
 	validate_as has a value which is a string
+	is_output_name has a value which is a NarrativeMethodStore.boolean
 TextAreaOptions is a reference to a hash where the following keys are defined:
 	n_rows has a value which is an int
 IntSliderOptions is a reference to a hash where the following keys are defined:
@@ -1044,6 +1050,7 @@ AppBriefInfo is a reference to a hash where the following keys are defined:
 	ver has a value which is a string
 	subtitle has a value which is a string
 	tooltip has a value which is a string
+	header has a value which is a string
 	categories has a value which is a reference to a list where each element is a string
 	loading_error has a value which is a string
 
@@ -1064,6 +1071,7 @@ AppBriefInfo is a reference to a hash where the following keys are defined:
 	ver has a value which is a string
 	subtitle has a value which is a string
 	tooltip has a value which is a string
+	header has a value which is a string
 	categories has a value which is a reference to a list where each element is a string
 	loading_error has a value which is a string
 
@@ -1273,6 +1281,7 @@ AppBriefInfo is a reference to a hash where the following keys are defined:
 	ver has a value which is a string
 	subtitle has a value which is a string
 	tooltip has a value which is a string
+	header has a value which is a string
 	categories has a value which is a reference to a list where each element is a string
 	loading_error has a value which is a string
 AppSteps is a reference to a hash where the following keys are defined:
@@ -1307,6 +1316,7 @@ AppBriefInfo is a reference to a hash where the following keys are defined:
 	ver has a value which is a string
 	subtitle has a value which is a string
 	tooltip has a value which is a string
+	header has a value which is a string
 	categories has a value which is a reference to a list where each element is a string
 	loading_error has a value which is a string
 AppSteps is a reference to a hash where the following keys are defined:
@@ -1684,6 +1694,7 @@ GetMethodParams is a reference to a hash where the following keys are defined:
 	ids has a value which is a reference to a list where each element is a string
 MethodSpec is a reference to a hash where the following keys are defined:
 	info has a value which is a NarrativeMethodStore.MethodBriefInfo
+	replacement_text has a value which is a string
 	widgets has a value which is a NarrativeMethodStore.WidgetSpec
 	parameters has a value which is a reference to a list where each element is a NarrativeMethodStore.MethodParameter
 	behavior has a value which is a NarrativeMethodStore.MethodBehavior
@@ -1720,6 +1731,7 @@ boolean is an int
 TextOptions is a reference to a hash where the following keys are defined:
 	valid_ws_types has a value which is a reference to a list where each element is a string
 	validate_as has a value which is a string
+	is_output_name has a value which is a NarrativeMethodStore.boolean
 TextAreaOptions is a reference to a hash where the following keys are defined:
 	n_rows has a value which is an int
 IntSliderOptions is a reference to a hash where the following keys are defined:
@@ -1777,6 +1789,7 @@ GetMethodParams is a reference to a hash where the following keys are defined:
 	ids has a value which is a reference to a list where each element is a string
 MethodSpec is a reference to a hash where the following keys are defined:
 	info has a value which is a NarrativeMethodStore.MethodBriefInfo
+	replacement_text has a value which is a string
 	widgets has a value which is a NarrativeMethodStore.WidgetSpec
 	parameters has a value which is a reference to a list where each element is a NarrativeMethodStore.MethodParameter
 	behavior has a value which is a NarrativeMethodStore.MethodBehavior
@@ -1813,6 +1826,7 @@ boolean is an int
 TextOptions is a reference to a hash where the following keys are defined:
 	valid_ws_types has a value which is a reference to a list where each element is a string
 	validate_as has a value which is a string
+	is_output_name has a value which is a NarrativeMethodStore.boolean
 TextAreaOptions is a reference to a hash where the following keys are defined:
 	n_rows has a value which is an int
 IntSliderOptions is a reference to a hash where the following keys are defined:
@@ -1937,6 +1951,7 @@ AppBriefInfo is a reference to a hash where the following keys are defined:
 	ver has a value which is a string
 	subtitle has a value which is a string
 	tooltip has a value which is a string
+	header has a value which is a string
 	categories has a value which is a reference to a list where each element is a string
 	loading_error has a value which is a string
 
@@ -1956,6 +1971,7 @@ AppBriefInfo is a reference to a hash where the following keys are defined:
 	ver has a value which is a string
 	subtitle has a value which is a string
 	tooltip has a value which is a string
+	header has a value which is a string
 	categories has a value which is a reference to a list where each element is a string
 	loading_error has a value which is a string
 
@@ -2162,6 +2178,7 @@ AppBriefInfo is a reference to a hash where the following keys are defined:
 	ver has a value which is a string
 	subtitle has a value which is a string
 	tooltip has a value which is a string
+	header has a value which is a string
 	categories has a value which is a reference to a list where each element is a string
 	loading_error has a value which is a string
 AppSteps is a reference to a hash where the following keys are defined:
@@ -2195,6 +2212,7 @@ AppBriefInfo is a reference to a hash where the following keys are defined:
 	ver has a value which is a string
 	subtitle has a value which is a string
 	tooltip has a value which is a string
+	header has a value which is a string
 	categories has a value which is a reference to a list where each element is a string
 	loading_error has a value which is a string
 AppSteps is a reference to a hash where the following keys are defined:
@@ -2690,6 +2708,7 @@ output has a value which is a string
 
 valid_ws_types  - list of valid ws types that can be used for input
 validate_as     - int | float | nonnumeric | none
+is_output_name  - true if the user is specifying an output name, false otherwise, default is false
 
 
 =item Definition
@@ -2700,6 +2719,7 @@ validate_as     - int | float | nonnumeric | none
 a reference to a hash where the following keys are defined:
 valid_ws_types has a value which is a reference to a list where each element is a string
 validate_as has a value which is a string
+is_output_name has a value which is a NarrativeMethodStore.boolean
 
 </pre>
 
@@ -2710,6 +2730,7 @@ validate_as has a value which is a string
 a reference to a hash where the following keys are defined:
 valid_ws_types has a value which is a reference to a list where each element is a string
 validate_as has a value which is a string
+is_output_name has a value which is a NarrativeMethodStore.boolean
 
 
 =end text
@@ -3204,6 +3225,11 @@ kb_service_output_mapping has a value which is a reference to a list where each 
 The method specification which should provide enough information to render a default
 input widget for the method.
 
+replacement_text indicates the text that should replace the input boxes after the method
+has run.  You can refer to parameters by putting them in double curly braces (on the front
+end we will use the handlebars library).
+   for example:  Ran flux balance analysis on model {{model_param}} with parameter 2 set to {{param2}}.
+
 
 =item Definition
 
@@ -3212,6 +3238,7 @@ input widget for the method.
 <pre>
 a reference to a hash where the following keys are defined:
 info has a value which is a NarrativeMethodStore.MethodBriefInfo
+replacement_text has a value which is a string
 widgets has a value which is a NarrativeMethodStore.WidgetSpec
 parameters has a value which is a reference to a list where each element is a NarrativeMethodStore.MethodParameter
 behavior has a value which is a NarrativeMethodStore.MethodBehavior
@@ -3225,6 +3252,7 @@ job_id_output_field has a value which is a string
 
 a reference to a hash where the following keys are defined:
 info has a value which is a NarrativeMethodStore.MethodBriefInfo
+replacement_text has a value which is a string
 widgets has a value which is a NarrativeMethodStore.WidgetSpec
 parameters has a value which is a reference to a list where each element is a NarrativeMethodStore.MethodParameter
 behavior has a value which is a NarrativeMethodStore.MethodBehavior
@@ -3254,6 +3282,7 @@ name has a value which is a string
 ver has a value which is a string
 subtitle has a value which is a string
 tooltip has a value which is a string
+header has a value which is a string
 categories has a value which is a reference to a list where each element is a string
 loading_error has a value which is a string
 
@@ -3269,6 +3298,7 @@ name has a value which is a string
 ver has a value which is a string
 subtitle has a value which is a string
 tooltip has a value which is a string
+header has a value which is a string
 categories has a value which is a reference to a list where each element is a string
 loading_error has a value which is a string
 

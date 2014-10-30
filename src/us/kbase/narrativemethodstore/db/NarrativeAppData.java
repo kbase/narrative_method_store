@@ -74,7 +74,7 @@ public class NarrativeAppData {
 		String appTechnicalDescr = getDisplayProp(display, "technical-description", lookup);
 		String appHeader = getDisplayProp(display, "header", lookup);
 		
-		briefInfo.withVer(get(spec, "ver").asText());
+		briefInfo.withVer(get(spec, "ver").asText()).withHeader(appHeader);
 		
 		List<ScreenShot> screenshots = new ArrayList<ScreenShot>();
 		@SuppressWarnings("unchecked")

@@ -494,20 +494,4 @@ public class LocalGitDB implements MethodSpecDB {
 		return response.toString();
 	}
 	
-	public static void main(String[] args) throws Exception {
-
-		String giturl = "https://github.com/msneddon/narrative_method_specs.git";
-		String branch = "dev";
-		//String localpath = "/kb/deployment/services/narrative_method_store/narrative_method_specs";
-		String localpath = "temp_files/narrative_method_specs";
-		LocalGitDB db = new LocalGitDB(new URL(giturl), branch, new File(localpath), 1, 10000);
-
-		String mId = db.listMethodIds(false).get(0);
-		MethodBriefInfo data1 = db.getMethodBriefInfo(mId);
-		MethodFullInfo data2 = db.getMethodFullInfo(mId);
-		System.out.println(mId + ", " + data1.getTooltip() + ", " + data2.getDescription());
-		
-		
-	}
-
 }
