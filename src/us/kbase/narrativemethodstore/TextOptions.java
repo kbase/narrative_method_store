@@ -26,7 +26,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @JsonPropertyOrder({
     "valid_ws_types",
     "validate_as",
-    "is_output_name"
+    "is_output_name",
+    "placeholder"
 })
 public class TextOptions {
 
@@ -36,6 +37,8 @@ public class TextOptions {
     private java.lang.String validateAs;
     @JsonProperty("is_output_name")
     private Long isOutputName;
+    @JsonProperty("placeholder")
+    private java.lang.String placeholder;
     private Map<java.lang.String, Object> additionalProperties = new HashMap<java.lang.String, Object>();
 
     @JsonProperty("valid_ws_types")
@@ -83,6 +86,21 @@ public class TextOptions {
         return this;
     }
 
+    @JsonProperty("placeholder")
+    public java.lang.String getPlaceholder() {
+        return placeholder;
+    }
+
+    @JsonProperty("placeholder")
+    public void setPlaceholder(java.lang.String placeholder) {
+        this.placeholder = placeholder;
+    }
+
+    public TextOptions withPlaceholder(java.lang.String placeholder) {
+        this.placeholder = placeholder;
+        return this;
+    }
+
     @JsonAnyGetter
     public Map<java.lang.String, Object> getAdditionalProperties() {
         return this.additionalProperties;
@@ -95,7 +113,7 @@ public class TextOptions {
 
     @Override
     public java.lang.String toString() {
-        return ((((((((("TextOptions"+" [validWsTypes=")+ validWsTypes)+", validateAs=")+ validateAs)+", isOutputName=")+ isOutputName)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((((((("TextOptions"+" [validWsTypes=")+ validWsTypes)+", validateAs=")+ validateAs)+", isOutputName=")+ isOutputName)+", placeholder=")+ placeholder)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }
