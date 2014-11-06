@@ -22,6 +22,7 @@ import us.kbase.narrativemethodstore.MethodBriefInfo;
 import us.kbase.narrativemethodstore.MethodFullInfo;
 import us.kbase.narrativemethodstore.MethodParameter;
 import us.kbase.narrativemethodstore.MethodSpec;
+import us.kbase.narrativemethodstore.OutputMapping;
 import us.kbase.narrativemethodstore.RadioOptions;
 import us.kbase.narrativemethodstore.ScreenShot;
 import us.kbase.narrativemethodstore.ServiceMethodInputMapping;
@@ -125,10 +126,10 @@ public class NarrativeMethodData {
 							.withInput(getTextOrNull(widgetsNode.get("input")))
 							.withOutput(getTextOrNull(widgetsNode.get("output")));
 		JsonNode behaviorNode = get(spec, "behavior");
-		JsonNode serviceMappingNode = behaviorNode.get("service-mapping");
 		MethodBehavior behavior = new MethodBehavior()
 							.withPythonClass(getTextOrNull(behaviorNode.get("python_class")))
 							.withPythonFunction(getTextOrNull(behaviorNode.get("python_function")));
+		JsonNode serviceMappingNode = behaviorNode.get("service-mapping");
 		if (serviceMappingNode != null) {
 			JsonNode paramsMappingNode = get("behavior/service-mapping", serviceMappingNode, "input_mapping");
 			List<ServiceMethodInputMapping> paramsMapping = new ArrayList<ServiceMethodInputMapping>();
@@ -208,6 +209,36 @@ public class NarrativeMethodData {
 				.withKbServiceMethod(getTextOrNull(get("behavior/service-mapping", serviceMappingNode, "method")))
 				.withKbServiceInputMapping(paramsMapping)
 				.withKbServiceOutputMapping(outputMapping);
+		} else {
+			JsonNode noneNode = behaviorNode.get("none");
+			if (noneNode != null) {
+				List<OutputMapping> outputMapping = new ArrayList<OutputMapping>();
+				JsonNode outputMappingNode = get("behavior/none", noneNode, "output_mapping");
+				for (int j = 0; j < outputMappingNode.size(); j++) {
+					JsonNode paramMappingNode = outputMappingNode.get(j);
+					String path = "behavior/none/output_mapping/" + j;
+					OutputMapping paramMapping = new OutputMapping();
+					for (Iterator<String> it2 = paramMappingNode.fieldNames(); it2.hasNext(); ) {
+						String field = it2.next();
+						if (field.equals("target_property")) {
+							paramMapping.withTargetProperty(getTextOrNull(paramMappingNode.get(field)));
+						} else if (field.equals("target_type_transform")) {
+							paramMapping.withTargetTypeTransform(getTextOrNull(paramMappingNode.get(field)));
+						} else if (field.equals("input_parameter")) {
+							paramMapping.withInputParameter(paramMappingNode.get(field).asText());
+						} else if (field.equals("narrative_system_variable")) {
+							paramMapping.withNarrativeSystemVariable(paramMappingNode.get(field).asText());
+						} else if (field.equals("constant_value")) {
+							paramMapping.withConstantValue(new UObject(paramMappingNode.get(field)));
+						} else {
+							throw new IllegalStateException("Unknown field [" + field + "] in method output " +
+									"mapping structure within path " + path);
+						}
+					}
+					outputMapping.add(paramMapping);
+				}
+				behavior.withOutputMapping(outputMapping);
+			}
 		}
 		List<MethodParameter> parameters = new ArrayList<MethodParameter>();
 		JsonNode parametersNode = get(spec, "parameters");
