@@ -87,6 +87,7 @@ module NarrativeMethodStore {
         list <string> valid_ws_types;
         string validate_as;
         boolean is_output_name;
+        string placeholder;
     } TextOptions;
 
     typedef structure {

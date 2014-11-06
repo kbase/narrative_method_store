@@ -262,10 +262,16 @@ public class NarrativeMethodData {
 						isOutputNameFlag = 1L;
 					}
 				}
+				String placeholder = "";
+				try {
+					placeholder = (String) getDisplayProp("parameters/" + paramId, paramDisplay, "placeholder");
+				} catch (IllegalStateException e) { }
+				
 				textOpt = new TextOptions()
 							.withValidWsTypes(jsonListToStringList(optNode.get("valid_ws_types")))
 							.withValidateAs(getTextOrNull(optNode.get("validate_as")))
-							.withIsOutputName(isOutputNameFlag);
+							.withIsOutputName(isOutputNameFlag)
+							.withPlaceholder(placeholder);
 			}
 			CheckboxOptions cbOpt = null;
 			if (paramNode.has("checkbox_options")) {

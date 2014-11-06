@@ -720,6 +720,7 @@ TextOptions is a reference to a hash where the following keys are defined:
 	valid_ws_types has a value which is a reference to a list where each element is a string
 	validate_as has a value which is a string
 	is_output_name has a value which is a NarrativeMethodStore.boolean
+	placeholder has a value which is a string
 TextAreaOptions is a reference to a hash where the following keys are defined:
 	n_rows has a value which is an int
 IntSliderOptions is a reference to a hash where the following keys are defined:
@@ -823,6 +824,7 @@ TextOptions is a reference to a hash where the following keys are defined:
 	valid_ws_types has a value which is a reference to a list where each element is a string
 	validate_as has a value which is a string
 	is_output_name has a value which is a NarrativeMethodStore.boolean
+	placeholder has a value which is a string
 TextAreaOptions is a reference to a hash where the following keys are defined:
 	n_rows has a value which is an int
 IntSliderOptions is a reference to a hash where the following keys are defined:
@@ -1705,6 +1707,7 @@ TextOptions is a reference to a hash where the following keys are defined:
 	valid_ws_types has a value which is a reference to a list where each element is a string
 	validate_as has a value which is a string
 	is_output_name has a value which is a NarrativeMethodStore.boolean
+	placeholder has a value which is a string
 TextAreaOptions is a reference to a hash where the following keys are defined:
 	n_rows has a value which is an int
 IntSliderOptions is a reference to a hash where the following keys are defined:
@@ -1807,6 +1810,7 @@ TextOptions is a reference to a hash where the following keys are defined:
 	valid_ws_types has a value which is a reference to a list where each element is a string
 	validate_as has a value which is a string
 	is_output_name has a value which is a NarrativeMethodStore.boolean
+	placeholder has a value which is a string
 TextAreaOptions is a reference to a hash where the following keys are defined:
 	n_rows has a value which is an int
 IntSliderOptions is a reference to a hash where the following keys are defined:
@@ -2707,6 +2711,7 @@ a reference to a hash where the following keys are defined:
 valid_ws_types has a value which is a reference to a list where each element is a string
 validate_as has a value which is a string
 is_output_name has a value which is a NarrativeMethodStore.boolean
+placeholder has a value which is a string
 
 </pre>
 
@@ -2718,6 +2723,7 @@ a reference to a hash where the following keys are defined:
 valid_ws_types has a value which is a reference to a list where each element is a string
 validate_as has a value which is a string
 is_output_name has a value which is a NarrativeMethodStore.boolean
+placeholder has a value which is a string
 
 
 =end text

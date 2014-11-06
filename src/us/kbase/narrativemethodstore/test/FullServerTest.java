@@ -232,6 +232,7 @@ public class FullServerTest {
 				foundTestMethod4 = true;
 				assertEquals("Test Method 4 was run on {{genome}} to produce a new genome named {{output_genome}}.\n", m.getReplacementText());
 				assertEquals(new Long(1), m.getParameters().get(1).getTextOptions().getIsOutputName());
+				assertEquals("select a genome", m.getParameters().get(0).getTextOptions().getPlaceholder());
 			}
 		}
 		assertTrue("Testing that test_method_1 was returned from listMethodSpec",
