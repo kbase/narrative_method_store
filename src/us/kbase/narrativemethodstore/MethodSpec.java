@@ -66,6 +66,7 @@ public class MethodSpec {
      *     case it's not defined developer should enter fully qualified name with dot into 'kb_service_method'.
      * kb_service_input_mapping - mapping from input parameters to input service method arguments.
      * kb_service_output_mapping - mapping from output of service method to final output of narrative method.
+     * output_mapping - mapping from input to final output of narrative method to support steps without operations.
      * @optional python_function kb_service_name kb_service_method kb_service_input_mapping kb_service_output_mapping
      * </pre>
      * 
@@ -172,6 +173,7 @@ public class MethodSpec {
      *     case it's not defined developer should enter fully qualified name with dot into 'kb_service_method'.
      * kb_service_input_mapping - mapping from input parameters to input service method arguments.
      * kb_service_output_mapping - mapping from output of service method to final output of narrative method.
+     * output_mapping - mapping from input to final output of narrative method to support steps without operations.
      * @optional python_function kb_service_name kb_service_method kb_service_input_mapping kb_service_output_mapping
      * </pre>
      * 
@@ -189,6 +191,7 @@ public class MethodSpec {
      *     case it's not defined developer should enter fully qualified name with dot into 'kb_service_method'.
      * kb_service_input_mapping - mapping from input parameters to input service method arguments.
      * kb_service_output_mapping - mapping from output of service method to final output of narrative method.
+     * output_mapping - mapping from input to final output of narrative method to support steps without operations.
      * @optional python_function kb_service_name kb_service_method kb_service_input_mapping kb_service_output_mapping
      * </pre>
      * 

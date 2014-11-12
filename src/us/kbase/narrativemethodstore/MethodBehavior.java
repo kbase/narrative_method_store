@@ -20,6 +20,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
  *     case it's not defined developer should enter fully qualified name with dot into 'kb_service_method'.
  * kb_service_input_mapping - mapping from input parameters to input service method arguments.
  * kb_service_output_mapping - mapping from output of service method to final output of narrative method.
+ * output_mapping - mapping from input to final output of narrative method to support steps without operations.
  * @optional python_function kb_service_name kb_service_method kb_service_input_mapping kb_service_output_mapping
  * </pre>
  * 
@@ -33,7 +34,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
     "kb_service_name",
     "kb_service_method",
     "kb_service_input_mapping",
-    "kb_service_output_mapping"
+    "kb_service_output_mapping",
+    "output_mapping"
 })
 public class MethodBehavior {
 
@@ -51,6 +53,8 @@ public class MethodBehavior {
     private List<ServiceMethodInputMapping> kbServiceInputMapping;
     @JsonProperty("kb_service_output_mapping")
     private List<ServiceMethodOutputMapping> kbServiceOutputMapping;
+    @JsonProperty("output_mapping")
+    private List<OutputMapping> outputMapping;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
     @JsonProperty("python_class")
@@ -158,6 +162,21 @@ public class MethodBehavior {
         return this;
     }
 
+    @JsonProperty("output_mapping")
+    public List<OutputMapping> getOutputMapping() {
+        return outputMapping;
+    }
+
+    @JsonProperty("output_mapping")
+    public void setOutputMapping(List<OutputMapping> outputMapping) {
+        this.outputMapping = outputMapping;
+    }
+
+    public MethodBehavior withOutputMapping(List<OutputMapping> outputMapping) {
+        this.outputMapping = outputMapping;
+        return this;
+    }
+
     @JsonAnyGetter
     public Map<String, Object> getAdditionalProperties() {
         return this.additionalProperties;
@@ -170,7 +189,7 @@ public class MethodBehavior {
 
     @Override
     public String toString() {
-        return ((((((((((((((((("MethodBehavior"+" [pythonClass=")+ pythonClass)+", pythonFunction=")+ pythonFunction)+", kbServiceUrl=")+ kbServiceUrl)+", kbServiceName=")+ kbServiceName)+", kbServiceMethod=")+ kbServiceMethod)+", kbServiceInputMapping=")+ kbServiceInputMapping)+", kbServiceOutputMapping=")+ kbServiceOutputMapping)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((((((((((((((("MethodBehavior"+" [pythonClass=")+ pythonClass)+", pythonFunction=")+ pythonFunction)+", kbServiceUrl=")+ kbServiceUrl)+", kbServiceName=")+ kbServiceName)+", kbServiceMethod=")+ kbServiceMethod)+", kbServiceInputMapping=")+ kbServiceInputMapping)+", kbServiceOutputMapping=")+ kbServiceOutputMapping)+", outputMapping=")+ outputMapping)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }
