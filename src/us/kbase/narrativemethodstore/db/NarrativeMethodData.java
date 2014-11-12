@@ -25,6 +25,7 @@ import us.kbase.narrativemethodstore.MethodParameter;
 import us.kbase.narrativemethodstore.MethodSpec;
 import us.kbase.narrativemethodstore.OutputMapping;
 import us.kbase.narrativemethodstore.RadioOptions;
+import us.kbase.narrativemethodstore.RegexMatcher;
 import us.kbase.narrativemethodstore.ScreenShot;
 import us.kbase.narrativemethodstore.ServiceMethodInputMapping;
 import us.kbase.narrativemethodstore.ServiceMethodOutputMapping;
@@ -278,6 +279,43 @@ public class NarrativeMethodData {
 							.withValidateAs(getTextOrNull(optNode.get("validate_as")))
 							.withIsOutputName(isOutputNameFlag)
 							.withPlaceholder(placeholder);
+				
+				// todo: add better checks of min/max numbers, like if it is numeric
+				if(optNode.get("min_int")!=null) {
+					textOpt.withMinInt(optNode.get("min_int").asLong());
+				}
+				if(optNode.get("max_int")!=null) {
+					textOpt.withMaxInt(optNode.get("max_int").asLong());
+				}
+				if(optNode.get("min_float")!=null) {
+					textOpt.withMinFloat(optNode.get("min_float").asDouble());
+				}
+				if(optNode.get("max_float")!=null) {
+					textOpt.withMaxFloat(optNode.get("max_float").asDouble());
+				}
+				
+				List<RegexMatcher> regexList = new ArrayList<RegexMatcher>();
+				if(optNode.get("regex_constraint")!=null) {
+					for(int rxi=0; rxi<optNode.get("regex_constraint").size(); rxi++) {
+						JsonNode regex = optNode.get("regex_constraint").get(rxi);
+						if(regex.get("regex")!=null && regex.get("error_text")!=null) {
+							Long match = new Long(1);
+							if(regex.get("match")!=null) {
+								if(regex.get("match").asBoolean()) {
+									match = new Long(1);
+								} else {
+									match = new Long(0);
+								}
+							}
+							regexList.add(
+									new RegexMatcher()
+										.withMatch(match)
+										.withRegex(regex.get("regex").asText())
+										.withErrorText(regex.get("error_text").asText()));
+						}
+					}
+				}
+				textOpt.withRegexConstraint(regexList);
 			}
 			CheckboxOptions cbOpt = null;
 			if (paramNode.has("checkbox_options")) {

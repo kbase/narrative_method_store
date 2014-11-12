@@ -31,6 +31,7 @@ import us.kbase.narrativemethodstore.MethodSpec;
 import us.kbase.narrativemethodstore.AppBriefInfo;
 import us.kbase.narrativemethodstore.NarrativeMethodStoreClient;
 import us.kbase.narrativemethodstore.NarrativeMethodStoreServer;
+import us.kbase.narrativemethodstore.RegexMatcher;
 
 /*
  * 
@@ -244,15 +245,31 @@ public class FullServerTest {
 
 				assertEquals("text_int_number", m.getParameters().get(0).getId());
 				assertEquals("text", m.getParameters().get(0).getFieldType());
+				assertEquals(new Long(0), m.getParameters().get(0).getTextOptions().getMinInt());
+				assertEquals(new Long(20), m.getParameters().get(0).getTextOptions().getMaxInt());
+				assertEquals(new Long(0), m.getParameters().get(0).getDisabled());
 
 				assertEquals("text_int_number_disabled", m.getParameters().get(1).getId());
 				assertEquals("text", m.getParameters().get(1).getFieldType());
+				assertEquals(new Long(0), m.getParameters().get(1).getTextOptions().getMinInt());
+				assertEquals(new Long(20), m.getParameters().get(1).getTextOptions().getMaxInt());
+				assertEquals(new Long(1), m.getParameters().get(1).getDisabled());
 
 				assertEquals("text_float_number", m.getParameters().get(2).getId());
 				assertEquals("text", m.getParameters().get(2).getFieldType());
+				assertEquals(new Double(0.5), m.getParameters().get(2).getTextOptions().getMinFloat());
+				assertEquals(new Double(20.2), m.getParameters().get(2).getTextOptions().getMaxFloat());
 
 				assertEquals("regex", m.getParameters().get(3).getId());
 				assertEquals("text", m.getParameters().get(3).getFieldType());
+				List<RegexMatcher> rm = m.getParameters().get(3).getTextOptions().getRegexConstraint();
+				assertEquals(new Long(1), rm.get(0).getMatch());
+				assertEquals("^good", rm.get(0).getRegex());
+				assertEquals("input must start with good", rm.get(0).getErrorText());
+				
+				assertEquals(new Long(0), rm.get(1).getMatch());
+				assertEquals("bad$", rm.get(1).getRegex());
+				assertEquals("input cannot end in bad", rm.get(1).getErrorText());
 			}
 		}
 		assertTrue("Testing that test_method_1 was returned from listMethodSpec",
