@@ -1,10 +1,17 @@
 package Bio::KBase::NarrativeMethodStore::Client;
 
 use JSON::RPC::Client;
+use POSIX;
 use strict;
 use Data::Dumper;
 use URI;
 use Bio::KBase::Exceptions;
+my $get_time = sub { time, 0 };
+eval {
+    require Time::HiRes;
+    $get_time = sub { Time::HiRes::gettimeofday() };
+};
+
 
 # Client version should match Impl version
 # This is a Semantic Version number,
@@ -35,7 +42,41 @@ sub new
     my $self = {
 	client => Bio::KBase::NarrativeMethodStore::Client::RpcClient->new,
 	url => $url,
+	headers => [],
     };
+
+    chomp($self->{hostname} = `hostname`);
+    $self->{hostname} ||= 'unknown-host';
+
+    #
+    # Set up for propagating KBRPC_TAG and KBRPC_METADATA environment variables through
+    # to invoked services. If these values are not set, we create a new tag
+    # and a metadata field with basic information about the invoking script.
+    #
+    if ($ENV{KBRPC_TAG})
+    {
+	$self->{kbrpc_tag} = $ENV{KBRPC_TAG};
+    }
+    else
+    {
+	my ($t, $us) = &$get_time();
+	$us = sprintf("%06d", $us);
+	my $ts = strftime("%Y-%m-%dT%H:%M:%S.${us}Z", gmtime $t);
+	$self->{kbrpc_tag} = "C:$0:$self->{hostname}:$$:$ts";
+    }
+    push(@{$self->{headers}}, 'Kbrpc-Tag', $self->{kbrpc_tag});
+
+    if ($ENV{KBRPC_METADATA})
+    {
+	$self->{kbrpc_metadata} = $ENV{KBRPC_METADATA};
+	push(@{$self->{headers}}, 'Kbrpc-Metadata', $self->{kbrpc_metadata});
+    }
+
+    if ($ENV{KBRPC_ERROR_DEST})
+    {
+	$self->{kbrpc_error_dest} = $ENV{KBRPC_ERROR_DEST};
+	push(@{$self->{headers}}, 'Kbrpc-Errordest', $self->{kbrpc_error_dest});
+    }
 
 
     my $ua = $self->{client}->ua;	 
@@ -93,7 +134,7 @@ sub ver
 							       "Invalid argument count for function ver (received $n, expecting 0)");
     }
 
-    my $result = $self->{client}->call($self->{url}, {
+    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
 	method => "NarrativeMethodStore.ver",
 	params => \@args,
     });
@@ -172,7 +213,7 @@ sub status
 							       "Invalid argument count for function status (received $n, expecting 0)");
     }
 
-    my $result = $self->{client}->call($self->{url}, {
+    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
 	method => "NarrativeMethodStore.status",
 	params => \@args,
     });
@@ -315,7 +356,7 @@ sub list_categories
 	}
     }
 
-    my $result = $self->{client}->call($self->{url}, {
+    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
 	method => "NarrativeMethodStore.list_categories",
 	params => \@args,
     });
@@ -416,7 +457,7 @@ sub get_category
 	}
     }
 
-    my $result = $self->{client}->call($self->{url}, {
+    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
 	method => "NarrativeMethodStore.get_category",
 	params => \@args,
     });
@@ -519,7 +560,7 @@ sub list_methods
 	}
     }
 
-    my $result = $self->{client}->call($self->{url}, {
+    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
 	method => "NarrativeMethodStore.list_methods",
 	params => \@args,
     });
@@ -564,6 +605,7 @@ MethodFullInfo is a reference to a hash where the following keys are defined:
 	name has a value which is a string
 	ver has a value which is a string
 	authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
+	kb_contributers has a value which is a reference to a list where each element is a NarrativeMethodStore.username
 	contact has a value which is a NarrativeMethodStore.email
 	subtitle has a value which is a string
 	tooltip has a value which is a string
@@ -571,11 +613,16 @@ MethodFullInfo is a reference to a hash where the following keys are defined:
 	technical_description has a value which is a string
 	categories has a value which is a reference to a list where each element is a string
 	screenshots has a value which is a reference to a list where each element is a NarrativeMethodStore.ScreenShot
+	publications has a value which is a reference to a list where each element is a NarrativeMethodStore.Publication
 username is a string
 email is a string
 ScreenShot is a reference to a hash where the following keys are defined:
 	url has a value which is a NarrativeMethodStore.url
 url is a string
+Publication is a reference to a hash where the following keys are defined:
+	pmid has a value which is a string
+	display_text has a value which is a string
+	link has a value which is a NarrativeMethodStore.url
 
 </pre>
 
@@ -593,6 +640,7 @@ MethodFullInfo is a reference to a hash where the following keys are defined:
 	name has a value which is a string
 	ver has a value which is a string
 	authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
+	kb_contributers has a value which is a reference to a list where each element is a NarrativeMethodStore.username
 	contact has a value which is a NarrativeMethodStore.email
 	subtitle has a value which is a string
 	tooltip has a value which is a string
@@ -600,11 +648,16 @@ MethodFullInfo is a reference to a hash where the following keys are defined:
 	technical_description has a value which is a string
 	categories has a value which is a reference to a list where each element is a string
 	screenshots has a value which is a reference to a list where each element is a NarrativeMethodStore.ScreenShot
+	publications has a value which is a reference to a list where each element is a NarrativeMethodStore.Publication
 username is a string
 email is a string
 ScreenShot is a reference to a hash where the following keys are defined:
 	url has a value which is a NarrativeMethodStore.url
 url is a string
+Publication is a reference to a hash where the following keys are defined:
+	pmid has a value which is a string
+	display_text has a value which is a string
+	link has a value which is a NarrativeMethodStore.url
 
 
 =end text
@@ -640,7 +693,7 @@ sub list_methods_full_info
 	}
     }
 
-    my $result = $self->{client}->call($self->{url}, {
+    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
 	method => "NarrativeMethodStore.list_methods_full_info",
 	params => \@args,
     });
@@ -702,11 +755,12 @@ MethodParameter is a reference to a hash where the following keys are defined:
 	id has a value which is a string
 	ui_name has a value which is a string
 	short_hint has a value which is a string
-	long_hint has a value which is a string
+	description has a value which is a string
 	field_type has a value which is a string
 	allow_multiple has a value which is a NarrativeMethodStore.boolean
 	optional has a value which is a NarrativeMethodStore.boolean
 	advanced has a value which is a NarrativeMethodStore.boolean
+	disabled has a value which is a NarrativeMethodStore.boolean
 	default_values has a value which is a reference to a list where each element is a string
 	text_options has a value which is a NarrativeMethodStore.TextOptions
 	textarea_options has a value which is a NarrativeMethodStore.TextAreaOptions
@@ -721,6 +775,15 @@ TextOptions is a reference to a hash where the following keys are defined:
 	validate_as has a value which is a string
 	is_output_name has a value which is a NarrativeMethodStore.boolean
 	placeholder has a value which is a string
+	min_int has a value which is an int
+	max_int has a value which is an int
+	min_float has a value which is a float
+	max_float has a value which is a float
+	regex_constraint has a value which is a reference to a list where each element is a NarrativeMethodStore.RegexMatcher
+RegexMatcher is a reference to a hash where the following keys are defined:
+	regex has a value which is a string
+	error_text has a value which is a string
+	match has a value which is a NarrativeMethodStore.boolean
 TextAreaOptions is a reference to a hash where the following keys are defined:
 	n_rows has a value which is an int
 IntSliderOptions is a reference to a hash where the following keys are defined:
@@ -734,7 +797,10 @@ CheckboxOptions is a reference to a hash where the following keys are defined:
 	checked_value has a value which is an int
 	unchecked_value has a value which is an int
 DropdownOptions is a reference to a hash where the following keys are defined:
-	ids_to_options has a value which is a reference to a hash where the key is a string and the value is a string
+	options has a value which is a reference to a list where each element is a NarrativeMethodStore.DropdownOption
+DropdownOption is a reference to a hash where the following keys are defined:
+	value has a value which is a string
+	display has a value which is a string
 RadioOptions is a reference to a hash where the following keys are defined:
 	ids_to_options has a value which is a reference to a hash where the key is a string and the value is a string
 	ids_to_tooltip has a value which is a reference to a hash where the key is a string and the value is a string
@@ -806,11 +872,12 @@ MethodParameter is a reference to a hash where the following keys are defined:
 	id has a value which is a string
 	ui_name has a value which is a string
 	short_hint has a value which is a string
-	long_hint has a value which is a string
+	description has a value which is a string
 	field_type has a value which is a string
 	allow_multiple has a value which is a NarrativeMethodStore.boolean
 	optional has a value which is a NarrativeMethodStore.boolean
 	advanced has a value which is a NarrativeMethodStore.boolean
+	disabled has a value which is a NarrativeMethodStore.boolean
 	default_values has a value which is a reference to a list where each element is a string
 	text_options has a value which is a NarrativeMethodStore.TextOptions
 	textarea_options has a value which is a NarrativeMethodStore.TextAreaOptions
@@ -825,6 +892,15 @@ TextOptions is a reference to a hash where the following keys are defined:
 	validate_as has a value which is a string
 	is_output_name has a value which is a NarrativeMethodStore.boolean
 	placeholder has a value which is a string
+	min_int has a value which is an int
+	max_int has a value which is an int
+	min_float has a value which is a float
+	max_float has a value which is a float
+	regex_constraint has a value which is a reference to a list where each element is a NarrativeMethodStore.RegexMatcher
+RegexMatcher is a reference to a hash where the following keys are defined:
+	regex has a value which is a string
+	error_text has a value which is a string
+	match has a value which is a NarrativeMethodStore.boolean
 TextAreaOptions is a reference to a hash where the following keys are defined:
 	n_rows has a value which is an int
 IntSliderOptions is a reference to a hash where the following keys are defined:
@@ -838,7 +914,10 @@ CheckboxOptions is a reference to a hash where the following keys are defined:
 	checked_value has a value which is an int
 	unchecked_value has a value which is an int
 DropdownOptions is a reference to a hash where the following keys are defined:
-	ids_to_options has a value which is a reference to a hash where the key is a string and the value is a string
+	options has a value which is a reference to a list where each element is a NarrativeMethodStore.DropdownOption
+DropdownOption is a reference to a hash where the following keys are defined:
+	value has a value which is a string
+	display has a value which is a string
 RadioOptions is a reference to a hash where the following keys are defined:
 	ids_to_options has a value which is a reference to a hash where the key is a string and the value is a string
 	ids_to_tooltip has a value which is a reference to a hash where the key is a string and the value is a string
@@ -911,7 +990,7 @@ sub list_methods_spec
 	}
     }
 
-    my $result = $self->{client}->call($self->{url}, {
+    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
 	method => "NarrativeMethodStore.list_methods_spec",
 	params => \@args,
     });
@@ -979,7 +1058,7 @@ sub list_method_ids_and_names
 							       "Invalid argument count for function list_method_ids_and_names (received $n, expecting 0)");
     }
 
-    my $result = $self->{client}->call($self->{url}, {
+    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
 	method => "NarrativeMethodStore.list_method_ids_and_names",
 	params => \@args,
     });
@@ -1084,7 +1163,7 @@ sub list_apps
 	}
     }
 
-    my $result = $self->{client}->call($self->{url}, {
+    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
 	method => "NarrativeMethodStore.list_apps",
 	params => \@args,
     });
@@ -1207,7 +1286,7 @@ sub list_apps_full_info
 	}
     }
 
-    my $result = $self->{client}->call($self->{url}, {
+    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
 	method => "NarrativeMethodStore.list_apps_full_info",
 	params => \@args,
     });
@@ -1340,7 +1419,7 @@ sub list_apps_spec
 	}
     }
 
-    my $result = $self->{client}->call($self->{url}, {
+    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
 	method => "NarrativeMethodStore.list_apps_spec",
 	params => \@args,
     });
@@ -1408,7 +1487,7 @@ sub list_app_ids_and_names
 							       "Invalid argument count for function list_app_ids_and_names (received $n, expecting 0)");
     }
 
-    my $result = $self->{client}->call($self->{url}, {
+    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
 	method => "NarrativeMethodStore.list_app_ids_and_names",
 	params => \@args,
     });
@@ -1509,7 +1588,7 @@ sub get_method_brief_info
 	}
     }
 
-    my $result = $self->{client}->call($self->{url}, {
+    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
 	method => "NarrativeMethodStore.get_method_brief_info",
 	params => \@args,
     });
@@ -1553,6 +1632,7 @@ MethodFullInfo is a reference to a hash where the following keys are defined:
 	name has a value which is a string
 	ver has a value which is a string
 	authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
+	kb_contributers has a value which is a reference to a list where each element is a NarrativeMethodStore.username
 	contact has a value which is a NarrativeMethodStore.email
 	subtitle has a value which is a string
 	tooltip has a value which is a string
@@ -1560,11 +1640,16 @@ MethodFullInfo is a reference to a hash where the following keys are defined:
 	technical_description has a value which is a string
 	categories has a value which is a reference to a list where each element is a string
 	screenshots has a value which is a reference to a list where each element is a NarrativeMethodStore.ScreenShot
+	publications has a value which is a reference to a list where each element is a NarrativeMethodStore.Publication
 username is a string
 email is a string
 ScreenShot is a reference to a hash where the following keys are defined:
 	url has a value which is a NarrativeMethodStore.url
 url is a string
+Publication is a reference to a hash where the following keys are defined:
+	pmid has a value which is a string
+	display_text has a value which is a string
+	link has a value which is a NarrativeMethodStore.url
 
 </pre>
 
@@ -1581,6 +1666,7 @@ MethodFullInfo is a reference to a hash where the following keys are defined:
 	name has a value which is a string
 	ver has a value which is a string
 	authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
+	kb_contributers has a value which is a reference to a list where each element is a NarrativeMethodStore.username
 	contact has a value which is a NarrativeMethodStore.email
 	subtitle has a value which is a string
 	tooltip has a value which is a string
@@ -1588,11 +1674,16 @@ MethodFullInfo is a reference to a hash where the following keys are defined:
 	technical_description has a value which is a string
 	categories has a value which is a reference to a list where each element is a string
 	screenshots has a value which is a reference to a list where each element is a NarrativeMethodStore.ScreenShot
+	publications has a value which is a reference to a list where each element is a NarrativeMethodStore.Publication
 username is a string
 email is a string
 ScreenShot is a reference to a hash where the following keys are defined:
 	url has a value which is a NarrativeMethodStore.url
 url is a string
+Publication is a reference to a hash where the following keys are defined:
+	pmid has a value which is a string
+	display_text has a value which is a string
+	link has a value which is a NarrativeMethodStore.url
 
 
 =end text
@@ -1628,7 +1719,7 @@ sub get_method_full_info
 	}
     }
 
-    my $result = $self->{client}->call($self->{url}, {
+    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
 	method => "NarrativeMethodStore.get_method_full_info",
 	params => \@args,
     });
@@ -1689,11 +1780,12 @@ MethodParameter is a reference to a hash where the following keys are defined:
 	id has a value which is a string
 	ui_name has a value which is a string
 	short_hint has a value which is a string
-	long_hint has a value which is a string
+	description has a value which is a string
 	field_type has a value which is a string
 	allow_multiple has a value which is a NarrativeMethodStore.boolean
 	optional has a value which is a NarrativeMethodStore.boolean
 	advanced has a value which is a NarrativeMethodStore.boolean
+	disabled has a value which is a NarrativeMethodStore.boolean
 	default_values has a value which is a reference to a list where each element is a string
 	text_options has a value which is a NarrativeMethodStore.TextOptions
 	textarea_options has a value which is a NarrativeMethodStore.TextAreaOptions
@@ -1708,6 +1800,15 @@ TextOptions is a reference to a hash where the following keys are defined:
 	validate_as has a value which is a string
 	is_output_name has a value which is a NarrativeMethodStore.boolean
 	placeholder has a value which is a string
+	min_int has a value which is an int
+	max_int has a value which is an int
+	min_float has a value which is a float
+	max_float has a value which is a float
+	regex_constraint has a value which is a reference to a list where each element is a NarrativeMethodStore.RegexMatcher
+RegexMatcher is a reference to a hash where the following keys are defined:
+	regex has a value which is a string
+	error_text has a value which is a string
+	match has a value which is a NarrativeMethodStore.boolean
 TextAreaOptions is a reference to a hash where the following keys are defined:
 	n_rows has a value which is an int
 IntSliderOptions is a reference to a hash where the following keys are defined:
@@ -1721,7 +1822,10 @@ CheckboxOptions is a reference to a hash where the following keys are defined:
 	checked_value has a value which is an int
 	unchecked_value has a value which is an int
 DropdownOptions is a reference to a hash where the following keys are defined:
-	ids_to_options has a value which is a reference to a hash where the key is a string and the value is a string
+	options has a value which is a reference to a list where each element is a NarrativeMethodStore.DropdownOption
+DropdownOption is a reference to a hash where the following keys are defined:
+	value has a value which is a string
+	display has a value which is a string
 RadioOptions is a reference to a hash where the following keys are defined:
 	ids_to_options has a value which is a reference to a hash where the key is a string and the value is a string
 	ids_to_tooltip has a value which is a reference to a hash where the key is a string and the value is a string
@@ -1792,11 +1896,12 @@ MethodParameter is a reference to a hash where the following keys are defined:
 	id has a value which is a string
 	ui_name has a value which is a string
 	short_hint has a value which is a string
-	long_hint has a value which is a string
+	description has a value which is a string
 	field_type has a value which is a string
 	allow_multiple has a value which is a NarrativeMethodStore.boolean
 	optional has a value which is a NarrativeMethodStore.boolean
 	advanced has a value which is a NarrativeMethodStore.boolean
+	disabled has a value which is a NarrativeMethodStore.boolean
 	default_values has a value which is a reference to a list where each element is a string
 	text_options has a value which is a NarrativeMethodStore.TextOptions
 	textarea_options has a value which is a NarrativeMethodStore.TextAreaOptions
@@ -1811,6 +1916,15 @@ TextOptions is a reference to a hash where the following keys are defined:
 	validate_as has a value which is a string
 	is_output_name has a value which is a NarrativeMethodStore.boolean
 	placeholder has a value which is a string
+	min_int has a value which is an int
+	max_int has a value which is an int
+	min_float has a value which is a float
+	max_float has a value which is a float
+	regex_constraint has a value which is a reference to a list where each element is a NarrativeMethodStore.RegexMatcher
+RegexMatcher is a reference to a hash where the following keys are defined:
+	regex has a value which is a string
+	error_text has a value which is a string
+	match has a value which is a NarrativeMethodStore.boolean
 TextAreaOptions is a reference to a hash where the following keys are defined:
 	n_rows has a value which is an int
 IntSliderOptions is a reference to a hash where the following keys are defined:
@@ -1824,7 +1938,10 @@ CheckboxOptions is a reference to a hash where the following keys are defined:
 	checked_value has a value which is an int
 	unchecked_value has a value which is an int
 DropdownOptions is a reference to a hash where the following keys are defined:
-	ids_to_options has a value which is a reference to a hash where the key is a string and the value is a string
+	options has a value which is a reference to a list where each element is a NarrativeMethodStore.DropdownOption
+DropdownOption is a reference to a hash where the following keys are defined:
+	value has a value which is a string
+	display has a value which is a string
 RadioOptions is a reference to a hash where the following keys are defined:
 	ids_to_options has a value which is a reference to a hash where the key is a string and the value is a string
 	ids_to_tooltip has a value which is a reference to a hash where the key is a string and the value is a string
@@ -1897,7 +2014,7 @@ sub get_method_spec
 	}
     }
 
-    my $result = $self->{client}->call($self->{url}, {
+    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
 	method => "NarrativeMethodStore.get_method_spec",
 	params => \@args,
     });
@@ -2000,7 +2117,7 @@ sub get_app_brief_info
 	}
     }
 
-    my $result = $self->{client}->call($self->{url}, {
+    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
 	method => "NarrativeMethodStore.get_app_brief_info",
 	params => \@args,
     });
@@ -2121,7 +2238,7 @@ sub get_app_full_info
 	}
     }
 
-    my $result = $self->{client}->call($self->{url}, {
+    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
 	method => "NarrativeMethodStore.get_app_full_info",
 	params => \@args,
     });
@@ -2252,7 +2369,7 @@ sub get_app_spec
 	}
     }
 
-    my $result = $self->{client}->call($self->{url}, {
+    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
 	method => "NarrativeMethodStore.get_app_spec",
 	params => \@args,
     });
@@ -2278,7 +2395,7 @@ sub get_app_spec
 
 sub version {
     my ($self) = @_;
-    my $result = $self->{client}->call($self->{url}, {
+    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
         method => "NarrativeMethodStore.version",
         params => [],
     });
@@ -2597,6 +2714,48 @@ url has a value which is a NarrativeMethodStore.url
 
 
 
+=head2 Publication
+
+=over 4
+
+
+
+=item Description
+
+Publication info can get complicated.  To keep things simple, we only allow a few things now:
+pmid - pubmed id, if present, we can use this id to pull all publication info we want
+display_text - what is shown to the user if there is no pubmed id, or if the pubmed id is not valid
+link - a link to the paper, also not needed if pmid is valid, but could be used if pubmed is down
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a reference to a hash where the following keys are defined:
+pmid has a value which is a string
+display_text has a value which is a string
+link has a value which is a NarrativeMethodStore.url
+
+</pre>
+
+=end html
+
+=begin text
+
+a reference to a hash where the following keys are defined:
+pmid has a value which is a string
+display_text has a value which is a string
+link has a value which is a NarrativeMethodStore.url
+
+
+=end text
+
+=back
+
+
+
 =head2 MethodFullInfo
 
 =over 4
@@ -2618,6 +2777,7 @@ id has a value which is a string
 name has a value which is a string
 ver has a value which is a string
 authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
+kb_contributers has a value which is a reference to a list where each element is a NarrativeMethodStore.username
 contact has a value which is a NarrativeMethodStore.email
 subtitle has a value which is a string
 tooltip has a value which is a string
@@ -2625,6 +2785,7 @@ description has a value which is a string
 technical_description has a value which is a string
 categories has a value which is a reference to a list where each element is a string
 screenshots has a value which is a reference to a list where each element is a NarrativeMethodStore.ScreenShot
+publications has a value which is a reference to a list where each element is a NarrativeMethodStore.Publication
 
 </pre>
 
@@ -2637,6 +2798,7 @@ id has a value which is a string
 name has a value which is a string
 ver has a value which is a string
 authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
+kb_contributers has a value which is a reference to a list where each element is a NarrativeMethodStore.username
 contact has a value which is a NarrativeMethodStore.email
 subtitle has a value which is a string
 tooltip has a value which is a string
@@ -2644,6 +2806,7 @@ description has a value which is a string
 technical_description has a value which is a string
 categories has a value which is a reference to a list where each element is a string
 screenshots has a value which is a reference to a list where each element is a NarrativeMethodStore.ScreenShot
+publications has a value which is a reference to a list where each element is a NarrativeMethodStore.Publication
 
 
 =end text
@@ -2689,6 +2852,48 @@ output has a value which is a string
 
 
 
+=head2 RegexMatcher
+
+=over 4
+
+
+
+=item Description
+
+regex - regular expression in javascript syntax
+error_text - message displayed if the input does not statisfy this constraint
+match - set to 1 to check if the input matches this regex, set to 0 to check
+        if input does not match this regex.  default is 1
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a reference to a hash where the following keys are defined:
+regex has a value which is a string
+error_text has a value which is a string
+match has a value which is a NarrativeMethodStore.boolean
+
+</pre>
+
+=end html
+
+=begin text
+
+a reference to a hash where the following keys are defined:
+regex has a value which is a string
+error_text has a value which is a string
+match has a value which is a NarrativeMethodStore.boolean
+
+
+=end text
+
+=back
+
+
+
 =head2 TextOptions
 
 =over 4
@@ -2712,6 +2917,11 @@ valid_ws_types has a value which is a reference to a list where each element is 
 validate_as has a value which is a string
 is_output_name has a value which is a NarrativeMethodStore.boolean
 placeholder has a value which is a string
+min_int has a value which is an int
+max_int has a value which is an int
+min_float has a value which is a float
+max_float has a value which is a float
+regex_constraint has a value which is a reference to a list where each element is a NarrativeMethodStore.RegexMatcher
 
 </pre>
 
@@ -2724,6 +2934,11 @@ valid_ws_types has a value which is a reference to a list where each element is 
 validate_as has a value which is a string
 is_output_name has a value which is a NarrativeMethodStore.boolean
 placeholder has a value which is a string
+min_int has a value which is an int
+max_int has a value which is an int
+min_float has a value which is a float
+max_float has a value which is a float
+regex_constraint has a value which is a reference to a list where each element is a NarrativeMethodStore.RegexMatcher
 
 
 =end text
@@ -2860,6 +3075,44 @@ unchecked_value has a value which is an int
 
 
 
+=head2 DropdownOption
+
+=over 4
+
+
+
+=item Description
+
+value is what is passed from the form, display is how the selection is
+shown to the user
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a reference to a hash where the following keys are defined:
+value has a value which is a string
+display has a value which is a string
+
+</pre>
+
+=end html
+
+=begin text
+
+a reference to a hash where the following keys are defined:
+value has a value which is a string
+display has a value which is a string
+
+
+=end text
+
+=back
+
+
+
 =head2 DropdownOptions
 
 =over 4
@@ -2872,7 +3125,7 @@ unchecked_value has a value which is an int
 
 <pre>
 a reference to a hash where the following keys are defined:
-ids_to_options has a value which is a reference to a hash where the key is a string and the value is a string
+options has a value which is a reference to a list where each element is a NarrativeMethodStore.DropdownOption
 
 </pre>
 
@@ -2881,7 +3134,7 @@ ids_to_options has a value which is a reference to a hash where the key is a str
 =begin text
 
 a reference to a hash where the following keys are defined:
-ids_to_options has a value which is a reference to a hash where the key is a string and the value is a string
+options has a value which is a reference to a list where each element is a NarrativeMethodStore.DropdownOption
 
 
 =end text
@@ -2931,6 +3184,24 @@ ids_to_tooltip has a value which is a reference to a hash where the key is a str
 =item Description
 
 Description of a method parameter.
+
+id - id of the parameter, must be unique within the method
+ui_name - short name that is displayed to the user
+short_hint - short phrase or sentence describing the parameter
+description - longer and more technical description of the parameter
+field_type - one of: text | textarea | dropdown | checkbox 
+              (radio, intslider and floatslider are not yet supported)
+allow_mutiple - only supported for field_type text, allows entry of a list
+                instead of a single value, default is 0
+                if set, the number of starting boxes will be either 1 or the
+                number of elements in the default_values list
+optional - set to true to make the field optional, default is 0
+advanced - set to true to make this an advanced option, default is 0
+           if an option is advanced, it should also be optional or have
+           a default value
+disabled   - set to true to disable user input, default is 0
+           if disabled, a default value should be provided
+
 @optional text_options textarea_options intslider_options checkbox_options
 @optional dropdown_options radio_options
 
@@ -2944,11 +3215,12 @@ a reference to a hash where the following keys are defined:
 id has a value which is a string
 ui_name has a value which is a string
 short_hint has a value which is a string
-long_hint has a value which is a string
+description has a value which is a string
 field_type has a value which is a string
 allow_multiple has a value which is a NarrativeMethodStore.boolean
 optional has a value which is a NarrativeMethodStore.boolean
 advanced has a value which is a NarrativeMethodStore.boolean
+disabled has a value which is a NarrativeMethodStore.boolean
 default_values has a value which is a reference to a list where each element is a string
 text_options has a value which is a NarrativeMethodStore.TextOptions
 textarea_options has a value which is a NarrativeMethodStore.TextAreaOptions
@@ -2968,11 +3240,12 @@ a reference to a hash where the following keys are defined:
 id has a value which is a string
 ui_name has a value which is a string
 short_hint has a value which is a string
-long_hint has a value which is a string
+description has a value which is a string
 field_type has a value which is a string
 allow_multiple has a value which is a NarrativeMethodStore.boolean
 optional has a value which is a NarrativeMethodStore.boolean
 advanced has a value which is a NarrativeMethodStore.boolean
+disabled has a value which is a NarrativeMethodStore.boolean
 default_values has a value which is a reference to a list where each element is a string
 text_options has a value which is a NarrativeMethodStore.TextOptions
 textarea_options has a value which is a NarrativeMethodStore.TextAreaOptions
@@ -3700,21 +3973,27 @@ ids has a value which is a reference to a list where each element is a string
 
 package Bio::KBase::NarrativeMethodStore::Client::RpcClient;
 use base 'JSON::RPC::Client';
+use POSIX;
+use strict;
 
 #
 # Override JSON::RPC::Client::call because it doesn't handle error returns properly.
 #
 
 sub call {
-    my ($self, $uri, $obj) = @_;
+    my ($self, $uri, $headers, $obj) = @_;
     my $result;
 
-    if ($uri =~ /\?/) {
-       $result = $self->_get($uri);
-    }
-    else {
-        Carp::croak "not hashref." unless (ref $obj eq 'HASH');
-        $result = $self->_post($uri, $obj);
+
+    {
+	if ($uri =~ /\?/) {
+	    $result = $self->_get($uri);
+	}
+	else {
+	    Carp::croak "not hashref." unless (ref $obj eq 'HASH');
+	    $result = $self->_post($uri, $headers, $obj);
+	}
+
     }
 
     my $service = $obj->{method} =~ /^system\./ if ( $obj );
@@ -3742,7 +4021,7 @@ sub call {
 
 
 sub _post {
-    my ($self, $uri, $obj) = @_;
+    my ($self, $uri, $headers, $obj) = @_;
     my $json = $self->json;
 
     $obj->{version} ||= $self->{version} || '1.1';
@@ -3769,6 +4048,7 @@ sub _post {
         Content_Type   => $self->{content_type},
         Content        => $content,
         Accept         => 'application/json',
+	@$headers,
 	($self->{token} ? (Authorization => $self->{token}) : ()),
     );
 }

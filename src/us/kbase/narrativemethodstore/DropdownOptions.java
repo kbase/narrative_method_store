@@ -2,6 +2,7 @@
 package us.kbase.narrativemethodstore;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.annotation.Generated;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
@@ -19,42 +20,42 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Generated("com.googlecode.jsonschema2pojo")
 @JsonPropertyOrder({
-    "ids_to_options"
+    "options"
 })
 public class DropdownOptions {
 
-    @JsonProperty("ids_to_options")
-    private Map<String, String> idsToOptions;
-    private Map<java.lang.String, Object> additionalProperties = new HashMap<java.lang.String, Object>();
+    @JsonProperty("options")
+    private List<DropdownOption> options;
+    private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
-    @JsonProperty("ids_to_options")
-    public Map<String, String> getIdsToOptions() {
-        return idsToOptions;
+    @JsonProperty("options")
+    public List<DropdownOption> getOptions() {
+        return options;
     }
 
-    @JsonProperty("ids_to_options")
-    public void setIdsToOptions(Map<String, String> idsToOptions) {
-        this.idsToOptions = idsToOptions;
+    @JsonProperty("options")
+    public void setOptions(List<DropdownOption> options) {
+        this.options = options;
     }
 
-    public DropdownOptions withIdsToOptions(Map<String, String> idsToOptions) {
-        this.idsToOptions = idsToOptions;
+    public DropdownOptions withOptions(List<DropdownOption> options) {
+        this.options = options;
         return this;
     }
 
     @JsonAnyGetter
-    public Map<java.lang.String, Object> getAdditionalProperties() {
+    public Map<String, Object> getAdditionalProperties() {
         return this.additionalProperties;
     }
 
     @JsonAnySetter
-    public void setAdditionalProperties(java.lang.String name, Object value) {
+    public void setAdditionalProperties(String name, Object value) {
         this.additionalProperties.put(name, value);
     }
 
     @Override
-    public java.lang.String toString() {
-        return ((((("DropdownOptions"+" [idsToOptions=")+ idsToOptions)+", additionalProperties=")+ additionalProperties)+"]");
+    public String toString() {
+        return ((((("DropdownOptions"+" [options=")+ options)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }

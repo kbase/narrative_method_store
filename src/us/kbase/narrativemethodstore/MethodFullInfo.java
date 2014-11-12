@@ -26,13 +26,15 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
     "name",
     "ver",
     "authors",
+    "kb_contributers",
     "contact",
     "subtitle",
     "tooltip",
     "description",
     "technical_description",
     "categories",
-    "screenshots"
+    "screenshots",
+    "publications"
 })
 public class MethodFullInfo {
 
@@ -44,6 +46,8 @@ public class MethodFullInfo {
     private java.lang.String ver;
     @JsonProperty("authors")
     private List<String> authors;
+    @JsonProperty("kb_contributers")
+    private List<String> kbContributers;
     @JsonProperty("contact")
     private java.lang.String contact;
     @JsonProperty("subtitle")
@@ -58,6 +62,8 @@ public class MethodFullInfo {
     private List<String> categories;
     @JsonProperty("screenshots")
     private List<ScreenShot> screenshots;
+    @JsonProperty("publications")
+    private List<Publication> publications;
     private Map<java.lang.String, Object> additionalProperties = new HashMap<java.lang.String, Object>();
 
     @JsonProperty("id")
@@ -117,6 +123,21 @@ public class MethodFullInfo {
 
     public MethodFullInfo withAuthors(List<String> authors) {
         this.authors = authors;
+        return this;
+    }
+
+    @JsonProperty("kb_contributers")
+    public List<String> getKbContributers() {
+        return kbContributers;
+    }
+
+    @JsonProperty("kb_contributers")
+    public void setKbContributers(List<String> kbContributers) {
+        this.kbContributers = kbContributers;
+    }
+
+    public MethodFullInfo withKbContributers(List<String> kbContributers) {
+        this.kbContributers = kbContributers;
         return this;
     }
 
@@ -225,6 +246,21 @@ public class MethodFullInfo {
         return this;
     }
 
+    @JsonProperty("publications")
+    public List<Publication> getPublications() {
+        return publications;
+    }
+
+    @JsonProperty("publications")
+    public void setPublications(List<Publication> publications) {
+        this.publications = publications;
+    }
+
+    public MethodFullInfo withPublications(List<Publication> publications) {
+        this.publications = publications;
+        return this;
+    }
+
     @JsonAnyGetter
     public Map<java.lang.String, Object> getAdditionalProperties() {
         return this.additionalProperties;
@@ -237,7 +273,7 @@ public class MethodFullInfo {
 
     @Override
     public java.lang.String toString() {
-        return ((((((((((((((((((((((((("MethodFullInfo"+" [id=")+ id)+", name=")+ name)+", ver=")+ ver)+", authors=")+ authors)+", contact=")+ contact)+", subtitle=")+ subtitle)+", tooltip=")+ tooltip)+", description=")+ description)+", technicalDescription=")+ technicalDescription)+", categories=")+ categories)+", screenshots=")+ screenshots)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((((((((((((((((((((((((("MethodFullInfo"+" [id=")+ id)+", name=")+ name)+", ver=")+ ver)+", authors=")+ authors)+", kbContributers=")+ kbContributers)+", contact=")+ contact)+", subtitle=")+ subtitle)+", tooltip=")+ tooltip)+", description=")+ description)+", technicalDescription=")+ technicalDescription)+", categories=")+ categories)+", screenshots=")+ screenshots)+", publications=")+ publications)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }

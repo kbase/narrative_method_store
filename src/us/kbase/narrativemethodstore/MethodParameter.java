@@ -16,6 +16,22 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
  * <p>Original spec-file type: MethodParameter</p>
  * <pre>
  * Description of a method parameter.
+ * id - id of the parameter, must be unique within the method
+ * ui_name - short name that is displayed to the user
+ * short_hint - short phrase or sentence describing the parameter
+ * description - longer and more technical description of the parameter
+ * field_type - one of: text | textarea | dropdown | checkbox 
+ *               (radio, intslider and floatslider are not yet supported)
+ * allow_mutiple - only supported for field_type text, allows entry of a list
+ *                 instead of a single value, default is 0
+ *                 if set, the number of starting boxes will be either 1 or the
+ *                 number of elements in the default_values list
+ * optional - set to true to make the field optional, default is 0
+ * advanced - set to true to make this an advanced option, default is 0
+ *            if an option is advanced, it should also be optional or have
+ *            a default value
+ * disabled   - set to true to disable user input, default is 0
+ *            if disabled, a default value should be provided
  * @optional text_options textarea_options intslider_options checkbox_options
  * @optional dropdown_options radio_options
  * </pre>
@@ -27,11 +43,12 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
     "id",
     "ui_name",
     "short_hint",
-    "long_hint",
+    "description",
     "field_type",
     "allow_multiple",
     "optional",
     "advanced",
+    "disabled",
     "default_values",
     "text_options",
     "textarea_options",
@@ -49,8 +66,8 @@ public class MethodParameter {
     private java.lang.String uiName;
     @JsonProperty("short_hint")
     private java.lang.String shortHint;
-    @JsonProperty("long_hint")
-    private java.lang.String longHint;
+    @JsonProperty("description")
+    private java.lang.String description;
     @JsonProperty("field_type")
     private java.lang.String fieldType;
     @JsonProperty("allow_multiple")
@@ -59,6 +76,8 @@ public class MethodParameter {
     private Long optional;
     @JsonProperty("advanced")
     private Long advanced;
+    @JsonProperty("disabled")
+    private Long disabled;
     @JsonProperty("default_values")
     private List<String> defaultValues;
     /**
@@ -161,18 +180,18 @@ public class MethodParameter {
         return this;
     }
 
-    @JsonProperty("long_hint")
-    public java.lang.String getLongHint() {
-        return longHint;
+    @JsonProperty("description")
+    public java.lang.String getDescription() {
+        return description;
     }
 
-    @JsonProperty("long_hint")
-    public void setLongHint(java.lang.String longHint) {
-        this.longHint = longHint;
+    @JsonProperty("description")
+    public void setDescription(java.lang.String description) {
+        this.description = description;
     }
 
-    public MethodParameter withLongHint(java.lang.String longHint) {
-        this.longHint = longHint;
+    public MethodParameter withDescription(java.lang.String description) {
+        this.description = description;
         return this;
     }
 
@@ -233,6 +252,21 @@ public class MethodParameter {
 
     public MethodParameter withAdvanced(Long advanced) {
         this.advanced = advanced;
+        return this;
+    }
+
+    @JsonProperty("disabled")
+    public Long getDisabled() {
+        return disabled;
+    }
+
+    @JsonProperty("disabled")
+    public void setDisabled(Long disabled) {
+        this.disabled = disabled;
+    }
+
+    public MethodParameter withDisabled(Long disabled) {
+        this.disabled = disabled;
         return this;
     }
 
@@ -446,7 +480,7 @@ public class MethodParameter {
 
     @Override
     public java.lang.String toString() {
-        return ((((((((((((((((((((((((((((((((((("MethodParameter"+" [id=")+ id)+", uiName=")+ uiName)+", shortHint=")+ shortHint)+", longHint=")+ longHint)+", fieldType=")+ fieldType)+", allowMultiple=")+ allowMultiple)+", optional=")+ optional)+", advanced=")+ advanced)+", defaultValues=")+ defaultValues)+", textOptions=")+ textOptions)+", textareaOptions=")+ textareaOptions)+", intsliderOptions=")+ intsliderOptions)+", floatsliderOptions=")+ floatsliderOptions)+", checkboxOptions=")+ checkboxOptions)+", dropdownOptions=")+ dropdownOptions)+", radioOptions=")+ radioOptions)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((((((((((((((((((((((((((((((((("MethodParameter"+" [id=")+ id)+", uiName=")+ uiName)+", shortHint=")+ shortHint)+", description=")+ description)+", fieldType=")+ fieldType)+", allowMultiple=")+ allowMultiple)+", optional=")+ optional)+", advanced=")+ advanced)+", disabled=")+ disabled)+", defaultValues=")+ defaultValues)+", textOptions=")+ textOptions)+", textareaOptions=")+ textareaOptions)+", intsliderOptions=")+ intsliderOptions)+", floatsliderOptions=")+ floatsliderOptions)+", checkboxOptions=")+ checkboxOptions)+", dropdownOptions=")+ dropdownOptions)+", radioOptions=")+ radioOptions)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }

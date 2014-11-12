@@ -27,7 +27,12 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
     "valid_ws_types",
     "validate_as",
     "is_output_name",
-    "placeholder"
+    "placeholder",
+    "min_int",
+    "max_int",
+    "min_float",
+    "max_float",
+    "regex_constraint"
 })
 public class TextOptions {
 
@@ -39,6 +44,16 @@ public class TextOptions {
     private Long isOutputName;
     @JsonProperty("placeholder")
     private java.lang.String placeholder;
+    @JsonProperty("min_int")
+    private Long minInt;
+    @JsonProperty("max_int")
+    private Long maxInt;
+    @JsonProperty("min_float")
+    private Double minFloat;
+    @JsonProperty("max_float")
+    private Double maxFloat;
+    @JsonProperty("regex_constraint")
+    private List<RegexMatcher> regexConstraint;
     private Map<java.lang.String, Object> additionalProperties = new HashMap<java.lang.String, Object>();
 
     @JsonProperty("valid_ws_types")
@@ -101,6 +116,81 @@ public class TextOptions {
         return this;
     }
 
+    @JsonProperty("min_int")
+    public Long getMinInt() {
+        return minInt;
+    }
+
+    @JsonProperty("min_int")
+    public void setMinInt(Long minInt) {
+        this.minInt = minInt;
+    }
+
+    public TextOptions withMinInt(Long minInt) {
+        this.minInt = minInt;
+        return this;
+    }
+
+    @JsonProperty("max_int")
+    public Long getMaxInt() {
+        return maxInt;
+    }
+
+    @JsonProperty("max_int")
+    public void setMaxInt(Long maxInt) {
+        this.maxInt = maxInt;
+    }
+
+    public TextOptions withMaxInt(Long maxInt) {
+        this.maxInt = maxInt;
+        return this;
+    }
+
+    @JsonProperty("min_float")
+    public Double getMinFloat() {
+        return minFloat;
+    }
+
+    @JsonProperty("min_float")
+    public void setMinFloat(Double minFloat) {
+        this.minFloat = minFloat;
+    }
+
+    public TextOptions withMinFloat(Double minFloat) {
+        this.minFloat = minFloat;
+        return this;
+    }
+
+    @JsonProperty("max_float")
+    public Double getMaxFloat() {
+        return maxFloat;
+    }
+
+    @JsonProperty("max_float")
+    public void setMaxFloat(Double maxFloat) {
+        this.maxFloat = maxFloat;
+    }
+
+    public TextOptions withMaxFloat(Double maxFloat) {
+        this.maxFloat = maxFloat;
+        return this;
+    }
+
+    @JsonProperty("regex_constraint")
+    public List<RegexMatcher> getRegexConstraint() {
+        return regexConstraint;
+    }
+
+    @JsonProperty("regex_constraint")
+    public void setRegexConstraint(List<RegexMatcher> regexConstraint) {
+        this.regexConstraint = regexConstraint;
+    }
+
+    public TextOptions withRegexConstraint(List<RegexMatcher> regexConstraint) {
+        this.regexConstraint = regexConstraint;
+        return this;
+    }
+
     @JsonAnyGetter
     public Map<java.lang.String, Object> getAdditionalProperties() {
         return this.additionalProperties;
@@ -113,7 +203,7 @@ public class TextOptions {
 
     @Override
     public java.lang.String toString() {
-        return ((((((((((("TextOptions"+" [validWsTypes=")+ validWsTypes)+", validateAs=")+ validateAs)+", isOutputName=")+ isOutputName)+", placeholder=")+ placeholder)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((((((((((((((((("TextOptions"+" [validWsTypes=")+ validWsTypes)+", validateAs=")+ validateAs)+", isOutputName=")+ isOutputName)+", placeholder=")+ placeholder)+", minInt=")+ minInt)+", maxInt=")+ maxInt)+", minFloat=")+ minFloat)+", maxFloat=")+ maxFloat)+", regexConstraint=")+ regexConstraint)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }

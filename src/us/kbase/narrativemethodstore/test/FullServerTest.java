@@ -167,6 +167,7 @@ public class FullServerTest {
 		boolean foundTestMethod1 = false;
 		boolean foundTestMethod3 = false;
 		boolean foundTestMethod4 = false;
+		boolean foundTestMethod5 = false;
 		for(MethodSpec m : methods) {
 			// check specific things in specific test methods
 			if(m.getInfo().getId().equals("test_method_1")) {
@@ -202,37 +203,56 @@ public class FullServerTest {
 			} else if (m.getInfo().getId().equals("test_method_3")) {
 				foundTestMethod3 = true;
 				
-				assertEquals(5, m.getParameters().size());
+				assertEquals(6, m.getParameters().size());
 				////////////////////////
 				assertEquals("param0", m.getParameters().get(0).getId());
 				assertEquals("checkbox", m.getParameters().get(0).getFieldType());
 				assertEquals(10L, (long)m.getParameters().get(0).getCheckboxOptions().getCheckedValue());
 				assertEquals(-10L, (long)m.getParameters().get(0).getCheckboxOptions().getUncheckedValue());
 				////////////////////////
-				assertEquals("param1", m.getParameters().get(1).getId());
-				assertEquals("floatslider", m.getParameters().get(1).getFieldType());
-				assertEquals(1.0, (double)m.getParameters().get(1).getFloatsliderOptions().getMin(), 1e-10);
-				assertEquals(10.0, (double)m.getParameters().get(1).getFloatsliderOptions().getMax(), 1e-10);
+				assertEquals("param0.1", m.getParameters().get(1).getId());
+				assertEquals("text", m.getParameters().get(1).getFieldType());
 				////////////////////////
-				assertEquals("param2", m.getParameters().get(2).getId());
-				assertEquals("textarea", m.getParameters().get(2).getFieldType());
-				assertEquals(10L, (long)m.getParameters().get(2).getTextareaOptions().getNRows());
+				assertEquals("param1", m.getParameters().get(2).getId());
+				assertEquals("floatslider", m.getParameters().get(2).getFieldType());
+				assertEquals(1.0, (double)m.getParameters().get(2).getFloatsliderOptions().getMin(), 1e-10);
+				assertEquals(10.0, (double)m.getParameters().get(2).getFloatsliderOptions().getMax(), 1e-10);
 				////////////////////////
-				assertEquals("param3", m.getParameters().get(3).getId());
-				assertEquals("dropdown", m.getParameters().get(3).getFieldType());
-				assertEquals(2, m.getParameters().get(3).getDropdownOptions().getIdsToOptions().size());
-				assertEquals("First", m.getParameters().get(3).getDropdownOptions().getIdsToOptions().get("item0"));
+				assertEquals("param2", m.getParameters().get(3).getId());
+				assertEquals("textarea", m.getParameters().get(3).getFieldType());
+				assertEquals(10L, (long)m.getParameters().get(3).getTextareaOptions().getNRows());
 				////////////////////////
-				assertEquals("param4", m.getParameters().get(4).getId());
-				assertEquals("radio", m.getParameters().get(4).getFieldType());
-				assertEquals(2, m.getParameters().get(4).getRadioOptions().getIdsToOptions().size());
-				assertEquals("First", m.getParameters().get(4).getRadioOptions().getIdsToOptions().get("item0"));
-				assertEquals("First tooltip", m.getParameters().get(4).getRadioOptions().getIdsToTooltip().get("item0"));
+				assertEquals("param3", m.getParameters().get(4).getId());
+				assertEquals("dropdown", m.getParameters().get(4).getFieldType());
+				assertEquals(2, m.getParameters().get(4).getDropdownOptions().getOptions().size());
+				assertEquals("item0", m.getParameters().get(4).getDropdownOptions().getOptions().get(0).getValue());
+				////////////////////////
+				assertEquals("param4", m.getParameters().get(5).getId());
+				assertEquals("radio", m.getParameters().get(5).getFieldType());
+				assertEquals(2, m.getParameters().get(5).getRadioOptions().getIdsToOptions().size());
+				assertEquals("First", m.getParameters().get(5).getRadioOptions().getIdsToOptions().get("item0"));
+				assertEquals("First tooltip", m.getParameters().get(5).getRadioOptions().getIdsToTooltip().get("item0"));
 			} else if (m.getInfo().getId().equals("test_method_4")) {
 				foundTestMethod4 = true;
 				assertEquals("Test Method 4 was run on {{genome}} to produce a new genome named {{output_genome}}.\n", m.getReplacementText());
 				assertEquals(new Long(1), m.getParameters().get(1).getTextOptions().getIsOutputName());
 				assertEquals("select a genome", m.getParameters().get(0).getTextOptions().getPlaceholder());
+			} else if (m.getInfo().getId().equals("test_method_5")) {
+				foundTestMethod5 = true;
+				
+				assertEquals(4, m.getParameters().size());
+
+				assertEquals("text_int_number", m.getParameters().get(0).getId());
+				assertEquals("text", m.getParameters().get(0).getFieldType());
+
+				assertEquals("text_int_number_disabled", m.getParameters().get(1).getId());
+				assertEquals("text", m.getParameters().get(1).getFieldType());
+
+				assertEquals("text_float_number", m.getParameters().get(2).getId());
+				assertEquals("text", m.getParameters().get(2).getFieldType());
+
+				assertEquals("regex", m.getParameters().get(3).getId());
+				assertEquals("text", m.getParameters().get(3).getFieldType());
 			}
 		}
 		assertTrue("Testing that test_method_1 was returned from listMethodSpec",
@@ -243,6 +263,9 @@ public class FullServerTest {
 
 		assertTrue("Testing that test_method_4 was returned from listMethodSpec",
 				foundTestMethod4);
+		
+		assertTrue("Testing that test_method_5 was returned from listMethodSpec",
+				foundTestMethod5);
 	}
 	
 	
