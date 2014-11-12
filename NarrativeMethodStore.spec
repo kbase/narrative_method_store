@@ -50,12 +50,24 @@ module NarrativeMethodStore {
         url url;
     } ScreenShot;
     
+    /* Publication info can get complicated.  To keep things simple, we only allow a few things now:
+         pmid - pubmed id, if present, we can use this id to pull all publication info we want
+         display_text - what is shown to the user if there is no pubmed id, or if the pubmed id is not valid
+         link - a link to the paper, also not needed if pmid is valid, but could be used if pubmed is down
+    */
+    typedef structure {
+        string pmid;
+        string display_text;
+        url link;
+    } Publication;
+    
     /* Full information about a method suitable for displaying a method landing page. */
     typedef structure {
         string id;
         string name;
         string ver;
         list <username> authors;
+        list <username> kb_contributers;
         email contact;
         
         string subtitle;
@@ -67,6 +79,8 @@ module NarrativeMethodStore {
         
         list<ScreenShot> screenshots;
         
+        list<Publication> publications;
+        
     } MethodFullInfo;
 
     /* specify the input / ouput widgets used for rendering */
@@ -76,7 +90,17 @@ module NarrativeMethodStore {
     } WidgetSpec;
 
 
-
+    /*
+        regex - regular expression in javascript syntax
+        error_text - message displayed if the input does not statisfy this constraint
+        match - set to 1 to check if the input matches this regex, set to 0 to check
+                if input does not match this regex.  default is 1
+    */
+    typedef structure {
+        string regex;
+        string error_text;
+        boolean match;
+    } RegexMatcher;
 
     /*
         valid_ws_types  - list of valid ws types that can be used for input
@@ -88,6 +112,11 @@ module NarrativeMethodStore {
         string validate_as;
         boolean is_output_name;
         string placeholder;
+        int min_int;
+        int max_int;
+        float min_float;
+        float max_float;
+        list <RegexMatcher> regex_constraint;
     } TextOptions;
 
     typedef structure {
@@ -110,8 +139,17 @@ module NarrativeMethodStore {
         int unchecked_value;
     } CheckboxOptions;
     
+    /*
+       value is what is passed from the form, display is how the selection is
+       shown to the user
+    */
     typedef structure {
-        mapping<string,string> ids_to_options;
+        string value;
+        string display;
+    } DropdownOption;
+    
+    typedef structure {
+        list<DropdownOption> options;
     } DropdownOptions;
     
     typedef structure {
@@ -121,6 +159,24 @@ module NarrativeMethodStore {
 
     /*
         Description of a method parameter.
+        
+        id - id of the parameter, must be unique within the method
+        ui_name - short name that is displayed to the user
+        short_hint - short phrase or sentence describing the parameter
+        description - longer and more technical description of the parameter
+        field_type - one of: text | textarea | dropdown | checkbox 
+                      (radio, intslider and floatslider are not yet supported)
+        allow_mutiple - only supported for field_type text, allows entry of a list
+                        instead of a single value, default is 0
+                        if set, the number of starting boxes will be either 1 or the
+                        number of elements in the default_values list
+        optional - set to true to make the field optional, default is 0
+        advanced - set to true to make this an advanced option, default is 0
+                   if an option is advanced, it should also be optional or have
+                   a default value
+        disabled   - set to true to disable user input, default is 0
+                   if disabled, a default value should be provided
+        
         @optional text_options textarea_options intslider_options checkbox_options
         @optional dropdown_options radio_options
     */
@@ -128,11 +184,12 @@ module NarrativeMethodStore {
         string id;
         string ui_name;
         string short_hint;
-        string long_hint;
+        string description;
         string field_type;
         boolean allow_multiple;
         boolean optional;
         boolean advanced;
+        boolean disabled;
         
         list<string> default_values;
         
