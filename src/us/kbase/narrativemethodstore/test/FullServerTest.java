@@ -31,6 +31,7 @@ import us.kbase.narrativemethodstore.MethodSpec;
 import us.kbase.narrativemethodstore.AppBriefInfo;
 import us.kbase.narrativemethodstore.NarrativeMethodStoreClient;
 import us.kbase.narrativemethodstore.NarrativeMethodStoreServer;
+import us.kbase.narrativemethodstore.Publication;
 import us.kbase.narrativemethodstore.RegexMatcher;
 
 /*
@@ -326,6 +327,24 @@ public class FullServerTest {
 				m.getDescription().trim().length()>0);
 		assertTrue("Testing that test_method_1 technical description from getMethodFullInfo is present",
 				m.getTechnicalDescription().trim().length()>0);
+		
+		
+		List<Publication> pubs = m.getPublications();
+		assertTrue("Publications are returned",pubs!=null);
+		assertTrue("4 publications are present",pubs.size()==4);
+		assertEquals("pub 0 pmid is correct",pubs.get(0).getPmid(),"2231712");
+		assertEquals("pub 0 text is correct",pubs.get(0).getDisplayText(),"Basic local alignment search tool.");
+		assertEquals("pub 0 link is correct",pubs.get(0).getLink(),"http://www.ncbi.nlm.nih.gov/pubmed/2231712");
+		assertEquals("pub 1 pmid is correct",pubs.get(1).getPmid(),null);
+		assertEquals("pub 1 text is correct",pubs.get(1).getDisplayText(),"Some made up paper");
+		assertEquals("pub 1 link is correct",pubs.get(1).getLink(),null);
+		assertEquals("pub 2 pmid is correct",pubs.get(2).getPmid(),null);
+		assertEquals("pub 2 text is correct",pubs.get(2).getDisplayText(),"http://www.ncbi.nlm.nih.gov/pubmed/2231712");
+		assertEquals("pub 2 link is correct",pubs.get(2).getLink(),"http://www.ncbi.nlm.nih.gov/pubmed/2231712");
+		assertEquals("pub 3 pmid is correct",pubs.get(3).getPmid(),"2231712");
+		assertEquals("pub 3 text is correct",pubs.get(3).getDisplayText(),"2231712");
+		assertEquals("pub 3 link is correct",pubs.get(3).getLink(),null);
+		
 	}
 	
 	

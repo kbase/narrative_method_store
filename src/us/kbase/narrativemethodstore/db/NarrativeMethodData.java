@@ -24,6 +24,7 @@ import us.kbase.narrativemethodstore.MethodFullInfo;
 import us.kbase.narrativemethodstore.MethodParameter;
 import us.kbase.narrativemethodstore.MethodSpec;
 import us.kbase.narrativemethodstore.OutputMapping;
+import us.kbase.narrativemethodstore.Publication;
 import us.kbase.narrativemethodstore.RadioOptions;
 import us.kbase.narrativemethodstore.RegexMatcher;
 import us.kbase.narrativemethodstore.ScreenShot;
@@ -113,6 +114,31 @@ public class NarrativeMethodData {
 				screenshots.add(new ScreenShot().withUrl("img?method_id=" + this.methodId + "&image_name=" + imageName));
 		}
 		
+		List<Publication> publications = new ArrayList<Publication>();
+		try {
+			@SuppressWarnings("unchecked")
+			List<Object> pubInfoList = (List<Object>)getDisplayProp("/", display, "publications");
+			if (pubInfoList != null) {
+				for (Object pubInfoObj : pubInfoList) {
+					@SuppressWarnings("unchecked")
+					Map<String,Object> pubInfoMap = (Map<String,Object>)pubInfoObj;
+					boolean shouldAdd = false;
+					Publication p = new Publication();
+					if(pubInfoMap.get("pmid")!=null) { p.setPmid(pubInfoMap.get("pmid").toString()); shouldAdd = true; }
+					if(pubInfoMap.get("link")!=null) { p.setLink(pubInfoMap.get("link").toString()); shouldAdd = true;}
+					
+					if(pubInfoMap.get("display-text")!=null) { p.setDisplayText(pubInfoMap.get("display-text").toString()); shouldAdd = true;}
+					else if(shouldAdd) { 
+						if(p.getLink()!=null) { p.setDisplayText(p.getLink()); }
+						else if(p.getPmid()!=null) { p.setDisplayText(p.getPmid()); }
+					}
+					if(shouldAdd) {
+						publications.add(p);
+					}
+				}
+			}
+		} catch(IllegalStateException e) {}
+		
 		fullInfo = new MethodFullInfo()
 							.withId(this.methodId)
 							.withName(methodName)
@@ -126,7 +152,9 @@ public class NarrativeMethodData {
 							
 							.withDescription(methodDescription)
 							.withTechnicalDescription(methodTechnicalDescr)
-							.withScreenshots(screenshots);
+							.withScreenshots(screenshots)
+		
+							.withPublications(publications);
 		
 		JsonNode widgetsNode = get(spec, "widgets");
 		WidgetSpec widgets = new WidgetSpec()
