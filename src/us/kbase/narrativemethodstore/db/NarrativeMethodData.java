@@ -105,6 +105,8 @@ public class NarrativeMethodData {
 		briefInfo.withVer(get(spec, "ver").asText());
 		
 		List <String> authors = jsonListToStringList(spec.get("authors"));
+
+		List <String> kbContributers = jsonListToStringList(spec.get("kb_contributers"));
 		
 		List<ScreenShot> screenshots = new ArrayList<ScreenShot>();
 		@SuppressWarnings("unchecked")
@@ -148,6 +150,7 @@ public class NarrativeMethodData {
 							.withCategories(categories)
 							
 							.withAuthors(authors)
+							.withKbContributers(kbContributers)
 							.withContact(get(spec, "contact").asText())
 							
 							.withDescription(methodDescription)

@@ -344,7 +344,15 @@ public class FullServerTest {
 		assertEquals("pub 3 pmid is correct",pubs.get(3).getPmid(),"2231712");
 		assertEquals("pub 3 text is correct",pubs.get(3).getDisplayText(),"2231712");
 		assertEquals("pub 3 link is correct",pubs.get(3).getLink(),null);
-		
+
+		List<String> authors = m.getAuthors();
+		assertTrue("Authors are returned",authors!=null);
+		assertTrue("4 publications are present",authors.size()==2);
+		assertEquals("first author",authors.get(0),"msneddon");
+		assertEquals("second author",authors.get(1),"wstester1");
+		List<String> kb_contributers = m.getKbContributers();
+		assertTrue("KB Contributers are returned",kb_contributers!=null);
+		assertEquals("first contributer",kb_contributers.get(0),"wstester3");
 	}
 	
 	
