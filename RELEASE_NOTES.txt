@@ -3,16 +3,16 @@ NARRATIVE METHOD STORE OVERVIEW
 The Narrative Method Store provides an API to dynamically access the available
 narrative method specifications and documentation.
 
-VERSION: 0.1.0 (Released TBD)
+VERSION: 0.1.0 (Released 11/13/14)
 --------------------------------------
 NEW FEATURES:
 - This is the first release of the Narrative Method Store.  All features are new.
+- Note: tests pass against dev branch of the narrative_method_specs repo at this commit:
+  https://github.com/kbase/narrative_method_specs/tree/790093a385105162702443cefb97e5ae5125688d
 
 UPDATED FEATURES / MAJOR BUG FIXES:
 - N/A
 
 KNOWN BUGS:
 - none
-  
-ANTICIPATED FUTURE DEVELOPMENTS:
-- 
+
