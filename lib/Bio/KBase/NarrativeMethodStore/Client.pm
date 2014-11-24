@@ -1,17 +1,10 @@
 package Bio::KBase::NarrativeMethodStore::Client;
 
 use JSON::RPC::Client;
-use POSIX;
 use strict;
 use Data::Dumper;
 use URI;
 use Bio::KBase::Exceptions;
-my $get_time = sub { time, 0 };
-eval {
-    require Time::HiRes;
-    $get_time = sub { Time::HiRes::gettimeofday() };
-};
-
 
 # Client version should match Impl version
 # This is a Semantic Version number,
@@ -42,41 +35,7 @@ sub new
     my $self = {
 	client => Bio::KBase::NarrativeMethodStore::Client::RpcClient->new,
 	url => $url,
-	headers => [],
     };
-
-    chomp($self->{hostname} = `hostname`);
-    $self->{hostname} ||= 'unknown-host';
-
-    #
-    # Set up for propagating KBRPC_TAG and KBRPC_METADATA environment variables through
-    # to invoked services. If these values are not set, we create a new tag
-    # and a metadata field with basic information about the invoking script.
-    #
-    if ($ENV{KBRPC_TAG})
-    {
-	$self->{kbrpc_tag} = $ENV{KBRPC_TAG};
-    }
-    else
-    {
-	my ($t, $us) = &$get_time();
-	$us = sprintf("%06d", $us);
-	my $ts = strftime("%Y-%m-%dT%H:%M:%S.${us}Z", gmtime $t);
-	$self->{kbrpc_tag} = "C:$0:$self->{hostname}:$$:$ts";
-    }
-    push(@{$self->{headers}}, 'Kbrpc-Tag', $self->{kbrpc_tag});
-
-    if ($ENV{KBRPC_METADATA})
-    {
-	$self->{kbrpc_metadata} = $ENV{KBRPC_METADATA};
-	push(@{$self->{headers}}, 'Kbrpc-Metadata', $self->{kbrpc_metadata});
-    }
-
-    if ($ENV{KBRPC_ERROR_DEST})
-    {
-	$self->{kbrpc_error_dest} = $ENV{KBRPC_ERROR_DEST};
-	push(@{$self->{headers}}, 'Kbrpc-Errordest', $self->{kbrpc_error_dest});
-    }
 
 
     my $ua = $self->{client}->ua;	 
@@ -134,7 +93,7 @@ sub ver
 							       "Invalid argument count for function ver (received $n, expecting 0)");
     }
 
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
+    my $result = $self->{client}->call($self->{url}, {
 	method => "NarrativeMethodStore.ver",
 	params => \@args,
     });
@@ -213,7 +172,7 @@ sub status
 							       "Invalid argument count for function status (received $n, expecting 0)");
     }
 
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
+    my $result = $self->{client}->call($self->{url}, {
 	method => "NarrativeMethodStore.status",
 	params => \@args,
     });
@@ -356,7 +315,7 @@ sub list_categories
 	}
     }
 
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
+    my $result = $self->{client}->call($self->{url}, {
 	method => "NarrativeMethodStore.list_categories",
 	params => \@args,
     });
@@ -457,7 +416,7 @@ sub get_category
 	}
     }
 
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
+    my $result = $self->{client}->call($self->{url}, {
 	method => "NarrativeMethodStore.get_category",
 	params => \@args,
     });
@@ -560,7 +519,7 @@ sub list_methods
 	}
     }
 
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
+    my $result = $self->{client}->call($self->{url}, {
 	method => "NarrativeMethodStore.list_methods",
 	params => \@args,
     });
@@ -693,7 +652,7 @@ sub list_methods_full_info
 	}
     }
 
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
+    my $result = $self->{client}->call($self->{url}, {
 	method => "NarrativeMethodStore.list_methods_full_info",
 	params => \@args,
     });
@@ -769,6 +728,7 @@ MethodParameter is a reference to a hash where the following keys are defined:
 	checkbox_options has a value which is a NarrativeMethodStore.CheckboxOptions
 	dropdown_options has a value which is a NarrativeMethodStore.DropdownOptions
 	radio_options has a value which is a NarrativeMethodStore.RadioOptions
+	tab_options has a value which is a NarrativeMethodStore.TabOptions
 boolean is an int
 TextOptions is a reference to a hash where the following keys are defined:
 	valid_ws_types has a value which is a reference to a list where each element is a string
@@ -802,17 +762,27 @@ DropdownOption is a reference to a hash where the following keys are defined:
 	value has a value which is a string
 	display has a value which is a string
 RadioOptions is a reference to a hash where the following keys are defined:
+	id_order has a value which is a reference to a list where each element is a string
 	ids_to_options has a value which is a reference to a hash where the key is a string and the value is a string
 	ids_to_tooltip has a value which is a reference to a hash where the key is a string and the value is a string
+TabOptions is a reference to a hash where the following keys are defined:
+	tab_id_order has a value which is a reference to a list where each element is a string
+	tab_id_to_tab_name has a value which is a reference to a hash where the key is a string and the value is a string
+	tab_id_to_param_ids has a value which is a reference to a hash where the key is a string and the value is a reference to a list where each element is a string
 MethodBehavior is a reference to a hash where the following keys are defined:
 	python_class has a value which is a string
 	python_function has a value which is a string
 	kb_service_url has a value which is a string
 	kb_service_name has a value which is a string
 	kb_service_method has a value which is a string
+	script_module has a value which is a string
+	script_name has a value which is a string
+	script_has_files has a value which is a NarrativeMethodStore.boolean
 	kb_service_input_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.ServiceMethodInputMapping
 	kb_service_output_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.ServiceMethodOutputMapping
 	output_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.OutputMapping
+	script_input_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.ScriptInputMapping
+	script_output_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.ScriptOutputMapping
 ServiceMethodInputMapping is a reference to a hash where the following keys are defined:
 	input_parameter has a value which is a string
 	constant_value has a value which is an UnspecifiedObject, which can hold any non-null object
@@ -834,6 +804,20 @@ ServiceMethodOutputMapping is a reference to a hash where the following keys are
 	target_type_transform has a value which is a string
 OutputMapping is a reference to a hash where the following keys are defined:
 	input_parameter has a value which is a string
+	constant_value has a value which is an UnspecifiedObject, which can hold any non-null object
+	narrative_system_variable has a value which is a string
+	target_property has a value which is a string
+	target_type_transform has a value which is a string
+ScriptInputMapping is a reference to a hash where the following keys are defined:
+	input_parameter has a value which is a string
+	constant_value has a value which is an UnspecifiedObject, which can hold any non-null object
+	narrative_system_variable has a value which is a string
+	generated_value has a value which is a NarrativeMethodStore.AutoGeneratedValue
+	target_property has a value which is a string
+	target_type_transform has a value which is a string
+ScriptOutputMapping is a reference to a hash where the following keys are defined:
+	input_parameter has a value which is a string
+	script_output_path has a value which is a reference to a list where each element is a string
 	constant_value has a value which is an UnspecifiedObject, which can hold any non-null object
 	narrative_system_variable has a value which is a string
 	target_property has a value which is a string
@@ -886,6 +870,7 @@ MethodParameter is a reference to a hash where the following keys are defined:
 	checkbox_options has a value which is a NarrativeMethodStore.CheckboxOptions
 	dropdown_options has a value which is a NarrativeMethodStore.DropdownOptions
 	radio_options has a value which is a NarrativeMethodStore.RadioOptions
+	tab_options has a value which is a NarrativeMethodStore.TabOptions
 boolean is an int
 TextOptions is a reference to a hash where the following keys are defined:
 	valid_ws_types has a value which is a reference to a list where each element is a string
@@ -919,17 +904,27 @@ DropdownOption is a reference to a hash where the following keys are defined:
 	value has a value which is a string
 	display has a value which is a string
 RadioOptions is a reference to a hash where the following keys are defined:
+	id_order has a value which is a reference to a list where each element is a string
 	ids_to_options has a value which is a reference to a hash where the key is a string and the value is a string
 	ids_to_tooltip has a value which is a reference to a hash where the key is a string and the value is a string
+TabOptions is a reference to a hash where the following keys are defined:
+	tab_id_order has a value which is a reference to a list where each element is a string
+	tab_id_to_tab_name has a value which is a reference to a hash where the key is a string and the value is a string
+	tab_id_to_param_ids has a value which is a reference to a hash where the key is a string and the value is a reference to a list where each element is a string
 MethodBehavior is a reference to a hash where the following keys are defined:
 	python_class has a value which is a string
 	python_function has a value which is a string
 	kb_service_url has a value which is a string
 	kb_service_name has a value which is a string
 	kb_service_method has a value which is a string
+	script_module has a value which is a string
+	script_name has a value which is a string
+	script_has_files has a value which is a NarrativeMethodStore.boolean
 	kb_service_input_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.ServiceMethodInputMapping
 	kb_service_output_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.ServiceMethodOutputMapping
 	output_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.OutputMapping
+	script_input_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.ScriptInputMapping
+	script_output_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.ScriptOutputMapping
 ServiceMethodInputMapping is a reference to a hash where the following keys are defined:
 	input_parameter has a value which is a string
 	constant_value has a value which is an UnspecifiedObject, which can hold any non-null object
@@ -951,6 +946,20 @@ ServiceMethodOutputMapping is a reference to a hash where the following keys are
 	target_type_transform has a value which is a string
 OutputMapping is a reference to a hash where the following keys are defined:
 	input_parameter has a value which is a string
+	constant_value has a value which is an UnspecifiedObject, which can hold any non-null object
+	narrative_system_variable has a value which is a string
+	target_property has a value which is a string
+	target_type_transform has a value which is a string
+ScriptInputMapping is a reference to a hash where the following keys are defined:
+	input_parameter has a value which is a string
+	constant_value has a value which is an UnspecifiedObject, which can hold any non-null object
+	narrative_system_variable has a value which is a string
+	generated_value has a value which is a NarrativeMethodStore.AutoGeneratedValue
+	target_property has a value which is a string
+	target_type_transform has a value which is a string
+ScriptOutputMapping is a reference to a hash where the following keys are defined:
+	input_parameter has a value which is a string
+	script_output_path has a value which is a reference to a list where each element is a string
 	constant_value has a value which is an UnspecifiedObject, which can hold any non-null object
 	narrative_system_variable has a value which is a string
 	target_property has a value which is a string
@@ -990,7 +999,7 @@ sub list_methods_spec
 	}
     }
 
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
+    my $result = $self->{client}->call($self->{url}, {
 	method => "NarrativeMethodStore.list_methods_spec",
 	params => \@args,
     });
@@ -1058,7 +1067,7 @@ sub list_method_ids_and_names
 							       "Invalid argument count for function list_method_ids_and_names (received $n, expecting 0)");
     }
 
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
+    my $result = $self->{client}->call($self->{url}, {
 	method => "NarrativeMethodStore.list_method_ids_and_names",
 	params => \@args,
     });
@@ -1163,7 +1172,7 @@ sub list_apps
 	}
     }
 
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
+    my $result = $self->{client}->call($self->{url}, {
 	method => "NarrativeMethodStore.list_apps",
 	params => \@args,
     });
@@ -1286,7 +1295,7 @@ sub list_apps_full_info
 	}
     }
 
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
+    my $result = $self->{client}->call($self->{url}, {
 	method => "NarrativeMethodStore.list_apps_full_info",
 	params => \@args,
     });
@@ -1419,7 +1428,7 @@ sub list_apps_spec
 	}
     }
 
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
+    my $result = $self->{client}->call($self->{url}, {
 	method => "NarrativeMethodStore.list_apps_spec",
 	params => \@args,
     });
@@ -1487,7 +1496,7 @@ sub list_app_ids_and_names
 							       "Invalid argument count for function list_app_ids_and_names (received $n, expecting 0)");
     }
 
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
+    my $result = $self->{client}->call($self->{url}, {
 	method => "NarrativeMethodStore.list_app_ids_and_names",
 	params => \@args,
     });
@@ -1588,7 +1597,7 @@ sub get_method_brief_info
 	}
     }
 
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
+    my $result = $self->{client}->call($self->{url}, {
 	method => "NarrativeMethodStore.get_method_brief_info",
 	params => \@args,
     });
@@ -1719,7 +1728,7 @@ sub get_method_full_info
 	}
     }
 
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
+    my $result = $self->{client}->call($self->{url}, {
 	method => "NarrativeMethodStore.get_method_full_info",
 	params => \@args,
     });
@@ -1794,6 +1803,7 @@ MethodParameter is a reference to a hash where the following keys are defined:
 	checkbox_options has a value which is a NarrativeMethodStore.CheckboxOptions
 	dropdown_options has a value which is a NarrativeMethodStore.DropdownOptions
 	radio_options has a value which is a NarrativeMethodStore.RadioOptions
+	tab_options has a value which is a NarrativeMethodStore.TabOptions
 boolean is an int
 TextOptions is a reference to a hash where the following keys are defined:
 	valid_ws_types has a value which is a reference to a list where each element is a string
@@ -1827,17 +1837,27 @@ DropdownOption is a reference to a hash where the following keys are defined:
 	value has a value which is a string
 	display has a value which is a string
 RadioOptions is a reference to a hash where the following keys are defined:
+	id_order has a value which is a reference to a list where each element is a string
 	ids_to_options has a value which is a reference to a hash where the key is a string and the value is a string
 	ids_to_tooltip has a value which is a reference to a hash where the key is a string and the value is a string
+TabOptions is a reference to a hash where the following keys are defined:
+	tab_id_order has a value which is a reference to a list where each element is a string
+	tab_id_to_tab_name has a value which is a reference to a hash where the key is a string and the value is a string
+	tab_id_to_param_ids has a value which is a reference to a hash where the key is a string and the value is a reference to a list where each element is a string
 MethodBehavior is a reference to a hash where the following keys are defined:
 	python_class has a value which is a string
 	python_function has a value which is a string
 	kb_service_url has a value which is a string
 	kb_service_name has a value which is a string
 	kb_service_method has a value which is a string
+	script_module has a value which is a string
+	script_name has a value which is a string
+	script_has_files has a value which is a NarrativeMethodStore.boolean
 	kb_service_input_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.ServiceMethodInputMapping
 	kb_service_output_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.ServiceMethodOutputMapping
 	output_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.OutputMapping
+	script_input_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.ScriptInputMapping
+	script_output_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.ScriptOutputMapping
 ServiceMethodInputMapping is a reference to a hash where the following keys are defined:
 	input_parameter has a value which is a string
 	constant_value has a value which is an UnspecifiedObject, which can hold any non-null object
@@ -1859,6 +1879,20 @@ ServiceMethodOutputMapping is a reference to a hash where the following keys are
 	target_type_transform has a value which is a string
 OutputMapping is a reference to a hash where the following keys are defined:
 	input_parameter has a value which is a string
+	constant_value has a value which is an UnspecifiedObject, which can hold any non-null object
+	narrative_system_variable has a value which is a string
+	target_property has a value which is a string
+	target_type_transform has a value which is a string
+ScriptInputMapping is a reference to a hash where the following keys are defined:
+	input_parameter has a value which is a string
+	constant_value has a value which is an UnspecifiedObject, which can hold any non-null object
+	narrative_system_variable has a value which is a string
+	generated_value has a value which is a NarrativeMethodStore.AutoGeneratedValue
+	target_property has a value which is a string
+	target_type_transform has a value which is a string
+ScriptOutputMapping is a reference to a hash where the following keys are defined:
+	input_parameter has a value which is a string
+	script_output_path has a value which is a reference to a list where each element is a string
 	constant_value has a value which is an UnspecifiedObject, which can hold any non-null object
 	narrative_system_variable has a value which is a string
 	target_property has a value which is a string
@@ -1910,6 +1944,7 @@ MethodParameter is a reference to a hash where the following keys are defined:
 	checkbox_options has a value which is a NarrativeMethodStore.CheckboxOptions
 	dropdown_options has a value which is a NarrativeMethodStore.DropdownOptions
 	radio_options has a value which is a NarrativeMethodStore.RadioOptions
+	tab_options has a value which is a NarrativeMethodStore.TabOptions
 boolean is an int
 TextOptions is a reference to a hash where the following keys are defined:
 	valid_ws_types has a value which is a reference to a list where each element is a string
@@ -1943,17 +1978,27 @@ DropdownOption is a reference to a hash where the following keys are defined:
 	value has a value which is a string
 	display has a value which is a string
 RadioOptions is a reference to a hash where the following keys are defined:
+	id_order has a value which is a reference to a list where each element is a string
 	ids_to_options has a value which is a reference to a hash where the key is a string and the value is a string
 	ids_to_tooltip has a value which is a reference to a hash where the key is a string and the value is a string
+TabOptions is a reference to a hash where the following keys are defined:
+	tab_id_order has a value which is a reference to a list where each element is a string
+	tab_id_to_tab_name has a value which is a reference to a hash where the key is a string and the value is a string
+	tab_id_to_param_ids has a value which is a reference to a hash where the key is a string and the value is a reference to a list where each element is a string
 MethodBehavior is a reference to a hash where the following keys are defined:
 	python_class has a value which is a string
 	python_function has a value which is a string
 	kb_service_url has a value which is a string
 	kb_service_name has a value which is a string
 	kb_service_method has a value which is a string
+	script_module has a value which is a string
+	script_name has a value which is a string
+	script_has_files has a value which is a NarrativeMethodStore.boolean
 	kb_service_input_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.ServiceMethodInputMapping
 	kb_service_output_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.ServiceMethodOutputMapping
 	output_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.OutputMapping
+	script_input_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.ScriptInputMapping
+	script_output_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.ScriptOutputMapping
 ServiceMethodInputMapping is a reference to a hash where the following keys are defined:
 	input_parameter has a value which is a string
 	constant_value has a value which is an UnspecifiedObject, which can hold any non-null object
@@ -1975,6 +2020,20 @@ ServiceMethodOutputMapping is a reference to a hash where the following keys are
 	target_type_transform has a value which is a string
 OutputMapping is a reference to a hash where the following keys are defined:
 	input_parameter has a value which is a string
+	constant_value has a value which is an UnspecifiedObject, which can hold any non-null object
+	narrative_system_variable has a value which is a string
+	target_property has a value which is a string
+	target_type_transform has a value which is a string
+ScriptInputMapping is a reference to a hash where the following keys are defined:
+	input_parameter has a value which is a string
+	constant_value has a value which is an UnspecifiedObject, which can hold any non-null object
+	narrative_system_variable has a value which is a string
+	generated_value has a value which is a NarrativeMethodStore.AutoGeneratedValue
+	target_property has a value which is a string
+	target_type_transform has a value which is a string
+ScriptOutputMapping is a reference to a hash where the following keys are defined:
+	input_parameter has a value which is a string
+	script_output_path has a value which is a reference to a list where each element is a string
 	constant_value has a value which is an UnspecifiedObject, which can hold any non-null object
 	narrative_system_variable has a value which is a string
 	target_property has a value which is a string
@@ -2014,7 +2073,7 @@ sub get_method_spec
 	}
     }
 
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
+    my $result = $self->{client}->call($self->{url}, {
 	method => "NarrativeMethodStore.get_method_spec",
 	params => \@args,
     });
@@ -2117,7 +2176,7 @@ sub get_app_brief_info
 	}
     }
 
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
+    my $result = $self->{client}->call($self->{url}, {
 	method => "NarrativeMethodStore.get_app_brief_info",
 	params => \@args,
     });
@@ -2238,7 +2297,7 @@ sub get_app_full_info
 	}
     }
 
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
+    my $result = $self->{client}->call($self->{url}, {
 	method => "NarrativeMethodStore.get_app_full_info",
 	params => \@args,
     });
@@ -2369,7 +2428,7 @@ sub get_app_spec
 	}
     }
 
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
+    my $result = $self->{client}->call($self->{url}, {
 	method => "NarrativeMethodStore.get_app_spec",
 	params => \@args,
     });
@@ -2395,7 +2454,7 @@ sub get_app_spec
 
 sub version {
     my ($self) = @_;
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
+    my $result = $self->{client}->call($self->{url}, {
         method => "NarrativeMethodStore.version",
         params => [],
     });
@@ -3155,6 +3214,7 @@ options has a value which is a reference to a list where each element is a Narra
 
 <pre>
 a reference to a hash where the following keys are defined:
+id_order has a value which is a reference to a list where each element is a string
 ids_to_options has a value which is a reference to a hash where the key is a string and the value is a string
 ids_to_tooltip has a value which is a reference to a hash where the key is a string and the value is a string
 
@@ -3165,8 +3225,43 @@ ids_to_tooltip has a value which is a reference to a hash where the key is a str
 =begin text
 
 a reference to a hash where the following keys are defined:
+id_order has a value which is a reference to a list where each element is a string
 ids_to_options has a value which is a reference to a hash where the key is a string and the value is a string
 ids_to_tooltip has a value which is a reference to a hash where the key is a string and the value is a string
+
+
+=end text
+
+=back
+
+
+
+=head2 TabOptions
+
+=over 4
+
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a reference to a hash where the following keys are defined:
+tab_id_order has a value which is a reference to a list where each element is a string
+tab_id_to_tab_name has a value which is a reference to a hash where the key is a string and the value is a string
+tab_id_to_param_ids has a value which is a reference to a hash where the key is a string and the value is a reference to a list where each element is a string
+
+</pre>
+
+=end html
+
+=begin text
+
+a reference to a hash where the following keys are defined:
+tab_id_order has a value which is a reference to a list where each element is a string
+tab_id_to_tab_name has a value which is a reference to a hash where the key is a string and the value is a string
+tab_id_to_param_ids has a value which is a reference to a hash where the key is a string and the value is a reference to a list where each element is a string
 
 
 =end text
@@ -3189,8 +3284,8 @@ id - id of the parameter, must be unique within the method
 ui_name - short name that is displayed to the user
 short_hint - short phrase or sentence describing the parameter
 description - longer and more technical description of the parameter
-field_type - one of: text | textarea | dropdown | checkbox 
-              (radio, intslider and floatslider are not yet supported)
+field_type - one of: text | textarea | intslider | floatslider | checkbox | 
+             dropdown | radio | tab | file
 allow_mutiple - only supported for field_type text, allows entry of a list
                 instead of a single value, default is 0
                 if set, the number of starting boxes will be either 1 or the
@@ -3202,8 +3297,8 @@ advanced - set to true to make this an advanced option, default is 0
 disabled   - set to true to disable user input, default is 0
            if disabled, a default value should be provided
 
-@optional text_options textarea_options intslider_options checkbox_options
-@optional dropdown_options radio_options
+@optional text_options textarea_options intslider_options floatslider_options
+@optional checkbox_options dropdown_options radio_options tab_options
 
 
 =item Definition
@@ -3229,6 +3324,7 @@ floatslider_options has a value which is a NarrativeMethodStore.FloatSliderOptio
 checkbox_options has a value which is a NarrativeMethodStore.CheckboxOptions
 dropdown_options has a value which is a NarrativeMethodStore.DropdownOptions
 radio_options has a value which is a NarrativeMethodStore.RadioOptions
+tab_options has a value which is a NarrativeMethodStore.TabOptions
 
 </pre>
 
@@ -3254,6 +3350,7 @@ floatslider_options has a value which is a NarrativeMethodStore.FloatSliderOptio
 checkbox_options has a value which is a NarrativeMethodStore.CheckboxOptions
 dropdown_options has a value which is a NarrativeMethodStore.DropdownOptions
 radio_options has a value which is a NarrativeMethodStore.RadioOptions
+tab_options has a value which is a NarrativeMethodStore.TabOptions
 
 
 =end text
@@ -3436,6 +3533,7 @@ target_type_transform has a value which is a string
 
 =item Description
 
+This structure should be used in case narrative method doesn't run any back-end code. 
 See docs for ServiceMethodOutputMapping type for details.
 
 
@@ -3471,6 +3569,125 @@ target_type_transform has a value which is a string
 
 
 
+=head2 ScriptInputMapping
+
+=over 4
+
+
+
+=item Description
+
+input_parameter - parameter_id, if not specified then one of 'constant_value' or 
+    'narrative_system_variable' should be set.
+constant_value - constant value, could be even map/array, if not specified then 'input_parameter' or
+    'narrative_system_variable' should be set.
+narrative_system_variable - name of internal narrative framework property, currently only these names are
+    supported: 'workspace', 'token', 'user_id'; if not specified then one of 'input_parameter' or
+    'constant_value' should be set.
+generated_value - automatically generated value; it could be used as independent mode or when another mode 
+    finished with empty value (for example in case 'input_parameter' is defined but value of this
+    parameter is left empty by user); so this mode has lower priority when used with another mode.
+target_property - name of script parameter.
+target_type_transform - none/string/int/float/ref, optional field, default is 'none' (it's in plans to
+    support list<type>, mapping<type> and tuple<t1,t2,...> transformations).
+@optional input_parameter constant_value narrative_system_variable generated_value 
+@optional target_property target_type_transform
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a reference to a hash where the following keys are defined:
+input_parameter has a value which is a string
+constant_value has a value which is an UnspecifiedObject, which can hold any non-null object
+narrative_system_variable has a value which is a string
+generated_value has a value which is a NarrativeMethodStore.AutoGeneratedValue
+target_property has a value which is a string
+target_type_transform has a value which is a string
+
+</pre>
+
+=end html
+
+=begin text
+
+a reference to a hash where the following keys are defined:
+input_parameter has a value which is a string
+constant_value has a value which is an UnspecifiedObject, which can hold any non-null object
+narrative_system_variable has a value which is a string
+generated_value has a value which is a NarrativeMethodStore.AutoGeneratedValue
+target_property has a value which is a string
+target_type_transform has a value which is a string
+
+
+=end text
+
+=back
+
+
+
+=head2 ScriptOutputMapping
+
+=over 4
+
+
+
+=item Description
+
+input_parameter - parameter_id, if not specified then one of 'constant_value' or 
+    'narrative_system_variable' should be set.
+script_output_path - list of properties and array element positions defining JSON-path traversing
+    through which we can find necessary value. 
+constant_value - constant value, could be even map/array, if not specified then 'input_parameter' or
+    'narrative_system_variable' should be set.
+narrative_system_variable - name of internal narrative framework property, currently only these names are
+    supported: 'workspace', 'token', 'user_id'; if not specified then one of 'input_parameter' or
+    'constant_value' should be set.
+target_property - name of field inside structure that will be send as arguement. Optional field,
+    in case this field is not defined (or null) whole object will be sent as method argument instead of
+    wrapping it by structure with inner property defined by 'target_property'.
+target_type_transform - none/string/int/float/list<type>/mapping<type>/ref, optional field, default is 
+    no transformation.
+@optional input_parameter script_output_path constant_value narrative_system_variable 
+@optional target_property target_type_transform
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a reference to a hash where the following keys are defined:
+input_parameter has a value which is a string
+script_output_path has a value which is a reference to a list where each element is a string
+constant_value has a value which is an UnspecifiedObject, which can hold any non-null object
+narrative_system_variable has a value which is a string
+target_property has a value which is a string
+target_type_transform has a value which is a string
+
+</pre>
+
+=end html
+
+=begin text
+
+a reference to a hash where the following keys are defined:
+input_parameter has a value which is a string
+script_output_path has a value which is a reference to a list where each element is a string
+constant_value has a value which is an UnspecifiedObject, which can hold any non-null object
+narrative_system_variable has a value which is a string
+target_property has a value which is a string
+target_type_transform has a value which is a string
+
+
+=end text
+
+=back
+
+
+
 =head2 MethodBehavior
 
 =over 4
@@ -3484,7 +3701,9 @@ kb_service_name - name of service which will be part of fully qualified method n
     case it's not defined developer should enter fully qualified name with dot into 'kb_service_method'.
 kb_service_input_mapping - mapping from input parameters to input service method arguments.
 kb_service_output_mapping - mapping from output of service method to final output of narrative method.
-output_mapping - mapping from input to final output of narrative method to support steps without operations.
+output_mapping - mapping from input to final output of narrative method to support steps without back-end operations.
+kb_service_input_mapping - mapping from input parameters to input service method arguments.
+kb_service_output_mapping - mapping from output of service method to final output of narrative method.
 @optional python_function kb_service_name kb_service_method kb_service_input_mapping kb_service_output_mapping
 
 
@@ -3499,9 +3718,14 @@ python_function has a value which is a string
 kb_service_url has a value which is a string
 kb_service_name has a value which is a string
 kb_service_method has a value which is a string
+script_module has a value which is a string
+script_name has a value which is a string
+script_has_files has a value which is a NarrativeMethodStore.boolean
 kb_service_input_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.ServiceMethodInputMapping
 kb_service_output_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.ServiceMethodOutputMapping
 output_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.OutputMapping
+script_input_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.ScriptInputMapping
+script_output_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.ScriptOutputMapping
 
 </pre>
 
@@ -3515,9 +3739,14 @@ python_function has a value which is a string
 kb_service_url has a value which is a string
 kb_service_name has a value which is a string
 kb_service_method has a value which is a string
+script_module has a value which is a string
+script_name has a value which is a string
+script_has_files has a value which is a NarrativeMethodStore.boolean
 kb_service_input_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.ServiceMethodInputMapping
 kb_service_output_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.ServiceMethodOutputMapping
 output_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.OutputMapping
+script_input_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.ScriptInputMapping
+script_output_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.ScriptOutputMapping
 
 
 =end text
@@ -3973,27 +4202,21 @@ ids has a value which is a reference to a list where each element is a string
 
 package Bio::KBase::NarrativeMethodStore::Client::RpcClient;
 use base 'JSON::RPC::Client';
-use POSIX;
-use strict;
 
 #
 # Override JSON::RPC::Client::call because it doesn't handle error returns properly.
 #
 
 sub call {
-    my ($self, $uri, $headers, $obj) = @_;
+    my ($self, $uri, $obj) = @_;
     my $result;
 
-
-    {
-	if ($uri =~ /\?/) {
-	    $result = $self->_get($uri);
-	}
-	else {
-	    Carp::croak "not hashref." unless (ref $obj eq 'HASH');
-	    $result = $self->_post($uri, $headers, $obj);
-	}
-
+    if ($uri =~ /\?/) {
+       $result = $self->_get($uri);
+    }
+    else {
+        Carp::croak "not hashref." unless (ref $obj eq 'HASH');
+        $result = $self->_post($uri, $obj);
     }
 
     my $service = $obj->{method} =~ /^system\./ if ( $obj );
@@ -4021,7 +4244,7 @@ sub call {
 
 
 sub _post {
-    my ($self, $uri, $headers, $obj) = @_;
+    my ($self, $uri, $obj) = @_;
     my $json = $self->json;
 
     $obj->{version} ||= $self->{version} || '1.1';
@@ -4048,7 +4271,6 @@ sub _post {
         Content_Type   => $self->{content_type},
         Content        => $content,
         Accept         => 'application/json',
-	@$headers,
 	($self->{token} ? (Authorization => $self->{token}) : ()),
     );
 }

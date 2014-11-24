@@ -28,8 +28,11 @@ import us.kbase.narrativemethodstore.Publication;
 import us.kbase.narrativemethodstore.RadioOptions;
 import us.kbase.narrativemethodstore.RegexMatcher;
 import us.kbase.narrativemethodstore.ScreenShot;
+import us.kbase.narrativemethodstore.ScriptInputMapping;
+import us.kbase.narrativemethodstore.ScriptOutputMapping;
 import us.kbase.narrativemethodstore.ServiceMethodInputMapping;
 import us.kbase.narrativemethodstore.ServiceMethodOutputMapping;
+import us.kbase.narrativemethodstore.TabOptions;
 import us.kbase.narrativemethodstore.TextAreaOptions;
 import us.kbase.narrativemethodstore.TextOptions;
 import us.kbase.narrativemethodstore.WidgetSpec;
@@ -167,8 +170,8 @@ public class NarrativeMethodData {
 		MethodBehavior behavior = new MethodBehavior()
 							.withPythonClass(getTextOrNull(behaviorNode.get("python_class")))
 							.withPythonFunction(getTextOrNull(behaviorNode.get("python_function")));
-		JsonNode serviceMappingNode = behaviorNode.get("service-mapping");
-		if (serviceMappingNode != null) {
+		if (behaviorNode.get("service-mapping") != null) {
+			JsonNode serviceMappingNode = behaviorNode.get("service-mapping");
 			JsonNode paramsMappingNode = get("behavior/service-mapping", serviceMappingNode, "input_mapping");
 			List<ServiceMethodInputMapping> paramsMapping = new ArrayList<ServiceMethodInputMapping>();
 			for (int j = 0; j < paramsMappingNode.size(); j++) {
@@ -247,36 +250,113 @@ public class NarrativeMethodData {
 				.withKbServiceMethod(getTextOrNull(get("behavior/service-mapping", serviceMappingNode, "method")))
 				.withKbServiceInputMapping(paramsMapping)
 				.withKbServiceOutputMapping(outputMapping);
-		} else {
+		} else if (behaviorNode.get("none") != null) {
 			JsonNode noneNode = behaviorNode.get("none");
-			if (noneNode != null) {
-				List<OutputMapping> outputMapping = new ArrayList<OutputMapping>();
-				JsonNode outputMappingNode = get("behavior/none", noneNode, "output_mapping");
-				for (int j = 0; j < outputMappingNode.size(); j++) {
-					JsonNode paramMappingNode = outputMappingNode.get(j);
-					String path = "behavior/none/output_mapping/" + j;
-					OutputMapping paramMapping = new OutputMapping();
-					for (Iterator<String> it2 = paramMappingNode.fieldNames(); it2.hasNext(); ) {
-						String field = it2.next();
-						if (field.equals("target_property")) {
-							paramMapping.withTargetProperty(getTextOrNull(paramMappingNode.get(field)));
-						} else if (field.equals("target_type_transform")) {
-							paramMapping.withTargetTypeTransform(getTextOrNull(paramMappingNode.get(field)));
-						} else if (field.equals("input_parameter")) {
-							paramMapping.withInputParameter(paramMappingNode.get(field).asText());
-						} else if (field.equals("narrative_system_variable")) {
-							paramMapping.withNarrativeSystemVariable(paramMappingNode.get(field).asText());
-						} else if (field.equals("constant_value")) {
-							paramMapping.withConstantValue(new UObject(paramMappingNode.get(field)));
-						} else {
-							throw new IllegalStateException("Unknown field [" + field + "] in method output " +
-									"mapping structure within path " + path);
-						}
+			List<OutputMapping> outputMapping = new ArrayList<OutputMapping>();
+			JsonNode outputMappingNode = get("behavior/none", noneNode, "output_mapping");
+			for (int j = 0; j < outputMappingNode.size(); j++) {
+				JsonNode paramMappingNode = outputMappingNode.get(j);
+				String path = "behavior/none/output_mapping/" + j;
+				OutputMapping paramMapping = new OutputMapping();
+				for (Iterator<String> it2 = paramMappingNode.fieldNames(); it2.hasNext(); ) {
+					String field = it2.next();
+					if (field.equals("target_property")) {
+						paramMapping.withTargetProperty(getTextOrNull(paramMappingNode.get(field)));
+					} else if (field.equals("target_type_transform")) {
+						paramMapping.withTargetTypeTransform(getTextOrNull(paramMappingNode.get(field)));
+					} else if (field.equals("input_parameter")) {
+						paramMapping.withInputParameter(paramMappingNode.get(field).asText());
+					} else if (field.equals("narrative_system_variable")) {
+						paramMapping.withNarrativeSystemVariable(paramMappingNode.get(field).asText());
+					} else if (field.equals("constant_value")) {
+						paramMapping.withConstantValue(new UObject(paramMappingNode.get(field)));
+					} else {
+						throw new IllegalStateException("Unknown field [" + field + "] in method output " +
+								"mapping structure within path " + path);
 					}
-					outputMapping.add(paramMapping);
 				}
-				behavior.withOutputMapping(outputMapping);
+				outputMapping.add(paramMapping);
 			}
+			behavior.withOutputMapping(outputMapping);
+		} else if (behaviorNode.get("script-mapping") != null) {
+			JsonNode scriptNode = behaviorNode.get("script-mapping");
+			JsonNode paramsMappingNode = get("behavior/script-mapping", scriptNode, "input_mapping");
+			List<ScriptInputMapping> paramsMapping = new ArrayList<ScriptInputMapping>();
+			for (int j = 0; j < paramsMappingNode.size(); j++) {
+				JsonNode paramMappingNode = paramsMappingNode.get(j);
+				String path = "behavior/script-mapping/input_mapping/" + j;
+				ScriptInputMapping paramMapping = new ScriptInputMapping();
+				for (Iterator<String> it2 = paramMappingNode.fieldNames(); it2.hasNext(); ) {
+					String field = it2.next();
+					if (field.equals("target_property")) {
+						paramMapping.withTargetProperty(getTextOrNull(paramMappingNode.get(field)));
+					} else if (field.equals("target_type_transform")) {
+						paramMapping.withTargetTypeTransform(getTextOrNull(paramMappingNode.get(field)));
+					} else if (field.equals("input_parameter")) {
+						paramMapping.withInputParameter(paramMappingNode.get(field).asText());
+					} else if (field.equals("narrative_system_variable")) {
+						paramMapping.withNarrativeSystemVariable(paramMappingNode.get(field).asText());
+					} else if (field.equals("constant_value")) {
+						paramMapping.withConstantValue(new UObject(paramMappingNode.get(field)));
+					} else if (field.equals("generated_value")) {
+						JsonNode generNode = paramMappingNode.get("generated_value");
+						AutoGeneratedValue agv = new AutoGeneratedValue();
+						for (Iterator<String> it3 = generNode.fieldNames(); it3.hasNext(); ) {
+							String field3 = it3.next();
+							if (field3.equals("prefix")) {
+								agv.withPrefix(generNode.get(field3).asText());
+							} else if (field3.equals("symbols")) {
+								agv.withSymbols(generNode.get(field3).asLong());
+							} else if (field3.equals("suffix")) {
+								agv.withSuffix(generNode.get(field3).asText());
+							} else {
+								throw new IllegalStateException("Unknown field [" + field + "] in generated " +
+										"value structure within path behavior/script-mapping/input_mapping/" + j + 
+										"/generated_value");
+							}
+							paramMapping.withGeneratedValue(agv);
+						}
+					} else {
+						throw new IllegalStateException("Unknown field [" + field + "] in method parameter " +
+								"mapping structure within path " + path);
+					}
+				}
+				paramsMapping.add(paramMapping);
+			}
+			List<ScriptOutputMapping> outputMapping = new ArrayList<ScriptOutputMapping>();
+			JsonNode outputMappingNode = get("behavior/script-mapping", scriptNode, "output_mapping");
+			for (int j = 0; j < outputMappingNode.size(); j++) {
+				JsonNode paramMappingNode = outputMappingNode.get(j);
+				String path = "behavior/script-mapping/output_mapping/" + j;
+				ScriptOutputMapping paramMapping = new ScriptOutputMapping();
+				for (Iterator<String> it2 = paramMappingNode.fieldNames(); it2.hasNext(); ) {
+					String field = it2.next();
+					if (field.equals("target_property")) {
+						paramMapping.withTargetProperty(getTextOrNull(paramMappingNode.get(field)));
+					} else if (field.equals("target_type_transform")) {
+						paramMapping.withTargetTypeTransform(getTextOrNull(paramMappingNode.get(field)));
+					} else if (field.equals("input_parameter")) {
+						paramMapping.withInputParameter(paramMappingNode.get(field).asText());
+					} else if (field.equals("narrative_system_variable")) {
+						paramMapping.withNarrativeSystemVariable(paramMappingNode.get(field).asText());
+					} else if (field.equals("constant_value")) {
+						paramMapping.withConstantValue(new UObject(paramMappingNode.get(field)));
+					} else if (field.equals("script_output_path")) {
+						paramMapping.withScriptOutputPath(jsonListToStringList(paramMappingNode.get(field)));
+					} else {
+						throw new IllegalStateException("Unknown field [" + field + "] in method output " +
+								"mapping structure within path " + path);
+					}
+				}
+				outputMapping.add(paramMapping);
+			}
+			JsonNode hasFiles = scriptNode.get("has_files");
+			behavior
+				.withScriptModule(getTextOrNull(get("behavior/script-mapping", scriptNode, "module")))
+				.withScriptName(getTextOrNull(get("behavior/script-mapping", scriptNode, "script")))
+				.withScriptHasFiles(hasFiles == null ? 0L : jsonBooleanToRPC(hasFiles))
+				.withScriptInputMapping(paramsMapping)
+				.withScriptOutputMapping(outputMapping);
 		}
 		List<MethodParameter> parameters = new ArrayList<MethodParameter>();
 		JsonNode parametersNode = get(spec, "parameters");
@@ -362,8 +442,8 @@ public class NarrativeMethodData {
 				List<DropdownOption> options = new ArrayList<DropdownOption>();
 				for (int j = 0; j < optNode.size(); j++) {
 					JsonNode itemNode = optNode.get(j);
-					String value = get(paramPath + "/dropdown_options/" + j, itemNode, "value").asText();
-					String displayText = get(paramPath + "/dropdown_options/" + j, itemNode, "display").asText();
+					String value = get(paramPath + "/dropdown_options/options/" + j, itemNode, "value").asText();
+					String displayText = get(paramPath + "/dropdown_options/options/" + j, itemNode, "display").asText();
 					options.add(new DropdownOption().withValue(value).withDisplay(displayText));
 				}
 				ddOpt = new DropdownOptions().withOptions(options);
@@ -387,23 +467,44 @@ public class NarrativeMethodData {
 			if (paramNode.has("radio_options")) {
 				JsonNode optNode = get(paramPath, paramNode, "radio_options");
 				optNode = get(paramPath + "/radio_options", optNode, "options");
+				List<String> idOrder = new ArrayList<String>();
 				Map<String, String> options = new LinkedHashMap<String, String>();
 				Map<String, String> tooltips = new LinkedHashMap<String, String>();
 				for (int j = 0; j < optNode.size(); j++) {
 					JsonNode itemNode = optNode.get(j);
-					String id = get(paramPath + "/radio_options/" + j, itemNode, "id").asText();
-					String uiName = get(paramPath + "/radio_options/" + j, itemNode, "ui_name").asText();
-					String uiTooltip = get(paramPath + "/radio_options/" + j, itemNode, "ui_tooltip").asText();
+					String id = get(paramPath + "/radio_options/options/" + j, itemNode, "id").asText();
+					String uiName = get(paramPath + "/radio_options/options/" + j, itemNode, "ui_name").asText();
+					String uiTooltip = get(paramPath + "/radio_options/options/" + j, itemNode, "ui_tooltip").asText();
+					idOrder.add(id);
 					options.put(id, uiName);
 					tooltips.put(id, uiTooltip);
 				}
-				radioOpt = new RadioOptions().withIdsToOptions(options).withIdsToTooltip(tooltips);
+				radioOpt = new RadioOptions().withIdOrder(idOrder).withIdsToOptions(options).withIdsToTooltip(tooltips);
 			}
 			TextAreaOptions taOpt = null;
 			if (paramNode.has("textarea_options")) {
 				JsonNode optNode = get(paramPath, paramNode, "textarea_options");
 				long nRows = get(paramPath + "/textarea_options", optNode, "n_rows").asLong();
 				taOpt = new TextAreaOptions().withNRows(nRows);
+			}
+			TabOptions tabOpt = null;
+			if (paramNode.has("tab_options")) {
+				JsonNode optNode = get(paramPath, paramNode, "tab_options");
+				optNode = get(paramPath + "/tab_options", optNode, "options");
+				List<String> idOrder = new ArrayList<String>();
+				Map<String, String> options = new LinkedHashMap<String, String>();
+				Map<String, List<String>> tabIdToParamIds = new LinkedHashMap<String, List<String>>();
+				for (int j = 0; j < optNode.size(); j++) {
+					JsonNode itemNode = optNode.get(j);
+					String id = get(paramPath + "/tab_options/options/" + j, itemNode, "id").asText();
+					idOrder.add(id);
+					String uiName = get(paramPath + "/tab_options/options/" + j, itemNode, "ui_name").asText();
+					options.put(id, uiName);
+					List<String> tabParamIds = jsonListToStringList(itemNode.get("param_ids"));
+					if (tabParamIds != null) 
+						tabIdToParamIds.put(id, tabParamIds);
+				}
+				tabOpt = new TabOptions().withTabIdOrder(idOrder).withTabIdToTabName(options).withTabIdToParamIds(tabIdToParamIds);
 			}
 			
 			String paramDescription = "";
@@ -436,7 +537,8 @@ public class NarrativeMethodData {
 							.withFloatsliderOptions(floatOpt)
 							.withIntsliderOptions(intOpt)
 							.withRadioOptions(radioOpt)
-							.withTextareaOptions(taOpt);
+							.withTextareaOptions(taOpt)
+							.withTabOptions(tabOpt);
 			parameters.add(param);
 		}
 		if (behavior.getKbServiceInputMapping() != null) {
@@ -449,6 +551,16 @@ public class NarrativeMethodData {
 				}
 			}
 		}
+		if (behavior.getScriptInputMapping() != null) {
+			for (int i = 0; i < behavior.getScriptInputMapping().size(); i++) {
+				ScriptInputMapping mapping = behavior.getScriptInputMapping().get(i);
+				String paramId = mapping.getInputParameter();
+				if (paramId != null && !paramIds.contains(paramId)) {
+					throw new IllegalStateException("Undeclared parameter [" + paramId + "] found " +
+							"within path [behavior/script-mapping/input_mapping/" + i + "]");
+				}
+			}
+		}
 		if (behavior.getKbServiceOutputMapping() != null) {
 			for (int i = 0; i < behavior.getKbServiceOutputMapping().size(); i++) {
 				ServiceMethodOutputMapping mapping = behavior.getKbServiceOutputMapping().get(i);
@@ -456,6 +568,26 @@ public class NarrativeMethodData {
 				if (paramId != null && !paramIds.contains(paramId)) {
 					throw new IllegalStateException("Undeclared parameter [" + paramId + "] found " +
 							"within path [behavior/service-mapping/output_mapping/" + i + "]");
+				}
+			}
+		}
+		if (behavior.getOutputMapping() != null) {
+			for (int i = 0; i < behavior.getOutputMapping().size(); i++) {
+				OutputMapping mapping = behavior.getOutputMapping().get(i);
+				String paramId = mapping.getInputParameter();
+				if (paramId != null && !paramIds.contains(paramId)) {
+					throw new IllegalStateException("Undeclared parameter [" + paramId + "] found " +
+							"within path [behavior/none/output_mapping/" + i + "]");
+				}
+			}
+		}
+		if (behavior.getScriptOutputMapping() != null) {
+			for (int i = 0; i < behavior.getKbServiceOutputMapping().size(); i++) {
+				ScriptOutputMapping mapping = behavior.getScriptOutputMapping().get(i);
+				String paramId = mapping.getInputParameter();
+				if (paramId != null && !paramIds.contains(paramId)) {
+					throw new IllegalStateException("Undeclared parameter [" + paramId + "] found " +
+							"within path [behavior/script-mapping/output_mapping/" + i + "]");
 				}
 			}
 		}

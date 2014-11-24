@@ -15,6 +15,7 @@ import us.kbase.common.service.UObject;
 /**
  * <p>Original spec-file type: OutputMapping</p>
  * <pre>
+ * This structure should be used in case narrative method doesn't run any back-end code. 
  * See docs for ServiceMethodOutputMapping type for details.
  * </pre>
  * 

@@ -2,6 +2,7 @@
 package us.kbase.narrativemethodstore;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.annotation.Generated;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
@@ -19,16 +20,34 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Generated("com.googlecode.jsonschema2pojo")
 @JsonPropertyOrder({
+    "id_order",
     "ids_to_options",
     "ids_to_tooltip"
 })
 public class RadioOptions {
 
+    @JsonProperty("id_order")
+    private List<String> idOrder;
     @JsonProperty("ids_to_options")
     private Map<String, String> idsToOptions;
     @JsonProperty("ids_to_tooltip")
     private Map<String, String> idsToTooltip;
     private Map<java.lang.String, Object> additionalProperties = new HashMap<java.lang.String, Object>();
+
+    @JsonProperty("id_order")
+    public List<String> getIdOrder() {
+        return idOrder;
+    }
+
+    @JsonProperty("id_order")
+    public void setIdOrder(List<String> idOrder) {
+        this.idOrder = idOrder;
+    }
+
+    public RadioOptions withIdOrder(List<String> idOrder) {
+        this.idOrder = idOrder;
+        return this;
+    }
 
     @JsonProperty("ids_to_options")
     public Map<String, String> getIdsToOptions() {
@@ -72,7 +91,7 @@ public class RadioOptions {
 
     @Override
     public java.lang.String toString() {
-        return ((((((("RadioOptions"+" [idsToOptions=")+ idsToOptions)+", idsToTooltip=")+ idsToTooltip)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((((("RadioOptions"+" [idOrder=")+ idOrder)+", idsToOptions=")+ idsToOptions)+", idsToTooltip=")+ idsToTooltip)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }
