@@ -582,7 +582,7 @@ public class NarrativeMethodData {
 			}
 		}
 		if (behavior.getScriptOutputMapping() != null) {
-			for (int i = 0; i < behavior.getKbServiceOutputMapping().size(); i++) {
+			for (int i = 0; i < behavior.getScriptOutputMapping().size(); i++) {
 				ScriptOutputMapping mapping = behavior.getScriptOutputMapping().get(i);
 				String paramId = mapping.getInputParameter();
 				if (paramId != null && !paramIds.contains(paramId)) {

@@ -440,7 +440,7 @@ public class FullServerTest {
 	}
 	
 	@Test
-	public void testParamMapping() throws Exception {
+	public void testServiceParamMapping() throws Exception {
 		MethodSpec spec = CLIENT.getMethodSpec(new GetMethodParams().withIds(Arrays.asList("test_method_2"))).get(0);
 		assertNotNull(spec.getBehavior().getKbServiceUrl());
 		assertNotNull(spec.getBehavior().getKbServiceName());
@@ -458,6 +458,20 @@ public class FullServerTest {
 		assertEquals("[key1, key2]", spec.getBehavior().getKbServiceOutputMapping().get(1).getServiceMethodOutputPath().toString());
 		assertEquals("re2", spec.getBehavior().getKbServiceOutputMapping().get(1).getTargetProperty());
 		assertEquals("re2", spec.getJobIdOutputField());
+	}
+	
+	@Test
+	public void testScriptParamMapping() throws Exception {
+		MethodSpec spec = CLIENT.getMethodSpec(new GetMethodParams().withIds(Arrays.asList("test_method_6"))).get(0);
+		assertNotNull(spec.getBehavior().getScriptModule());
+		assertNotNull(spec.getBehavior().getScriptName());
+		assertEquals(1L, (long)spec.getBehavior().getScriptHasFiles());
+		assertEquals(8, spec.getBehavior().getScriptInputMapping().size());
+		assertEquals("assembly_input", spec.getBehavior().getScriptInputMapping().get(0).getInputParameter());
+		assertNotNull(spec.getBehavior().getScriptInputMapping().get(0).getTargetProperty());
+		assertEquals(1, spec.getBehavior().getScriptOutputMapping().size());
+		assertEquals("output_contigset", spec.getBehavior().getScriptOutputMapping().get(0).getInputParameter());
+		assertNotNull(spec.getBehavior().getScriptOutputMapping().get(0).getTargetProperty());
 	}
 	
 	@BeforeClass
