@@ -198,7 +198,7 @@ sub status
 
 =head2 list_categories
 
-  $categories, $methods, $apps = $obj->list_categories($params)
+  $categories, $methods, $apps, $types = $obj->list_categories($params)
 
 =over 4
 
@@ -211,9 +211,11 @@ $params is a NarrativeMethodStore.ListCategoriesParams
 $categories is a reference to a hash where the key is a string and the value is a NarrativeMethodStore.Category
 $methods is a reference to a hash where the key is a string and the value is a NarrativeMethodStore.MethodBriefInfo
 $apps is a reference to a hash where the key is a string and the value is a NarrativeMethodStore.AppBriefInfo
+$types is a reference to a hash where the key is a string and the value is a NarrativeMethodStore.TypeInfo
 ListCategoriesParams is a reference to a hash where the following keys are defined:
 	load_methods has a value which is a NarrativeMethodStore.boolean
 	load_apps has a value which is a NarrativeMethodStore.boolean
+	load_types has a value which is a NarrativeMethodStore.boolean
 boolean is an int
 Category is a reference to a hash where the following keys are defined:
 	id has a value which is a string
@@ -240,6 +242,20 @@ AppBriefInfo is a reference to a hash where the following keys are defined:
 	header has a value which is a string
 	categories has a value which is a reference to a list where each element is a string
 	loading_error has a value which is a string
+TypeInfo is a reference to a hash where the following keys are defined:
+	type_name has a value which is a string
+	name has a value which is a string
+	subtitle has a value which is a string
+	tooltip has a value which is a string
+	description has a value which is a string
+	icon has a value which is a NarrativeMethodStore.ScreenShot
+	view_method_ids has a value which is a reference to a list where each element is a string
+	import_method_ids has a value which is a reference to a list where each element is a string
+	landing_page_url_prefix has a value which is a string
+	loading_error has a value which is a string
+ScreenShot is a reference to a hash where the following keys are defined:
+	url has a value which is a NarrativeMethodStore.url
+url is a string
 
 </pre>
 
@@ -251,9 +267,11 @@ $params is a NarrativeMethodStore.ListCategoriesParams
 $categories is a reference to a hash where the key is a string and the value is a NarrativeMethodStore.Category
 $methods is a reference to a hash where the key is a string and the value is a NarrativeMethodStore.MethodBriefInfo
 $apps is a reference to a hash where the key is a string and the value is a NarrativeMethodStore.AppBriefInfo
+$types is a reference to a hash where the key is a string and the value is a NarrativeMethodStore.TypeInfo
 ListCategoriesParams is a reference to a hash where the following keys are defined:
 	load_methods has a value which is a NarrativeMethodStore.boolean
 	load_apps has a value which is a NarrativeMethodStore.boolean
+	load_types has a value which is a NarrativeMethodStore.boolean
 boolean is an int
 Category is a reference to a hash where the following keys are defined:
 	id has a value which is a string
@@ -280,6 +298,20 @@ AppBriefInfo is a reference to a hash where the following keys are defined:
 	header has a value which is a string
 	categories has a value which is a reference to a list where each element is a string
 	loading_error has a value which is a string
+TypeInfo is a reference to a hash where the following keys are defined:
+	type_name has a value which is a string
+	name has a value which is a string
+	subtitle has a value which is a string
+	tooltip has a value which is a string
+	description has a value which is a string
+	icon has a value which is a NarrativeMethodStore.ScreenShot
+	view_method_ids has a value which is a reference to a list where each element is a string
+	import_method_ids has a value which is a reference to a list where each element is a string
+	landing_page_url_prefix has a value which is a string
+	loading_error has a value which is a string
+ScreenShot is a reference to a hash where the following keys are defined:
+	url has a value which is a NarrativeMethodStore.url
+url is a string
 
 
 =end text
@@ -1520,6 +1552,121 @@ sub list_app_ids_and_names
 
 
 
+=head2 list_types
+
+  $return = $obj->list_types($params)
+
+=over 4
+
+=item Parameter and return types
+
+=begin html
+
+<pre>
+$params is a NarrativeMethodStore.ListParams
+$return is a reference to a list where each element is a NarrativeMethodStore.TypeInfo
+ListParams is a reference to a hash where the following keys are defined:
+	limit has a value which is an int
+	offset has a value which is an int
+TypeInfo is a reference to a hash where the following keys are defined:
+	type_name has a value which is a string
+	name has a value which is a string
+	subtitle has a value which is a string
+	tooltip has a value which is a string
+	description has a value which is a string
+	icon has a value which is a NarrativeMethodStore.ScreenShot
+	view_method_ids has a value which is a reference to a list where each element is a string
+	import_method_ids has a value which is a reference to a list where each element is a string
+	landing_page_url_prefix has a value which is a string
+	loading_error has a value which is a string
+ScreenShot is a reference to a hash where the following keys are defined:
+	url has a value which is a NarrativeMethodStore.url
+url is a string
+
+</pre>
+
+=end html
+
+=begin text
+
+$params is a NarrativeMethodStore.ListParams
+$return is a reference to a list where each element is a NarrativeMethodStore.TypeInfo
+ListParams is a reference to a hash where the following keys are defined:
+	limit has a value which is an int
+	offset has a value which is an int
+TypeInfo is a reference to a hash where the following keys are defined:
+	type_name has a value which is a string
+	name has a value which is a string
+	subtitle has a value which is a string
+	tooltip has a value which is a string
+	description has a value which is a string
+	icon has a value which is a NarrativeMethodStore.ScreenShot
+	view_method_ids has a value which is a reference to a list where each element is a string
+	import_method_ids has a value which is a reference to a list where each element is a string
+	landing_page_url_prefix has a value which is a string
+	loading_error has a value which is a string
+ScreenShot is a reference to a hash where the following keys are defined:
+	url has a value which is a NarrativeMethodStore.url
+url is a string
+
+
+=end text
+
+=item Description
+
+
+
+=back
+
+=cut
+
+sub list_types
+{
+    my($self, @args) = @_;
+
+# Authentication: none
+
+    if ((my $n = @args) != 1)
+    {
+	Bio::KBase::Exceptions::ArgumentValidationError->throw(error =>
+							       "Invalid argument count for function list_types (received $n, expecting 1)");
+    }
+    {
+	my($params) = @args;
+
+	my @_bad_arguments;
+        (ref($params) eq 'HASH') or push(@_bad_arguments, "Invalid type for argument 1 \"params\" (value was \"$params\")");
+        if (@_bad_arguments) {
+	    my $msg = "Invalid arguments passed to list_types:\n" . join("", map { "\t$_\n" } @_bad_arguments);
+	    Bio::KBase::Exceptions::ArgumentValidationError->throw(error => $msg,
+								   method_name => 'list_types');
+	}
+    }
+
+    my $result = $self->{client}->call($self->{url}, {
+	method => "NarrativeMethodStore.list_types",
+	params => \@args,
+    });
+    if ($result) {
+	if ($result->is_error) {
+	    Bio::KBase::Exceptions::JSONRPC->throw(error => $result->error_message,
+					       code => $result->content->{error}->{code},
+					       method_name => 'list_types',
+					       data => $result->content->{error}->{error} # JSON::RPC::ReturnObject only supports JSONRPC 1.1 or 1.O
+					      );
+	} else {
+	    return wantarray ? @{$result->result} : $result->result->[0];
+	}
+    } else {
+        Bio::KBase::Exceptions::HTTP->throw(error => "Error invoking method list_types",
+					    status_line => $self->{client}->status_line,
+					    method_name => 'list_types',
+				       );
+    }
+}
+
+
+
 =head2 get_method_brief_info
 
   $return = $obj->get_method_brief_info($params)
@@ -2452,6 +2599,119 @@ sub get_app_spec
 
 
 
+=head2 get_type_info
+
+  $return = $obj->get_type_info($params)
+
+=over 4
+
+=item Parameter and return types
+
+=begin html
+
+<pre>
+$params is a NarrativeMethodStore.GetTypeParams
+$return is a reference to a list where each element is a NarrativeMethodStore.TypeInfo
+GetTypeParams is a reference to a hash where the following keys are defined:
+	type_names has a value which is a reference to a list where each element is a string
+TypeInfo is a reference to a hash where the following keys are defined:
+	type_name has a value which is a string
+	name has a value which is a string
+	subtitle has a value which is a string
+	tooltip has a value which is a string
+	description has a value which is a string
+	icon has a value which is a NarrativeMethodStore.ScreenShot
+	view_method_ids has a value which is a reference to a list where each element is a string
+	import_method_ids has a value which is a reference to a list where each element is a string
+	landing_page_url_prefix has a value which is a string
+	loading_error has a value which is a string
+ScreenShot is a reference to a hash where the following keys are defined:
+	url has a value which is a NarrativeMethodStore.url
+url is a string
+
+</pre>
+
+=end html
+
+=begin text
+
+$params is a NarrativeMethodStore.GetTypeParams
+$return is a reference to a list where each element is a NarrativeMethodStore.TypeInfo
+GetTypeParams is a reference to a hash where the following keys are defined:
+	type_names has a value which is a reference to a list where each element is a string
+TypeInfo is a reference to a hash where the following keys are defined:
+	type_name has a value which is a string
+	name has a value which is a string
+	subtitle has a value which is a string
+	tooltip has a value which is a string
+	description has a value which is a string
+	icon has a value which is a NarrativeMethodStore.ScreenShot
+	view_method_ids has a value which is a reference to a list where each element is a string
+	import_method_ids has a value which is a reference to a list where each element is a string
+	landing_page_url_prefix has a value which is a string
+	loading_error has a value which is a string
+ScreenShot is a reference to a hash where the following keys are defined:
+	url has a value which is a NarrativeMethodStore.url
+url is a string
+
+
+=end text
+
+=item Description
+
+
+
+=back
+
+=cut
+
+sub get_type_info
+{
+    my($self, @args) = @_;
+
+# Authentication: none
+
+    if ((my $n = @args) != 1)
+    {
+	Bio::KBase::Exceptions::ArgumentValidationError->throw(error =>
+							       "Invalid argument count for function get_type_info (received $n, expecting 1)");
+    }
+    {
+	my($params) = @args;
+
+	my @_bad_arguments;
+        (ref($params) eq 'HASH') or push(@_bad_arguments, "Invalid type for argument 1 \"params\" (value was \"$params\")");
+        if (@_bad_arguments) {
+	    my $msg = "Invalid arguments passed to get_type_info:\n" . join("", map { "\t$_\n" } @_bad_arguments);
+	    Bio::KBase::Exceptions::ArgumentValidationError->throw(error => $msg,
+								   method_name => 'get_type_info');
+	}
+    }
+
+    my $result = $self->{client}->call($self->{url}, {
+	method => "NarrativeMethodStore.get_type_info",
+	params => \@args,
+    });
+    if ($result) {
+	if ($result->is_error) {
+	    Bio::KBase::Exceptions::JSONRPC->throw(error => $result->error_message,
+					       code => $result->content->{error}->{code},
+					       method_name => 'get_type_info',
+					       data => $result->content->{error}->{error} # JSON::RPC::ReturnObject only supports JSONRPC 1.1 or 1.O
+					      );
+	} else {
+	    return wantarray ? @{$result->result} : $result->result->[0];
+	}
+    } else {
+        Bio::KBase::Exceptions::HTTP->throw(error => "Error invoking method get_type_info",
+					    status_line => $self->{client}->status_line,
+					    method_name => 'get_type_info',
+				       );
+    }
+}
+
+
+
 sub version {
     my ($self) = @_;
     my $result = $self->{client}->call($self->{url}, {
@@ -2463,16 +2723,16 @@ sub version {
             Bio::KBase::Exceptions::JSONRPC->throw(
                 error => $result->error_message,
                 code => $result->content->{code},
-                method_name => 'get_app_spec',
+                method_name => 'get_type_info',
             );
         } else {
             return wantarray ? @{$result->result} : $result->result->[0];
         }
     } else {
         Bio::KBase::Exceptions::HTTP->throw(
-            error => "Error invoking method get_app_spec",
+            error => "Error invoking method get_type_info",
             status_line => $self->{client}->status_line,
-            method_name => 'get_app_spec',
+            method_name => 'get_type_info',
         );
     }
 }
@@ -4029,6 +4289,59 @@ steps has a value which is a reference to a list where each element is a Narrati
 
 
 
+=head2 TypeInfo
+
+=over 4
+
+
+
+=item Description
+
+@optional icon landing_page_url_prefix loading_error
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a reference to a hash where the following keys are defined:
+type_name has a value which is a string
+name has a value which is a string
+subtitle has a value which is a string
+tooltip has a value which is a string
+description has a value which is a string
+icon has a value which is a NarrativeMethodStore.ScreenShot
+view_method_ids has a value which is a reference to a list where each element is a string
+import_method_ids has a value which is a reference to a list where each element is a string
+landing_page_url_prefix has a value which is a string
+loading_error has a value which is a string
+
+</pre>
+
+=end html
+
+=begin text
+
+a reference to a hash where the following keys are defined:
+type_name has a value which is a string
+name has a value which is a string
+subtitle has a value which is a string
+tooltip has a value which is a string
+description has a value which is a string
+icon has a value which is a NarrativeMethodStore.ScreenShot
+view_method_ids has a value which is a reference to a list where each element is a string
+import_method_ids has a value which is a reference to a list where each element is a string
+landing_page_url_prefix has a value which is a string
+loading_error has a value which is a string
+
+
+=end text
+
+=back
+
+
+
 =head2 ListCategoriesParams
 
 =over 4
@@ -4050,6 +4363,7 @@ load_methods - optional field (default value is 1)
 a reference to a hash where the following keys are defined:
 load_methods has a value which is a NarrativeMethodStore.boolean
 load_apps has a value which is a NarrativeMethodStore.boolean
+load_types has a value which is a NarrativeMethodStore.boolean
 
 </pre>
 
@@ -4060,6 +4374,7 @@ load_apps has a value which is a NarrativeMethodStore.boolean
 a reference to a hash where the following keys are defined:
 load_methods has a value which is a NarrativeMethodStore.boolean
 load_apps has a value which is a NarrativeMethodStore.boolean
+load_types has a value which is a NarrativeMethodStore.boolean
 
 
 =end text
@@ -4190,6 +4505,36 @@ ids has a value which is a reference to a list where each element is a string
 
 a reference to a hash where the following keys are defined:
 ids has a value which is a reference to a list where each element is a string
+
+
+=end text
+
+=back
+
+
+
+=head2 GetTypeParams
+
+=over 4
+
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a reference to a hash where the following keys are defined:
+type_names has a value which is a reference to a list where each element is a string
+
+</pre>
+
+=end html
+
+=begin text
+
+a reference to a hash where the following keys are defined:
+type_names has a value which is a reference to a list where each element is a string
 
 
 =end text

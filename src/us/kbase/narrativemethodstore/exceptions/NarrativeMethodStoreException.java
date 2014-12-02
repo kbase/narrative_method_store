@@ -3,6 +3,7 @@ package us.kbase.narrativemethodstore.exceptions;
 import us.kbase.narrativemethodstore.AppBriefInfo;
 import us.kbase.narrativemethodstore.Category;
 import us.kbase.narrativemethodstore.MethodBriefInfo;
+import us.kbase.narrativemethodstore.TypeInfo;
 
 public class NarrativeMethodStoreException extends Exception {
 
@@ -10,6 +11,7 @@ public class NarrativeMethodStoreException extends Exception {
 	private MethodBriefInfo errorMethod = null;
 	private Category errorCategory = null;
 	private AppBriefInfo errorApp = null;
+	private TypeInfo errorType = null;
 	
 	public NarrativeMethodStoreException(String message) {
 		super(message);
@@ -57,5 +59,17 @@ public class NarrativeMethodStoreException extends Exception {
 		if (msg == null)
 			msg = getCause().getClass().getName();
 		this.errorApp.setLoadingError(msg);
+	}
+
+	public TypeInfo getErrorType() {
+		return errorType;
+	}
+	
+	public void setErrorType(TypeInfo errorType) {
+		this.errorType = errorType;
+		String msg = getMessage();
+		if (msg == null)
+			msg = getCause().getClass().getName();
+		this.errorType.setLoadingError(msg);
 	}
 }

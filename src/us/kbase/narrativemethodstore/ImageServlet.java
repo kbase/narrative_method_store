@@ -54,14 +54,24 @@ public class ImageServlet extends HttpServlet {
             throws IOException { 
 		String methodId = request.getParameter("method_id");
 		String appId = request.getParameter("app_id");
-		if (methodId == null && appId == null) 
-			throw new IllegalStateException("Neither of parameters method_id and app_id is defined");			
-		if (methodId != null && appId != null) 
-			throw new IllegalStateException("Only one of parameters method_id or app_id should be defined");			
+		String typeName = request.getParameter("type_name");
+		int defined = 0;
+		if (methodId != null)
+			defined++;
+		if (appId != null)
+			defined++;
+		if (typeName != null)
+			defined++;
+		if (defined < 1) 
+			throw new IllegalStateException("Neither of parameters method_id / app_id / type_name is defined");
+		if (defined > 1)
+			throw new IllegalStateException("Only one of parameters method_id / app_id / type_name should be defined");			
 		if (methodId != null && (methodId.contains("../") || methodId.trim().isEmpty()))
 			throw new IllegalStateException("Parameter method_id is wrong: " + methodId);
 		if (appId != null && (appId.contains("../") || appId.trim().isEmpty()))
 			throw new IllegalStateException("Parameter app_id is wrong: " + appId);
+		if (typeName != null && (typeName.contains("../") || typeName.trim().isEmpty()))
+			throw new IllegalStateException("Parameter type_name is wrong: " + appId);
 		String imageName = request.getParameter("image_name");
 		if (imageName == null || imageName.contains("../") || imageName.trim().isEmpty())
 			throw new IllegalStateException("Parameter image_name is wrong");
@@ -74,8 +84,14 @@ public class ImageServlet extends HttpServlet {
 		}
 		if (path == null)
     		path = "../narrative_method_specs";
-		File innerDir = methodId != null ? new File(new File(path, "methods"), methodId) :
-			new File(new File(path, "apps"), appId);
+		File innerDir;
+		if (methodId != null) {
+			innerDir = new File(new File(path, "methods"), methodId);
+		} else if (appId != null) {
+			innerDir = new File(new File(path, "apps"), appId);
+		} else {
+			innerDir = new File(new File(path, "types"), typeName);
+		}
     	File imageFile = new File(new File(innerDir, "img"), imageName);
 		setupResponseHeaders(request, response);
 		response.setContentType("image/" + imageExt);

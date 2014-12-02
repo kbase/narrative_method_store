@@ -466,7 +466,21 @@ module NarrativeMethodStore {
 
     } AppSpec;
 
-
+	/*
+	    @optional icon landing_page_url_prefix loading_error
+	*/
+    typedef structure {
+        string type_name;
+        string name;
+        string subtitle;
+        string tooltip;
+        string description;
+        ScreenShot icon;
+        list<string> view_method_ids;
+        list<string> import_method_ids;
+        string landing_page_url_prefix;
+        string loading_error;
+    } TypeInfo;
 
 
     /*
@@ -477,12 +491,14 @@ module NarrativeMethodStore {
     typedef structure {
         boolean load_methods;
         boolean load_apps;
+        boolean load_types;
     } ListCategoriesParams;
 
     funcdef list_categories(ListCategoriesParams params) 
                 returns ( mapping<string, Category> categories,
                           mapping<string, MethodBriefInfo> methods,
-                          mapping<string, AppBriefInfo> apps);
+                          mapping<string, AppBriefInfo> apps,
+                          mapping<string, TypeInfo> types);
 
     typedef structure {
         list <string> ids;
@@ -518,6 +534,8 @@ module NarrativeMethodStore {
     
     funcdef list_app_ids_and_names() returns (mapping<string,string>);
     
+    funcdef list_types(ListParams params) returns (list<TypeInfo>);
+    
     
     typedef structure {
         list <string> ids;
@@ -540,6 +558,12 @@ module NarrativeMethodStore {
     funcdef get_app_full_info(GetAppParams params) returns (list<AppFullInfo>);
     
     funcdef get_app_spec(GetAppParams params) returns (list<AppSpec>);
+
+
+    typedef structure {
+        list <string> type_names;
+    } GetTypeParams;
     
+    funcdef get_type_info(GetTypeParams params) returns (list<TypeInfo>);
 
 };

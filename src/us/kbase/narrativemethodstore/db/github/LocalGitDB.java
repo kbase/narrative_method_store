@@ -30,11 +30,13 @@ import us.kbase.narrativemethodstore.AppSpec;
 import us.kbase.narrativemethodstore.MethodBriefInfo;
 import us.kbase.narrativemethodstore.MethodFullInfo;
 import us.kbase.narrativemethodstore.MethodSpec;
+import us.kbase.narrativemethodstore.TypeInfo;
 import us.kbase.narrativemethodstore.db.FileLookup;
 import us.kbase.narrativemethodstore.db.MethodSpecDB;
 import us.kbase.narrativemethodstore.db.NarrativeAppData;
 import us.kbase.narrativemethodstore.db.NarrativeCategoriesIndex;
 import us.kbase.narrativemethodstore.db.NarrativeMethodData;
+import us.kbase.narrativemethodstore.db.NarrativeTypeData;
 import us.kbase.narrativemethodstore.exceptions.NarrativeMethodStoreException;
 import us.kbase.narrativemethodstore.exceptions.NarrativeMethodStoreInitializationException;
 
@@ -218,6 +220,10 @@ public class LocalGitDB implements MethodSpecDB {
 		return new File(gitLocalPath, "apps");
 	}
 
+	protected File getTypesDir() {
+		return new File(gitLocalPath, "types");
+	}
+
 	protected List<String> listMethodIdsUncached() {
 		List <String> methodList = new ArrayList<String>();
 		for (File sub : getMethodsDir().listFiles()) {
@@ -234,6 +240,15 @@ public class LocalGitDB implements MethodSpecDB {
 				appList.add(sub.getName());
 		}
 		return appList;
+	}
+
+	protected List<String> listTypeNamesUncached() {
+		List<String> ret = new ArrayList<String>();
+		for (File sub : getTypesDir().listFiles()) {
+			if (sub.isDirectory())
+				ret.add(sub.getName());
+		}
+		return ret;
 	}
 
 	public String getCommitInfo() throws NarrativeMethodStoreInitializationException {
@@ -317,6 +332,25 @@ public class LocalGitDB implements MethodSpecDB {
 		}
 	}
 
+	protected NarrativeTypeData loadTypeDataUncached(final String typeName) throws NarrativeMethodStoreException {
+		try {
+			// Fetch the resources needed
+			JsonNode spec = getResourceAsJson("types/"+typeName+"/spec.json");
+			Map<String,Object> display = getResourceAsYamlMap("types/"+typeName+"/display.yaml");
+
+			// Initialize the actual data
+			NarrativeTypeData data = new NarrativeTypeData(typeName, spec, display,
+					createFileLookup(new File(getTypesDir(), typeName)));
+			return data;
+		} catch (NarrativeMethodStoreException ex) {
+			throw ex;
+		} catch (Exception ex) {
+			NarrativeMethodStoreException ret = new NarrativeMethodStoreException(ex);
+			ret.setErrorType(new TypeInfo().withTypeName(typeName).withName(typeName));
+			throw ret;
+		}
+	}
+
 	@Override
 	public MethodBriefInfo getMethodBriefInfo(String methodId)
 			throws NarrativeMethodStoreException {
@@ -328,6 +362,12 @@ public class LocalGitDB implements MethodSpecDB {
 			throws NarrativeMethodStoreException {
 		checkForChanges();
 		return narCatIndex.getApps().get(appId);
+	}
+
+	public TypeInfo getTypeInfo(String typeName)
+			throws NarrativeMethodStoreException {
+		checkForChanges();
+		return narCatIndex.getTypes().get(typeName);
 	}
 
 	@Override
@@ -436,6 +476,18 @@ public class LocalGitDB implements MethodSpecDB {
 					abi = ex.getErrorApp();
 				}
 				narCatIndex.addOrUpdateApp(appId, abi);
+			}
+
+			List<String> typeNames = listTypeNamesUncached(); // iterate over each category
+			for(String typeName : typeNames) {
+				TypeInfo ti;
+				try {
+					NarrativeTypeData data = loadTypeDataUncached(typeName);
+					ti = data.getTypeInfo();
+				} catch (NarrativeMethodStoreException ex) {
+					ti = ex.getErrorType();
+				}
+				narCatIndex.addOrUpdateType(typeName, ti);
 			}
 		} catch (IOException e) {
 			throw new NarrativeMethodStoreException("Cannot load category index : "+e.getMessage(),e);

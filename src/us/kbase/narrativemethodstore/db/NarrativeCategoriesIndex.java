@@ -10,23 +10,24 @@ import com.fasterxml.jackson.databind.JsonNode;
 import us.kbase.narrativemethodstore.AppBriefInfo;
 import us.kbase.narrativemethodstore.Category;
 import us.kbase.narrativemethodstore.MethodBriefInfo;
+import us.kbase.narrativemethodstore.TypeInfo;
 
 public class NarrativeCategoriesIndex {
 
 	protected Map<String, Category> categories;
 	protected Map<String, MethodBriefInfo> methods;
 	protected Map<String, AppBriefInfo> apps;
+	protected Map<String, TypeInfo> types;
 	
 	public NarrativeCategoriesIndex() {
-		categories = new HashMap<String,Category>();
-		methods = new HashMap<String,MethodBriefInfo>();
-		apps = new HashMap<String, AppBriefInfo>();
+		clearIndex();
 	}
 
 	public void clearIndex() {
 		categories = new HashMap<String,Category>();
 		methods = new HashMap<String,MethodBriefInfo>();
 		apps = new HashMap<String, AppBriefInfo>();
+		types = new HashMap<String, TypeInfo>();
 	}
 	
 	public void updateAllCategories(Map<String,Category> categories) {
@@ -67,6 +68,10 @@ public class NarrativeCategoriesIndex {
 		apps.put(appId, briefInfo);
 	}
 
+	public void addOrUpdateType(String typeName, TypeInfo typeInfo) {
+		types.put(typeName, typeInfo);
+	}
+
 	public Map<String,Category> getCategories() {
 		return categories;
 	}
@@ -77,5 +82,9 @@ public class NarrativeCategoriesIndex {
 	
 	public Map<String, AppBriefInfo> getApps() {
 		return apps;
+	}
+	
+	public Map<String, TypeInfo> getTypes() {
+		return types;
 	}
 }

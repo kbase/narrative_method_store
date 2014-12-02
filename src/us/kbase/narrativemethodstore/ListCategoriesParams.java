@@ -24,7 +24,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @Generated("com.googlecode.jsonschema2pojo")
 @JsonPropertyOrder({
     "load_methods",
-    "load_apps"
+    "load_apps",
+    "load_types"
 })
 public class ListCategoriesParams {
 
@@ -32,6 +33,8 @@ public class ListCategoriesParams {
     private Long loadMethods;
     @JsonProperty("load_apps")
     private Long loadApps;
+    @JsonProperty("load_types")
+    private Long loadTypes;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
     @JsonProperty("load_methods")
@@ -64,6 +67,21 @@ public class ListCategoriesParams {
         return this;
     }
 
+    @JsonProperty("load_types")
+    public Long getLoadTypes() {
+        return loadTypes;
+    }
+
+    @JsonProperty("load_types")
+    public void setLoadTypes(Long loadTypes) {
+        this.loadTypes = loadTypes;
+    }
+
+    public ListCategoriesParams withLoadTypes(Long loadTypes) {
+        this.loadTypes = loadTypes;
+        return this;
+    }
+
     @JsonAnyGetter
     public Map<String, Object> getAdditionalProperties() {
         return this.additionalProperties;
@@ -76,7 +94,7 @@ public class ListCategoriesParams {
 
     @Override
     public String toString() {
-        return ((((((("ListCategoriesParams"+" [loadMethods=")+ loadMethods)+", loadApps=")+ loadApps)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((((("ListCategoriesParams"+" [loadMethods=")+ loadMethods)+", loadApps=")+ loadApps)+", loadTypes=")+ loadTypes)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }

@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Map;
 import us.kbase.common.service.JsonServerMethod;
 import us.kbase.common.service.JsonServerServlet;
-import us.kbase.common.service.Tuple3;
+import us.kbase.common.service.Tuple4;
 
 //BEGIN_HEADER
 import java.io.File;
@@ -178,13 +178,14 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
      * <pre>
      * </pre>
      * @param   params   instance of type {@link us.kbase.narrativemethodstore.ListCategoriesParams ListCategoriesParams}
-     * @return   multiple set: (1) parameter "categories" of mapping from String to type {@link us.kbase.narrativemethodstore.Category Category}, (2) parameter "methods" of mapping from String to type {@link us.kbase.narrativemethodstore.MethodBriefInfo MethodBriefInfo}, (3) parameter "apps" of mapping from String to type {@link us.kbase.narrativemethodstore.AppBriefInfo AppBriefInfo}
+     * @return   multiple set: (1) parameter "categories" of mapping from String to type {@link us.kbase.narrativemethodstore.Category Category}, (2) parameter "methods" of mapping from String to type {@link us.kbase.narrativemethodstore.MethodBriefInfo MethodBriefInfo}, (3) parameter "apps" of mapping from String to type {@link us.kbase.narrativemethodstore.AppBriefInfo AppBriefInfo}, (4) parameter "types" of mapping from String to type {@link us.kbase.narrativemethodstore.TypeInfo TypeInfo}
      */
     @JsonServerMethod(rpc = "NarrativeMethodStore.list_categories", tuple = true)
-    public Tuple3<Map<String,Category>, Map<String,MethodBriefInfo>, Map<String,AppBriefInfo>> listCategories(ListCategoriesParams params) throws Exception {
+    public Tuple4<Map<String,Category>, Map<String,MethodBriefInfo>, Map<String,AppBriefInfo>, Map<String,TypeInfo>> listCategories(ListCategoriesParams params) throws Exception {
         Map<String,Category> return1 = null;
         Map<String,MethodBriefInfo> return2 = null;
         Map<String,AppBriefInfo> return3 = null;
+        Map<String,TypeInfo> return4 = null;
         //BEGIN list_categories
         config();
         boolean returnLoadedMethods = false;
@@ -199,6 +200,12 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
         		returnLoadedApps = true;
         	}
         }
+        boolean returnLoadedTypes = false;
+        if(params.getLoadTypes()!=null) {
+        	if(params.getLoadTypes()==1) {
+        		returnLoadedTypes = true;
+        	}
+        }
         NarrativeCategoriesIndex narCatIndex = localGitDB.getCategoriesIndex();
         return1 = narCatIndex.getCategories();
         if(returnLoadedMethods) {
@@ -211,11 +218,17 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
         } else {
         	return3 = new HashMap<String, AppBriefInfo>();
         }
+        if (returnLoadedTypes) {
+        	return4 = narCatIndex.getTypes();
+        } else {
+        	return4 = new HashMap<String, TypeInfo>();
+        }
         //END list_categories
-        Tuple3<Map<String,Category>, Map<String,MethodBriefInfo>, Map<String,AppBriefInfo>> returnVal = new Tuple3<Map<String,Category>, Map<String,MethodBriefInfo>, Map<String,AppBriefInfo>>();
+        Tuple4<Map<String,Category>, Map<String,MethodBriefInfo>, Map<String,AppBriefInfo>, Map<String,TypeInfo>> returnVal = new Tuple4<Map<String,Category>, Map<String,MethodBriefInfo>, Map<String,AppBriefInfo>, Map<String,TypeInfo>>();
         returnVal.setE1(return1);
         returnVal.setE2(return2);
         returnVal.setE3(return3);
+        returnVal.setE4(return4);
         return returnVal;
     }
 
@@ -391,6 +404,24 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
     }
 
     /**
+     * <p>Original spec-file function name: list_types</p>
+     * <pre>
+     * </pre>
+     * @param   params   instance of type {@link us.kbase.narrativemethodstore.ListParams ListParams}
+     * @return   instance of list of type {@link us.kbase.narrativemethodstore.TypeInfo TypeInfo}
+     */
+    @JsonServerMethod(rpc = "NarrativeMethodStore.list_types")
+    public List<TypeInfo> listTypes(ListParams params) throws Exception {
+        List<TypeInfo> returnVal = null;
+        //BEGIN list_types
+        config();
+        returnVal = new ArrayList<TypeInfo>(localGitDB.getCategoriesIndex().getTypes().values());
+        returnVal = trim(returnVal, params);
+        //END list_types
+        return returnVal;
+    }
+
+    /**
      * <p>Original spec-file function name: get_method_brief_info</p>
      * <pre>
      * </pre>
@@ -510,6 +541,26 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
         for (String id : appIds)
         	returnVal.add(localGitDB.getAppSpec(id));
         //END get_app_spec
+        return returnVal;
+    }
+
+    /**
+     * <p>Original spec-file function name: get_type_info</p>
+     * <pre>
+     * </pre>
+     * @param   params   instance of type {@link us.kbase.narrativemethodstore.GetTypeParams GetTypeParams}
+     * @return   instance of list of type {@link us.kbase.narrativemethodstore.TypeInfo TypeInfo}
+     */
+    @JsonServerMethod(rpc = "NarrativeMethodStore.get_type_info")
+    public List<TypeInfo> getTypeInfo(GetTypeParams params) throws Exception {
+        List<TypeInfo> returnVal = null;
+        //BEGIN get_type_info
+        config();
+        List<String> typeNames = params.getTypeNames();
+        returnVal = new ArrayList<TypeInfo>(typeNames.size());
+        for(String typeName: typeNames)
+        	returnVal.add(localGitDB.getTypeInfo(typeName));
+        //END get_type_info
         return returnVal;
     }
 
