@@ -18,11 +18,12 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import us.kbase.common.service.Tuple3;
+import us.kbase.common.service.Tuple4;
 import us.kbase.narrativemethodstore.AppSpec;
 import us.kbase.narrativemethodstore.Category;
 import us.kbase.narrativemethodstore.GetAppParams;
 import us.kbase.narrativemethodstore.GetMethodParams;
+import us.kbase.narrativemethodstore.GetTypeParams;
 import us.kbase.narrativemethodstore.ListCategoriesParams;
 import us.kbase.narrativemethodstore.ListParams;
 import us.kbase.narrativemethodstore.MethodBriefInfo;
@@ -33,6 +34,7 @@ import us.kbase.narrativemethodstore.NarrativeMethodStoreClient;
 import us.kbase.narrativemethodstore.NarrativeMethodStoreServer;
 import us.kbase.narrativemethodstore.Publication;
 import us.kbase.narrativemethodstore.RegexMatcher;
+import us.kbase.narrativemethodstore.TypeInfo;
 
 /*
  * 
@@ -112,7 +114,7 @@ public class FullServerTest {
 	@Test
 	public void testListCategories() throws Exception {
 		ListCategoriesParams params = new ListCategoriesParams().withLoadMethods(0L);
-		Tuple3<Map<String, Category>, Map<String, MethodBriefInfo>, Map<String, AppBriefInfo>> methods = CLIENT.listCategories(params);
+		Tuple4<Map<String,Category>, Map<String,MethodBriefInfo>, Map<String,AppBriefInfo>, Map<String,TypeInfo>> methods = CLIENT.listCategories(params);
 		
 		//first just check that the method did not return methods if we did not request them
 		assertTrue("We should not get methods from listCategories if we did not ask.", methods.getE2().size()==0);
@@ -395,8 +397,8 @@ public class FullServerTest {
 	
 	@Test
 	public void testErrors() throws Exception {
-		Tuple3<Map<String,Category>, Map<String,MethodBriefInfo>, Map<String,AppBriefInfo>> ret = 
-				CLIENT.listCategories(new ListCategoriesParams().withLoadMethods(1L));
+		Tuple4<Map<String,Category>, Map<String,MethodBriefInfo>, Map<String,AppBriefInfo>, Map<String,TypeInfo>> ret = 
+				CLIENT.listCategories(new ListCategoriesParams().withLoadMethods(1L).withLoadApps(1L).withLoadTypes(1L));
 		Map<String, MethodBriefInfo> methodBriefInfo = ret.getE2();
 		MethodBriefInfo error1 = methodBriefInfo.get("test_error_1");
 		Assert.assertTrue(error1.getLoadingError(), error1.getLoadingError().contains("Unexpected character ('{' (code 123)): was expecting double-quote to start field name\n at [Source: java.io.StringReader"));
@@ -419,6 +421,13 @@ public class FullServerTest {
 			if (appBriefInfo.get(errorId).getLoadingError() != null && !errorId.startsWith("test_error_")) {
 				System.out.println("Unexpected error: " + appBriefInfo.get(errorId).getLoadingError());
 				Assert.fail(appBriefInfo.get(errorId).getLoadingError());
+			}
+		}
+		Map<String, TypeInfo> typeInfo = ret.getE4();
+		for (String errorId : typeInfo.keySet()) {
+			if (typeInfo.get(errorId).getLoadingError() != null && !errorId.startsWith("Test.Error")) {
+				System.out.println("Unexpected error: " + typeInfo.get(errorId).getLoadingError());
+				Assert.fail(typeInfo.get(errorId).getLoadingError());
 			}
 		}
 	}
@@ -473,7 +482,23 @@ public class FullServerTest {
 		assertEquals("output_contigset", spec.getBehavior().getScriptOutputMapping().get(0).getInputParameter());
 		assertNotNull(spec.getBehavior().getScriptOutputMapping().get(0).getTargetProperty());
 	}
-	
+
+	@Test
+	public void testType() throws Exception {
+		Map<String, TypeInfo> typeInfo = CLIENT.listCategories(new ListCategoriesParams().withLoadTypes(1L)).getE4();
+		TypeInfo ti = typeInfo.get("Test.Type1");
+		assertNotNull(ti);
+		assertEquals("Genome", ti.getName());
+		assertEquals(1, ti.getViewMethodIds().size());
+		assertEquals(1, ti.getImportMethodIds().size());
+		assertEquals("genomes", ti.getLandingPageUrlPrefix());
+		ti = CLIENT.getTypeInfo(new GetTypeParams().withTypeNames(Arrays.asList("Test.Type1"))).get(0);
+		assertEquals("Genome", ti.getName());
+		assertEquals(1, ti.getViewMethodIds().size());
+		assertEquals(1, ti.getImportMethodIds().size());
+		assertEquals("genomes", ti.getLandingPageUrlPrefix());
+	}
+
 	@BeforeClass
 	public static void setUpClass() throws Exception {
 
