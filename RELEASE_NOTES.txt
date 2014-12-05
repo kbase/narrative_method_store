@@ -3,16 +3,28 @@ NARRATIVE METHOD STORE OVERVIEW
 The Narrative Method Store provides an API to dynamically access the available
 narrative method specifications and documentation.
 
+
+VERSION: 0.2.0 (Released 12/5/14)
+--------------------------------------
+NEW FEATURES:
+- Config for KBase types was added to track default type viewers and landing pages.
+- Added tab parameter styles.
+- Note: tests pass against test branch of the narrative_method_specs repo at this commit:
+  https://github.com/kbase/narrative_method_specs/tree/8d22a4c165332a7be1da38b463ceff72e4f4432f
+
+UPDATED FEATURES / MAJOR BUG FIXES:
+- Added new fields to method specs to support publications, kbase contributers that are not
+  method authors, and other minor changes to improve specifications.
+- A number of small bug fixes for edge cases.
+
+
 VERSION: 0.1.0 (Released 11/13/14)
 --------------------------------------
 NEW FEATURES:
 - This is the first release of the Narrative Method Store.  All features are new.
-- Note: tests pass against dev branch of the narrative_method_specs repo at this commit:
+- Note: tests pass against test branch of the narrative_method_specs repo at this commit:
   https://github.com/kbase/narrative_method_specs/tree/790093a385105162702443cefb97e5ae5125688d
 
 UPDATED FEATURES / MAJOR BUG FIXES:
 - N/A
-
-KNOWN BUGS:
-- none
 
