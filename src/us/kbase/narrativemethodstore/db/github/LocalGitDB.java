@@ -226,6 +226,8 @@ public class LocalGitDB implements MethodSpecDB {
 
 	protected List<String> listMethodIdsUncached() {
 		List <String> methodList = new ArrayList<String>();
+		if (!getMethodsDir().exists())
+			return methodList;
 		for (File sub : getMethodsDir().listFiles()) {
 			if (sub.isDirectory())
 				methodList.add(sub.getName());
@@ -235,6 +237,8 @@ public class LocalGitDB implements MethodSpecDB {
 
 	protected List<String> listAppIdsUncached() {
 		List <String> appList = new ArrayList<String>();
+		if (!getAppsDir().exists())
+			return appList;
 		for (File sub : getAppsDir().listFiles()) {
 			if (sub.isDirectory())
 				appList.add(sub.getName());
@@ -244,6 +248,8 @@ public class LocalGitDB implements MethodSpecDB {
 
 	protected List<String> listTypeNamesUncached() {
 		List<String> ret = new ArrayList<String>();
+		if (!getTypesDir().exists())
+			return ret;
 		for (File sub : getTypesDir().listFiles()) {
 			if (sub.isDirectory())
 				ret.add(sub.getName());
