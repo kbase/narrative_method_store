@@ -412,24 +412,27 @@ public class FullServerTest {
 		Assert.assertEquals(error5.getLoadingError(), "Can't find property [ui-name] within path [parameters/genome] in display.yaml");
 		for (String errorId : methodBriefInfo.keySet()) {
 			if (methodBriefInfo.get(errorId).getLoadingError() != null && !errorId.startsWith("test_error_")) {
-				System.out.println("Unexpected error: " + methodBriefInfo.get(errorId).getLoadingError());
+				System.out.println("Unexpected error [" + errorId + "]: " + methodBriefInfo.get(errorId).getLoadingError());
 				Assert.fail(methodBriefInfo.get(errorId).getLoadingError());
 			}
 		}
 		Map<String, AppBriefInfo> appBriefInfo = ret.getE3();
 		for (String errorId : appBriefInfo.keySet()) {
 			if (appBriefInfo.get(errorId).getLoadingError() != null && !errorId.startsWith("test_error_")) {
-				System.out.println("Unexpected error: " + appBriefInfo.get(errorId).getLoadingError());
+				System.out.println("Unexpected error[" + errorId + "]: " + appBriefInfo.get(errorId).getLoadingError());
 				Assert.fail(appBriefInfo.get(errorId).getLoadingError());
 			}
 		}
 		Map<String, TypeInfo> typeInfo = ret.getE4();
 		for (String errorId : typeInfo.keySet()) {
 			if (typeInfo.get(errorId).getLoadingError() != null && !errorId.startsWith("Test.Error")) {
-				System.out.println("Unexpected error: " + typeInfo.get(errorId).getLoadingError());
+				System.out.println("Unexpected error[" + errorId + "]: " + typeInfo.get(errorId).getLoadingError());
 				Assert.fail(typeInfo.get(errorId).getLoadingError());
 			}
 		}
+		MethodFullInfo err6 = CLIENT.getMethodFullInfo(new GetMethodParams().withIds(Arrays.asList("test_error_6"))).get(0);
+		String text = err6.getPublications().get(0).getDisplayText();
+		Assert.assertTrue(text.contains("977 982"));
 	}
 	
 	@Test
