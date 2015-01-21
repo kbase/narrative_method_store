@@ -790,6 +790,7 @@ MethodSpec is a reference to a hash where the following keys are defined:
 	replacement_text has a value which is a string
 	widgets has a value which is a NarrativeMethodStore.WidgetSpec
 	parameters has a value which is a reference to a list where each element is a NarrativeMethodStore.MethodParameter
+	fixed_parameters has a value which is a reference to a list where each element is a NarrativeMethodStore.FixedMethodParameter
 	behavior has a value which is a NarrativeMethodStore.MethodBehavior
 	job_id_output_field has a value which is a string
 MethodBriefInfo is a reference to a hash where the following keys are defined:
@@ -867,6 +868,9 @@ TabOptions is a reference to a hash where the following keys are defined:
 	tab_id_order has a value which is a reference to a list where each element is a string
 	tab_id_to_tab_name has a value which is a reference to a hash where the key is a string and the value is a string
 	tab_id_to_param_ids has a value which is a reference to a hash where the key is a string and the value is a reference to a list where each element is a string
+FixedMethodParameter is a reference to a hash where the following keys are defined:
+	ui_name has a value which is a string
+	description has a value which is a string
 MethodBehavior is a reference to a hash where the following keys are defined:
 	python_class has a value which is a string
 	python_function has a value which is a string
@@ -937,6 +941,7 @@ MethodSpec is a reference to a hash where the following keys are defined:
 	replacement_text has a value which is a string
 	widgets has a value which is a NarrativeMethodStore.WidgetSpec
 	parameters has a value which is a reference to a list where each element is a NarrativeMethodStore.MethodParameter
+	fixed_parameters has a value which is a reference to a list where each element is a NarrativeMethodStore.FixedMethodParameter
 	behavior has a value which is a NarrativeMethodStore.MethodBehavior
 	job_id_output_field has a value which is a string
 MethodBriefInfo is a reference to a hash where the following keys are defined:
@@ -1014,6 +1019,9 @@ TabOptions is a reference to a hash where the following keys are defined:
 	tab_id_order has a value which is a reference to a list where each element is a string
 	tab_id_to_tab_name has a value which is a reference to a hash where the key is a string and the value is a string
 	tab_id_to_param_ids has a value which is a reference to a hash where the key is a string and the value is a reference to a list where each element is a string
+FixedMethodParameter is a reference to a hash where the following keys are defined:
+	ui_name has a value which is a string
+	description has a value which is a string
 MethodBehavior is a reference to a hash where the following keys are defined:
 	python_class has a value which is a string
 	python_function has a value which is a string
@@ -2004,6 +2012,7 @@ MethodSpec is a reference to a hash where the following keys are defined:
 	replacement_text has a value which is a string
 	widgets has a value which is a NarrativeMethodStore.WidgetSpec
 	parameters has a value which is a reference to a list where each element is a NarrativeMethodStore.MethodParameter
+	fixed_parameters has a value which is a reference to a list where each element is a NarrativeMethodStore.FixedMethodParameter
 	behavior has a value which is a NarrativeMethodStore.MethodBehavior
 	job_id_output_field has a value which is a string
 MethodBriefInfo is a reference to a hash where the following keys are defined:
@@ -2081,6 +2090,9 @@ TabOptions is a reference to a hash where the following keys are defined:
 	tab_id_order has a value which is a reference to a list where each element is a string
 	tab_id_to_tab_name has a value which is a reference to a hash where the key is a string and the value is a string
 	tab_id_to_param_ids has a value which is a reference to a hash where the key is a string and the value is a reference to a list where each element is a string
+FixedMethodParameter is a reference to a hash where the following keys are defined:
+	ui_name has a value which is a string
+	description has a value which is a string
 MethodBehavior is a reference to a hash where the following keys are defined:
 	python_class has a value which is a string
 	python_function has a value which is a string
@@ -2150,6 +2162,7 @@ MethodSpec is a reference to a hash where the following keys are defined:
 	replacement_text has a value which is a string
 	widgets has a value which is a NarrativeMethodStore.WidgetSpec
 	parameters has a value which is a reference to a list where each element is a NarrativeMethodStore.MethodParameter
+	fixed_parameters has a value which is a reference to a list where each element is a NarrativeMethodStore.FixedMethodParameter
 	behavior has a value which is a NarrativeMethodStore.MethodBehavior
 	job_id_output_field has a value which is a string
 MethodBriefInfo is a reference to a hash where the following keys are defined:
@@ -2227,6 +2240,9 @@ TabOptions is a reference to a hash where the following keys are defined:
 	tab_id_order has a value which is a reference to a list where each element is a string
 	tab_id_to_tab_name has a value which is a reference to a hash where the key is a string and the value is a string
 	tab_id_to_param_ids has a value which is a reference to a hash where the key is a string and the value is a reference to a list where each element is a string
+FixedMethodParameter is a reference to a hash where the following keys are defined:
+	ui_name has a value which is a string
+	description has a value which is a string
 MethodBehavior is a reference to a hash where the following keys are defined:
 	python_class has a value which is a string
 	python_function has a value which is a string
@@ -3756,6 +3772,44 @@ tab_options has a value which is a NarrativeMethodStore.TabOptions
 
 
 
+=head2 FixedMethodParameter
+
+=over 4
+
+
+
+=item Description
+
+a fixed parameter that does not appear in the method input forms, but is informational for users in describing
+a backend parameter that cannot be changed (e.g. if a service picks a fixed parameter for say Blast)
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a reference to a hash where the following keys are defined:
+ui_name has a value which is a string
+description has a value which is a string
+
+</pre>
+
+=end html
+
+=begin text
+
+a reference to a hash where the following keys are defined:
+ui_name has a value which is a string
+description has a value which is a string
+
+
+=end text
+
+=back
+
+
+
 =head2 AutoGeneratedValue
 
 =over 4
@@ -4179,6 +4233,7 @@ info has a value which is a NarrativeMethodStore.MethodBriefInfo
 replacement_text has a value which is a string
 widgets has a value which is a NarrativeMethodStore.WidgetSpec
 parameters has a value which is a reference to a list where each element is a NarrativeMethodStore.MethodParameter
+fixed_parameters has a value which is a reference to a list where each element is a NarrativeMethodStore.FixedMethodParameter
 behavior has a value which is a NarrativeMethodStore.MethodBehavior
 job_id_output_field has a value which is a string
 
@@ -4193,6 +4248,7 @@ info has a value which is a NarrativeMethodStore.MethodBriefInfo
 replacement_text has a value which is a string
 widgets has a value which is a NarrativeMethodStore.WidgetSpec
 parameters has a value which is a reference to a list where each element is a NarrativeMethodStore.MethodParameter
+fixed_parameters has a value which is a reference to a list where each element is a NarrativeMethodStore.FixedMethodParameter
 behavior has a value which is a NarrativeMethodStore.MethodBehavior
 job_id_output_field has a value which is a string
 

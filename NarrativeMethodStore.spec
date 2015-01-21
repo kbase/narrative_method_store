@@ -225,6 +225,13 @@ module NarrativeMethodStore {
         TabOptions tab_options;
     } MethodParameter;
     
+    /* a fixed parameter that does not appear in the method input forms, but is informational for users in describing
+    a backend parameter that cannot be changed (e.g. if a service picks a fixed parameter for say Blast) */
+    typedef structure {
+        string ui_name;
+        string description;
+    } FixedMethodParameter;
+    
     /*
     	prefix - optional string concatenated before generated part
     	symbols - number of generated characters, optional, default is 8
@@ -403,11 +410,12 @@ module NarrativeMethodStore {
         WidgetSpec widgets;
         list<MethodParameter> parameters;
         
+        list<FixedMethodParameter> fixed_parameters;
+        
         MethodBehavior behavior;
 
         string job_id_output_field;
     } MethodSpec;
-
 
 
     

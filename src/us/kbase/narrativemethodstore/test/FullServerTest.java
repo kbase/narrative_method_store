@@ -230,10 +230,12 @@ public class FullServerTest {
 		boolean foundTestMethod3 = false;
 		boolean foundTestMethod4 = false;
 		boolean foundTestMethod5 = false;
+		boolean foundTestMethod7 = false;
 		for(MethodSpec m : methods) {
 			// check specific things in specific test methods
 			if(m.getInfo().getId().equals("test_method_1")) {
 				foundTestMethod1 = true;
+				assertEquals(0, m.getFixedParameters().size());
 				
 				assertTrue("Testing that test_method_1 name from listMethodSpec is correct",
 						m.getInfo().getName().equals("Test Method 1"));
@@ -266,6 +268,7 @@ public class FullServerTest {
 				foundTestMethod3 = true;
 				
 				assertEquals(6, m.getParameters().size());
+				assertEquals(0, m.getFixedParameters().size());
 				////////////////////////
 				assertEquals("param0", m.getParameters().get(0).getId());
 				assertEquals("checkbox", m.getParameters().get(0).getFieldType());
@@ -297,6 +300,7 @@ public class FullServerTest {
 				assertEquals("First tooltip", m.getParameters().get(5).getRadioOptions().getIdsToTooltip().get("item0"));
 			} else if (m.getInfo().getId().equals("test_method_4")) {
 				foundTestMethod4 = true;
+				assertEquals(0, m.getFixedParameters().size());
 				assertEquals("Test Method 4 was run on {{genome}} to produce a new genome named {{output_genome}}.\n", m.getReplacementText());
 				assertEquals(new Long(1), m.getParameters().get(1).getTextOptions().getIsOutputName());
 				assertEquals("output",m.getParameters().get(1).getUiClass());
@@ -306,6 +310,7 @@ public class FullServerTest {
 				foundTestMethod5 = true;
 				
 				assertEquals(4, m.getParameters().size());
+				assertEquals(0, m.getFixedParameters().size());
 
 				assertEquals("text_int_number", m.getParameters().get(0).getId());
 				assertEquals("text", m.getParameters().get(0).getFieldType());
@@ -338,6 +343,14 @@ public class FullServerTest {
 				assertEquals(new Long(0), rm.get(1).getMatch());
 				assertEquals("bad$", rm.get(1).getRegex());
 				assertEquals("input cannot end in bad", rm.get(1).getErrorText());
+			} else if (m.getInfo().getId().equals("test_method_7")) {
+				foundTestMethod7 = true;
+				assertEquals(2, m.getFixedParameters().size());
+
+				assertEquals("FixedParam1", m.getFixedParameters().get(0).getUiName());
+				assertEquals("a fixed parameter", m.getFixedParameters().get(0).getDescription());
+				assertEquals("FixedParam2", m.getFixedParameters().get(1).getUiName());
+				assertEquals("another fixed parameter", m.getFixedParameters().get(1).getDescription());
 			}
 		}
 		assertTrue("Testing that test_method_1 was returned from listMethodSpec",
@@ -351,6 +364,9 @@ public class FullServerTest {
 		
 		assertTrue("Testing that test_method_5 was returned from listMethodSpec",
 				foundTestMethod5);
+		
+		assertTrue("Testing that test_method_7 was returned from listMethodSpec",
+				foundTestMethod7);
 	}
 	
 	
