@@ -19,6 +19,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import us.kbase.common.service.Tuple4;
+import us.kbase.narrativemethodstore.AppFullInfo;
 import us.kbase.narrativemethodstore.AppSpec;
 import us.kbase.narrativemethodstore.Category;
 import us.kbase.narrativemethodstore.GetAppParams;
@@ -132,12 +133,131 @@ public class FullServerTest {
 		
 	}
 	
+	@Test
+	public void testListMethodsBriefInfo() throws Exception {
+		ListParams params = new ListParams();
+		List<MethodBriefInfo> methods = CLIENT.listMethods(params);
+		boolean foundTestMethod1 = false;
+		boolean foundTestMethod7 = false;
+		for(MethodBriefInfo m : methods) {
+			
+			// check specific things in specific test methods
+			if(m.getId().equals("test_method_1")) {
+				foundTestMethod1 = true;
+				
+				assertTrue("Testing that test_method_1 name from listMethodsFullInfo is correct",
+						m.getName().equals("Test Method 1"));
+				assertTrue("Testing that test_method_1 ver from listMethodsFullInfo is correct",
+						m.getVer().equals("1.0.1"));
+				assertTrue("Testing that test_method_1 id from listMethodsFullInfo is correct",
+						m.getId().equals("test_method_1"));
+				assertTrue("Testing that test_method_1 categories from listMethodsFullInfo is correct",
+						m.getCategories().get(0).equals("testmethods"));
+				
+				assertTrue("Testing that test_method_1 does not have an icon",
+						m.getIcon()==null);
+			}
+			
+			// check specific things in specific test methods
+			if(m.getId().equals("test_method_7")) {
+				foundTestMethod7 = true;
+				assertTrue("Testing that test_method_7 has an icon",
+						m.getIcon()!=null);
+				assertTrue("Testing that test_method_7 has an icon url",
+						m.getIcon().getUrl()!=null);
+				assertEquals("img?method_id=test_method_7&image_name=icon.png",m.getIcon().getUrl());
+			}
+		}
+		assertTrue("Testing that test_method_1 was returned from listMethodsFullInfo",
+				foundTestMethod1);
+		assertTrue("Testing that test_method_7 was returned from listMethodsFullInfo",
+				foundTestMethod7);
+	}
+	
+	
+	@Test
+	public void testListAppsFullInfo() throws Exception {
+		ListParams params = new ListParams();
+		List<AppFullInfo> methods = CLIENT.listAppsFullInfo(params);
+		boolean foundTestApp1 = false;
+		boolean foundTestApp2 = false;
+		for(AppFullInfo a : methods) {
+			
+			// check specific things in specific test methods
+			if(a.getId().equals("test_app_1")) {
+				foundTestApp1 = true;
+				
+				assertTrue("Testing that test_app_1 does not have an icon",
+						a.getIcon()==null);
+				
+				assertTrue("Testing that test_app_1 has suggestions defined",
+						a.getSuggestions()!=null);
+				assertTrue("Testing that test_app_1 has suggestions for related apps defined",
+						a.getSuggestions().getRelatedApps()!=null);
+				assertTrue("Testing that test_app_1 has suggestions for next apps defined",
+						a.getSuggestions().getNextApps()!=null);
+				assertTrue("Testing that test_app_1 has suggestions for related methods defined",
+						a.getSuggestions().getRelatedMethods()!=null);
+				assertTrue("Testing that test_app_1 has suggestions for next methods defined",
+						a.getSuggestions().getNextMethods()!=null);
+				assertTrue("Testing that test_app_1 has no suggestions for related apps",
+						a.getSuggestions().getRelatedApps().size()==0);
+				assertTrue("Testing that test_app_1 has no suggestions for next apps",
+						a.getSuggestions().getNextApps().size()==0);
+				assertTrue("Testing that test_app_1 has no suggestions for related methods",
+						a.getSuggestions().getRelatedMethods().size()==0);
+				assertTrue("Testing that test_app_1 has no suggestions for next methods",
+						a.getSuggestions().getNextMethods().size()==0);
+				
+			}
+			
+			// check specific things in specific test methods
+			if(a.getId().equals("test_app_2")) {
+				foundTestApp2 = true;
+				assertTrue("Testing that test_app_2 technical description is empty",
+						a.getTechnicalDescription().trim().length()==0);
+				assertTrue("Testing that test_app_2 has an icon",
+						a.getIcon()!=null);
+				assertTrue("Testing that test_app_2 has an icon url",
+						a.getIcon().getUrl()!=null);
+				assertEquals("img?method_id=test_app_2&image_name=someIcon.png",a.getIcon().getUrl());
+				
+				
+				assertTrue("Testing that test_app_2 has suggestions defined",
+						a.getSuggestions()!=null);
+				assertTrue("Testing that test_app_2 has suggestions for related apps defined",
+						a.getSuggestions().getRelatedApps()!=null);
+				assertTrue("Testing that test_app_2 has suggestions for next apps defined",
+						a.getSuggestions().getNextApps()!=null);
+				assertTrue("Testing that test_app_2 has suggestions for related methods defined",
+						a.getSuggestions().getRelatedMethods()!=null);
+				assertTrue("Testing that test_app_2 has suggestions for next methods defined",
+						a.getSuggestions().getNextMethods()!=null);
+				
+				assertTrue("Testing that test_app_2 has suggestions for related apps",
+						a.getSuggestions().getRelatedApps().size()==1);
+				assertTrue("Testing that test_app_2 has suggestions for next apps",
+						a.getSuggestions().getNextApps().size()==1);
+				assertTrue("Testing that test_app_2 has no suggestions for related methods",
+						a.getSuggestions().getRelatedMethods().size()==0);
+				assertTrue("Testing that test_app_2 has no suggestions for next methods",
+						a.getSuggestions().getNextMethods().size()==0);
+				
+			}
+		}
+		assertTrue("Testing that test_app_1 was returned from listAppsFullInfo",
+				foundTestApp1);
+		assertTrue("Testing that test_app_2 was returned from listAppsFullInfo",
+				foundTestApp2);
+	}
+	
 	
 	@Test
 	public void testListMethodsFullInfo() throws Exception {
 		ListParams params = new ListParams();
 		List<MethodFullInfo> methods = CLIENT.listMethodsFullInfo(params);
 		boolean foundTestMethod1 = false;
+		boolean foundTestMethod7 = false;
 		for(MethodFullInfo m : methods) {
 			
 			// check specific things in specific test methods
@@ -157,10 +277,75 @@ public class FullServerTest {
 						m.getDescription().trim().length()>0);
 				assertTrue("Testing that test_method_1 technical description from listMethodsFullInfo is present",
 						m.getTechnicalDescription().trim().length()>0);
+				assertTrue("Testing that test_method_1 does not have an icon",
+						m.getIcon()==null);
+				
+
+				assertTrue("Testing that test_method_1 has suggestions defined",
+						m.getSuggestions()!=null);
+				assertTrue("Testing that test_method_1 has suggestions for related apps defined",
+						m.getSuggestions().getRelatedApps()!=null);
+				assertTrue("Testing that test_method_1 has suggestions for next apps defined",
+						m.getSuggestions().getNextApps()!=null);
+				assertTrue("Testing that test_method_1 has suggestions for related methods defined",
+						m.getSuggestions().getRelatedMethods()!=null);
+				assertTrue("Testing that test_method_1 has suggestions for next methods defined",
+						m.getSuggestions().getNextMethods()!=null);
+				assertTrue("Testing that test_method_1 has no suggestions for related apps",
+						m.getSuggestions().getRelatedApps().size()==0);
+				assertTrue("Testing that test_method_1 has no suggestions for next apps",
+						m.getSuggestions().getNextApps().size()==0);
+				assertTrue("Testing that test_method_1 has no suggestions for related methods",
+						m.getSuggestions().getRelatedMethods().size()==0);
+				assertTrue("Testing that test_method_1 has no suggestions for next methods",
+						m.getSuggestions().getNextMethods().size()==0);
+				
+			}
+			
+			// check specific things in specific test methods
+			if(m.getId().equals("test_method_7")) {
+				foundTestMethod7 = true;
+				assertTrue("Testing that test_method_7 technical description is empty",
+						m.getTechnicalDescription().trim().length()==0);
+				assertTrue("Testing that test_method_7 has an icon",
+						m.getIcon()!=null);
+				assertTrue("Testing that test_method_7 has an icon url",
+						m.getIcon().getUrl()!=null);
+				assertEquals("img?method_id=test_method_7&image_name=icon.png",m.getIcon().getUrl());
+				
+				
+				assertTrue("Testing that test_method_7 has suggestions defined",
+						m.getSuggestions()!=null);
+				assertTrue("Testing that test_method_7 has suggestions for related apps defined",
+						m.getSuggestions().getRelatedApps()!=null);
+				assertTrue("Testing that test_method_7 has suggestions for next apps defined",
+						m.getSuggestions().getNextApps()!=null);
+				assertTrue("Testing that test_method_7 has suggestions for related methods defined",
+						m.getSuggestions().getRelatedMethods()!=null);
+				assertTrue("Testing that test_method_7 has suggestions for next methods defined",
+						m.getSuggestions().getNextMethods()!=null);
+				
+				assertTrue("Testing that test_method_7 has suggestions for related apps",
+						m.getSuggestions().getRelatedApps().size()==1);
+				assertTrue("Testing that test_method_7 has suggestions for next apps",
+						m.getSuggestions().getNextApps().size()==1);
+				assertTrue("Testing that test_method_7 has suggestions for related methods",
+						m.getSuggestions().getRelatedMethods().size()==1);
+				assertEquals("test_method_3",
+						m.getSuggestions().getRelatedMethods().get(0));
+				assertTrue("Testing that test_method_7 has suggestions for next methods",
+						m.getSuggestions().getNextMethods().size()==2);
+				assertEquals("test_method_1",
+						m.getSuggestions().getNextMethods().get(0));
+				assertEquals("test_method_2",
+						m.getSuggestions().getNextMethods().get(1));
+				
 			}
 		}
 		assertTrue("Testing that test_method_1 was returned from listMethodsFullInfo",
 				foundTestMethod1);
+		assertTrue("Testing that test_method_7 was returned from listMethodsFullInfo",
+				foundTestMethod7);
 	}
 
 	
@@ -172,10 +357,12 @@ public class FullServerTest {
 		boolean foundTestMethod3 = false;
 		boolean foundTestMethod4 = false;
 		boolean foundTestMethod5 = false;
+		boolean foundTestMethod7 = false;
 		for(MethodSpec m : methods) {
 			// check specific things in specific test methods
 			if(m.getInfo().getId().equals("test_method_1")) {
 				foundTestMethod1 = true;
+				assertEquals(0, m.getFixedParameters().size());
 				
 				assertTrue("Testing that test_method_1 name from listMethodSpec is correct",
 						m.getInfo().getName().equals("Test Method 1"));
@@ -208,6 +395,7 @@ public class FullServerTest {
 				foundTestMethod3 = true;
 				
 				assertEquals(6, m.getParameters().size());
+				assertEquals(0, m.getFixedParameters().size());
 				////////////////////////
 				assertEquals("param0", m.getParameters().get(0).getId());
 				assertEquals("checkbox", m.getParameters().get(0).getFieldType());
@@ -216,6 +404,7 @@ public class FullServerTest {
 				////////////////////////
 				assertEquals("param0.1", m.getParameters().get(1).getId());
 				assertEquals("text", m.getParameters().get(1).getFieldType());
+				assertEquals("parameter",m.getParameters().get(1).getUiClass());
 				////////////////////////
 				assertEquals("param1", m.getParameters().get(2).getId());
 				assertEquals("floatslider", m.getParameters().get(2).getFieldType());
@@ -238,33 +427,41 @@ public class FullServerTest {
 				assertEquals("First tooltip", m.getParameters().get(5).getRadioOptions().getIdsToTooltip().get("item0"));
 			} else if (m.getInfo().getId().equals("test_method_4")) {
 				foundTestMethod4 = true;
+				assertEquals(0, m.getFixedParameters().size());
 				assertEquals("Test Method 4 was run on {{genome}} to produce a new genome named {{output_genome}}.\n", m.getReplacementText());
 				assertEquals(new Long(1), m.getParameters().get(1).getTextOptions().getIsOutputName());
+				assertEquals("output",m.getParameters().get(1).getUiClass());
 				assertEquals("select a genome", m.getParameters().get(0).getTextOptions().getPlaceholder());
+				assertEquals("input",m.getParameters().get(0).getUiClass());
 			} else if (m.getInfo().getId().equals("test_method_5")) {
 				foundTestMethod5 = true;
 				
 				assertEquals(4, m.getParameters().size());
+				assertEquals(0, m.getFixedParameters().size());
 
 				assertEquals("text_int_number", m.getParameters().get(0).getId());
 				assertEquals("text", m.getParameters().get(0).getFieldType());
 				assertEquals(new Long(0), m.getParameters().get(0).getTextOptions().getMinInt());
 				assertEquals(new Long(20), m.getParameters().get(0).getTextOptions().getMaxInt());
 				assertEquals(new Long(0), m.getParameters().get(0).getDisabled());
+				assertEquals("parameter",m.getParameters().get(0).getUiClass());
 
 				assertEquals("text_int_number_disabled", m.getParameters().get(1).getId());
 				assertEquals("text", m.getParameters().get(1).getFieldType());
 				assertEquals(new Long(0), m.getParameters().get(1).getTextOptions().getMinInt());
 				assertEquals(new Long(20), m.getParameters().get(1).getTextOptions().getMaxInt());
 				assertEquals(new Long(1), m.getParameters().get(1).getDisabled());
+				assertEquals("parameter",m.getParameters().get(1).getUiClass());
 
 				assertEquals("text_float_number", m.getParameters().get(2).getId());
 				assertEquals("text", m.getParameters().get(2).getFieldType());
 				assertEquals(new Double(0.5), m.getParameters().get(2).getTextOptions().getMinFloat());
 				assertEquals(new Double(20.2), m.getParameters().get(2).getTextOptions().getMaxFloat());
+				assertEquals("parameter",m.getParameters().get(2).getUiClass());
 
 				assertEquals("regex", m.getParameters().get(3).getId());
 				assertEquals("text", m.getParameters().get(3).getFieldType());
+				assertEquals("parameter",m.getParameters().get(3).getUiClass());
 				List<RegexMatcher> rm = m.getParameters().get(3).getTextOptions().getRegexConstraint();
 				assertEquals(new Long(1), rm.get(0).getMatch());
 				assertEquals("^good", rm.get(0).getRegex());
@@ -273,6 +470,14 @@ public class FullServerTest {
 				assertEquals(new Long(0), rm.get(1).getMatch());
 				assertEquals("bad$", rm.get(1).getRegex());
 				assertEquals("input cannot end in bad", rm.get(1).getErrorText());
+			} else if (m.getInfo().getId().equals("test_method_7")) {
+				foundTestMethod7 = true;
+				assertEquals(2, m.getFixedParameters().size());
+
+				assertEquals("FixedParam1", m.getFixedParameters().get(0).getUiName());
+				assertEquals("a fixed parameter", m.getFixedParameters().get(0).getDescription());
+				assertEquals("FixedParam2", m.getFixedParameters().get(1).getUiName());
+				assertEquals("another fixed parameter", m.getFixedParameters().get(1).getDescription());
 			}
 		}
 		assertTrue("Testing that test_method_1 was returned from listMethodSpec",
@@ -286,6 +491,9 @@ public class FullServerTest {
 		
 		assertTrue("Testing that test_method_5 was returned from listMethodSpec",
 				foundTestMethod5);
+		
+		assertTrue("Testing that test_method_7 was returned from listMethodSpec",
+				foundTestMethod7);
 	}
 	
 	
@@ -352,9 +560,9 @@ public class FullServerTest {
 		assertTrue("4 publications are present",authors.size()==2);
 		assertEquals("first author",authors.get(0),"msneddon");
 		assertEquals("second author",authors.get(1),"wstester1");
-		List<String> kb_contributers = m.getKbContributers();
-		assertTrue("KB Contributers are returned",kb_contributers!=null);
-		assertEquals("first contributer",kb_contributers.get(0),"wstester3");
+		List<String> kb_contributors = m.getKbContributors();
+		assertTrue("KB Contributers are returned",kb_contributors!=null);
+		assertEquals("first contributer",kb_contributors.get(0),"wstester3");
 	}
 	
 	

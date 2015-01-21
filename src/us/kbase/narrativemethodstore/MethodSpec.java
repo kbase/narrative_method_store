@@ -31,6 +31,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
     "replacement_text",
     "widgets",
     "parameters",
+    "fixed_parameters",
     "behavior",
     "job_id_output_field"
 })
@@ -58,6 +59,8 @@ public class MethodSpec {
     private WidgetSpec widgets;
     @JsonProperty("parameters")
     private List<MethodParameter> parameters;
+    @JsonProperty("fixed_parameters")
+    private List<FixedMethodParameter> fixedParameters;
     /**
      * <p>Original spec-file type: MethodBehavior</p>
      * <pre>
@@ -167,6 +170,21 @@ public class MethodSpec {
         return this;
     }
 
+    @JsonProperty("fixed_parameters")
+    public List<FixedMethodParameter> getFixedParameters() {
+        return fixedParameters;
+    }
+
+    @JsonProperty("fixed_parameters")
+    public void setFixedParameters(List<FixedMethodParameter> fixedParameters) {
+        this.fixedParameters = fixedParameters;
+    }
+
+    public MethodSpec withFixedParameters(List<FixedMethodParameter> fixedParameters) {
+        this.fixedParameters = fixedParameters;
+        return this;
+    }
+
     /**
      * <p>Original spec-file type: MethodBehavior</p>
      * <pre>
@@ -239,7 +257,7 @@ public class MethodSpec {
 
     @Override
     public String toString() {
-        return ((((((((((((((("MethodSpec"+" [info=")+ info)+", replacementText=")+ replacementText)+", widgets=")+ widgets)+", parameters=")+ parameters)+", behavior=")+ behavior)+", jobIdOutputField=")+ jobIdOutputField)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((((((((((((("MethodSpec"+" [info=")+ info)+", replacementText=")+ replacementText)+", widgets=")+ widgets)+", parameters=")+ parameters)+", fixedParameters=")+ fixedParameters)+", behavior=")+ behavior)+", jobIdOutputField=")+ jobIdOutputField)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }

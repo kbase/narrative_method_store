@@ -26,6 +26,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
     "subtitle",
     "tooltip",
     "header",
+    "icon",
     "categories",
     "loading_error"
 })
@@ -43,6 +44,13 @@ public class AppBriefInfo {
     private java.lang.String tooltip;
     @JsonProperty("header")
     private java.lang.String header;
+    /**
+     * <p>Original spec-file type: Icon</p>
+     * 
+     * 
+     */
+    @JsonProperty("icon")
+    private Icon icon;
     @JsonProperty("categories")
     private List<String> categories;
     @JsonProperty("loading_error")
@@ -139,6 +147,31 @@ public class AppBriefInfo {
         return this;
     }
 
+    /**
+     * <p>Original spec-file type: Icon</p>
+     * 
+     * 
+     */
+    @JsonProperty("icon")
+    public Icon getIcon() {
+        return icon;
+    }
+
+    /**
+     * <p>Original spec-file type: Icon</p>
+     * 
+     * 
+     */
+    @JsonProperty("icon")
+    public void setIcon(Icon icon) {
+        this.icon = icon;
+    }
+
+    public AppBriefInfo withIcon(Icon icon) {
+        this.icon = icon;
+        return this;
+    }
+
     @JsonProperty("categories")
     public List<String> getCategories() {
         return categories;
@@ -181,7 +214,7 @@ public class AppBriefInfo {
 
     @Override
     public java.lang.String toString() {
-        return ((((((((((((((((((("AppBriefInfo"+" [id=")+ id)+", name=")+ name)+", ver=")+ ver)+", subtitle=")+ subtitle)+", tooltip=")+ tooltip)+", header=")+ header)+", categories=")+ categories)+", loadingError=")+ loadingError)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((((((((((((((((("AppBriefInfo"+" [id=")+ id)+", name=")+ name)+", ver=")+ ver)+", subtitle=")+ subtitle)+", tooltip=")+ tooltip)+", header=")+ header)+", icon=")+ icon)+", categories=")+ categories)+", loadingError=")+ loadingError)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }

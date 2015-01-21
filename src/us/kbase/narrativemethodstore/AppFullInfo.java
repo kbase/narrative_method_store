@@ -30,7 +30,9 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
     "header",
     "description",
     "technical_description",
+    "suggestions",
     "categories",
+    "icon",
     "screenshots"
 })
 public class AppFullInfo {
@@ -55,8 +57,22 @@ public class AppFullInfo {
     private java.lang.String description;
     @JsonProperty("technical_description")
     private java.lang.String technicalDescription;
+    /**
+     * <p>Original spec-file type: Suggestions</p>
+     * 
+     * 
+     */
+    @JsonProperty("suggestions")
+    private Suggestions suggestions;
     @JsonProperty("categories")
     private List<String> categories;
+    /**
+     * <p>Original spec-file type: Icon</p>
+     * 
+     * 
+     */
+    @JsonProperty("icon")
+    private Icon icon;
     @JsonProperty("screenshots")
     private List<ScreenShot> screenshots;
     private Map<java.lang.String, Object> additionalProperties = new HashMap<java.lang.String, Object>();
@@ -211,6 +227,31 @@ public class AppFullInfo {
         return this;
     }
 
+    /**
+     * <p>Original spec-file type: Suggestions</p>
+     * 
+     * 
+     */
+    @JsonProperty("suggestions")
+    public Suggestions getSuggestions() {
+        return suggestions;
+    }
+
+    /**
+     * <p>Original spec-file type: Suggestions</p>
+     * 
+     * 
+     */
+    @JsonProperty("suggestions")
+    public void setSuggestions(Suggestions suggestions) {
+        this.suggestions = suggestions;
+    }
+
+    public AppFullInfo withSuggestions(Suggestions suggestions) {
+        this.suggestions = suggestions;
+        return this;
+    }
+
     @JsonProperty("categories")
     public List<String> getCategories() {
         return categories;
@@ -223,6 +264,31 @@ public class AppFullInfo {
 
     public AppFullInfo withCategories(List<String> categories) {
         this.categories = categories;
+        return this;
+    }
+
+    /**
+     * <p>Original spec-file type: Icon</p>
+     * 
+     * 
+     */
+    @JsonProperty("icon")
+    public Icon getIcon() {
+        return icon;
+    }
+
+    /**
+     * <p>Original spec-file type: Icon</p>
+     * 
+     * 
+     */
+    @JsonProperty("icon")
+    public void setIcon(Icon icon) {
+        this.icon = icon;
+    }
+
+    public AppFullInfo withIcon(Icon icon) {
+        this.icon = icon;
         return this;
     }
 
@@ -253,7 +319,7 @@ public class AppFullInfo {
 
     @Override
     public java.lang.String toString() {
-        return ((((((((((((((((((((((((((("AppFullInfo"+" [id=")+ id)+", name=")+ name)+", ver=")+ ver)+", authors=")+ authors)+", contact=")+ contact)+", subtitle=")+ subtitle)+", tooltip=")+ tooltip)+", header=")+ header)+", description=")+ description)+", technicalDescription=")+ technicalDescription)+", categories=")+ categories)+", screenshots=")+ screenshots)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((((((((((((((((((((((((((("AppFullInfo"+" [id=")+ id)+", name=")+ name)+", ver=")+ ver)+", authors=")+ authors)+", contact=")+ contact)+", subtitle=")+ subtitle)+", tooltip=")+ tooltip)+", header=")+ header)+", description=")+ description)+", technicalDescription=")+ technicalDescription)+", suggestions=")+ suggestions)+", categories=")+ categories)+", icon=")+ icon)+", screenshots=")+ screenshots)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }
