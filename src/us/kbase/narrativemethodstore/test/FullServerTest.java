@@ -410,9 +410,9 @@ public class FullServerTest {
 		assertTrue("4 publications are present",authors.size()==2);
 		assertEquals("first author",authors.get(0),"msneddon");
 		assertEquals("second author",authors.get(1),"wstester1");
-		List<String> kb_contributers = m.getKbContributers();
-		assertTrue("KB Contributers are returned",kb_contributers!=null);
-		assertEquals("first contributer",kb_contributers.get(0),"wstester3");
+		List<String> kb_contributors = m.getKbContributors();
+		assertTrue("KB Contributers are returned",kb_contributors!=null);
+		assertEquals("first contributer",kb_contributors.get(0),"wstester3");
 	}
 	
 	

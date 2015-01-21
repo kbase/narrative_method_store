@@ -26,7 +26,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
     "name",
     "ver",
     "authors",
-    "kb_contributers",
+    "kb_contributors",
     "contact",
     "subtitle",
     "tooltip",
@@ -47,8 +47,8 @@ public class MethodFullInfo {
     private java.lang.String ver;
     @JsonProperty("authors")
     private List<String> authors;
-    @JsonProperty("kb_contributers")
-    private List<String> kbContributers;
+    @JsonProperty("kb_contributors")
+    private List<String> kbContributors;
     @JsonProperty("contact")
     private java.lang.String contact;
     @JsonProperty("subtitle")
@@ -134,18 +134,18 @@ public class MethodFullInfo {
         return this;
     }
 
-    @JsonProperty("kb_contributers")
-    public List<String> getKbContributers() {
-        return kbContributers;
+    @JsonProperty("kb_contributors")
+    public List<String> getKbContributors() {
+        return kbContributors;
     }
 
-    @JsonProperty("kb_contributers")
-    public void setKbContributers(List<String> kbContributers) {
-        this.kbContributers = kbContributers;
+    @JsonProperty("kb_contributors")
+    public void setKbContributors(List<String> kbContributors) {
+        this.kbContributors = kbContributors;
     }
 
-    public MethodFullInfo withKbContributers(List<String> kbContributers) {
-        this.kbContributers = kbContributers;
+    public MethodFullInfo withKbContributors(List<String> kbContributors) {
+        this.kbContributors = kbContributors;
         return this;
     }
 
@@ -306,7 +306,7 @@ public class MethodFullInfo {
 
     @Override
     public java.lang.String toString() {
-        return ((((((((((((((((((((((((((((((("MethodFullInfo"+" [id=")+ id)+", name=")+ name)+", ver=")+ ver)+", authors=")+ authors)+", kbContributers=")+ kbContributers)+", contact=")+ contact)+", subtitle=")+ subtitle)+", tooltip=")+ tooltip)+", description=")+ description)+", technicalDescription=")+ technicalDescription)+", icon=")+ icon)+", categories=")+ categories)+", screenshots=")+ screenshots)+", publications=")+ publications)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((((((((((((((((((((((((((("MethodFullInfo"+" [id=")+ id)+", name=")+ name)+", ver=")+ ver)+", authors=")+ authors)+", kbContributors=")+ kbContributors)+", contact=")+ contact)+", subtitle=")+ subtitle)+", tooltip=")+ tooltip)+", description=")+ description)+", technicalDescription=")+ technicalDescription)+", icon=")+ icon)+", categories=")+ categories)+", screenshots=")+ screenshots)+", publications=")+ publications)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }

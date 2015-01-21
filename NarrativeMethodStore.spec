@@ -72,7 +72,7 @@ module NarrativeMethodStore {
         string name;
         string ver;
         list <username> authors;
-        list <username> kb_contributers;
+        list <username> kb_contributors;
         email contact;
         
         string subtitle;

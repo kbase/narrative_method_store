@@ -651,7 +651,7 @@ MethodFullInfo is a reference to a hash where the following keys are defined:
 	name has a value which is a string
 	ver has a value which is a string
 	authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
-	kb_contributers has a value which is a reference to a list where each element is a NarrativeMethodStore.username
+	kb_contributors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
 	contact has a value which is a NarrativeMethodStore.email
 	subtitle has a value which is a string
 	tooltip has a value which is a string
@@ -689,7 +689,7 @@ MethodFullInfo is a reference to a hash where the following keys are defined:
 	name has a value which is a string
 	ver has a value which is a string
 	authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
-	kb_contributers has a value which is a reference to a list where each element is a NarrativeMethodStore.username
+	kb_contributors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
 	contact has a value which is a NarrativeMethodStore.email
 	subtitle has a value which is a string
 	tooltip has a value which is a string
@@ -1867,7 +1867,7 @@ MethodFullInfo is a reference to a hash where the following keys are defined:
 	name has a value which is a string
 	ver has a value which is a string
 	authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
-	kb_contributers has a value which is a reference to a list where each element is a NarrativeMethodStore.username
+	kb_contributors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
 	contact has a value which is a NarrativeMethodStore.email
 	subtitle has a value which is a string
 	tooltip has a value which is a string
@@ -1904,7 +1904,7 @@ MethodFullInfo is a reference to a hash where the following keys are defined:
 	name has a value which is a string
 	ver has a value which is a string
 	authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
-	kb_contributers has a value which is a reference to a list where each element is a NarrativeMethodStore.username
+	kb_contributors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
 	contact has a value which is a NarrativeMethodStore.email
 	subtitle has a value which is a string
 	tooltip has a value which is a string
@@ -3223,7 +3223,7 @@ id has a value which is a string
 name has a value which is a string
 ver has a value which is a string
 authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
-kb_contributers has a value which is a reference to a list where each element is a NarrativeMethodStore.username
+kb_contributors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
 contact has a value which is a NarrativeMethodStore.email
 subtitle has a value which is a string
 tooltip has a value which is a string
@@ -3245,7 +3245,7 @@ id has a value which is a string
 name has a value which is a string
 ver has a value which is a string
 authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
-kb_contributers has a value which is a reference to a list where each element is a NarrativeMethodStore.username
+kb_contributors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
 contact has a value which is a NarrativeMethodStore.email
 subtitle has a value which is a string
 tooltip has a value which is a string

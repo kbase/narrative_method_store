@@ -112,7 +112,7 @@ public class NarrativeMethodData {
 		
 		List <String> authors = jsonListToStringList(spec.get("authors"));
 
-		List <String> kbContributers = jsonListToStringList(spec.get("kb_contributers"));
+		List <String> kbContributors = jsonListToStringList(spec.get("kb_contributors"));
 		
 		List<ScreenShot> screenshots = new ArrayList<ScreenShot>();
 		@SuppressWarnings("unchecked")
@@ -166,7 +166,7 @@ public class NarrativeMethodData {
 							.withCategories(categories)
 							
 							.withAuthors(authors)
-							.withKbContributers(kbContributers)
+							.withKbContributors(kbContributors)
 							.withContact(get(spec, "contact").asText())
 							
 							.withDescription(methodDescription)
