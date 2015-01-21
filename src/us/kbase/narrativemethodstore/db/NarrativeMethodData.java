@@ -34,6 +34,7 @@ import us.kbase.narrativemethodstore.ScriptInputMapping;
 import us.kbase.narrativemethodstore.ScriptOutputMapping;
 import us.kbase.narrativemethodstore.ServiceMethodInputMapping;
 import us.kbase.narrativemethodstore.ServiceMethodOutputMapping;
+import us.kbase.narrativemethodstore.Suggestions;
 import us.kbase.narrativemethodstore.TabOptions;
 import us.kbase.narrativemethodstore.TextAreaOptions;
 import us.kbase.narrativemethodstore.TextOptions;
@@ -158,6 +159,40 @@ public class NarrativeMethodData {
 			}
 		} catch(IllegalStateException e) {}
 		
+		List<String> relatedApps = new ArrayList<String>();
+		List<String> nextApps = new ArrayList<String>();
+		List<String> relatedMethods = new ArrayList<String>();
+		List<String> nextMethods = new ArrayList<String>();
+		try {
+			@SuppressWarnings("unchecked")
+			Map<String,Object> sugg = (Map<String,Object>)getDisplayProp("/", display, "suggestions");
+			if(sugg.get("apps")!=null) {
+				@SuppressWarnings("unchecked")
+				Map<String,List<String>> suggApps = (Map<String, List<String>>) sugg.get("apps");
+				if(suggApps.get("related")!=null) {
+					relatedApps = suggApps.get("related");
+				}
+				if(suggApps.get("next")!=null) {
+					nextApps = suggApps.get("next");
+				}
+			}
+			if(sugg.get("methods")!=null) {
+				@SuppressWarnings("unchecked")
+				Map<String,List<String>> suggMethods = (Map<String, List<String>>) sugg.get("methods");
+				if(suggMethods.get("related")!=null) {
+					relatedMethods = suggMethods.get("related");
+				}
+				if(suggMethods.get("next")!=null) {
+					nextMethods = suggMethods.get("next");
+				}
+			}
+		} catch(IllegalStateException e) {}
+		Suggestions suggestions = new Suggestions()
+									.withRelatedApps(relatedApps)
+									.withNextApps(nextApps)
+									.withRelatedMethods(relatedMethods)
+									.withNextMethods(nextMethods);
+		
 		fullInfo = new MethodFullInfo()
 							.withId(this.methodId)
 							.withName(methodName)
@@ -175,6 +210,8 @@ public class NarrativeMethodData {
 							.withScreenshots(screenshots)
 							.withIcon(icon)
 		
+							.withSuggestions(suggestions)
+							
 							.withPublications(publications);
 		
 		JsonNode widgetsNode = get(spec, "widgets");

@@ -66,6 +66,14 @@ module NarrativeMethodStore {
         url link;
     } Publication;
     
+    
+    typedef structure {
+        list<string> related_methods;
+        list<string> next_methods;
+        list<string> related_apps;
+        list<string> next_apps;
+    } Suggestions;
+    
     /* Full information about a method suitable for displaying a method landing page. */
     typedef structure {
         string id;
@@ -79,6 +87,8 @@ module NarrativeMethodStore {
         string tooltip;
         string description;
         string technical_description;
+        
+        Suggestions suggestions;
         
         Icon icon;
         

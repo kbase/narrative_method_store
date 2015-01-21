@@ -201,6 +201,27 @@ public class FullServerTest {
 						m.getTechnicalDescription().trim().length()>0);
 				assertTrue("Testing that test_method_1 does not have an icon",
 						m.getIcon()==null);
+				
+
+				assertTrue("Testing that test_method_1 has suggestions defined",
+						m.getSuggestions()!=null);
+				assertTrue("Testing that test_method_1 has suggestions for related apps defined",
+						m.getSuggestions().getRelatedApps()!=null);
+				assertTrue("Testing that test_method_1 has suggestions for next apps defined",
+						m.getSuggestions().getNextApps()!=null);
+				assertTrue("Testing that test_method_1 has suggestions for related methods defined",
+						m.getSuggestions().getRelatedMethods()!=null);
+				assertTrue("Testing that test_method_1 has suggestions for next methods defined",
+						m.getSuggestions().getNextMethods()!=null);
+				assertTrue("Testing that test_method_1 has no suggestions for related apps",
+						m.getSuggestions().getRelatedApps().size()==0);
+				assertTrue("Testing that test_method_1 has no suggestions for next apps",
+						m.getSuggestions().getNextApps().size()==0);
+				assertTrue("Testing that test_method_1 has no suggestions for related methods",
+						m.getSuggestions().getRelatedMethods().size()==0);
+				assertTrue("Testing that test_method_1 has no suggestions for next methods",
+						m.getSuggestions().getNextMethods().size()==0);
+				
 			}
 			
 			// check specific things in specific test methods
@@ -213,6 +234,34 @@ public class FullServerTest {
 				assertTrue("Testing that test_method_7 has an icon url",
 						m.getIcon().getUrl()!=null);
 				assertEquals("img?method_id=test_method_7&image_name=icon.png",m.getIcon().getUrl());
+				
+				
+				assertTrue("Testing that test_method_7 has suggestions defined",
+						m.getSuggestions()!=null);
+				assertTrue("Testing that test_method_7 has suggestions for related apps defined",
+						m.getSuggestions().getRelatedApps()!=null);
+				assertTrue("Testing that test_method_7 has suggestions for next apps defined",
+						m.getSuggestions().getNextApps()!=null);
+				assertTrue("Testing that test_method_7 has suggestions for related methods defined",
+						m.getSuggestions().getRelatedMethods()!=null);
+				assertTrue("Testing that test_method_7 has suggestions for next methods defined",
+						m.getSuggestions().getNextMethods()!=null);
+				
+				assertTrue("Testing that test_method_7 has suggestions for related apps",
+						m.getSuggestions().getRelatedApps().size()==1);
+				assertTrue("Testing that test_method_7 has suggestions for next apps",
+						m.getSuggestions().getNextApps().size()==1);
+				assertTrue("Testing that test_method_7 has suggestions for related methods",
+						m.getSuggestions().getRelatedMethods().size()==1);
+				assertEquals("test_method_3",
+						m.getSuggestions().getRelatedMethods().get(0));
+				assertTrue("Testing that test_method_7 has suggestions for next methods",
+						m.getSuggestions().getNextMethods().size()==2);
+				assertEquals("test_method_1",
+						m.getSuggestions().getNextMethods().get(0));
+				assertEquals("test_method_2",
+						m.getSuggestions().getNextMethods().get(1));
+				
 			}
 		}
 		assertTrue("Testing that test_method_1 was returned from listMethodsFullInfo",

@@ -32,6 +32,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
     "tooltip",
     "description",
     "technical_description",
+    "suggestions",
     "icon",
     "categories",
     "screenshots",
@@ -59,6 +60,13 @@ public class MethodFullInfo {
     private java.lang.String description;
     @JsonProperty("technical_description")
     private java.lang.String technicalDescription;
+    /**
+     * <p>Original spec-file type: Suggestions</p>
+     * 
+     * 
+     */
+    @JsonProperty("suggestions")
+    private Suggestions suggestions;
     /**
      * <p>Original spec-file type: Icon</p>
      * 
@@ -225,6 +233,31 @@ public class MethodFullInfo {
     }
 
     /**
+     * <p>Original spec-file type: Suggestions</p>
+     * 
+     * 
+     */
+    @JsonProperty("suggestions")
+    public Suggestions getSuggestions() {
+        return suggestions;
+    }
+
+    /**
+     * <p>Original spec-file type: Suggestions</p>
+     * 
+     * 
+     */
+    @JsonProperty("suggestions")
+    public void setSuggestions(Suggestions suggestions) {
+        this.suggestions = suggestions;
+    }
+
+    public MethodFullInfo withSuggestions(Suggestions suggestions) {
+        this.suggestions = suggestions;
+        return this;
+    }
+
+    /**
      * <p>Original spec-file type: Icon</p>
      * 
      * 
@@ -306,7 +339,7 @@ public class MethodFullInfo {
 
     @Override
     public java.lang.String toString() {
-        return ((((((((((((((((((((((((((((((("MethodFullInfo"+" [id=")+ id)+", name=")+ name)+", ver=")+ ver)+", authors=")+ authors)+", kbContributors=")+ kbContributors)+", contact=")+ contact)+", subtitle=")+ subtitle)+", tooltip=")+ tooltip)+", description=")+ description)+", technicalDescription=")+ technicalDescription)+", icon=")+ icon)+", categories=")+ categories)+", screenshots=")+ screenshots)+", publications=")+ publications)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((((((((((((((((((((((((((((("MethodFullInfo"+" [id=")+ id)+", name=")+ name)+", ver=")+ ver)+", authors=")+ authors)+", kbContributors=")+ kbContributors)+", contact=")+ contact)+", subtitle=")+ subtitle)+", tooltip=")+ tooltip)+", description=")+ description)+", technicalDescription=")+ technicalDescription)+", suggestions=")+ suggestions)+", icon=")+ icon)+", categories=")+ categories)+", screenshots=")+ screenshots)+", publications=")+ publications)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }
