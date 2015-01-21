@@ -436,6 +436,7 @@ module NarrativeMethodStore {
         string subtitle;
         string tooltip;
         string header;
+        Icon icon;
         list<string> categories;
         string loading_error;
     } AppBriefInfo;
@@ -455,8 +456,11 @@ module NarrativeMethodStore {
         string description;
         string technical_description;
         
+        Suggestions suggestions;
+        
         list<string> categories;
         
+        Icon icon;
         list<ScreenShot> screenshots;
     } AppFullInfo;
     

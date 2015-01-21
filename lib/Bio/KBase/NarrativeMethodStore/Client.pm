@@ -285,6 +285,7 @@ AppBriefInfo is a reference to a hash where the following keys are defined:
 	subtitle has a value which is a string
 	tooltip has a value which is a string
 	header has a value which is a string
+	icon has a value which is a NarrativeMethodStore.Icon
 	categories has a value which is a reference to a list where each element is a string
 	loading_error has a value which is a string
 TypeInfo is a reference to a hash where the following keys are defined:
@@ -344,6 +345,7 @@ AppBriefInfo is a reference to a hash where the following keys are defined:
 	subtitle has a value which is a string
 	tooltip has a value which is a string
 	header has a value which is a string
+	icon has a value which is a NarrativeMethodStore.Icon
 	categories has a value which is a reference to a list where each element is a string
 	loading_error has a value which is a string
 TypeInfo is a reference to a hash where the following keys are defined:
@@ -1237,8 +1239,12 @@ AppBriefInfo is a reference to a hash where the following keys are defined:
 	subtitle has a value which is a string
 	tooltip has a value which is a string
 	header has a value which is a string
+	icon has a value which is a NarrativeMethodStore.Icon
 	categories has a value which is a reference to a list where each element is a string
 	loading_error has a value which is a string
+Icon is a reference to a hash where the following keys are defined:
+	url has a value which is a NarrativeMethodStore.url
+url is a string
 
 </pre>
 
@@ -1258,8 +1264,12 @@ AppBriefInfo is a reference to a hash where the following keys are defined:
 	subtitle has a value which is a string
 	tooltip has a value which is a string
 	header has a value which is a string
+	icon has a value which is a NarrativeMethodStore.Icon
 	categories has a value which is a reference to a list where each element is a string
 	loading_error has a value which is a string
+Icon is a reference to a hash where the following keys are defined:
+	url has a value which is a NarrativeMethodStore.url
+url is a string
 
 
 =end text
@@ -1346,13 +1356,22 @@ AppFullInfo is a reference to a hash where the following keys are defined:
 	header has a value which is a string
 	description has a value which is a string
 	technical_description has a value which is a string
+	suggestions has a value which is a NarrativeMethodStore.Suggestions
 	categories has a value which is a reference to a list where each element is a string
+	icon has a value which is a NarrativeMethodStore.Icon
 	screenshots has a value which is a reference to a list where each element is a NarrativeMethodStore.ScreenShot
 username is a string
 email is a string
-ScreenShot is a reference to a hash where the following keys are defined:
+Suggestions is a reference to a hash where the following keys are defined:
+	related_methods has a value which is a reference to a list where each element is a string
+	next_methods has a value which is a reference to a list where each element is a string
+	related_apps has a value which is a reference to a list where each element is a string
+	next_apps has a value which is a reference to a list where each element is a string
+Icon is a reference to a hash where the following keys are defined:
 	url has a value which is a NarrativeMethodStore.url
 url is a string
+ScreenShot is a reference to a hash where the following keys are defined:
+	url has a value which is a NarrativeMethodStore.url
 
 </pre>
 
@@ -1376,13 +1395,22 @@ AppFullInfo is a reference to a hash where the following keys are defined:
 	header has a value which is a string
 	description has a value which is a string
 	technical_description has a value which is a string
+	suggestions has a value which is a NarrativeMethodStore.Suggestions
 	categories has a value which is a reference to a list where each element is a string
+	icon has a value which is a NarrativeMethodStore.Icon
 	screenshots has a value which is a reference to a list where each element is a NarrativeMethodStore.ScreenShot
 username is a string
 email is a string
-ScreenShot is a reference to a hash where the following keys are defined:
+Suggestions is a reference to a hash where the following keys are defined:
+	related_methods has a value which is a reference to a list where each element is a string
+	next_methods has a value which is a reference to a list where each element is a string
+	related_apps has a value which is a reference to a list where each element is a string
+	next_apps has a value which is a reference to a list where each element is a string
+Icon is a reference to a hash where the following keys are defined:
 	url has a value which is a NarrativeMethodStore.url
 url is a string
+ScreenShot is a reference to a hash where the following keys are defined:
+	url has a value which is a NarrativeMethodStore.url
 
 
 =end text
@@ -1468,8 +1496,12 @@ AppBriefInfo is a reference to a hash where the following keys are defined:
 	subtitle has a value which is a string
 	tooltip has a value which is a string
 	header has a value which is a string
+	icon has a value which is a NarrativeMethodStore.Icon
 	categories has a value which is a reference to a list where each element is a string
 	loading_error has a value which is a string
+Icon is a reference to a hash where the following keys are defined:
+	url has a value which is a NarrativeMethodStore.url
+url is a string
 AppSteps is a reference to a hash where the following keys are defined:
 	step_id has a value which is a string
 	method_id has a value which is a string
@@ -1503,8 +1535,12 @@ AppBriefInfo is a reference to a hash where the following keys are defined:
 	subtitle has a value which is a string
 	tooltip has a value which is a string
 	header has a value which is a string
+	icon has a value which is a NarrativeMethodStore.Icon
 	categories has a value which is a reference to a list where each element is a string
 	loading_error has a value which is a string
+Icon is a reference to a hash where the following keys are defined:
+	url has a value which is a NarrativeMethodStore.url
+url is a string
 AppSteps is a reference to a hash where the following keys are defined:
 	step_id has a value which is a string
 	method_id has a value which is a string
@@ -2401,8 +2437,12 @@ AppBriefInfo is a reference to a hash where the following keys are defined:
 	subtitle has a value which is a string
 	tooltip has a value which is a string
 	header has a value which is a string
+	icon has a value which is a NarrativeMethodStore.Icon
 	categories has a value which is a reference to a list where each element is a string
 	loading_error has a value which is a string
+Icon is a reference to a hash where the following keys are defined:
+	url has a value which is a NarrativeMethodStore.url
+url is a string
 
 </pre>
 
@@ -2421,8 +2461,12 @@ AppBriefInfo is a reference to a hash where the following keys are defined:
 	subtitle has a value which is a string
 	tooltip has a value which is a string
 	header has a value which is a string
+	icon has a value which is a NarrativeMethodStore.Icon
 	categories has a value which is a reference to a list where each element is a string
 	loading_error has a value which is a string
+Icon is a reference to a hash where the following keys are defined:
+	url has a value which is a NarrativeMethodStore.url
+url is a string
 
 
 =end text
@@ -2508,13 +2552,22 @@ AppFullInfo is a reference to a hash where the following keys are defined:
 	header has a value which is a string
 	description has a value which is a string
 	technical_description has a value which is a string
+	suggestions has a value which is a NarrativeMethodStore.Suggestions
 	categories has a value which is a reference to a list where each element is a string
+	icon has a value which is a NarrativeMethodStore.Icon
 	screenshots has a value which is a reference to a list where each element is a NarrativeMethodStore.ScreenShot
 username is a string
 email is a string
-ScreenShot is a reference to a hash where the following keys are defined:
+Suggestions is a reference to a hash where the following keys are defined:
+	related_methods has a value which is a reference to a list where each element is a string
+	next_methods has a value which is a reference to a list where each element is a string
+	related_apps has a value which is a reference to a list where each element is a string
+	next_apps has a value which is a reference to a list where each element is a string
+Icon is a reference to a hash where the following keys are defined:
 	url has a value which is a NarrativeMethodStore.url
 url is a string
+ScreenShot is a reference to a hash where the following keys are defined:
+	url has a value which is a NarrativeMethodStore.url
 
 </pre>
 
@@ -2537,13 +2590,22 @@ AppFullInfo is a reference to a hash where the following keys are defined:
 	header has a value which is a string
 	description has a value which is a string
 	technical_description has a value which is a string
+	suggestions has a value which is a NarrativeMethodStore.Suggestions
 	categories has a value which is a reference to a list where each element is a string
+	icon has a value which is a NarrativeMethodStore.Icon
 	screenshots has a value which is a reference to a list where each element is a NarrativeMethodStore.ScreenShot
 username is a string
 email is a string
-ScreenShot is a reference to a hash where the following keys are defined:
+Suggestions is a reference to a hash where the following keys are defined:
+	related_methods has a value which is a reference to a list where each element is a string
+	next_methods has a value which is a reference to a list where each element is a string
+	related_apps has a value which is a reference to a list where each element is a string
+	next_apps has a value which is a reference to a list where each element is a string
+Icon is a reference to a hash where the following keys are defined:
 	url has a value which is a NarrativeMethodStore.url
 url is a string
+ScreenShot is a reference to a hash where the following keys are defined:
+	url has a value which is a NarrativeMethodStore.url
 
 
 =end text
@@ -2628,8 +2690,12 @@ AppBriefInfo is a reference to a hash where the following keys are defined:
 	subtitle has a value which is a string
 	tooltip has a value which is a string
 	header has a value which is a string
+	icon has a value which is a NarrativeMethodStore.Icon
 	categories has a value which is a reference to a list where each element is a string
 	loading_error has a value which is a string
+Icon is a reference to a hash where the following keys are defined:
+	url has a value which is a NarrativeMethodStore.url
+url is a string
 AppSteps is a reference to a hash where the following keys are defined:
 	step_id has a value which is a string
 	method_id has a value which is a string
@@ -2662,8 +2728,12 @@ AppBriefInfo is a reference to a hash where the following keys are defined:
 	subtitle has a value which is a string
 	tooltip has a value which is a string
 	header has a value which is a string
+	icon has a value which is a NarrativeMethodStore.Icon
 	categories has a value which is a reference to a list where each element is a string
 	loading_error has a value which is a string
+Icon is a reference to a hash where the following keys are defined:
+	url has a value which is a NarrativeMethodStore.url
+url is a string
 AppSteps is a reference to a hash where the following keys are defined:
 	step_id has a value which is a string
 	method_id has a value which is a string
@@ -4339,6 +4409,7 @@ ver has a value which is a string
 subtitle has a value which is a string
 tooltip has a value which is a string
 header has a value which is a string
+icon has a value which is a NarrativeMethodStore.Icon
 categories has a value which is a reference to a list where each element is a string
 loading_error has a value which is a string
 
@@ -4355,6 +4426,7 @@ ver has a value which is a string
 subtitle has a value which is a string
 tooltip has a value which is a string
 header has a value which is a string
+icon has a value which is a NarrativeMethodStore.Icon
 categories has a value which is a reference to a list where each element is a string
 loading_error has a value which is a string
 
@@ -4387,7 +4459,9 @@ tooltip has a value which is a string
 header has a value which is a string
 description has a value which is a string
 technical_description has a value which is a string
+suggestions has a value which is a NarrativeMethodStore.Suggestions
 categories has a value which is a reference to a list where each element is a string
+icon has a value which is a NarrativeMethodStore.Icon
 screenshots has a value which is a reference to a list where each element is a NarrativeMethodStore.ScreenShot
 
 </pre>
@@ -4407,7 +4481,9 @@ tooltip has a value which is a string
 header has a value which is a string
 description has a value which is a string
 technical_description has a value which is a string
+suggestions has a value which is a NarrativeMethodStore.Suggestions
 categories has a value which is a reference to a list where each element is a string
+icon has a value which is a NarrativeMethodStore.Icon
 screenshots has a value which is a reference to a list where each element is a NarrativeMethodStore.ScreenShot
 
 

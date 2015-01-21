@@ -13,7 +13,9 @@ import us.kbase.narrativemethodstore.AppFullInfo;
 import us.kbase.narrativemethodstore.AppSpec;
 import us.kbase.narrativemethodstore.AppStepInputMapping;
 import us.kbase.narrativemethodstore.AppSteps;
+import us.kbase.narrativemethodstore.Icon;
 import us.kbase.narrativemethodstore.ScreenShot;
+import us.kbase.narrativemethodstore.Suggestions;
 import us.kbase.narrativemethodstore.exceptions.NarrativeMethodStoreException;
 
 public class NarrativeAppData {
@@ -71,10 +73,23 @@ public class NarrativeAppData {
 		String appTooltip = getDisplayProp(display, "tooltip", lookup);
 		briefInfo.withTooltip(appTooltip);
 		String appDescription = getDisplayProp(display, "description", lookup);
-		String appTechnicalDescr = getDisplayProp(display, "technical-description", lookup);
+		String appTechnicalDescr = "";
+		try { appTechnicalDescr = getDisplayProp(display, "technical-description", lookup); }
+		catch (IllegalStateException e) { /* tech description is optional, do nothing */ }
+		
 		String appHeader = getDisplayProp(display, "header", lookup);
 		
 		briefInfo.withVer(get(spec, "ver").asText()).withHeader(appHeader);
+		
+		@SuppressWarnings("unchecked")
+		Icon icon = null;
+		try {
+			String iconName = getDisplayProp(display,"icon",lookup);
+			if(iconName.trim().length()>0) {
+				icon = new Icon().withUrl("img?method_id=" + this.appId + "&image_name=" + iconName);
+			}
+			briefInfo.withIcon(icon);
+		} catch (IllegalStateException e) { /* icon is optional, do nothing */ }
 		
 		List<ScreenShot> screenshots = new ArrayList<ScreenShot>();
 		@SuppressWarnings("unchecked")
@@ -83,6 +98,40 @@ public class NarrativeAppData {
 			for (String imageName : imageNames)
 				screenshots.add(new ScreenShot().withUrl("img?app_id=" + this.appId + "&image_name=" + imageName));
 		}
+		
+		List<String> relatedApps = new ArrayList<String>();
+		List<String> nextApps = new ArrayList<String>();
+		List<String> relatedMethods = new ArrayList<String>();
+		List<String> nextMethods = new ArrayList<String>();
+		try {
+			@SuppressWarnings("unchecked")
+			Map<String,Object> sugg = (Map<String,Object>)getDisplayProp("/", display, "suggestions");
+			if(sugg.get("apps")!=null) {
+				@SuppressWarnings("unchecked")
+				Map<String,List<String>> suggApps = (Map<String, List<String>>) sugg.get("apps");
+				if(suggApps.get("related")!=null) {
+					relatedApps = suggApps.get("related");
+				}
+				if(suggApps.get("next")!=null) {
+					nextApps = suggApps.get("next");
+				}
+			}
+			if(sugg.get("methods")!=null) {
+				@SuppressWarnings("unchecked")
+				Map<String,List<String>> suggMethods = (Map<String, List<String>>) sugg.get("methods");
+				if(suggMethods.get("related")!=null) {
+					relatedMethods = suggMethods.get("related");
+				}
+				if(suggMethods.get("next")!=null) {
+					nextMethods = suggMethods.get("next");
+				}
+			}
+		} catch(IllegalStateException e) {}
+		Suggestions suggestions = new Suggestions()
+									.withRelatedApps(relatedApps)
+									.withNextApps(nextApps)
+									.withRelatedMethods(relatedMethods)
+									.withNextMethods(nextMethods);
 		
 		fullInfo = new AppFullInfo()
 							.withId(this.appId)
@@ -98,6 +147,10 @@ public class NarrativeAppData {
 							.withDescription(appDescription)
 							.withTechnicalDescription(appTechnicalDescr)
 							.withScreenshots(screenshots)
+							
+							.withIcon(icon)
+							.withSuggestions(suggestions)
+							
 							.withHeader(appHeader);
 		
 		List<AppSteps> steps = new ArrayList<AppSteps>();

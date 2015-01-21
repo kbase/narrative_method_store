@@ -19,6 +19,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import us.kbase.common.service.Tuple4;
+import us.kbase.narrativemethodstore.AppFullInfo;
 import us.kbase.narrativemethodstore.AppSpec;
 import us.kbase.narrativemethodstore.Category;
 import us.kbase.narrativemethodstore.GetAppParams;
@@ -171,6 +172,83 @@ public class FullServerTest {
 				foundTestMethod1);
 		assertTrue("Testing that test_method_7 was returned from listMethodsFullInfo",
 				foundTestMethod7);
+	}
+	
+	
+	@Test
+	public void testListAppsFullInfo() throws Exception {
+		ListParams params = new ListParams();
+		List<AppFullInfo> methods = CLIENT.listAppsFullInfo(params);
+		boolean foundTestApp1 = false;
+		boolean foundTestApp2 = false;
+		for(AppFullInfo a : methods) {
+			
+			// check specific things in specific test methods
+			if(a.getId().equals("test_app_1")) {
+				foundTestApp1 = true;
+				
+				assertTrue("Testing that test_app_1 does not have an icon",
+						a.getIcon()==null);
+				
+				assertTrue("Testing that test_app_1 has suggestions defined",
+						a.getSuggestions()!=null);
+				assertTrue("Testing that test_app_1 has suggestions for related apps defined",
+						a.getSuggestions().getRelatedApps()!=null);
+				assertTrue("Testing that test_app_1 has suggestions for next apps defined",
+						a.getSuggestions().getNextApps()!=null);
+				assertTrue("Testing that test_app_1 has suggestions for related methods defined",
+						a.getSuggestions().getRelatedMethods()!=null);
+				assertTrue("Testing that test_app_1 has suggestions for next methods defined",
+						a.getSuggestions().getNextMethods()!=null);
+				assertTrue("Testing that test_app_1 has no suggestions for related apps",
+						a.getSuggestions().getRelatedApps().size()==0);
+				assertTrue("Testing that test_app_1 has no suggestions for next apps",
+						a.getSuggestions().getNextApps().size()==0);
+				assertTrue("Testing that test_app_1 has no suggestions for related methods",
+						a.getSuggestions().getRelatedMethods().size()==0);
+				assertTrue("Testing that test_app_1 has no suggestions for next methods",
+						a.getSuggestions().getNextMethods().size()==0);
+				
+			}
+			
+			// check specific things in specific test methods
+			if(a.getId().equals("test_app_2")) {
+				foundTestApp2 = true;
+				assertTrue("Testing that test_app_2 technical description is empty",
+						a.getTechnicalDescription().trim().length()==0);
+				assertTrue("Testing that test_app_2 has an icon",
+						a.getIcon()!=null);
+				assertTrue("Testing that test_app_2 has an icon url",
+						a.getIcon().getUrl()!=null);
+				assertEquals("img?method_id=test_app_2&image_name=someIcon.png",a.getIcon().getUrl());
+				
+				
+				assertTrue("Testing that test_app_2 has suggestions defined",
+						a.getSuggestions()!=null);
+				assertTrue("Testing that test_app_2 has suggestions for related apps defined",
+						a.getSuggestions().getRelatedApps()!=null);
+				assertTrue("Testing that test_app_2 has suggestions for next apps defined",
+						a.getSuggestions().getNextApps()!=null);
+				assertTrue("Testing that test_app_2 has suggestions for related methods defined",
+						a.getSuggestions().getRelatedMethods()!=null);
+				assertTrue("Testing that test_app_2 has suggestions for next methods defined",
+						a.getSuggestions().getNextMethods()!=null);
+				
+				assertTrue("Testing that test_app_2 has suggestions for related apps",
+						a.getSuggestions().getRelatedApps().size()==1);
+				assertTrue("Testing that test_app_2 has suggestions for next apps",
+						a.getSuggestions().getNextApps().size()==1);
+				assertTrue("Testing that test_app_2 has no suggestions for related methods",
+						a.getSuggestions().getRelatedMethods().size()==0);
+				assertTrue("Testing that test_app_2 has no suggestions for next methods",
+						a.getSuggestions().getNextMethods().size()==0);
+				
+			}
+		}
+		assertTrue("Testing that test_app_1 was returned from listAppsFullInfo",
+				foundTestApp1);
+		assertTrue("Testing that test_app_2 was returned from listAppsFullInfo",
+				foundTestApp2);
 	}
 	
 	
