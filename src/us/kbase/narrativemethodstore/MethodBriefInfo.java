@@ -27,6 +27,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
     "ver",
     "subtitle",
     "tooltip",
+    "icon",
     "categories",
     "loading_error"
 })
@@ -42,6 +43,13 @@ public class MethodBriefInfo {
     private java.lang.String subtitle;
     @JsonProperty("tooltip")
     private java.lang.String tooltip;
+    /**
+     * <p>Original spec-file type: Icon</p>
+     * 
+     * 
+     */
+    @JsonProperty("icon")
+    private Icon icon;
     @JsonProperty("categories")
     private List<String> categories;
     @JsonProperty("loading_error")
@@ -123,6 +131,31 @@ public class MethodBriefInfo {
         return this;
     }
 
+    /**
+     * <p>Original spec-file type: Icon</p>
+     * 
+     * 
+     */
+    @JsonProperty("icon")
+    public Icon getIcon() {
+        return icon;
+    }
+
+    /**
+     * <p>Original spec-file type: Icon</p>
+     * 
+     * 
+     */
+    @JsonProperty("icon")
+    public void setIcon(Icon icon) {
+        this.icon = icon;
+    }
+
+    public MethodBriefInfo withIcon(Icon icon) {
+        this.icon = icon;
+        return this;
+    }
+
     @JsonProperty("categories")
     public List<String> getCategories() {
         return categories;
@@ -165,7 +198,7 @@ public class MethodBriefInfo {
 
     @Override
     public java.lang.String toString() {
-        return ((((((((((((((((("MethodBriefInfo"+" [id=")+ id)+", name=")+ name)+", ver=")+ ver)+", subtitle=")+ subtitle)+", tooltip=")+ tooltip)+", categories=")+ categories)+", loadingError=")+ loadingError)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((((((((((((((("MethodBriefInfo"+" [id=")+ id)+", name=")+ name)+", ver=")+ ver)+", subtitle=")+ subtitle)+", tooltip=")+ tooltip)+", icon=")+ icon)+", categories=")+ categories)+", loadingError=")+ loadingError)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }

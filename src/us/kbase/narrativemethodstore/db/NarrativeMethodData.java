@@ -17,6 +17,7 @@ import us.kbase.narrativemethodstore.CheckboxOptions;
 import us.kbase.narrativemethodstore.DropdownOption;
 import us.kbase.narrativemethodstore.DropdownOptions;
 import us.kbase.narrativemethodstore.FloatSliderOptions;
+import us.kbase.narrativemethodstore.Icon;
 import us.kbase.narrativemethodstore.IntSliderOptions;
 import us.kbase.narrativemethodstore.MethodBehavior;
 import us.kbase.narrativemethodstore.MethodBriefInfo;
@@ -121,6 +122,16 @@ public class NarrativeMethodData {
 				screenshots.add(new ScreenShot().withUrl("img?method_id=" + this.methodId + "&image_name=" + imageName));
 		}
 		
+		@SuppressWarnings("unchecked")
+		Icon icon = null;
+		try {
+			String iconName = getDisplayProp(display,"icon",lookup);
+			if(iconName.trim().length()>0) {
+				icon = new Icon().withUrl("img?method_id=" + this.methodId + "&image_name=" + iconName);
+			}
+			briefInfo.withIcon(icon);
+		} catch (IllegalStateException e) { /* icon is optional, do nothing */ }
+		
 		List<Publication> publications = new ArrayList<Publication>();
 		try {
 			@SuppressWarnings("unchecked")
@@ -161,6 +172,7 @@ public class NarrativeMethodData {
 							.withDescription(methodDescription)
 							.withTechnicalDescription(methodTechnicalDescr)
 							.withScreenshots(screenshots)
+							.withIcon(icon)
 		
 							.withPublications(publications);
 		

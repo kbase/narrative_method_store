@@ -132,6 +132,47 @@ public class FullServerTest {
 		
 	}
 	
+	@Test
+	public void testListMethodsBriefInfo() throws Exception {
+		ListParams params = new ListParams();
+		List<MethodBriefInfo> methods = CLIENT.listMethods(params);
+		boolean foundTestMethod1 = false;
+		boolean foundTestMethod7 = false;
+		for(MethodBriefInfo m : methods) {
+			
+			// check specific things in specific test methods
+			if(m.getId().equals("test_method_1")) {
+				foundTestMethod1 = true;
+				
+				assertTrue("Testing that test_method_1 name from listMethodsFullInfo is correct",
+						m.getName().equals("Test Method 1"));
+				assertTrue("Testing that test_method_1 ver from listMethodsFullInfo is correct",
+						m.getVer().equals("1.0.1"));
+				assertTrue("Testing that test_method_1 id from listMethodsFullInfo is correct",
+						m.getId().equals("test_method_1"));
+				assertTrue("Testing that test_method_1 categories from listMethodsFullInfo is correct",
+						m.getCategories().get(0).equals("testmethods"));
+				
+				assertTrue("Testing that test_method_1 does not have an icon",
+						m.getIcon()==null);
+			}
+			
+			// check specific things in specific test methods
+			if(m.getId().equals("test_method_7")) {
+				foundTestMethod7 = true;
+				assertTrue("Testing that test_method_7 has an icon",
+						m.getIcon()!=null);
+				assertTrue("Testing that test_method_7 has an icon url",
+						m.getIcon().getUrl()!=null);
+				assertEquals("img?method_id=test_method_7&image_name=icon.png",m.getIcon().getUrl());
+			}
+		}
+		assertTrue("Testing that test_method_1 was returned from listMethodsFullInfo",
+				foundTestMethod1);
+		assertTrue("Testing that test_method_7 was returned from listMethodsFullInfo",
+				foundTestMethod7);
+	}
+	
 	
 	@Test
 	public void testListMethodsFullInfo() throws Exception {
@@ -158,6 +199,8 @@ public class FullServerTest {
 						m.getDescription().trim().length()>0);
 				assertTrue("Testing that test_method_1 technical description from listMethodsFullInfo is present",
 						m.getTechnicalDescription().trim().length()>0);
+				assertTrue("Testing that test_method_1 does not have an icon",
+						m.getIcon()==null);
 			}
 			
 			// check specific things in specific test methods
@@ -165,6 +208,11 @@ public class FullServerTest {
 				foundTestMethod7 = true;
 				assertTrue("Testing that test_method_7 technical description is empty",
 						m.getTechnicalDescription().trim().length()==0);
+				assertTrue("Testing that test_method_7 has an icon",
+						m.getIcon()!=null);
+				assertTrue("Testing that test_method_7 has an icon url",
+						m.getIcon().getUrl()!=null);
+				assertEquals("img?method_id=test_method_7&image_name=icon.png",m.getIcon().getUrl());
 			}
 		}
 		assertTrue("Testing that test_method_1 was returned from listMethodsFullInfo",
