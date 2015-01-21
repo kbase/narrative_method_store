@@ -138,6 +138,7 @@ public class FullServerTest {
 		ListParams params = new ListParams();
 		List<MethodFullInfo> methods = CLIENT.listMethodsFullInfo(params);
 		boolean foundTestMethod1 = false;
+		boolean foundTestMethod7 = false;
 		for(MethodFullInfo m : methods) {
 			
 			// check specific things in specific test methods
@@ -158,9 +159,18 @@ public class FullServerTest {
 				assertTrue("Testing that test_method_1 technical description from listMethodsFullInfo is present",
 						m.getTechnicalDescription().trim().length()>0);
 			}
+			
+			// check specific things in specific test methods
+			if(m.getId().equals("test_method_7")) {
+				foundTestMethod7 = true;
+				assertTrue("Testing that test_method_7 technical description is empty",
+						m.getTechnicalDescription().trim().length()==0);
+			}
 		}
 		assertTrue("Testing that test_method_1 was returned from listMethodsFullInfo",
 				foundTestMethod1);
+		assertTrue("Testing that test_method_7 was returned from listMethodsFullInfo",
+				foundTestMethod7);
 	}
 
 	

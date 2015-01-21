@@ -98,7 +98,9 @@ public class NarrativeMethodData {
 		briefInfo.withSubtitle(methodSubtitle);
 		
 		String methodDescription = getDisplayProp(display, "description", lookup);
-		String methodTechnicalDescr = getDisplayProp(display, "technical-description", lookup);
+		String methodTechnicalDescr = "";
+		try { methodTechnicalDescr = getDisplayProp(display, "technical-description", lookup); }
+		catch (IllegalStateException e) { /*tech description is optional; do nothing*/ }
 		
 		// if replacement text is missing, do nothing, we just won't have any replacement text
 		String replacementText = null;
