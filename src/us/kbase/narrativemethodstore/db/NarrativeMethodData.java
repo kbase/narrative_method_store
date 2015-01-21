@@ -381,6 +381,7 @@ public class NarrativeMethodData {
 			JsonNode paramNode = parametersNode.get(i);
 			String paramPath = "parameters/" + i;
 			String paramId = get(paramPath, paramNode, "id").asText();
+			String uiClass = "parameter";
 			paramIds.add(paramId);
 			@SuppressWarnings("unchecked")
 			Map<String, Object> paramDisplay = (Map<String, Object>)getDisplayProp("parameters", paramsDisplays, paramId);
@@ -389,6 +390,7 @@ public class NarrativeMethodData {
 				JsonNode optNode = get(paramPath, paramNode, "text_options");
 				JsonNode isOutputName = optNode.get("is_output_name");
 				long isOutputNameFlag = 0L;
+				
 				if(isOutputName!=null) {
 					if(isOutputName.asBoolean()){
 						isOutputNameFlag = 1L;
@@ -404,6 +406,14 @@ public class NarrativeMethodData {
 							.withValidateAs(getTextOrNull(optNode.get("validate_as")))
 							.withIsOutputName(isOutputNameFlag)
 							.withPlaceholder(placeholder);
+				if(textOpt.getValidWsTypes() != null) {
+					if(textOpt.getValidWsTypes().size()>0) {
+						uiClass = "input";
+						if(isOutputNameFlag == 1L) {
+							uiClass = "output";
+						}
+					}
+				}
 				
 				// todo: add better checks of min/max numbers, like if it is numeric
 				if(optNode.get("min_int")!=null) {
@@ -542,6 +552,7 @@ public class NarrativeMethodData {
 							.withOptional(jsonBooleanToRPC(get(paramPath, paramNode, "optional")))
 							.withAdvanced(jsonBooleanToRPC(get(paramPath, paramNode, "advanced")))
 							.withDisabled(disabled)
+							.withUiClass(uiClass)
 							.withAllowMultiple(jsonBooleanToRPC(get(paramPath, paramNode, "allow_multiple")))
 							.withDefaultValues(jsonListToStringList(get(paramPath, paramNode, "default_values")))
 							.withFieldType(get(paramPath, paramNode, "field_type").asText())

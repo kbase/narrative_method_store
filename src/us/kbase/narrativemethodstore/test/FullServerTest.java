@@ -274,6 +274,7 @@ public class FullServerTest {
 				////////////////////////
 				assertEquals("param0.1", m.getParameters().get(1).getId());
 				assertEquals("text", m.getParameters().get(1).getFieldType());
+				assertEquals("parameter",m.getParameters().get(1).getUiClass());
 				////////////////////////
 				assertEquals("param1", m.getParameters().get(2).getId());
 				assertEquals("floatslider", m.getParameters().get(2).getFieldType());
@@ -298,7 +299,9 @@ public class FullServerTest {
 				foundTestMethod4 = true;
 				assertEquals("Test Method 4 was run on {{genome}} to produce a new genome named {{output_genome}}.\n", m.getReplacementText());
 				assertEquals(new Long(1), m.getParameters().get(1).getTextOptions().getIsOutputName());
+				assertEquals("output",m.getParameters().get(1).getUiClass());
 				assertEquals("select a genome", m.getParameters().get(0).getTextOptions().getPlaceholder());
+				assertEquals("input",m.getParameters().get(0).getUiClass());
 			} else if (m.getInfo().getId().equals("test_method_5")) {
 				foundTestMethod5 = true;
 				
@@ -309,20 +312,24 @@ public class FullServerTest {
 				assertEquals(new Long(0), m.getParameters().get(0).getTextOptions().getMinInt());
 				assertEquals(new Long(20), m.getParameters().get(0).getTextOptions().getMaxInt());
 				assertEquals(new Long(0), m.getParameters().get(0).getDisabled());
+				assertEquals("parameter",m.getParameters().get(0).getUiClass());
 
 				assertEquals("text_int_number_disabled", m.getParameters().get(1).getId());
 				assertEquals("text", m.getParameters().get(1).getFieldType());
 				assertEquals(new Long(0), m.getParameters().get(1).getTextOptions().getMinInt());
 				assertEquals(new Long(20), m.getParameters().get(1).getTextOptions().getMaxInt());
 				assertEquals(new Long(1), m.getParameters().get(1).getDisabled());
+				assertEquals("parameter",m.getParameters().get(1).getUiClass());
 
 				assertEquals("text_float_number", m.getParameters().get(2).getId());
 				assertEquals("text", m.getParameters().get(2).getFieldType());
 				assertEquals(new Double(0.5), m.getParameters().get(2).getTextOptions().getMinFloat());
 				assertEquals(new Double(20.2), m.getParameters().get(2).getTextOptions().getMaxFloat());
+				assertEquals("parameter",m.getParameters().get(2).getUiClass());
 
 				assertEquals("regex", m.getParameters().get(3).getId());
 				assertEquals("text", m.getParameters().get(3).getFieldType());
+				assertEquals("parameter",m.getParameters().get(3).getUiClass());
 				List<RegexMatcher> rm = m.getParameters().get(3).getTextOptions().getRegexConstraint();
 				assertEquals(new Long(1), rm.get(0).getMatch());
 				assertEquals("^good", rm.get(0).getRegex());
