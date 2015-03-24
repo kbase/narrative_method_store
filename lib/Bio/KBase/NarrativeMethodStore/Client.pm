@@ -2917,6 +2917,669 @@ sub get_type_info
 
 
 
+=head2 validate_method
+
+  $return = $obj->validate_method($params)
+
+=over 4
+
+=item Parameter and return types
+
+=begin html
+
+<pre>
+$params is a NarrativeMethodStore.ValidateMethodParams
+$return is a NarrativeMethodStore.ValidationResults
+ValidateMethodParams is a reference to a hash where the following keys are defined:
+	id has a value which is a string
+	spec_json has a value which is a string
+	display_yaml has a value which is a string
+ValidationResults is a reference to a hash where the following keys are defined:
+	is_valid has a value which is a NarrativeMethodStore.boolean
+	errors has a value which is a reference to a list where each element is a string
+	warnings has a value which is a reference to a list where each element is a string
+	app_full_info has a value which is a NarrativeMethodStore.AppFullInfo
+	method_full_info has a value which is a NarrativeMethodStore.MethodFullInfo
+	type_info has a value which is a NarrativeMethodStore.TypeInfo
+boolean is an int
+AppFullInfo is a reference to a hash where the following keys are defined:
+	id has a value which is a string
+	name has a value which is a string
+	ver has a value which is a string
+	authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
+	contact has a value which is a NarrativeMethodStore.email
+	subtitle has a value which is a string
+	tooltip has a value which is a string
+	header has a value which is a string
+	description has a value which is a string
+	technical_description has a value which is a string
+	suggestions has a value which is a NarrativeMethodStore.Suggestions
+	categories has a value which is a reference to a list where each element is a string
+	icon has a value which is a NarrativeMethodStore.Icon
+	screenshots has a value which is a reference to a list where each element is a NarrativeMethodStore.ScreenShot
+username is a string
+email is a string
+Suggestions is a reference to a hash where the following keys are defined:
+	related_methods has a value which is a reference to a list where each element is a string
+	next_methods has a value which is a reference to a list where each element is a string
+	related_apps has a value which is a reference to a list where each element is a string
+	next_apps has a value which is a reference to a list where each element is a string
+Icon is a reference to a hash where the following keys are defined:
+	url has a value which is a NarrativeMethodStore.url
+url is a string
+ScreenShot is a reference to a hash where the following keys are defined:
+	url has a value which is a NarrativeMethodStore.url
+MethodFullInfo is a reference to a hash where the following keys are defined:
+	id has a value which is a string
+	name has a value which is a string
+	ver has a value which is a string
+	authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
+	kb_contributors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
+	contact has a value which is a NarrativeMethodStore.email
+	subtitle has a value which is a string
+	tooltip has a value which is a string
+	description has a value which is a string
+	technical_description has a value which is a string
+	suggestions has a value which is a NarrativeMethodStore.Suggestions
+	icon has a value which is a NarrativeMethodStore.Icon
+	categories has a value which is a reference to a list where each element is a string
+	screenshots has a value which is a reference to a list where each element is a NarrativeMethodStore.ScreenShot
+	publications has a value which is a reference to a list where each element is a NarrativeMethodStore.Publication
+Publication is a reference to a hash where the following keys are defined:
+	pmid has a value which is a string
+	display_text has a value which is a string
+	link has a value which is a NarrativeMethodStore.url
+TypeInfo is a reference to a hash where the following keys are defined:
+	type_name has a value which is a string
+	name has a value which is a string
+	subtitle has a value which is a string
+	tooltip has a value which is a string
+	description has a value which is a string
+	icon has a value which is a NarrativeMethodStore.ScreenShot
+	view_method_ids has a value which is a reference to a list where each element is a string
+	import_method_ids has a value which is a reference to a list where each element is a string
+	landing_page_url_prefix has a value which is a string
+	loading_error has a value which is a string
+
+</pre>
+
+=end html
+
+=begin text
+
+$params is a NarrativeMethodStore.ValidateMethodParams
+$return is a NarrativeMethodStore.ValidationResults
+ValidateMethodParams is a reference to a hash where the following keys are defined:
+	id has a value which is a string
+	spec_json has a value which is a string
+	display_yaml has a value which is a string
+ValidationResults is a reference to a hash where the following keys are defined:
+	is_valid has a value which is a NarrativeMethodStore.boolean
+	errors has a value which is a reference to a list where each element is a string
+	warnings has a value which is a reference to a list where each element is a string
+	app_full_info has a value which is a NarrativeMethodStore.AppFullInfo
+	method_full_info has a value which is a NarrativeMethodStore.MethodFullInfo
+	type_info has a value which is a NarrativeMethodStore.TypeInfo
+boolean is an int
+AppFullInfo is a reference to a hash where the following keys are defined:
+	id has a value which is a string
+	name has a value which is a string
+	ver has a value which is a string
+	authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
+	contact has a value which is a NarrativeMethodStore.email
+	subtitle has a value which is a string
+	tooltip has a value which is a string
+	header has a value which is a string
+	description has a value which is a string
+	technical_description has a value which is a string
+	suggestions has a value which is a NarrativeMethodStore.Suggestions
+	categories has a value which is a reference to a list where each element is a string
+	icon has a value which is a NarrativeMethodStore.Icon
+	screenshots has a value which is a reference to a list where each element is a NarrativeMethodStore.ScreenShot
+username is a string
+email is a string
+Suggestions is a reference to a hash where the following keys are defined:
+	related_methods has a value which is a reference to a list where each element is a string
+	next_methods has a value which is a reference to a list where each element is a string
+	related_apps has a value which is a reference to a list where each element is a string
+	next_apps has a value which is a reference to a list where each element is a string
+Icon is a reference to a hash where the following keys are defined:
+	url has a value which is a NarrativeMethodStore.url
+url is a string
+ScreenShot is a reference to a hash where the following keys are defined:
+	url has a value which is a NarrativeMethodStore.url
+MethodFullInfo is a reference to a hash where the following keys are defined:
+	id has a value which is a string
+	name has a value which is a string
+	ver has a value which is a string
+	authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
+	kb_contributors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
+	contact has a value which is a NarrativeMethodStore.email
+	subtitle has a value which is a string
+	tooltip has a value which is a string
+	description has a value which is a string
+	technical_description has a value which is a string
+	suggestions has a value which is a NarrativeMethodStore.Suggestions
+	icon has a value which is a NarrativeMethodStore.Icon
+	categories has a value which is a reference to a list where each element is a string
+	screenshots has a value which is a reference to a list where each element is a NarrativeMethodStore.ScreenShot
+	publications has a value which is a reference to a list where each element is a NarrativeMethodStore.Publication
+Publication is a reference to a hash where the following keys are defined:
+	pmid has a value which is a string
+	display_text has a value which is a string
+	link has a value which is a NarrativeMethodStore.url
+TypeInfo is a reference to a hash where the following keys are defined:
+	type_name has a value which is a string
+	name has a value which is a string
+	subtitle has a value which is a string
+	tooltip has a value which is a string
+	description has a value which is a string
+	icon has a value which is a NarrativeMethodStore.ScreenShot
+	view_method_ids has a value which is a reference to a list where each element is a string
+	import_method_ids has a value which is a reference to a list where each element is a string
+	landing_page_url_prefix has a value which is a string
+	loading_error has a value which is a string
+
+
+=end text
+
+=item Description
+
+
+
+=back
+
+=cut
+
+sub validate_method
+{
+    my($self, @args) = @_;
+
+# Authentication: none
+
+    if ((my $n = @args) != 1)
+    {
+	Bio::KBase::Exceptions::ArgumentValidationError->throw(error =>
+							       "Invalid argument count for function validate_method (received $n, expecting 1)");
+    }
+    {
+	my($params) = @args;
+
+	my @_bad_arguments;
+        (ref($params) eq 'HASH') or push(@_bad_arguments, "Invalid type for argument 1 \"params\" (value was \"$params\")");
+        if (@_bad_arguments) {
+	    my $msg = "Invalid arguments passed to validate_method:\n" . join("", map { "\t$_\n" } @_bad_arguments);
+	    Bio::KBase::Exceptions::ArgumentValidationError->throw(error => $msg,
+								   method_name => 'validate_method');
+	}
+    }
+
+    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
+	method => "NarrativeMethodStore.validate_method",
+	params => \@args,
+    });
+    if ($result) {
+	if ($result->is_error) {
+	    Bio::KBase::Exceptions::JSONRPC->throw(error => $result->error_message,
+					       code => $result->content->{error}->{code},
+					       method_name => 'validate_method',
+					       data => $result->content->{error}->{error} # JSON::RPC::ReturnObject only supports JSONRPC 1.1 or 1.O
+					      );
+	} else {
+	    return wantarray ? @{$result->result} : $result->result->[0];
+	}
+    } else {
+        Bio::KBase::Exceptions::HTTP->throw(error => "Error invoking method validate_method",
+					    status_line => $self->{client}->status_line,
+					    method_name => 'validate_method',
+				       );
+    }
+}
+
+
+
+=head2 validate_app
+
+  $return = $obj->validate_app($params)
+
+=over 4
+
+=item Parameter and return types
+
+=begin html
+
+<pre>
+$params is a NarrativeMethodStore.ValidateAppParams
+$return is a NarrativeMethodStore.ValidationResults
+ValidateAppParams is a reference to a hash where the following keys are defined:
+	id has a value which is a string
+	spec_json has a value which is a string
+	display_yaml has a value which is a string
+ValidationResults is a reference to a hash where the following keys are defined:
+	is_valid has a value which is a NarrativeMethodStore.boolean
+	errors has a value which is a reference to a list where each element is a string
+	warnings has a value which is a reference to a list where each element is a string
+	app_full_info has a value which is a NarrativeMethodStore.AppFullInfo
+	method_full_info has a value which is a NarrativeMethodStore.MethodFullInfo
+	type_info has a value which is a NarrativeMethodStore.TypeInfo
+boolean is an int
+AppFullInfo is a reference to a hash where the following keys are defined:
+	id has a value which is a string
+	name has a value which is a string
+	ver has a value which is a string
+	authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
+	contact has a value which is a NarrativeMethodStore.email
+	subtitle has a value which is a string
+	tooltip has a value which is a string
+	header has a value which is a string
+	description has a value which is a string
+	technical_description has a value which is a string
+	suggestions has a value which is a NarrativeMethodStore.Suggestions
+	categories has a value which is a reference to a list where each element is a string
+	icon has a value which is a NarrativeMethodStore.Icon
+	screenshots has a value which is a reference to a list where each element is a NarrativeMethodStore.ScreenShot
+username is a string
+email is a string
+Suggestions is a reference to a hash where the following keys are defined:
+	related_methods has a value which is a reference to a list where each element is a string
+	next_methods has a value which is a reference to a list where each element is a string
+	related_apps has a value which is a reference to a list where each element is a string
+	next_apps has a value which is a reference to a list where each element is a string
+Icon is a reference to a hash where the following keys are defined:
+	url has a value which is a NarrativeMethodStore.url
+url is a string
+ScreenShot is a reference to a hash where the following keys are defined:
+	url has a value which is a NarrativeMethodStore.url
+MethodFullInfo is a reference to a hash where the following keys are defined:
+	id has a value which is a string
+	name has a value which is a string
+	ver has a value which is a string
+	authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
+	kb_contributors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
+	contact has a value which is a NarrativeMethodStore.email
+	subtitle has a value which is a string
+	tooltip has a value which is a string
+	description has a value which is a string
+	technical_description has a value which is a string
+	suggestions has a value which is a NarrativeMethodStore.Suggestions
+	icon has a value which is a NarrativeMethodStore.Icon
+	categories has a value which is a reference to a list where each element is a string
+	screenshots has a value which is a reference to a list where each element is a NarrativeMethodStore.ScreenShot
+	publications has a value which is a reference to a list where each element is a NarrativeMethodStore.Publication
+Publication is a reference to a hash where the following keys are defined:
+	pmid has a value which is a string
+	display_text has a value which is a string
+	link has a value which is a NarrativeMethodStore.url
+TypeInfo is a reference to a hash where the following keys are defined:
+	type_name has a value which is a string
+	name has a value which is a string
+	subtitle has a value which is a string
+	tooltip has a value which is a string
+	description has a value which is a string
+	icon has a value which is a NarrativeMethodStore.ScreenShot
+	view_method_ids has a value which is a reference to a list where each element is a string
+	import_method_ids has a value which is a reference to a list where each element is a string
+	landing_page_url_prefix has a value which is a string
+	loading_error has a value which is a string
+
+</pre>
+
+=end html
+
+=begin text
+
+$params is a NarrativeMethodStore.ValidateAppParams
+$return is a NarrativeMethodStore.ValidationResults
+ValidateAppParams is a reference to a hash where the following keys are defined:
+	id has a value which is a string
+	spec_json has a value which is a string
+	display_yaml has a value which is a string
+ValidationResults is a reference to a hash where the following keys are defined:
+	is_valid has a value which is a NarrativeMethodStore.boolean
+	errors has a value which is a reference to a list where each element is a string
+	warnings has a value which is a reference to a list where each element is a string
+	app_full_info has a value which is a NarrativeMethodStore.AppFullInfo
+	method_full_info has a value which is a NarrativeMethodStore.MethodFullInfo
+	type_info has a value which is a NarrativeMethodStore.TypeInfo
+boolean is an int
+AppFullInfo is a reference to a hash where the following keys are defined:
+	id has a value which is a string
+	name has a value which is a string
+	ver has a value which is a string
+	authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
+	contact has a value which is a NarrativeMethodStore.email
+	subtitle has a value which is a string
+	tooltip has a value which is a string
+	header has a value which is a string
+	description has a value which is a string
+	technical_description has a value which is a string
+	suggestions has a value which is a NarrativeMethodStore.Suggestions
+	categories has a value which is a reference to a list where each element is a string
+	icon has a value which is a NarrativeMethodStore.Icon
+	screenshots has a value which is a reference to a list where each element is a NarrativeMethodStore.ScreenShot
+username is a string
+email is a string
+Suggestions is a reference to a hash where the following keys are defined:
+	related_methods has a value which is a reference to a list where each element is a string
+	next_methods has a value which is a reference to a list where each element is a string
+	related_apps has a value which is a reference to a list where each element is a string
+	next_apps has a value which is a reference to a list where each element is a string
+Icon is a reference to a hash where the following keys are defined:
+	url has a value which is a NarrativeMethodStore.url
+url is a string
+ScreenShot is a reference to a hash where the following keys are defined:
+	url has a value which is a NarrativeMethodStore.url
+MethodFullInfo is a reference to a hash where the following keys are defined:
+	id has a value which is a string
+	name has a value which is a string
+	ver has a value which is a string
+	authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
+	kb_contributors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
+	contact has a value which is a NarrativeMethodStore.email
+	subtitle has a value which is a string
+	tooltip has a value which is a string
+	description has a value which is a string
+	technical_description has a value which is a string
+	suggestions has a value which is a NarrativeMethodStore.Suggestions
+	icon has a value which is a NarrativeMethodStore.Icon
+	categories has a value which is a reference to a list where each element is a string
+	screenshots has a value which is a reference to a list where each element is a NarrativeMethodStore.ScreenShot
+	publications has a value which is a reference to a list where each element is a NarrativeMethodStore.Publication
+Publication is a reference to a hash where the following keys are defined:
+	pmid has a value which is a string
+	display_text has a value which is a string
+	link has a value which is a NarrativeMethodStore.url
+TypeInfo is a reference to a hash where the following keys are defined:
+	type_name has a value which is a string
+	name has a value which is a string
+	subtitle has a value which is a string
+	tooltip has a value which is a string
+	description has a value which is a string
+	icon has a value which is a NarrativeMethodStore.ScreenShot
+	view_method_ids has a value which is a reference to a list where each element is a string
+	import_method_ids has a value which is a reference to a list where each element is a string
+	landing_page_url_prefix has a value which is a string
+	loading_error has a value which is a string
+
+
+=end text
+
+=item Description
+
+
+
+=back
+
+=cut
+
+sub validate_app
+{
+    my($self, @args) = @_;
+
+# Authentication: none
+
+    if ((my $n = @args) != 1)
+    {
+	Bio::KBase::Exceptions::ArgumentValidationError->throw(error =>
+							       "Invalid argument count for function validate_app (received $n, expecting 1)");
+    }
+    {
+	my($params) = @args;
+
+	my @_bad_arguments;
+        (ref($params) eq 'HASH') or push(@_bad_arguments, "Invalid type for argument 1 \"params\" (value was \"$params\")");
+        if (@_bad_arguments) {
+	    my $msg = "Invalid arguments passed to validate_app:\n" . join("", map { "\t$_\n" } @_bad_arguments);
+	    Bio::KBase::Exceptions::ArgumentValidationError->throw(error => $msg,
+								   method_name => 'validate_app');
+	}
+    }
+
+    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
+	method => "NarrativeMethodStore.validate_app",
+	params => \@args,
+    });
+    if ($result) {
+	if ($result->is_error) {
+	    Bio::KBase::Exceptions::JSONRPC->throw(error => $result->error_message,
+					       code => $result->content->{error}->{code},
+					       method_name => 'validate_app',
+					       data => $result->content->{error}->{error} # JSON::RPC::ReturnObject only supports JSONRPC 1.1 or 1.O
+					      );
+	} else {
+	    return wantarray ? @{$result->result} : $result->result->[0];
+	}
+    } else {
+        Bio::KBase::Exceptions::HTTP->throw(error => "Error invoking method validate_app",
+					    status_line => $self->{client}->status_line,
+					    method_name => 'validate_app',
+				       );
+    }
+}
+
+
+
+=head2 validate_type
+
+  $return = $obj->validate_type($params)
+
+=over 4
+
+=item Parameter and return types
+
+=begin html
+
+<pre>
+$params is a NarrativeMethodStore.ValidateTypeParams
+$return is a NarrativeMethodStore.ValidationResults
+ValidateTypeParams is a reference to a hash where the following keys are defined:
+	id has a value which is a string
+	spec_json has a value which is a string
+	display_yaml has a value which is a string
+ValidationResults is a reference to a hash where the following keys are defined:
+	is_valid has a value which is a NarrativeMethodStore.boolean
+	errors has a value which is a reference to a list where each element is a string
+	warnings has a value which is a reference to a list where each element is a string
+	app_full_info has a value which is a NarrativeMethodStore.AppFullInfo
+	method_full_info has a value which is a NarrativeMethodStore.MethodFullInfo
+	type_info has a value which is a NarrativeMethodStore.TypeInfo
+boolean is an int
+AppFullInfo is a reference to a hash where the following keys are defined:
+	id has a value which is a string
+	name has a value which is a string
+	ver has a value which is a string
+	authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
+	contact has a value which is a NarrativeMethodStore.email
+	subtitle has a value which is a string
+	tooltip has a value which is a string
+	header has a value which is a string
+	description has a value which is a string
+	technical_description has a value which is a string
+	suggestions has a value which is a NarrativeMethodStore.Suggestions
+	categories has a value which is a reference to a list where each element is a string
+	icon has a value which is a NarrativeMethodStore.Icon
+	screenshots has a value which is a reference to a list where each element is a NarrativeMethodStore.ScreenShot
+username is a string
+email is a string
+Suggestions is a reference to a hash where the following keys are defined:
+	related_methods has a value which is a reference to a list where each element is a string
+	next_methods has a value which is a reference to a list where each element is a string
+	related_apps has a value which is a reference to a list where each element is a string
+	next_apps has a value which is a reference to a list where each element is a string
+Icon is a reference to a hash where the following keys are defined:
+	url has a value which is a NarrativeMethodStore.url
+url is a string
+ScreenShot is a reference to a hash where the following keys are defined:
+	url has a value which is a NarrativeMethodStore.url
+MethodFullInfo is a reference to a hash where the following keys are defined:
+	id has a value which is a string
+	name has a value which is a string
+	ver has a value which is a string
+	authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
+	kb_contributors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
+	contact has a value which is a NarrativeMethodStore.email
+	subtitle has a value which is a string
+	tooltip has a value which is a string
+	description has a value which is a string
+	technical_description has a value which is a string
+	suggestions has a value which is a NarrativeMethodStore.Suggestions
+	icon has a value which is a NarrativeMethodStore.Icon
+	categories has a value which is a reference to a list where each element is a string
+	screenshots has a value which is a reference to a list where each element is a NarrativeMethodStore.ScreenShot
+	publications has a value which is a reference to a list where each element is a NarrativeMethodStore.Publication
+Publication is a reference to a hash where the following keys are defined:
+	pmid has a value which is a string
+	display_text has a value which is a string
+	link has a value which is a NarrativeMethodStore.url
+TypeInfo is a reference to a hash where the following keys are defined:
+	type_name has a value which is a string
+	name has a value which is a string
+	subtitle has a value which is a string
+	tooltip has a value which is a string
+	description has a value which is a string
+	icon has a value which is a NarrativeMethodStore.ScreenShot
+	view_method_ids has a value which is a reference to a list where each element is a string
+	import_method_ids has a value which is a reference to a list where each element is a string
+	landing_page_url_prefix has a value which is a string
+	loading_error has a value which is a string
+
+</pre>
+
+=end html
+
+=begin text
+
+$params is a NarrativeMethodStore.ValidateTypeParams
+$return is a NarrativeMethodStore.ValidationResults
+ValidateTypeParams is a reference to a hash where the following keys are defined:
+	id has a value which is a string
+	spec_json has a value which is a string
+	display_yaml has a value which is a string
+ValidationResults is a reference to a hash where the following keys are defined:
+	is_valid has a value which is a NarrativeMethodStore.boolean
+	errors has a value which is a reference to a list where each element is a string
+	warnings has a value which is a reference to a list where each element is a string
+	app_full_info has a value which is a NarrativeMethodStore.AppFullInfo
+	method_full_info has a value which is a NarrativeMethodStore.MethodFullInfo
+	type_info has a value which is a NarrativeMethodStore.TypeInfo
+boolean is an int
+AppFullInfo is a reference to a hash where the following keys are defined:
+	id has a value which is a string
+	name has a value which is a string
+	ver has a value which is a string
+	authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
+	contact has a value which is a NarrativeMethodStore.email
+	subtitle has a value which is a string
+	tooltip has a value which is a string
+	header has a value which is a string
+	description has a value which is a string
+	technical_description has a value which is a string
+	suggestions has a value which is a NarrativeMethodStore.Suggestions
+	categories has a value which is a reference to a list where each element is a string
+	icon has a value which is a NarrativeMethodStore.Icon
+	screenshots has a value which is a reference to a list where each element is a NarrativeMethodStore.ScreenShot
+username is a string
+email is a string
+Suggestions is a reference to a hash where the following keys are defined:
+	related_methods has a value which is a reference to a list where each element is a string
+	next_methods has a value which is a reference to a list where each element is a string
+	related_apps has a value which is a reference to a list where each element is a string
+	next_apps has a value which is a reference to a list where each element is a string
+Icon is a reference to a hash where the following keys are defined:
+	url has a value which is a NarrativeMethodStore.url
+url is a string
+ScreenShot is a reference to a hash where the following keys are defined:
+	url has a value which is a NarrativeMethodStore.url
+MethodFullInfo is a reference to a hash where the following keys are defined:
+	id has a value which is a string
+	name has a value which is a string
+	ver has a value which is a string
+	authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
+	kb_contributors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
+	contact has a value which is a NarrativeMethodStore.email
+	subtitle has a value which is a string
+	tooltip has a value which is a string
+	description has a value which is a string
+	technical_description has a value which is a string
+	suggestions has a value which is a NarrativeMethodStore.Suggestions
+	icon has a value which is a NarrativeMethodStore.Icon
+	categories has a value which is a reference to a list where each element is a string
+	screenshots has a value which is a reference to a list where each element is a NarrativeMethodStore.ScreenShot
+	publications has a value which is a reference to a list where each element is a NarrativeMethodStore.Publication
+Publication is a reference to a hash where the following keys are defined:
+	pmid has a value which is a string
+	display_text has a value which is a string
+	link has a value which is a NarrativeMethodStore.url
+TypeInfo is a reference to a hash where the following keys are defined:
+	type_name has a value which is a string
+	name has a value which is a string
+	subtitle has a value which is a string
+	tooltip has a value which is a string
+	description has a value which is a string
+	icon has a value which is a NarrativeMethodStore.ScreenShot
+	view_method_ids has a value which is a reference to a list where each element is a string
+	import_method_ids has a value which is a reference to a list where each element is a string
+	landing_page_url_prefix has a value which is a string
+	loading_error has a value which is a string
+
+
+=end text
+
+=item Description
+
+
+
+=back
+
+=cut
+
+sub validate_type
+{
+    my($self, @args) = @_;
+
+# Authentication: none
+
+    if ((my $n = @args) != 1)
+    {
+	Bio::KBase::Exceptions::ArgumentValidationError->throw(error =>
+							       "Invalid argument count for function validate_type (received $n, expecting 1)");
+    }
+    {
+	my($params) = @args;
+
+	my @_bad_arguments;
+        (ref($params) eq 'HASH') or push(@_bad_arguments, "Invalid type for argument 1 \"params\" (value was \"$params\")");
+        if (@_bad_arguments) {
+	    my $msg = "Invalid arguments passed to validate_type:\n" . join("", map { "\t$_\n" } @_bad_arguments);
+	    Bio::KBase::Exceptions::ArgumentValidationError->throw(error => $msg,
+								   method_name => 'validate_type');
+	}
+    }
+
+    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
+	method => "NarrativeMethodStore.validate_type",
+	params => \@args,
+    });
+    if ($result) {
+	if ($result->is_error) {
+	    Bio::KBase::Exceptions::JSONRPC->throw(error => $result->error_message,
+					       code => $result->content->{error}->{code},
+					       method_name => 'validate_type',
+					       data => $result->content->{error}->{error} # JSON::RPC::ReturnObject only supports JSONRPC 1.1 or 1.O
+					      );
+	} else {
+	    return wantarray ? @{$result->result} : $result->result->[0];
+	}
+    } else {
+        Bio::KBase::Exceptions::HTTP->throw(error => "Error invoking method validate_type",
+					    status_line => $self->{client}->status_line,
+					    method_name => 'validate_type',
+				       );
+    }
+}
+
+
+
 sub version {
     my ($self) = @_;
     my $result = $self->{client}->call($self->{url}, $self->{headers}, {
@@ -2928,16 +3591,16 @@ sub version {
             Bio::KBase::Exceptions::JSONRPC->throw(
                 error => $result->error_message,
                 code => $result->content->{code},
-                method_name => 'get_type_info',
+                method_name => 'validate_type',
             );
         } else {
             return wantarray ? @{$result->result} : $result->result->[0];
         }
     } else {
         Bio::KBase::Exceptions::HTTP->throw(
-            error => "Error invoking method get_type_info",
+            error => "Error invoking method validate_type",
             status_line => $self->{client}->status_line,
-            method_name => 'get_type_info',
+            method_name => 'validate_type',
         );
     }
 }
@@ -4866,6 +5529,148 @@ type_names has a value which is a reference to a list where each element is a st
 
 a reference to a hash where the following keys are defined:
 type_names has a value which is a reference to a list where each element is a string
+
+
+=end text
+
+=back
+
+
+
+=head2 ValidateMethodParams
+
+=over 4
+
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a reference to a hash where the following keys are defined:
+id has a value which is a string
+spec_json has a value which is a string
+display_yaml has a value which is a string
+
+</pre>
+
+=end html
+
+=begin text
+
+a reference to a hash where the following keys are defined:
+id has a value which is a string
+spec_json has a value which is a string
+display_yaml has a value which is a string
+
+
+=end text
+
+=back
+
+
+
+=head2 ValidationResults
+
+=over 4
+
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a reference to a hash where the following keys are defined:
+is_valid has a value which is a NarrativeMethodStore.boolean
+errors has a value which is a reference to a list where each element is a string
+warnings has a value which is a reference to a list where each element is a string
+app_full_info has a value which is a NarrativeMethodStore.AppFullInfo
+method_full_info has a value which is a NarrativeMethodStore.MethodFullInfo
+type_info has a value which is a NarrativeMethodStore.TypeInfo
+
+</pre>
+
+=end html
+
+=begin text
+
+a reference to a hash where the following keys are defined:
+is_valid has a value which is a NarrativeMethodStore.boolean
+errors has a value which is a reference to a list where each element is a string
+warnings has a value which is a reference to a list where each element is a string
+app_full_info has a value which is a NarrativeMethodStore.AppFullInfo
+method_full_info has a value which is a NarrativeMethodStore.MethodFullInfo
+type_info has a value which is a NarrativeMethodStore.TypeInfo
+
+
+=end text
+
+=back
+
+
+
+=head2 ValidateAppParams
+
+=over 4
+
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a reference to a hash where the following keys are defined:
+id has a value which is a string
+spec_json has a value which is a string
+display_yaml has a value which is a string
+
+</pre>
+
+=end html
+
+=begin text
+
+a reference to a hash where the following keys are defined:
+id has a value which is a string
+spec_json has a value which is a string
+display_yaml has a value which is a string
+
+
+=end text
+
+=back
+
+
+
+=head2 ValidateTypeParams
+
+=over 4
+
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a reference to a hash where the following keys are defined:
+id has a value which is a string
+spec_json has a value which is a string
+display_yaml has a value which is a string
+
+</pre>
+
+=end html
+
+=begin text
+
+a reference to a hash where the following keys are defined:
+id has a value which is a string
+spec_json has a value which is a string
+display_yaml has a value which is a string
 
 
 =end text
