@@ -16,6 +16,7 @@ import java.util.TreeMap;
 import org.ini4j.Ini;
 
 import us.kbase.narrativemethodstore.db.NarrativeCategoriesIndex;
+import us.kbase.narrativemethodstore.db.Validator;
 import us.kbase.narrativemethodstore.db.github.LocalGitDB;
 //END_HEADER
 
@@ -555,12 +556,55 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
     public List<TypeInfo> getTypeInfo(GetTypeParams params) throws Exception {
         List<TypeInfo> returnVal = null;
         //BEGIN get_type_info
-        config();
-        List<String> typeNames = params.getTypeNames();
-        returnVal = new ArrayList<TypeInfo>(typeNames.size());
-        for(String typeName: typeNames)
-        	returnVal.add(localGitDB.getTypeInfo(typeName));
         //END get_type_info
+        return returnVal;
+    }
+
+    /**
+     * <p>Original spec-file function name: validate_method</p>
+     * <pre>
+     * </pre>
+     * @param   params   instance of type {@link us.kbase.narrativemethodstore.ValidateMethodParams ValidateMethodParams}
+     * @return   instance of type {@link us.kbase.narrativemethodstore.ValidationResults ValidationResults}
+     */
+    @JsonServerMethod(rpc = "NarrativeMethodStore.validate_method")
+    public ValidationResults validateMethod(ValidateMethodParams params) throws Exception {
+        ValidationResults returnVal = null;
+        //BEGIN validate_method
+        returnVal = Validator.validateMethod(params);
+        //END validate_method
+        return returnVal;
+    }
+
+    /**
+     * <p>Original spec-file function name: validate_app</p>
+     * <pre>
+     * </pre>
+     * @param   params   instance of type {@link us.kbase.narrativemethodstore.ValidateAppParams ValidateAppParams}
+     * @return   instance of type {@link us.kbase.narrativemethodstore.ValidationResults ValidationResults}
+     */
+    @JsonServerMethod(rpc = "NarrativeMethodStore.validate_app")
+    public ValidationResults validateApp(ValidateAppParams params) throws Exception {
+        ValidationResults returnVal = null;
+        //BEGIN validate_app
+        returnVal = Validator.validateApp(params);
+        //END validate_app
+        return returnVal;
+    }
+
+    /**
+     * <p>Original spec-file function name: validate_type</p>
+     * <pre>
+     * </pre>
+     * @param   params   instance of type {@link us.kbase.narrativemethodstore.ValidateTypeParams ValidateTypeParams}
+     * @return   instance of type {@link us.kbase.narrativemethodstore.ValidationResults ValidationResults}
+     */
+    @JsonServerMethod(rpc = "NarrativeMethodStore.validate_type")
+    public ValidationResults validateType(ValidateTypeParams params) throws Exception {
+        ValidationResults returnVal = null;
+        //BEGIN validate_type
+        returnVal = Validator.validateType(params);
+        //END validate_type
         return returnVal;
     }
 

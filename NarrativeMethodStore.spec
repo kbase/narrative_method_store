@@ -603,4 +603,40 @@ module NarrativeMethodStore {
     
     funcdef get_type_info(GetTypeParams params) returns (list<TypeInfo>);
 
+
+
+    typedef structure {
+    	string id;
+    	string spec_json;
+    	string display_yaml;
+    } ValidateMethodParams;
+
+    typedef structure {
+    	boolean is_valid;
+        list<string> errors;
+        list<string> warnings;
+        AppFullInfo app_full_info;
+        MethodFullInfo method_full_info;
+        TypeInfo type_info;
+    } ValidationResults;
+
+    funcdef validate_method(ValidateMethodParams params) returns (ValidationResults);
+
+    typedef structure {
+    	string id;
+    	string spec_json;
+    	string display_yaml;
+    } ValidateAppParams;
+
+    funcdef validate_app(ValidateAppParams params) returns (ValidationResults);
+
+
+    typedef structure {
+    	string id;
+    	string spec_json;
+    	string display_yaml;
+    } ValidateTypeParams;
+
+    funcdef validate_type(ValidateTypeParams params) returns (ValidationResults);
+
 };
