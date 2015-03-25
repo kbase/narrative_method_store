@@ -609,6 +609,7 @@ module NarrativeMethodStore {
     	string id;
     	string spec_json;
     	string display_yaml;
+    	mapping <string,string> extra_files;
     } ValidateMethodParams;
 
     typedef structure {
@@ -626,6 +627,7 @@ module NarrativeMethodStore {
     	string id;
     	string spec_json;
     	string display_yaml;
+    	mapping <string,string> extra_files;
     } ValidateAppParams;
 
     funcdef validate_app(ValidateAppParams params) returns (ValidationResults);
@@ -635,8 +637,11 @@ module NarrativeMethodStore {
     	string id;
     	string spec_json;
     	string display_yaml;
+    	mapping <string,string> extra_files;
     } ValidateTypeParams;
 
     funcdef validate_type(ValidateTypeParams params) returns (ValidationResults);
+
+    /* need to add category validation as well */
 
 };

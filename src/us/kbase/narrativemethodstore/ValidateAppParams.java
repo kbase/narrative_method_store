@@ -21,76 +21,94 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @JsonPropertyOrder({
     "id",
     "spec_json",
-    "display_yaml"
+    "display_yaml",
+    "extra_files"
 })
 public class ValidateAppParams {
 
     @JsonProperty("id")
-    private String id;
+    private java.lang.String id;
     @JsonProperty("spec_json")
-    private String specJson;
+    private java.lang.String specJson;
     @JsonProperty("display_yaml")
-    private String displayYaml;
-    private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+    private java.lang.String displayYaml;
+    @JsonProperty("extra_files")
+    private Map<String, String> extraFiles;
+    private Map<java.lang.String, Object> additionalProperties = new HashMap<java.lang.String, Object>();
 
     @JsonProperty("id")
-    public String getId() {
+    public java.lang.String getId() {
         return id;
     }
 
     @JsonProperty("id")
-    public void setId(String id) {
+    public void setId(java.lang.String id) {
         this.id = id;
     }
 
-    public ValidateAppParams withId(String id) {
+    public ValidateAppParams withId(java.lang.String id) {
         this.id = id;
         return this;
     }
 
     @JsonProperty("spec_json")
-    public String getSpecJson() {
+    public java.lang.String getSpecJson() {
         return specJson;
     }
 
     @JsonProperty("spec_json")
-    public void setSpecJson(String specJson) {
+    public void setSpecJson(java.lang.String specJson) {
         this.specJson = specJson;
     }
 
-    public ValidateAppParams withSpecJson(String specJson) {
+    public ValidateAppParams withSpecJson(java.lang.String specJson) {
         this.specJson = specJson;
         return this;
     }
 
     @JsonProperty("display_yaml")
-    public String getDisplayYaml() {
+    public java.lang.String getDisplayYaml() {
         return displayYaml;
     }
 
     @JsonProperty("display_yaml")
-    public void setDisplayYaml(String displayYaml) {
+    public void setDisplayYaml(java.lang.String displayYaml) {
         this.displayYaml = displayYaml;
     }
 
-    public ValidateAppParams withDisplayYaml(String displayYaml) {
+    public ValidateAppParams withDisplayYaml(java.lang.String displayYaml) {
         this.displayYaml = displayYaml;
         return this;
     }
 
+    @JsonProperty("extra_files")
+    public Map<String, String> getExtraFiles() {
+        return extraFiles;
+    }
+
+    @JsonProperty("extra_files")
+    public void setExtraFiles(Map<String, String> extraFiles) {
+        this.extraFiles = extraFiles;
+    }
+
+    public ValidateAppParams withExtraFiles(Map<String, String> extraFiles) {
+        this.extraFiles = extraFiles;
+        return this;
+    }
+
     @JsonAnyGetter
-    public Map<String, Object> getAdditionalProperties() {
+    public Map<java.lang.String, Object> getAdditionalProperties() {
         return this.additionalProperties;
     }
 
     @JsonAnySetter
-    public void setAdditionalProperties(String name, Object value) {
+    public void setAdditionalProperties(java.lang.String name, Object value) {
         this.additionalProperties.put(name, value);
     }
 
     @Override
-    public String toString() {
-        return ((((((((("ValidateAppParams"+" [id=")+ id)+", specJson=")+ specJson)+", displayYaml=")+ displayYaml)+", additionalProperties=")+ additionalProperties)+"]");
+    public java.lang.String toString() {
+        return ((((((((((("ValidateAppParams"+" [id=")+ id)+", specJson=")+ specJson)+", displayYaml=")+ displayYaml)+", extraFiles=")+ extraFiles)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }

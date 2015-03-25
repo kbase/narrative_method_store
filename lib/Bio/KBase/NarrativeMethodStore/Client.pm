@@ -2934,6 +2934,7 @@ ValidateMethodParams is a reference to a hash where the following keys are defin
 	id has a value which is a string
 	spec_json has a value which is a string
 	display_yaml has a value which is a string
+	extra_files has a value which is a reference to a hash where the key is a string and the value is a string
 ValidationResults is a reference to a hash where the following keys are defined:
 	is_valid has a value which is a NarrativeMethodStore.boolean
 	errors has a value which is a reference to a list where each element is a string
@@ -3013,6 +3014,7 @@ ValidateMethodParams is a reference to a hash where the following keys are defin
 	id has a value which is a string
 	spec_json has a value which is a string
 	display_yaml has a value which is a string
+	extra_files has a value which is a reference to a hash where the key is a string and the value is a string
 ValidationResults is a reference to a hash where the following keys are defined:
 	is_valid has a value which is a NarrativeMethodStore.boolean
 	errors has a value which is a reference to a list where each element is a string
@@ -3155,6 +3157,7 @@ ValidateAppParams is a reference to a hash where the following keys are defined:
 	id has a value which is a string
 	spec_json has a value which is a string
 	display_yaml has a value which is a string
+	extra_files has a value which is a reference to a hash where the key is a string and the value is a string
 ValidationResults is a reference to a hash where the following keys are defined:
 	is_valid has a value which is a NarrativeMethodStore.boolean
 	errors has a value which is a reference to a list where each element is a string
@@ -3234,6 +3237,7 @@ ValidateAppParams is a reference to a hash where the following keys are defined:
 	id has a value which is a string
 	spec_json has a value which is a string
 	display_yaml has a value which is a string
+	extra_files has a value which is a reference to a hash where the key is a string and the value is a string
 ValidationResults is a reference to a hash where the following keys are defined:
 	is_valid has a value which is a NarrativeMethodStore.boolean
 	errors has a value which is a reference to a list where each element is a string
@@ -3376,6 +3380,7 @@ ValidateTypeParams is a reference to a hash where the following keys are defined
 	id has a value which is a string
 	spec_json has a value which is a string
 	display_yaml has a value which is a string
+	extra_files has a value which is a reference to a hash where the key is a string and the value is a string
 ValidationResults is a reference to a hash where the following keys are defined:
 	is_valid has a value which is a NarrativeMethodStore.boolean
 	errors has a value which is a reference to a list where each element is a string
@@ -3455,6 +3460,7 @@ ValidateTypeParams is a reference to a hash where the following keys are defined
 	id has a value which is a string
 	spec_json has a value which is a string
 	display_yaml has a value which is a string
+	extra_files has a value which is a reference to a hash where the key is a string and the value is a string
 ValidationResults is a reference to a hash where the following keys are defined:
 	is_valid has a value which is a NarrativeMethodStore.boolean
 	errors has a value which is a reference to a list where each element is a string
@@ -5552,6 +5558,7 @@ a reference to a hash where the following keys are defined:
 id has a value which is a string
 spec_json has a value which is a string
 display_yaml has a value which is a string
+extra_files has a value which is a reference to a hash where the key is a string and the value is a string
 
 </pre>
 
@@ -5563,6 +5570,7 @@ a reference to a hash where the following keys are defined:
 id has a value which is a string
 spec_json has a value which is a string
 display_yaml has a value which is a string
+extra_files has a value which is a reference to a hash where the key is a string and the value is a string
 
 
 =end text
@@ -5626,6 +5634,7 @@ a reference to a hash where the following keys are defined:
 id has a value which is a string
 spec_json has a value which is a string
 display_yaml has a value which is a string
+extra_files has a value which is a reference to a hash where the key is a string and the value is a string
 
 </pre>
 
@@ -5637,6 +5646,7 @@ a reference to a hash where the following keys are defined:
 id has a value which is a string
 spec_json has a value which is a string
 display_yaml has a value which is a string
+extra_files has a value which is a reference to a hash where the key is a string and the value is a string
 
 
 =end text
@@ -5660,6 +5670,7 @@ a reference to a hash where the following keys are defined:
 id has a value which is a string
 spec_json has a value which is a string
 display_yaml has a value which is a string
+extra_files has a value which is a reference to a hash where the key is a string and the value is a string
 
 </pre>
 
@@ -5671,6 +5682,7 @@ a reference to a hash where the following keys are defined:
 id has a value which is a string
 spec_json has a value which is a string
 display_yaml has a value which is a string
+extra_files has a value which is a reference to a hash where the key is a string and the value is a string
 
 
 =end text

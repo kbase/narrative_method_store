@@ -1,7 +1,10 @@
 package us.kbase.narrativemethodstore.db;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -11,6 +14,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import us.kbase.narrativemethodstore.ValidateAppParams;
+import us.kbase.narrativemethodstore.ValidateCategoryParams;
 import us.kbase.narrativemethodstore.ValidateMethodParams;
 import us.kbase.narrativemethodstore.ValidateTypeParams;
 import us.kbase.narrativemethodstore.ValidationResults;
@@ -21,11 +25,33 @@ public class Validator {
 	protected static final ObjectMapper mapper = new ObjectMapper();
 	protected static final Yaml yaml = new Yaml();
 	
+	
+	public static void main(String []args) throws Exception {
+		
+		String name = "gapfill_a_metabolic_model";
+		String spec = new String(Files.readAllBytes(Paths.get("/kb/dev_container/modules/narrative_method_specs/methods/"+name+"/spec.json")));
+		String display = new String(Files.readAllBytes(Paths.get("/kb/dev_container/modules/narrative_method_specs/methods/"+name+"/display.yaml")));
+		
+		ValidateMethodParams params = new ValidateMethodParams().withId(name).withSpecJson(spec).withDisplayYaml(display);
+		ValidationResults vr = Validator.validateMethod(params);
+		
+		System.out.println(vr);
+		
+		Map<String,String> m = new HashMap<String,String>();
+		m.put("stuff.h", "contentasdf");
+		
+		FileLookup f = createFileLookup(m);
+		
+		System.out.println(f.loadFileContent("stuff.h"));
+		System.out.println(f.loadFileContent("madeup"));
+		
+	}
+	
 	@SuppressWarnings("unchecked")
-	public static ValidationResults validateMethod(ValidateMethodParams params) {
+	public static ValidationResults validateMethod(ValidateMethodParams params) throws NarrativeMethodStoreException {
 		// grab the relevant input
 		String spec = params.getSpecJson();
-		String display = params.getDisplayYaml();
+		String display = cleanYaml(params.getDisplayYaml());
 		
 		//setup results
 		long isValid = 0L;
@@ -49,7 +75,11 @@ public class Validator {
 			errors.add("display.yaml could not be parsed as a structure. It was mapped to:"+parsedDisplayObject.getClass().getName() +
 					"\n Make sure the top level of the YAML file are 'fields:values', not a list, string, or other construct.");
 		} catch (Exception e) {
-			errors.add(e.getMessage());
+			if(e.getMessage()!=null) {
+				errors.add(e.getMessage());
+			} else {
+				errors.add("An unknown error occured while parsing the display.yaml file");
+			}
 		}
 
 		if(parsedDisplay==null) {
@@ -59,7 +89,7 @@ public class Validator {
 		ValidationResults results = new ValidationResults();
 		if(parsedSpec!= null && parsedDisplay!=null) {
 			try {
-				NarrativeMethodData nmd = new NarrativeMethodData(params.getId(), parsedSpec, parsedDisplay, null);
+				NarrativeMethodData nmd = new NarrativeMethodData(params.getId(), parsedSpec, parsedDisplay, createFileLookup(params.getExtraFiles()));
 				results.setMethodFullInfo(nmd.getMethodFullInfo());
 				// it all seemed to parse fine, but we can add additional checks or warnings here if desired
 				isValid = 1L;
@@ -80,7 +110,7 @@ public class Validator {
 	public static ValidationResults validateApp(ValidateAppParams params) {
 		// grab the relevant input
 		String spec = params.getSpecJson();
-		String display = params.getDisplayYaml();
+		String display = cleanYaml(params.getDisplayYaml());
 		
 		//setup results
 		long isValid = 0L;
@@ -104,7 +134,11 @@ public class Validator {
 			errors.add("display.yaml could not be parsed as a structure. It was mapped to:"+parsedDisplayObject.getClass().getName() +
 					"\n Make sure the top level of the YAML file are 'fields:values', not a list, string, or other construct.");
 		} catch (Exception e) {
-			errors.add(e.getMessage());
+			if(e.getMessage()!=null) {
+				errors.add(e.getMessage());
+			} else {
+				errors.add("An unknown error occured while parsing the display.yaml file");
+			}
 		}
 
 		if(parsedDisplay==null) {
@@ -114,7 +148,7 @@ public class Validator {
 		ValidationResults results = new ValidationResults();
 		if(parsedSpec!= null && parsedDisplay!=null) {
 			try {
-				NarrativeAppData nad = new NarrativeAppData(params.getId(), parsedSpec, parsedDisplay, null);
+				NarrativeAppData nad = new NarrativeAppData(params.getId(), parsedSpec, parsedDisplay, createFileLookup(params.getExtraFiles()));
 				results.setAppFullInfo(nad.getAppFullInfo());
 				// it all seemed to parse fine, but we can add additional checks or warnings here if desired
 				isValid = 1L;
@@ -135,7 +169,7 @@ public class Validator {
 	public static ValidationResults validateType(ValidateTypeParams params) {
 		// grab the relevant input
 		String spec = params.getSpecJson();
-		String display = params.getDisplayYaml();
+		String display = cleanYaml(params.getDisplayYaml());
 		
 		//setup results
 		long isValid = 0L;
@@ -159,7 +193,11 @@ public class Validator {
 			errors.add("display.yaml could not be parsed as a structure. It was mapped to:"+parsedDisplayObject.getClass().getName() +
 					"\n Make sure the top level of the YAML file are 'fields:values', not a list, string, or other construct.");
 		} catch (Exception e) {
-			errors.add(e.getMessage());
+			if(e.getMessage()!=null) {
+				errors.add(e.getMessage());
+			} else {
+				errors.add("An unknown error occured while parsing the display.yaml file");
+			}
 		}
 
 		if(parsedDisplay==null) {
@@ -169,7 +207,7 @@ public class Validator {
 		ValidationResults results = new ValidationResults();
 		if(parsedSpec!= null && parsedDisplay!=null) {
 			try {
-				NarrativeTypeData nad = new NarrativeTypeData(params.getId(), parsedSpec, parsedDisplay, null);
+				NarrativeTypeData nad = new NarrativeTypeData(params.getId(), parsedSpec, parsedDisplay, createFileLookup(params.getExtraFiles()));
 				results.setTypeInfo(nad.getTypeInfo());
 				// it all seemed to parse fine, but we can add additional checks or warnings here if desired
 				isValid = 1L;
@@ -186,7 +224,30 @@ public class Validator {
 		return results;
 	}
 	
+	protected static FileLookup createFileLookup(final Map <String,String> extraFiles) {
+		return new FileLookup() {
+			@Override
+			public String loadFileContent(String fileName) {
+				if(extraFiles!=null) {
+					if(extraFiles.containsKey(fileName)) {
+						return extraFiles.get(fileName);
+					}
+				}
+				return null;
+			}
+		};
+	}
 	
+	protected static String cleanYaml(String display) {
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < display.length(); i++) {
+			char ch = display.charAt(i);
+			if ((ch < 32 && ch != 10 && ch != 13) || ch >= 127)
+				ch = ' ';
+			sb.append(ch);
+		}
+		return sb.toString();
+	}
 	
 	
 }

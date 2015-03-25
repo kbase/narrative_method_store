@@ -12,7 +12,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 
 /**
- * <p>Original spec-file type: ValidateMethodParams</p>
+ * <p>Original spec-file type: ValidateCategoryParams</p>
  * 
  * 
  */
@@ -24,7 +24,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
     "display_yaml",
     "extra_files"
 })
-public class ValidateMethodParams {
+public class ValidateCategoryParams {
 
     @JsonProperty("id")
     private java.lang.String id;
@@ -46,7 +46,7 @@ public class ValidateMethodParams {
         this.id = id;
     }
 
-    public ValidateMethodParams withId(java.lang.String id) {
+    public ValidateCategoryParams withId(java.lang.String id) {
         this.id = id;
         return this;
     }
@@ -61,7 +61,7 @@ public class ValidateMethodParams {
         this.specJson = specJson;
     }
 
-    public ValidateMethodParams withSpecJson(java.lang.String specJson) {
+    public ValidateCategoryParams withSpecJson(java.lang.String specJson) {
         this.specJson = specJson;
         return this;
     }
@@ -76,7 +76,7 @@ public class ValidateMethodParams {
         this.displayYaml = displayYaml;
     }
 
-    public ValidateMethodParams withDisplayYaml(java.lang.String displayYaml) {
+    public ValidateCategoryParams withDisplayYaml(java.lang.String displayYaml) {
         this.displayYaml = displayYaml;
         return this;
     }
@@ -91,7 +91,7 @@ public class ValidateMethodParams {
         this.extraFiles = extraFiles;
     }
 
-    public ValidateMethodParams withExtraFiles(Map<String, String> extraFiles) {
+    public ValidateCategoryParams withExtraFiles(Map<String, String> extraFiles) {
         this.extraFiles = extraFiles;
         return this;
     }
@@ -108,7 +108,7 @@ public class ValidateMethodParams {
 
     @Override
     public java.lang.String toString() {
-        return ((((((((((("ValidateMethodParams"+" [id=")+ id)+", specJson=")+ specJson)+", displayYaml=")+ displayYaml)+", extraFiles=")+ extraFiles)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((((((("ValidateCategoryParams"+" [id=")+ id)+", specJson=")+ specJson)+", displayYaml=")+ displayYaml)+", extraFiles=")+ extraFiles)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }
