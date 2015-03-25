@@ -617,7 +617,9 @@ module NarrativeMethodStore {
         list<string> errors;
         list<string> warnings;
         AppFullInfo app_full_info;
+        AppSpec app_spec;
         MethodFullInfo method_full_info;
+        MethodSpec method_spec;
         TypeInfo type_info;
     } ValidationResults;
 

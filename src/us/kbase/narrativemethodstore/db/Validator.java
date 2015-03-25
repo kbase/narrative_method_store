@@ -91,6 +91,7 @@ public class Validator {
 			try {
 				NarrativeMethodData nmd = new NarrativeMethodData(params.getId(), parsedSpec, parsedDisplay, createFileLookup(params.getExtraFiles()));
 				results.setMethodFullInfo(nmd.getMethodFullInfo());
+				results.setMethodSpec(nmd.getMethodSpec());
 				// it all seemed to parse fine, but we can add additional checks or warnings here if desired
 				isValid = 1L;
 			} catch (NarrativeMethodStoreException e) {
@@ -150,6 +151,7 @@ public class Validator {
 			try {
 				NarrativeAppData nad = new NarrativeAppData(params.getId(), parsedSpec, parsedDisplay, createFileLookup(params.getExtraFiles()));
 				results.setAppFullInfo(nad.getAppFullInfo());
+				results.setAppSpec(nad.getAppSpec());
 				// it all seemed to parse fine, but we can add additional checks or warnings here if desired
 				isValid = 1L;
 			} catch (NarrativeMethodStoreException e) {

@@ -24,7 +24,9 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
     "errors",
     "warnings",
     "app_full_info",
+    "app_spec",
     "method_full_info",
+    "method_spec",
     "type_info"
 })
 public class ValidationResults {
@@ -43,6 +45,16 @@ public class ValidationResults {
     @JsonProperty("app_full_info")
     private AppFullInfo appFullInfo;
     /**
+     * <p>Original spec-file type: AppSpec</p>
+     * <pre>
+     * typedef structure {
+     * } AppBehavior;
+     * </pre>
+     * 
+     */
+    @JsonProperty("app_spec")
+    private AppSpec appSpec;
+    /**
      * <p>Original spec-file type: MethodFullInfo</p>
      * <pre>
      * Full information about a method suitable for displaying a method landing page.
@@ -51,6 +63,20 @@ public class ValidationResults {
      */
     @JsonProperty("method_full_info")
     private MethodFullInfo methodFullInfo;
+    /**
+     * <p>Original spec-file type: MethodSpec</p>
+     * <pre>
+     * The method specification which should provide enough information to render a default
+     * input widget for the method.
+     * replacement_text indicates the text that should replace the input boxes after the method
+     * has run.  You can refer to parameters by putting them in double curly braces (on the front
+     * end we will use the handlebars library).
+     *    for example:  Ran flux balance analysis on model {{model_param}} with parameter 2 set to {{param2}}.
+     * </pre>
+     * 
+     */
+    @JsonProperty("method_spec")
+    private MethodSpec methodSpec;
     /**
      * <p>Original spec-file type: TypeInfo</p>
      * <pre>
@@ -133,6 +159,37 @@ public class ValidationResults {
     }
 
     /**
+     * <p>Original spec-file type: AppSpec</p>
+     * <pre>
+     * typedef structure {
+     * } AppBehavior;
+     * </pre>
+     * 
+     */
+    @JsonProperty("app_spec")
+    public AppSpec getAppSpec() {
+        return appSpec;
+    }
+
+    /**
+     * <p>Original spec-file type: AppSpec</p>
+     * <pre>
+     * typedef structure {
+     * } AppBehavior;
+     * </pre>
+     * 
+     */
+    @JsonProperty("app_spec")
+    public void setAppSpec(AppSpec appSpec) {
+        this.appSpec = appSpec;
+    }
+
+    public ValidationResults withAppSpec(AppSpec appSpec) {
+        this.appSpec = appSpec;
+        return this;
+    }
+
+    /**
      * <p>Original spec-file type: MethodFullInfo</p>
      * <pre>
      * Full information about a method suitable for displaying a method landing page.
@@ -158,6 +215,45 @@ public class ValidationResults {
 
     public ValidationResults withMethodFullInfo(MethodFullInfo methodFullInfo) {
         this.methodFullInfo = methodFullInfo;
+        return this;
+    }
+
+    /**
+     * <p>Original spec-file type: MethodSpec</p>
+     * <pre>
+     * The method specification which should provide enough information to render a default
+     * input widget for the method.
+     * replacement_text indicates the text that should replace the input boxes after the method
+     * has run.  You can refer to parameters by putting them in double curly braces (on the front
+     * end we will use the handlebars library).
+     *    for example:  Ran flux balance analysis on model {{model_param}} with parameter 2 set to {{param2}}.
+     * </pre>
+     * 
+     */
+    @JsonProperty("method_spec")
+    public MethodSpec getMethodSpec() {
+        return methodSpec;
+    }
+
+    /**
+     * <p>Original spec-file type: MethodSpec</p>
+     * <pre>
+     * The method specification which should provide enough information to render a default
+     * input widget for the method.
+     * replacement_text indicates the text that should replace the input boxes after the method
+     * has run.  You can refer to parameters by putting them in double curly braces (on the front
+     * end we will use the handlebars library).
+     *    for example:  Ran flux balance analysis on model {{model_param}} with parameter 2 set to {{param2}}.
+     * </pre>
+     * 
+     */
+    @JsonProperty("method_spec")
+    public void setMethodSpec(MethodSpec methodSpec) {
+        this.methodSpec = methodSpec;
+    }
+
+    public ValidationResults withMethodSpec(MethodSpec methodSpec) {
+        this.methodSpec = methodSpec;
         return this;
     }
 
@@ -202,7 +298,7 @@ public class ValidationResults {
 
     @Override
     public java.lang.String toString() {
-        return ((((((((((((((("ValidationResults"+" [isValid=")+ isValid)+", errors=")+ errors)+", warnings=")+ warnings)+", appFullInfo=")+ appFullInfo)+", methodFullInfo=")+ methodFullInfo)+", typeInfo=")+ typeInfo)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((((((((((((((("ValidationResults"+" [isValid=")+ isValid)+", errors=")+ errors)+", warnings=")+ warnings)+", appFullInfo=")+ appFullInfo)+", appSpec=")+ appSpec)+", methodFullInfo=")+ methodFullInfo)+", methodSpec=")+ methodSpec)+", typeInfo=")+ typeInfo)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }

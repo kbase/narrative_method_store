@@ -2940,7 +2940,9 @@ ValidationResults is a reference to a hash where the following keys are defined:
 	errors has a value which is a reference to a list where each element is a string
 	warnings has a value which is a reference to a list where each element is a string
 	app_full_info has a value which is a NarrativeMethodStore.AppFullInfo
+	app_spec has a value which is a NarrativeMethodStore.AppSpec
 	method_full_info has a value which is a NarrativeMethodStore.MethodFullInfo
+	method_spec has a value which is a NarrativeMethodStore.MethodSpec
 	type_info has a value which is a NarrativeMethodStore.TypeInfo
 boolean is an int
 AppFullInfo is a reference to a hash where the following keys are defined:
@@ -2970,6 +2972,29 @@ Icon is a reference to a hash where the following keys are defined:
 url is a string
 ScreenShot is a reference to a hash where the following keys are defined:
 	url has a value which is a NarrativeMethodStore.url
+AppSpec is a reference to a hash where the following keys are defined:
+	info has a value which is a NarrativeMethodStore.AppBriefInfo
+	steps has a value which is a reference to a list where each element is a NarrativeMethodStore.AppSteps
+AppBriefInfo is a reference to a hash where the following keys are defined:
+	id has a value which is a string
+	name has a value which is a string
+	ver has a value which is a string
+	subtitle has a value which is a string
+	tooltip has a value which is a string
+	header has a value which is a string
+	icon has a value which is a NarrativeMethodStore.Icon
+	categories has a value which is a reference to a list where each element is a string
+	loading_error has a value which is a string
+AppSteps is a reference to a hash where the following keys are defined:
+	step_id has a value which is a string
+	method_id has a value which is a string
+	input_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.AppStepInputMapping
+	description has a value which is a string
+AppStepInputMapping is a reference to a hash where the following keys are defined:
+	step_source has a value which is a string
+	is_from_input has a value which is a NarrativeMethodStore.boolean
+	from has a value which is a string
+	to has a value which is a string
 MethodFullInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
 	name has a value which is a string
@@ -2990,6 +3015,141 @@ Publication is a reference to a hash where the following keys are defined:
 	pmid has a value which is a string
 	display_text has a value which is a string
 	link has a value which is a NarrativeMethodStore.url
+MethodSpec is a reference to a hash where the following keys are defined:
+	info has a value which is a NarrativeMethodStore.MethodBriefInfo
+	replacement_text has a value which is a string
+	widgets has a value which is a NarrativeMethodStore.WidgetSpec
+	parameters has a value which is a reference to a list where each element is a NarrativeMethodStore.MethodParameter
+	fixed_parameters has a value which is a reference to a list where each element is a NarrativeMethodStore.FixedMethodParameter
+	behavior has a value which is a NarrativeMethodStore.MethodBehavior
+	job_id_output_field has a value which is a string
+MethodBriefInfo is a reference to a hash where the following keys are defined:
+	id has a value which is a string
+	name has a value which is a string
+	ver has a value which is a string
+	subtitle has a value which is a string
+	tooltip has a value which is a string
+	icon has a value which is a NarrativeMethodStore.Icon
+	categories has a value which is a reference to a list where each element is a string
+	loading_error has a value which is a string
+WidgetSpec is a reference to a hash where the following keys are defined:
+	input has a value which is a string
+	output has a value which is a string
+MethodParameter is a reference to a hash where the following keys are defined:
+	id has a value which is a string
+	ui_name has a value which is a string
+	short_hint has a value which is a string
+	description has a value which is a string
+	field_type has a value which is a string
+	allow_multiple has a value which is a NarrativeMethodStore.boolean
+	optional has a value which is a NarrativeMethodStore.boolean
+	advanced has a value which is a NarrativeMethodStore.boolean
+	disabled has a value which is a NarrativeMethodStore.boolean
+	ui_class has a value which is a string
+	default_values has a value which is a reference to a list where each element is a string
+	text_options has a value which is a NarrativeMethodStore.TextOptions
+	textarea_options has a value which is a NarrativeMethodStore.TextAreaOptions
+	intslider_options has a value which is a NarrativeMethodStore.IntSliderOptions
+	floatslider_options has a value which is a NarrativeMethodStore.FloatSliderOptions
+	checkbox_options has a value which is a NarrativeMethodStore.CheckboxOptions
+	dropdown_options has a value which is a NarrativeMethodStore.DropdownOptions
+	radio_options has a value which is a NarrativeMethodStore.RadioOptions
+	tab_options has a value which is a NarrativeMethodStore.TabOptions
+TextOptions is a reference to a hash where the following keys are defined:
+	valid_ws_types has a value which is a reference to a list where each element is a string
+	validate_as has a value which is a string
+	is_output_name has a value which is a NarrativeMethodStore.boolean
+	placeholder has a value which is a string
+	min_int has a value which is an int
+	max_int has a value which is an int
+	min_float has a value which is a float
+	max_float has a value which is a float
+	regex_constraint has a value which is a reference to a list where each element is a NarrativeMethodStore.RegexMatcher
+RegexMatcher is a reference to a hash where the following keys are defined:
+	regex has a value which is a string
+	error_text has a value which is a string
+	match has a value which is a NarrativeMethodStore.boolean
+TextAreaOptions is a reference to a hash where the following keys are defined:
+	n_rows has a value which is an int
+IntSliderOptions is a reference to a hash where the following keys are defined:
+	min has a value which is an int
+	max has a value which is an int
+	step has a value which is an int
+FloatSliderOptions is a reference to a hash where the following keys are defined:
+	min has a value which is a float
+	max has a value which is a float
+CheckboxOptions is a reference to a hash where the following keys are defined:
+	checked_value has a value which is an int
+	unchecked_value has a value which is an int
+DropdownOptions is a reference to a hash where the following keys are defined:
+	options has a value which is a reference to a list where each element is a NarrativeMethodStore.DropdownOption
+DropdownOption is a reference to a hash where the following keys are defined:
+	value has a value which is a string
+	display has a value which is a string
+RadioOptions is a reference to a hash where the following keys are defined:
+	id_order has a value which is a reference to a list where each element is a string
+	ids_to_options has a value which is a reference to a hash where the key is a string and the value is a string
+	ids_to_tooltip has a value which is a reference to a hash where the key is a string and the value is a string
+TabOptions is a reference to a hash where the following keys are defined:
+	tab_id_order has a value which is a reference to a list where each element is a string
+	tab_id_to_tab_name has a value which is a reference to a hash where the key is a string and the value is a string
+	tab_id_to_param_ids has a value which is a reference to a hash where the key is a string and the value is a reference to a list where each element is a string
+FixedMethodParameter is a reference to a hash where the following keys are defined:
+	ui_name has a value which is a string
+	description has a value which is a string
+MethodBehavior is a reference to a hash where the following keys are defined:
+	python_class has a value which is a string
+	python_function has a value which is a string
+	kb_service_url has a value which is a string
+	kb_service_name has a value which is a string
+	kb_service_method has a value which is a string
+	script_module has a value which is a string
+	script_name has a value which is a string
+	script_has_files has a value which is a NarrativeMethodStore.boolean
+	kb_service_input_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.ServiceMethodInputMapping
+	kb_service_output_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.ServiceMethodOutputMapping
+	output_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.OutputMapping
+	script_input_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.ScriptInputMapping
+	script_output_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.ScriptOutputMapping
+ServiceMethodInputMapping is a reference to a hash where the following keys are defined:
+	input_parameter has a value which is a string
+	constant_value has a value which is an UnspecifiedObject, which can hold any non-null object
+	narrative_system_variable has a value which is a string
+	generated_value has a value which is a NarrativeMethodStore.AutoGeneratedValue
+	target_argument_position has a value which is an int
+	target_property has a value which is a string
+	target_type_transform has a value which is a string
+AutoGeneratedValue is a reference to a hash where the following keys are defined:
+	prefix has a value which is a string
+	symbols has a value which is an int
+	suffix has a value which is a string
+ServiceMethodOutputMapping is a reference to a hash where the following keys are defined:
+	input_parameter has a value which is a string
+	service_method_output_path has a value which is a reference to a list where each element is a string
+	constant_value has a value which is an UnspecifiedObject, which can hold any non-null object
+	narrative_system_variable has a value which is a string
+	target_property has a value which is a string
+	target_type_transform has a value which is a string
+OutputMapping is a reference to a hash where the following keys are defined:
+	input_parameter has a value which is a string
+	constant_value has a value which is an UnspecifiedObject, which can hold any non-null object
+	narrative_system_variable has a value which is a string
+	target_property has a value which is a string
+	target_type_transform has a value which is a string
+ScriptInputMapping is a reference to a hash where the following keys are defined:
+	input_parameter has a value which is a string
+	constant_value has a value which is an UnspecifiedObject, which can hold any non-null object
+	narrative_system_variable has a value which is a string
+	generated_value has a value which is a NarrativeMethodStore.AutoGeneratedValue
+	target_property has a value which is a string
+	target_type_transform has a value which is a string
+ScriptOutputMapping is a reference to a hash where the following keys are defined:
+	input_parameter has a value which is a string
+	script_output_path has a value which is a reference to a list where each element is a string
+	constant_value has a value which is an UnspecifiedObject, which can hold any non-null object
+	narrative_system_variable has a value which is a string
+	target_property has a value which is a string
+	target_type_transform has a value which is a string
 TypeInfo is a reference to a hash where the following keys are defined:
 	type_name has a value which is a string
 	name has a value which is a string
@@ -3020,7 +3180,9 @@ ValidationResults is a reference to a hash where the following keys are defined:
 	errors has a value which is a reference to a list where each element is a string
 	warnings has a value which is a reference to a list where each element is a string
 	app_full_info has a value which is a NarrativeMethodStore.AppFullInfo
+	app_spec has a value which is a NarrativeMethodStore.AppSpec
 	method_full_info has a value which is a NarrativeMethodStore.MethodFullInfo
+	method_spec has a value which is a NarrativeMethodStore.MethodSpec
 	type_info has a value which is a NarrativeMethodStore.TypeInfo
 boolean is an int
 AppFullInfo is a reference to a hash where the following keys are defined:
@@ -3050,6 +3212,29 @@ Icon is a reference to a hash where the following keys are defined:
 url is a string
 ScreenShot is a reference to a hash where the following keys are defined:
 	url has a value which is a NarrativeMethodStore.url
+AppSpec is a reference to a hash where the following keys are defined:
+	info has a value which is a NarrativeMethodStore.AppBriefInfo
+	steps has a value which is a reference to a list where each element is a NarrativeMethodStore.AppSteps
+AppBriefInfo is a reference to a hash where the following keys are defined:
+	id has a value which is a string
+	name has a value which is a string
+	ver has a value which is a string
+	subtitle has a value which is a string
+	tooltip has a value which is a string
+	header has a value which is a string
+	icon has a value which is a NarrativeMethodStore.Icon
+	categories has a value which is a reference to a list where each element is a string
+	loading_error has a value which is a string
+AppSteps is a reference to a hash where the following keys are defined:
+	step_id has a value which is a string
+	method_id has a value which is a string
+	input_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.AppStepInputMapping
+	description has a value which is a string
+AppStepInputMapping is a reference to a hash where the following keys are defined:
+	step_source has a value which is a string
+	is_from_input has a value which is a NarrativeMethodStore.boolean
+	from has a value which is a string
+	to has a value which is a string
 MethodFullInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
 	name has a value which is a string
@@ -3070,6 +3255,141 @@ Publication is a reference to a hash where the following keys are defined:
 	pmid has a value which is a string
 	display_text has a value which is a string
 	link has a value which is a NarrativeMethodStore.url
+MethodSpec is a reference to a hash where the following keys are defined:
+	info has a value which is a NarrativeMethodStore.MethodBriefInfo
+	replacement_text has a value which is a string
+	widgets has a value which is a NarrativeMethodStore.WidgetSpec
+	parameters has a value which is a reference to a list where each element is a NarrativeMethodStore.MethodParameter
+	fixed_parameters has a value which is a reference to a list where each element is a NarrativeMethodStore.FixedMethodParameter
+	behavior has a value which is a NarrativeMethodStore.MethodBehavior
+	job_id_output_field has a value which is a string
+MethodBriefInfo is a reference to a hash where the following keys are defined:
+	id has a value which is a string
+	name has a value which is a string
+	ver has a value which is a string
+	subtitle has a value which is a string
+	tooltip has a value which is a string
+	icon has a value which is a NarrativeMethodStore.Icon
+	categories has a value which is a reference to a list where each element is a string
+	loading_error has a value which is a string
+WidgetSpec is a reference to a hash where the following keys are defined:
+	input has a value which is a string
+	output has a value which is a string
+MethodParameter is a reference to a hash where the following keys are defined:
+	id has a value which is a string
+	ui_name has a value which is a string
+	short_hint has a value which is a string
+	description has a value which is a string
+	field_type has a value which is a string
+	allow_multiple has a value which is a NarrativeMethodStore.boolean
+	optional has a value which is a NarrativeMethodStore.boolean
+	advanced has a value which is a NarrativeMethodStore.boolean
+	disabled has a value which is a NarrativeMethodStore.boolean
+	ui_class has a value which is a string
+	default_values has a value which is a reference to a list where each element is a string
+	text_options has a value which is a NarrativeMethodStore.TextOptions
+	textarea_options has a value which is a NarrativeMethodStore.TextAreaOptions
+	intslider_options has a value which is a NarrativeMethodStore.IntSliderOptions
+	floatslider_options has a value which is a NarrativeMethodStore.FloatSliderOptions
+	checkbox_options has a value which is a NarrativeMethodStore.CheckboxOptions
+	dropdown_options has a value which is a NarrativeMethodStore.DropdownOptions
+	radio_options has a value which is a NarrativeMethodStore.RadioOptions
+	tab_options has a value which is a NarrativeMethodStore.TabOptions
+TextOptions is a reference to a hash where the following keys are defined:
+	valid_ws_types has a value which is a reference to a list where each element is a string
+	validate_as has a value which is a string
+	is_output_name has a value which is a NarrativeMethodStore.boolean
+	placeholder has a value which is a string
+	min_int has a value which is an int
+	max_int has a value which is an int
+	min_float has a value which is a float
+	max_float has a value which is a float
+	regex_constraint has a value which is a reference to a list where each element is a NarrativeMethodStore.RegexMatcher
+RegexMatcher is a reference to a hash where the following keys are defined:
+	regex has a value which is a string
+	error_text has a value which is a string
+	match has a value which is a NarrativeMethodStore.boolean
+TextAreaOptions is a reference to a hash where the following keys are defined:
+	n_rows has a value which is an int
+IntSliderOptions is a reference to a hash where the following keys are defined:
+	min has a value which is an int
+	max has a value which is an int
+	step has a value which is an int
+FloatSliderOptions is a reference to a hash where the following keys are defined:
+	min has a value which is a float
+	max has a value which is a float
+CheckboxOptions is a reference to a hash where the following keys are defined:
+	checked_value has a value which is an int
+	unchecked_value has a value which is an int
+DropdownOptions is a reference to a hash where the following keys are defined:
+	options has a value which is a reference to a list where each element is a NarrativeMethodStore.DropdownOption
+DropdownOption is a reference to a hash where the following keys are defined:
+	value has a value which is a string
+	display has a value which is a string
+RadioOptions is a reference to a hash where the following keys are defined:
+	id_order has a value which is a reference to a list where each element is a string
+	ids_to_options has a value which is a reference to a hash where the key is a string and the value is a string
+	ids_to_tooltip has a value which is a reference to a hash where the key is a string and the value is a string
+TabOptions is a reference to a hash where the following keys are defined:
+	tab_id_order has a value which is a reference to a list where each element is a string
+	tab_id_to_tab_name has a value which is a reference to a hash where the key is a string and the value is a string
+	tab_id_to_param_ids has a value which is a reference to a hash where the key is a string and the value is a reference to a list where each element is a string
+FixedMethodParameter is a reference to a hash where the following keys are defined:
+	ui_name has a value which is a string
+	description has a value which is a string
+MethodBehavior is a reference to a hash where the following keys are defined:
+	python_class has a value which is a string
+	python_function has a value which is a string
+	kb_service_url has a value which is a string
+	kb_service_name has a value which is a string
+	kb_service_method has a value which is a string
+	script_module has a value which is a string
+	script_name has a value which is a string
+	script_has_files has a value which is a NarrativeMethodStore.boolean
+	kb_service_input_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.ServiceMethodInputMapping
+	kb_service_output_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.ServiceMethodOutputMapping
+	output_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.OutputMapping
+	script_input_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.ScriptInputMapping
+	script_output_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.ScriptOutputMapping
+ServiceMethodInputMapping is a reference to a hash where the following keys are defined:
+	input_parameter has a value which is a string
+	constant_value has a value which is an UnspecifiedObject, which can hold any non-null object
+	narrative_system_variable has a value which is a string
+	generated_value has a value which is a NarrativeMethodStore.AutoGeneratedValue
+	target_argument_position has a value which is an int
+	target_property has a value which is a string
+	target_type_transform has a value which is a string
+AutoGeneratedValue is a reference to a hash where the following keys are defined:
+	prefix has a value which is a string
+	symbols has a value which is an int
+	suffix has a value which is a string
+ServiceMethodOutputMapping is a reference to a hash where the following keys are defined:
+	input_parameter has a value which is a string
+	service_method_output_path has a value which is a reference to a list where each element is a string
+	constant_value has a value which is an UnspecifiedObject, which can hold any non-null object
+	narrative_system_variable has a value which is a string
+	target_property has a value which is a string
+	target_type_transform has a value which is a string
+OutputMapping is a reference to a hash where the following keys are defined:
+	input_parameter has a value which is a string
+	constant_value has a value which is an UnspecifiedObject, which can hold any non-null object
+	narrative_system_variable has a value which is a string
+	target_property has a value which is a string
+	target_type_transform has a value which is a string
+ScriptInputMapping is a reference to a hash where the following keys are defined:
+	input_parameter has a value which is a string
+	constant_value has a value which is an UnspecifiedObject, which can hold any non-null object
+	narrative_system_variable has a value which is a string
+	generated_value has a value which is a NarrativeMethodStore.AutoGeneratedValue
+	target_property has a value which is a string
+	target_type_transform has a value which is a string
+ScriptOutputMapping is a reference to a hash where the following keys are defined:
+	input_parameter has a value which is a string
+	script_output_path has a value which is a reference to a list where each element is a string
+	constant_value has a value which is an UnspecifiedObject, which can hold any non-null object
+	narrative_system_variable has a value which is a string
+	target_property has a value which is a string
+	target_type_transform has a value which is a string
 TypeInfo is a reference to a hash where the following keys are defined:
 	type_name has a value which is a string
 	name has a value which is a string
@@ -3163,7 +3483,9 @@ ValidationResults is a reference to a hash where the following keys are defined:
 	errors has a value which is a reference to a list where each element is a string
 	warnings has a value which is a reference to a list where each element is a string
 	app_full_info has a value which is a NarrativeMethodStore.AppFullInfo
+	app_spec has a value which is a NarrativeMethodStore.AppSpec
 	method_full_info has a value which is a NarrativeMethodStore.MethodFullInfo
+	method_spec has a value which is a NarrativeMethodStore.MethodSpec
 	type_info has a value which is a NarrativeMethodStore.TypeInfo
 boolean is an int
 AppFullInfo is a reference to a hash where the following keys are defined:
@@ -3193,6 +3515,29 @@ Icon is a reference to a hash where the following keys are defined:
 url is a string
 ScreenShot is a reference to a hash where the following keys are defined:
 	url has a value which is a NarrativeMethodStore.url
+AppSpec is a reference to a hash where the following keys are defined:
+	info has a value which is a NarrativeMethodStore.AppBriefInfo
+	steps has a value which is a reference to a list where each element is a NarrativeMethodStore.AppSteps
+AppBriefInfo is a reference to a hash where the following keys are defined:
+	id has a value which is a string
+	name has a value which is a string
+	ver has a value which is a string
+	subtitle has a value which is a string
+	tooltip has a value which is a string
+	header has a value which is a string
+	icon has a value which is a NarrativeMethodStore.Icon
+	categories has a value which is a reference to a list where each element is a string
+	loading_error has a value which is a string
+AppSteps is a reference to a hash where the following keys are defined:
+	step_id has a value which is a string
+	method_id has a value which is a string
+	input_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.AppStepInputMapping
+	description has a value which is a string
+AppStepInputMapping is a reference to a hash where the following keys are defined:
+	step_source has a value which is a string
+	is_from_input has a value which is a NarrativeMethodStore.boolean
+	from has a value which is a string
+	to has a value which is a string
 MethodFullInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
 	name has a value which is a string
@@ -3213,6 +3558,141 @@ Publication is a reference to a hash where the following keys are defined:
 	pmid has a value which is a string
 	display_text has a value which is a string
 	link has a value which is a NarrativeMethodStore.url
+MethodSpec is a reference to a hash where the following keys are defined:
+	info has a value which is a NarrativeMethodStore.MethodBriefInfo
+	replacement_text has a value which is a string
+	widgets has a value which is a NarrativeMethodStore.WidgetSpec
+	parameters has a value which is a reference to a list where each element is a NarrativeMethodStore.MethodParameter
+	fixed_parameters has a value which is a reference to a list where each element is a NarrativeMethodStore.FixedMethodParameter
+	behavior has a value which is a NarrativeMethodStore.MethodBehavior
+	job_id_output_field has a value which is a string
+MethodBriefInfo is a reference to a hash where the following keys are defined:
+	id has a value which is a string
+	name has a value which is a string
+	ver has a value which is a string
+	subtitle has a value which is a string
+	tooltip has a value which is a string
+	icon has a value which is a NarrativeMethodStore.Icon
+	categories has a value which is a reference to a list where each element is a string
+	loading_error has a value which is a string
+WidgetSpec is a reference to a hash where the following keys are defined:
+	input has a value which is a string
+	output has a value which is a string
+MethodParameter is a reference to a hash where the following keys are defined:
+	id has a value which is a string
+	ui_name has a value which is a string
+	short_hint has a value which is a string
+	description has a value which is a string
+	field_type has a value which is a string
+	allow_multiple has a value which is a NarrativeMethodStore.boolean
+	optional has a value which is a NarrativeMethodStore.boolean
+	advanced has a value which is a NarrativeMethodStore.boolean
+	disabled has a value which is a NarrativeMethodStore.boolean
+	ui_class has a value which is a string
+	default_values has a value which is a reference to a list where each element is a string
+	text_options has a value which is a NarrativeMethodStore.TextOptions
+	textarea_options has a value which is a NarrativeMethodStore.TextAreaOptions
+	intslider_options has a value which is a NarrativeMethodStore.IntSliderOptions
+	floatslider_options has a value which is a NarrativeMethodStore.FloatSliderOptions
+	checkbox_options has a value which is a NarrativeMethodStore.CheckboxOptions
+	dropdown_options has a value which is a NarrativeMethodStore.DropdownOptions
+	radio_options has a value which is a NarrativeMethodStore.RadioOptions
+	tab_options has a value which is a NarrativeMethodStore.TabOptions
+TextOptions is a reference to a hash where the following keys are defined:
+	valid_ws_types has a value which is a reference to a list where each element is a string
+	validate_as has a value which is a string
+	is_output_name has a value which is a NarrativeMethodStore.boolean
+	placeholder has a value which is a string
+	min_int has a value which is an int
+	max_int has a value which is an int
+	min_float has a value which is a float
+	max_float has a value which is a float
+	regex_constraint has a value which is a reference to a list where each element is a NarrativeMethodStore.RegexMatcher
+RegexMatcher is a reference to a hash where the following keys are defined:
+	regex has a value which is a string
+	error_text has a value which is a string
+	match has a value which is a NarrativeMethodStore.boolean
+TextAreaOptions is a reference to a hash where the following keys are defined:
+	n_rows has a value which is an int
+IntSliderOptions is a reference to a hash where the following keys are defined:
+	min has a value which is an int
+	max has a value which is an int
+	step has a value which is an int
+FloatSliderOptions is a reference to a hash where the following keys are defined:
+	min has a value which is a float
+	max has a value which is a float
+CheckboxOptions is a reference to a hash where the following keys are defined:
+	checked_value has a value which is an int
+	unchecked_value has a value which is an int
+DropdownOptions is a reference to a hash where the following keys are defined:
+	options has a value which is a reference to a list where each element is a NarrativeMethodStore.DropdownOption
+DropdownOption is a reference to a hash where the following keys are defined:
+	value has a value which is a string
+	display has a value which is a string
+RadioOptions is a reference to a hash where the following keys are defined:
+	id_order has a value which is a reference to a list where each element is a string
+	ids_to_options has a value which is a reference to a hash where the key is a string and the value is a string
+	ids_to_tooltip has a value which is a reference to a hash where the key is a string and the value is a string
+TabOptions is a reference to a hash where the following keys are defined:
+	tab_id_order has a value which is a reference to a list where each element is a string
+	tab_id_to_tab_name has a value which is a reference to a hash where the key is a string and the value is a string
+	tab_id_to_param_ids has a value which is a reference to a hash where the key is a string and the value is a reference to a list where each element is a string
+FixedMethodParameter is a reference to a hash where the following keys are defined:
+	ui_name has a value which is a string
+	description has a value which is a string
+MethodBehavior is a reference to a hash where the following keys are defined:
+	python_class has a value which is a string
+	python_function has a value which is a string
+	kb_service_url has a value which is a string
+	kb_service_name has a value which is a string
+	kb_service_method has a value which is a string
+	script_module has a value which is a string
+	script_name has a value which is a string
+	script_has_files has a value which is a NarrativeMethodStore.boolean
+	kb_service_input_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.ServiceMethodInputMapping
+	kb_service_output_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.ServiceMethodOutputMapping
+	output_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.OutputMapping
+	script_input_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.ScriptInputMapping
+	script_output_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.ScriptOutputMapping
+ServiceMethodInputMapping is a reference to a hash where the following keys are defined:
+	input_parameter has a value which is a string
+	constant_value has a value which is an UnspecifiedObject, which can hold any non-null object
+	narrative_system_variable has a value which is a string
+	generated_value has a value which is a NarrativeMethodStore.AutoGeneratedValue
+	target_argument_position has a value which is an int
+	target_property has a value which is a string
+	target_type_transform has a value which is a string
+AutoGeneratedValue is a reference to a hash where the following keys are defined:
+	prefix has a value which is a string
+	symbols has a value which is an int
+	suffix has a value which is a string
+ServiceMethodOutputMapping is a reference to a hash where the following keys are defined:
+	input_parameter has a value which is a string
+	service_method_output_path has a value which is a reference to a list where each element is a string
+	constant_value has a value which is an UnspecifiedObject, which can hold any non-null object
+	narrative_system_variable has a value which is a string
+	target_property has a value which is a string
+	target_type_transform has a value which is a string
+OutputMapping is a reference to a hash where the following keys are defined:
+	input_parameter has a value which is a string
+	constant_value has a value which is an UnspecifiedObject, which can hold any non-null object
+	narrative_system_variable has a value which is a string
+	target_property has a value which is a string
+	target_type_transform has a value which is a string
+ScriptInputMapping is a reference to a hash where the following keys are defined:
+	input_parameter has a value which is a string
+	constant_value has a value which is an UnspecifiedObject, which can hold any non-null object
+	narrative_system_variable has a value which is a string
+	generated_value has a value which is a NarrativeMethodStore.AutoGeneratedValue
+	target_property has a value which is a string
+	target_type_transform has a value which is a string
+ScriptOutputMapping is a reference to a hash where the following keys are defined:
+	input_parameter has a value which is a string
+	script_output_path has a value which is a reference to a list where each element is a string
+	constant_value has a value which is an UnspecifiedObject, which can hold any non-null object
+	narrative_system_variable has a value which is a string
+	target_property has a value which is a string
+	target_type_transform has a value which is a string
 TypeInfo is a reference to a hash where the following keys are defined:
 	type_name has a value which is a string
 	name has a value which is a string
@@ -3243,7 +3723,9 @@ ValidationResults is a reference to a hash where the following keys are defined:
 	errors has a value which is a reference to a list where each element is a string
 	warnings has a value which is a reference to a list where each element is a string
 	app_full_info has a value which is a NarrativeMethodStore.AppFullInfo
+	app_spec has a value which is a NarrativeMethodStore.AppSpec
 	method_full_info has a value which is a NarrativeMethodStore.MethodFullInfo
+	method_spec has a value which is a NarrativeMethodStore.MethodSpec
 	type_info has a value which is a NarrativeMethodStore.TypeInfo
 boolean is an int
 AppFullInfo is a reference to a hash where the following keys are defined:
@@ -3273,6 +3755,29 @@ Icon is a reference to a hash where the following keys are defined:
 url is a string
 ScreenShot is a reference to a hash where the following keys are defined:
 	url has a value which is a NarrativeMethodStore.url
+AppSpec is a reference to a hash where the following keys are defined:
+	info has a value which is a NarrativeMethodStore.AppBriefInfo
+	steps has a value which is a reference to a list where each element is a NarrativeMethodStore.AppSteps
+AppBriefInfo is a reference to a hash where the following keys are defined:
+	id has a value which is a string
+	name has a value which is a string
+	ver has a value which is a string
+	subtitle has a value which is a string
+	tooltip has a value which is a string
+	header has a value which is a string
+	icon has a value which is a NarrativeMethodStore.Icon
+	categories has a value which is a reference to a list where each element is a string
+	loading_error has a value which is a string
+AppSteps is a reference to a hash where the following keys are defined:
+	step_id has a value which is a string
+	method_id has a value which is a string
+	input_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.AppStepInputMapping
+	description has a value which is a string
+AppStepInputMapping is a reference to a hash where the following keys are defined:
+	step_source has a value which is a string
+	is_from_input has a value which is a NarrativeMethodStore.boolean
+	from has a value which is a string
+	to has a value which is a string
 MethodFullInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
 	name has a value which is a string
@@ -3293,6 +3798,141 @@ Publication is a reference to a hash where the following keys are defined:
 	pmid has a value which is a string
 	display_text has a value which is a string
 	link has a value which is a NarrativeMethodStore.url
+MethodSpec is a reference to a hash where the following keys are defined:
+	info has a value which is a NarrativeMethodStore.MethodBriefInfo
+	replacement_text has a value which is a string
+	widgets has a value which is a NarrativeMethodStore.WidgetSpec
+	parameters has a value which is a reference to a list where each element is a NarrativeMethodStore.MethodParameter
+	fixed_parameters has a value which is a reference to a list where each element is a NarrativeMethodStore.FixedMethodParameter
+	behavior has a value which is a NarrativeMethodStore.MethodBehavior
+	job_id_output_field has a value which is a string
+MethodBriefInfo is a reference to a hash where the following keys are defined:
+	id has a value which is a string
+	name has a value which is a string
+	ver has a value which is a string
+	subtitle has a value which is a string
+	tooltip has a value which is a string
+	icon has a value which is a NarrativeMethodStore.Icon
+	categories has a value which is a reference to a list where each element is a string
+	loading_error has a value which is a string
+WidgetSpec is a reference to a hash where the following keys are defined:
+	input has a value which is a string
+	output has a value which is a string
+MethodParameter is a reference to a hash where the following keys are defined:
+	id has a value which is a string
+	ui_name has a value which is a string
+	short_hint has a value which is a string
+	description has a value which is a string
+	field_type has a value which is a string
+	allow_multiple has a value which is a NarrativeMethodStore.boolean
+	optional has a value which is a NarrativeMethodStore.boolean
+	advanced has a value which is a NarrativeMethodStore.boolean
+	disabled has a value which is a NarrativeMethodStore.boolean
+	ui_class has a value which is a string
+	default_values has a value which is a reference to a list where each element is a string
+	text_options has a value which is a NarrativeMethodStore.TextOptions
+	textarea_options has a value which is a NarrativeMethodStore.TextAreaOptions
+	intslider_options has a value which is a NarrativeMethodStore.IntSliderOptions
+	floatslider_options has a value which is a NarrativeMethodStore.FloatSliderOptions
+	checkbox_options has a value which is a NarrativeMethodStore.CheckboxOptions
+	dropdown_options has a value which is a NarrativeMethodStore.DropdownOptions
+	radio_options has a value which is a NarrativeMethodStore.RadioOptions
+	tab_options has a value which is a NarrativeMethodStore.TabOptions
+TextOptions is a reference to a hash where the following keys are defined:
+	valid_ws_types has a value which is a reference to a list where each element is a string
+	validate_as has a value which is a string
+	is_output_name has a value which is a NarrativeMethodStore.boolean
+	placeholder has a value which is a string
+	min_int has a value which is an int
+	max_int has a value which is an int
+	min_float has a value which is a float
+	max_float has a value which is a float
+	regex_constraint has a value which is a reference to a list where each element is a NarrativeMethodStore.RegexMatcher
+RegexMatcher is a reference to a hash where the following keys are defined:
+	regex has a value which is a string
+	error_text has a value which is a string
+	match has a value which is a NarrativeMethodStore.boolean
+TextAreaOptions is a reference to a hash where the following keys are defined:
+	n_rows has a value which is an int
+IntSliderOptions is a reference to a hash where the following keys are defined:
+	min has a value which is an int
+	max has a value which is an int
+	step has a value which is an int
+FloatSliderOptions is a reference to a hash where the following keys are defined:
+	min has a value which is a float
+	max has a value which is a float
+CheckboxOptions is a reference to a hash where the following keys are defined:
+	checked_value has a value which is an int
+	unchecked_value has a value which is an int
+DropdownOptions is a reference to a hash where the following keys are defined:
+	options has a value which is a reference to a list where each element is a NarrativeMethodStore.DropdownOption
+DropdownOption is a reference to a hash where the following keys are defined:
+	value has a value which is a string
+	display has a value which is a string
+RadioOptions is a reference to a hash where the following keys are defined:
+	id_order has a value which is a reference to a list where each element is a string
+	ids_to_options has a value which is a reference to a hash where the key is a string and the value is a string
+	ids_to_tooltip has a value which is a reference to a hash where the key is a string and the value is a string
+TabOptions is a reference to a hash where the following keys are defined:
+	tab_id_order has a value which is a reference to a list where each element is a string
+	tab_id_to_tab_name has a value which is a reference to a hash where the key is a string and the value is a string
+	tab_id_to_param_ids has a value which is a reference to a hash where the key is a string and the value is a reference to a list where each element is a string
+FixedMethodParameter is a reference to a hash where the following keys are defined:
+	ui_name has a value which is a string
+	description has a value which is a string
+MethodBehavior is a reference to a hash where the following keys are defined:
+	python_class has a value which is a string
+	python_function has a value which is a string
+	kb_service_url has a value which is a string
+	kb_service_name has a value which is a string
+	kb_service_method has a value which is a string
+	script_module has a value which is a string
+	script_name has a value which is a string
+	script_has_files has a value which is a NarrativeMethodStore.boolean
+	kb_service_input_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.ServiceMethodInputMapping
+	kb_service_output_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.ServiceMethodOutputMapping
+	output_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.OutputMapping
+	script_input_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.ScriptInputMapping
+	script_output_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.ScriptOutputMapping
+ServiceMethodInputMapping is a reference to a hash where the following keys are defined:
+	input_parameter has a value which is a string
+	constant_value has a value which is an UnspecifiedObject, which can hold any non-null object
+	narrative_system_variable has a value which is a string
+	generated_value has a value which is a NarrativeMethodStore.AutoGeneratedValue
+	target_argument_position has a value which is an int
+	target_property has a value which is a string
+	target_type_transform has a value which is a string
+AutoGeneratedValue is a reference to a hash where the following keys are defined:
+	prefix has a value which is a string
+	symbols has a value which is an int
+	suffix has a value which is a string
+ServiceMethodOutputMapping is a reference to a hash where the following keys are defined:
+	input_parameter has a value which is a string
+	service_method_output_path has a value which is a reference to a list where each element is a string
+	constant_value has a value which is an UnspecifiedObject, which can hold any non-null object
+	narrative_system_variable has a value which is a string
+	target_property has a value which is a string
+	target_type_transform has a value which is a string
+OutputMapping is a reference to a hash where the following keys are defined:
+	input_parameter has a value which is a string
+	constant_value has a value which is an UnspecifiedObject, which can hold any non-null object
+	narrative_system_variable has a value which is a string
+	target_property has a value which is a string
+	target_type_transform has a value which is a string
+ScriptInputMapping is a reference to a hash where the following keys are defined:
+	input_parameter has a value which is a string
+	constant_value has a value which is an UnspecifiedObject, which can hold any non-null object
+	narrative_system_variable has a value which is a string
+	generated_value has a value which is a NarrativeMethodStore.AutoGeneratedValue
+	target_property has a value which is a string
+	target_type_transform has a value which is a string
+ScriptOutputMapping is a reference to a hash where the following keys are defined:
+	input_parameter has a value which is a string
+	script_output_path has a value which is a reference to a list where each element is a string
+	constant_value has a value which is an UnspecifiedObject, which can hold any non-null object
+	narrative_system_variable has a value which is a string
+	target_property has a value which is a string
+	target_type_transform has a value which is a string
 TypeInfo is a reference to a hash where the following keys are defined:
 	type_name has a value which is a string
 	name has a value which is a string
@@ -3386,7 +4026,9 @@ ValidationResults is a reference to a hash where the following keys are defined:
 	errors has a value which is a reference to a list where each element is a string
 	warnings has a value which is a reference to a list where each element is a string
 	app_full_info has a value which is a NarrativeMethodStore.AppFullInfo
+	app_spec has a value which is a NarrativeMethodStore.AppSpec
 	method_full_info has a value which is a NarrativeMethodStore.MethodFullInfo
+	method_spec has a value which is a NarrativeMethodStore.MethodSpec
 	type_info has a value which is a NarrativeMethodStore.TypeInfo
 boolean is an int
 AppFullInfo is a reference to a hash where the following keys are defined:
@@ -3416,6 +4058,29 @@ Icon is a reference to a hash where the following keys are defined:
 url is a string
 ScreenShot is a reference to a hash where the following keys are defined:
 	url has a value which is a NarrativeMethodStore.url
+AppSpec is a reference to a hash where the following keys are defined:
+	info has a value which is a NarrativeMethodStore.AppBriefInfo
+	steps has a value which is a reference to a list where each element is a NarrativeMethodStore.AppSteps
+AppBriefInfo is a reference to a hash where the following keys are defined:
+	id has a value which is a string
+	name has a value which is a string
+	ver has a value which is a string
+	subtitle has a value which is a string
+	tooltip has a value which is a string
+	header has a value which is a string
+	icon has a value which is a NarrativeMethodStore.Icon
+	categories has a value which is a reference to a list where each element is a string
+	loading_error has a value which is a string
+AppSteps is a reference to a hash where the following keys are defined:
+	step_id has a value which is a string
+	method_id has a value which is a string
+	input_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.AppStepInputMapping
+	description has a value which is a string
+AppStepInputMapping is a reference to a hash where the following keys are defined:
+	step_source has a value which is a string
+	is_from_input has a value which is a NarrativeMethodStore.boolean
+	from has a value which is a string
+	to has a value which is a string
 MethodFullInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
 	name has a value which is a string
@@ -3436,6 +4101,141 @@ Publication is a reference to a hash where the following keys are defined:
 	pmid has a value which is a string
 	display_text has a value which is a string
 	link has a value which is a NarrativeMethodStore.url
+MethodSpec is a reference to a hash where the following keys are defined:
+	info has a value which is a NarrativeMethodStore.MethodBriefInfo
+	replacement_text has a value which is a string
+	widgets has a value which is a NarrativeMethodStore.WidgetSpec
+	parameters has a value which is a reference to a list where each element is a NarrativeMethodStore.MethodParameter
+	fixed_parameters has a value which is a reference to a list where each element is a NarrativeMethodStore.FixedMethodParameter
+	behavior has a value which is a NarrativeMethodStore.MethodBehavior
+	job_id_output_field has a value which is a string
+MethodBriefInfo is a reference to a hash where the following keys are defined:
+	id has a value which is a string
+	name has a value which is a string
+	ver has a value which is a string
+	subtitle has a value which is a string
+	tooltip has a value which is a string
+	icon has a value which is a NarrativeMethodStore.Icon
+	categories has a value which is a reference to a list where each element is a string
+	loading_error has a value which is a string
+WidgetSpec is a reference to a hash where the following keys are defined:
+	input has a value which is a string
+	output has a value which is a string
+MethodParameter is a reference to a hash where the following keys are defined:
+	id has a value which is a string
+	ui_name has a value which is a string
+	short_hint has a value which is a string
+	description has a value which is a string
+	field_type has a value which is a string
+	allow_multiple has a value which is a NarrativeMethodStore.boolean
+	optional has a value which is a NarrativeMethodStore.boolean
+	advanced has a value which is a NarrativeMethodStore.boolean
+	disabled has a value which is a NarrativeMethodStore.boolean
+	ui_class has a value which is a string
+	default_values has a value which is a reference to a list where each element is a string
+	text_options has a value which is a NarrativeMethodStore.TextOptions
+	textarea_options has a value which is a NarrativeMethodStore.TextAreaOptions
+	intslider_options has a value which is a NarrativeMethodStore.IntSliderOptions
+	floatslider_options has a value which is a NarrativeMethodStore.FloatSliderOptions
+	checkbox_options has a value which is a NarrativeMethodStore.CheckboxOptions
+	dropdown_options has a value which is a NarrativeMethodStore.DropdownOptions
+	radio_options has a value which is a NarrativeMethodStore.RadioOptions
+	tab_options has a value which is a NarrativeMethodStore.TabOptions
+TextOptions is a reference to a hash where the following keys are defined:
+	valid_ws_types has a value which is a reference to a list where each element is a string
+	validate_as has a value which is a string
+	is_output_name has a value which is a NarrativeMethodStore.boolean
+	placeholder has a value which is a string
+	min_int has a value which is an int
+	max_int has a value which is an int
+	min_float has a value which is a float
+	max_float has a value which is a float
+	regex_constraint has a value which is a reference to a list where each element is a NarrativeMethodStore.RegexMatcher
+RegexMatcher is a reference to a hash where the following keys are defined:
+	regex has a value which is a string
+	error_text has a value which is a string
+	match has a value which is a NarrativeMethodStore.boolean
+TextAreaOptions is a reference to a hash where the following keys are defined:
+	n_rows has a value which is an int
+IntSliderOptions is a reference to a hash where the following keys are defined:
+	min has a value which is an int
+	max has a value which is an int
+	step has a value which is an int
+FloatSliderOptions is a reference to a hash where the following keys are defined:
+	min has a value which is a float
+	max has a value which is a float
+CheckboxOptions is a reference to a hash where the following keys are defined:
+	checked_value has a value which is an int
+	unchecked_value has a value which is an int
+DropdownOptions is a reference to a hash where the following keys are defined:
+	options has a value which is a reference to a list where each element is a NarrativeMethodStore.DropdownOption
+DropdownOption is a reference to a hash where the following keys are defined:
+	value has a value which is a string
+	display has a value which is a string
+RadioOptions is a reference to a hash where the following keys are defined:
+	id_order has a value which is a reference to a list where each element is a string
+	ids_to_options has a value which is a reference to a hash where the key is a string and the value is a string
+	ids_to_tooltip has a value which is a reference to a hash where the key is a string and the value is a string
+TabOptions is a reference to a hash where the following keys are defined:
+	tab_id_order has a value which is a reference to a list where each element is a string
+	tab_id_to_tab_name has a value which is a reference to a hash where the key is a string and the value is a string
+	tab_id_to_param_ids has a value which is a reference to a hash where the key is a string and the value is a reference to a list where each element is a string
+FixedMethodParameter is a reference to a hash where the following keys are defined:
+	ui_name has a value which is a string
+	description has a value which is a string
+MethodBehavior is a reference to a hash where the following keys are defined:
+	python_class has a value which is a string
+	python_function has a value which is a string
+	kb_service_url has a value which is a string
+	kb_service_name has a value which is a string
+	kb_service_method has a value which is a string
+	script_module has a value which is a string
+	script_name has a value which is a string
+	script_has_files has a value which is a NarrativeMethodStore.boolean
+	kb_service_input_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.ServiceMethodInputMapping
+	kb_service_output_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.ServiceMethodOutputMapping
+	output_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.OutputMapping
+	script_input_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.ScriptInputMapping
+	script_output_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.ScriptOutputMapping
+ServiceMethodInputMapping is a reference to a hash where the following keys are defined:
+	input_parameter has a value which is a string
+	constant_value has a value which is an UnspecifiedObject, which can hold any non-null object
+	narrative_system_variable has a value which is a string
+	generated_value has a value which is a NarrativeMethodStore.AutoGeneratedValue
+	target_argument_position has a value which is an int
+	target_property has a value which is a string
+	target_type_transform has a value which is a string
+AutoGeneratedValue is a reference to a hash where the following keys are defined:
+	prefix has a value which is a string
+	symbols has a value which is an int
+	suffix has a value which is a string
+ServiceMethodOutputMapping is a reference to a hash where the following keys are defined:
+	input_parameter has a value which is a string
+	service_method_output_path has a value which is a reference to a list where each element is a string
+	constant_value has a value which is an UnspecifiedObject, which can hold any non-null object
+	narrative_system_variable has a value which is a string
+	target_property has a value which is a string
+	target_type_transform has a value which is a string
+OutputMapping is a reference to a hash where the following keys are defined:
+	input_parameter has a value which is a string
+	constant_value has a value which is an UnspecifiedObject, which can hold any non-null object
+	narrative_system_variable has a value which is a string
+	target_property has a value which is a string
+	target_type_transform has a value which is a string
+ScriptInputMapping is a reference to a hash where the following keys are defined:
+	input_parameter has a value which is a string
+	constant_value has a value which is an UnspecifiedObject, which can hold any non-null object
+	narrative_system_variable has a value which is a string
+	generated_value has a value which is a NarrativeMethodStore.AutoGeneratedValue
+	target_property has a value which is a string
+	target_type_transform has a value which is a string
+ScriptOutputMapping is a reference to a hash where the following keys are defined:
+	input_parameter has a value which is a string
+	script_output_path has a value which is a reference to a list where each element is a string
+	constant_value has a value which is an UnspecifiedObject, which can hold any non-null object
+	narrative_system_variable has a value which is a string
+	target_property has a value which is a string
+	target_type_transform has a value which is a string
 TypeInfo is a reference to a hash where the following keys are defined:
 	type_name has a value which is a string
 	name has a value which is a string
@@ -3466,7 +4266,9 @@ ValidationResults is a reference to a hash where the following keys are defined:
 	errors has a value which is a reference to a list where each element is a string
 	warnings has a value which is a reference to a list where each element is a string
 	app_full_info has a value which is a NarrativeMethodStore.AppFullInfo
+	app_spec has a value which is a NarrativeMethodStore.AppSpec
 	method_full_info has a value which is a NarrativeMethodStore.MethodFullInfo
+	method_spec has a value which is a NarrativeMethodStore.MethodSpec
 	type_info has a value which is a NarrativeMethodStore.TypeInfo
 boolean is an int
 AppFullInfo is a reference to a hash where the following keys are defined:
@@ -3496,6 +4298,29 @@ Icon is a reference to a hash where the following keys are defined:
 url is a string
 ScreenShot is a reference to a hash where the following keys are defined:
 	url has a value which is a NarrativeMethodStore.url
+AppSpec is a reference to a hash where the following keys are defined:
+	info has a value which is a NarrativeMethodStore.AppBriefInfo
+	steps has a value which is a reference to a list where each element is a NarrativeMethodStore.AppSteps
+AppBriefInfo is a reference to a hash where the following keys are defined:
+	id has a value which is a string
+	name has a value which is a string
+	ver has a value which is a string
+	subtitle has a value which is a string
+	tooltip has a value which is a string
+	header has a value which is a string
+	icon has a value which is a NarrativeMethodStore.Icon
+	categories has a value which is a reference to a list where each element is a string
+	loading_error has a value which is a string
+AppSteps is a reference to a hash where the following keys are defined:
+	step_id has a value which is a string
+	method_id has a value which is a string
+	input_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.AppStepInputMapping
+	description has a value which is a string
+AppStepInputMapping is a reference to a hash where the following keys are defined:
+	step_source has a value which is a string
+	is_from_input has a value which is a NarrativeMethodStore.boolean
+	from has a value which is a string
+	to has a value which is a string
 MethodFullInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
 	name has a value which is a string
@@ -3516,6 +4341,141 @@ Publication is a reference to a hash where the following keys are defined:
 	pmid has a value which is a string
 	display_text has a value which is a string
 	link has a value which is a NarrativeMethodStore.url
+MethodSpec is a reference to a hash where the following keys are defined:
+	info has a value which is a NarrativeMethodStore.MethodBriefInfo
+	replacement_text has a value which is a string
+	widgets has a value which is a NarrativeMethodStore.WidgetSpec
+	parameters has a value which is a reference to a list where each element is a NarrativeMethodStore.MethodParameter
+	fixed_parameters has a value which is a reference to a list where each element is a NarrativeMethodStore.FixedMethodParameter
+	behavior has a value which is a NarrativeMethodStore.MethodBehavior
+	job_id_output_field has a value which is a string
+MethodBriefInfo is a reference to a hash where the following keys are defined:
+	id has a value which is a string
+	name has a value which is a string
+	ver has a value which is a string
+	subtitle has a value which is a string
+	tooltip has a value which is a string
+	icon has a value which is a NarrativeMethodStore.Icon
+	categories has a value which is a reference to a list where each element is a string
+	loading_error has a value which is a string
+WidgetSpec is a reference to a hash where the following keys are defined:
+	input has a value which is a string
+	output has a value which is a string
+MethodParameter is a reference to a hash where the following keys are defined:
+	id has a value which is a string
+	ui_name has a value which is a string
+	short_hint has a value which is a string
+	description has a value which is a string
+	field_type has a value which is a string
+	allow_multiple has a value which is a NarrativeMethodStore.boolean
+	optional has a value which is a NarrativeMethodStore.boolean
+	advanced has a value which is a NarrativeMethodStore.boolean
+	disabled has a value which is a NarrativeMethodStore.boolean
+	ui_class has a value which is a string
+	default_values has a value which is a reference to a list where each element is a string
+	text_options has a value which is a NarrativeMethodStore.TextOptions
+	textarea_options has a value which is a NarrativeMethodStore.TextAreaOptions
+	intslider_options has a value which is a NarrativeMethodStore.IntSliderOptions
+	floatslider_options has a value which is a NarrativeMethodStore.FloatSliderOptions
+	checkbox_options has a value which is a NarrativeMethodStore.CheckboxOptions
+	dropdown_options has a value which is a NarrativeMethodStore.DropdownOptions
+	radio_options has a value which is a NarrativeMethodStore.RadioOptions
+	tab_options has a value which is a NarrativeMethodStore.TabOptions
+TextOptions is a reference to a hash where the following keys are defined:
+	valid_ws_types has a value which is a reference to a list where each element is a string
+	validate_as has a value which is a string
+	is_output_name has a value which is a NarrativeMethodStore.boolean
+	placeholder has a value which is a string
+	min_int has a value which is an int
+	max_int has a value which is an int
+	min_float has a value which is a float
+	max_float has a value which is a float
+	regex_constraint has a value which is a reference to a list where each element is a NarrativeMethodStore.RegexMatcher
+RegexMatcher is a reference to a hash where the following keys are defined:
+	regex has a value which is a string
+	error_text has a value which is a string
+	match has a value which is a NarrativeMethodStore.boolean
+TextAreaOptions is a reference to a hash where the following keys are defined:
+	n_rows has a value which is an int
+IntSliderOptions is a reference to a hash where the following keys are defined:
+	min has a value which is an int
+	max has a value which is an int
+	step has a value which is an int
+FloatSliderOptions is a reference to a hash where the following keys are defined:
+	min has a value which is a float
+	max has a value which is a float
+CheckboxOptions is a reference to a hash where the following keys are defined:
+	checked_value has a value which is an int
+	unchecked_value has a value which is an int
+DropdownOptions is a reference to a hash where the following keys are defined:
+	options has a value which is a reference to a list where each element is a NarrativeMethodStore.DropdownOption
+DropdownOption is a reference to a hash where the following keys are defined:
+	value has a value which is a string
+	display has a value which is a string
+RadioOptions is a reference to a hash where the following keys are defined:
+	id_order has a value which is a reference to a list where each element is a string
+	ids_to_options has a value which is a reference to a hash where the key is a string and the value is a string
+	ids_to_tooltip has a value which is a reference to a hash where the key is a string and the value is a string
+TabOptions is a reference to a hash where the following keys are defined:
+	tab_id_order has a value which is a reference to a list where each element is a string
+	tab_id_to_tab_name has a value which is a reference to a hash where the key is a string and the value is a string
+	tab_id_to_param_ids has a value which is a reference to a hash where the key is a string and the value is a reference to a list where each element is a string
+FixedMethodParameter is a reference to a hash where the following keys are defined:
+	ui_name has a value which is a string
+	description has a value which is a string
+MethodBehavior is a reference to a hash where the following keys are defined:
+	python_class has a value which is a string
+	python_function has a value which is a string
+	kb_service_url has a value which is a string
+	kb_service_name has a value which is a string
+	kb_service_method has a value which is a string
+	script_module has a value which is a string
+	script_name has a value which is a string
+	script_has_files has a value which is a NarrativeMethodStore.boolean
+	kb_service_input_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.ServiceMethodInputMapping
+	kb_service_output_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.ServiceMethodOutputMapping
+	output_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.OutputMapping
+	script_input_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.ScriptInputMapping
+	script_output_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.ScriptOutputMapping
+ServiceMethodInputMapping is a reference to a hash where the following keys are defined:
+	input_parameter has a value which is a string
+	constant_value has a value which is an UnspecifiedObject, which can hold any non-null object
+	narrative_system_variable has a value which is a string
+	generated_value has a value which is a NarrativeMethodStore.AutoGeneratedValue
+	target_argument_position has a value which is an int
+	target_property has a value which is a string
+	target_type_transform has a value which is a string
+AutoGeneratedValue is a reference to a hash where the following keys are defined:
+	prefix has a value which is a string
+	symbols has a value which is an int
+	suffix has a value which is a string
+ServiceMethodOutputMapping is a reference to a hash where the following keys are defined:
+	input_parameter has a value which is a string
+	service_method_output_path has a value which is a reference to a list where each element is a string
+	constant_value has a value which is an UnspecifiedObject, which can hold any non-null object
+	narrative_system_variable has a value which is a string
+	target_property has a value which is a string
+	target_type_transform has a value which is a string
+OutputMapping is a reference to a hash where the following keys are defined:
+	input_parameter has a value which is a string
+	constant_value has a value which is an UnspecifiedObject, which can hold any non-null object
+	narrative_system_variable has a value which is a string
+	target_property has a value which is a string
+	target_type_transform has a value which is a string
+ScriptInputMapping is a reference to a hash where the following keys are defined:
+	input_parameter has a value which is a string
+	constant_value has a value which is an UnspecifiedObject, which can hold any non-null object
+	narrative_system_variable has a value which is a string
+	generated_value has a value which is a NarrativeMethodStore.AutoGeneratedValue
+	target_property has a value which is a string
+	target_type_transform has a value which is a string
+ScriptOutputMapping is a reference to a hash where the following keys are defined:
+	input_parameter has a value which is a string
+	script_output_path has a value which is a reference to a list where each element is a string
+	constant_value has a value which is an UnspecifiedObject, which can hold any non-null object
+	narrative_system_variable has a value which is a string
+	target_property has a value which is a string
+	target_type_transform has a value which is a string
 TypeInfo is a reference to a hash where the following keys are defined:
 	type_name has a value which is a string
 	name has a value which is a string
@@ -5595,7 +6555,9 @@ is_valid has a value which is a NarrativeMethodStore.boolean
 errors has a value which is a reference to a list where each element is a string
 warnings has a value which is a reference to a list where each element is a string
 app_full_info has a value which is a NarrativeMethodStore.AppFullInfo
+app_spec has a value which is a NarrativeMethodStore.AppSpec
 method_full_info has a value which is a NarrativeMethodStore.MethodFullInfo
+method_spec has a value which is a NarrativeMethodStore.MethodSpec
 type_info has a value which is a NarrativeMethodStore.TypeInfo
 
 </pre>
@@ -5609,7 +6571,9 @@ is_valid has a value which is a NarrativeMethodStore.boolean
 errors has a value which is a reference to a list where each element is a string
 warnings has a value which is a reference to a list where each element is a string
 app_full_info has a value which is a NarrativeMethodStore.AppFullInfo
+app_spec has a value which is a NarrativeMethodStore.AppSpec
 method_full_info has a value which is a NarrativeMethodStore.MethodFullInfo
+method_spec has a value which is a NarrativeMethodStore.MethodSpec
 type_info has a value which is a NarrativeMethodStore.TypeInfo
 
 

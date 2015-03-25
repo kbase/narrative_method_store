@@ -2,11 +2,11 @@
 use strict;
 use warnings;
 use Getopt::Long;
-use Data::Dumper;
 use File::Slurp;
 use JSON;
 use File::Spec;
 use File::Basename;
+use File::Path qw(make_path);
 use Cwd 'abs_path';
 
 use Bio::KBase::NarrativeMethodStore::Client;
@@ -18,20 +18,22 @@ nms-validate - validate local method, app, & type specifcations
   narrative_method_specs_sandbox repository.  If so, it will validate things based on the
   current directory- if you are in the root, everything will be validated.  If you are in
   methods or apps, for instance, only those will be validated.  If you are in a specific method
-  or app, only that one will be validated.  All options are optional.
+  or app, only that one will be validated.  All command line flags are optional.
 
-  --url = set the url, defaults to production narrative_method_store
+    --url = set the url, defaults to production narrative_method_store
 
-  --nms-path = path to the narrative_method_specs or narrative_method_specs_sandbox local repo
+    --nms-path [path] = path to the narrative_method_specs or narrative_method_specs_sandbox local repo
 
-  --method = provide the method id to validate
-  --app = provide the app id to validate
-  --type = provide the type id to validate
+    --method [id] = provide the method id to validate
+    --app [id] = provide the app id to validate
+    --type [id] = provide the type id to validate
 
-  --out = 
+    --out [dir] = if set, the output parse of the validation with the parsed information will be
+                  saved to a folder in the specified directory
 
-  --verbose = show warnings and other debug messages 
-  --help
+    --verbose = show warnings and other debug messages 
+
+    --help = show this help message
 ";
 
 my $help = '';
@@ -43,6 +45,7 @@ my $app;
 my $category;
 my $type;
 
+my $outdir;
 my $verbose=0;
 
 my $opt = GetOptions (
@@ -52,6 +55,7 @@ my $opt = GetOptions (
         "app|a=s" => \$app,
         "category|c=s" => \$category,
         "type|t=s" => \$type,
+        "out|o=s" => \$outdir,
         "verbose|v" => \$verbose,
         "url=s" => \$url
         );
@@ -72,7 +76,13 @@ my ($root, $targets) = whatShouldIDo($nmspath, $method, $app, $type);
 
 print STDERR "rpc_url=>".$url."/rpc\n";
 my $nms = Bio::KBase::NarrativeMethodStore::Client->new($url."/rpc");
-validateTargets($nms, $root, $targets, $verbose, 0);
+
+if($outdir) {
+	my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = localtime(time);
+	$year += 1900;
+	$outdir .= "/validation-dump-"."$year-$mon-$mday-$hour-$min-$sec";
+}
+validateTargets($nms, $root, $targets, $verbose, $outdir);
 
 exit 0;
 
@@ -141,6 +151,10 @@ sub validate {
 		$errors = $errors + scalar @{$result->{'errors'}};
 		$warnings = $warnings + scalar @{$result->{'warnings'}};
 		printResult($result, "[Method:$id]:", $path, $verbose);
+		if($saveParse) {
+			if($verbose) { print "[Method:$id]: saving result in $saveParse/.\n"; }
+			saveParse($result,$saveParse,"Method",$type,$id);
+		}
 	}
 	elsif($type eq 'apps') {
 		if($verbose) { print "[App:$id]: validating, path=$path\n"; }
@@ -148,6 +162,10 @@ sub validate {
 		$errors = $errors + scalar @{$result->{'errors'}};
 		$warnings = $warnings + scalar @{$result->{'warnings'}};
 		printResult($result, "[App:$id]:", $path, $verbose);
+		if($saveParse) {
+			if($verbose) { print "[App:$id]: saving result in $saveParse/.\n"; }
+			saveParse($result,$saveParse,"App",$type,$id);
+		}
 	}
 	elsif($type eq 'types') {
 		if($verbose) { print "[Type:$id]: validating, path=$path\n"; }
@@ -155,6 +173,10 @@ sub validate {
 		$errors = $errors + scalar @{$result->{'errors'}};
 		$warnings = $warnings + scalar @{$result->{'warnings'}};
 		printResult($result, "[Type:$id]:", $path, $verbose);
+		if($saveParse) {
+			if($verbose) { print "[Type:$id]: saving result in $saveParse/.\n"; }
+			saveParse($result,$saveParse,"Type",$type,$id);
+		}
 	}
 	#if($type eq 'categories') {
 	#	if($verbose) { print "[Category:$id]: validating, path=$path\n"; }
@@ -177,9 +199,10 @@ sub validateMethod {
 	my $spec = read_file($path.'/spec.json');
 	my $display = read_file($path.'/display.yaml');
 
-	# todo: pull all files from this directory
-
-	my $result = $nms->validate_method({id=>$id, spec_json=>$spec, display_yaml=>$display});
+	# pull all files from this directory
+	my $extraFiles = gatherExtraFiles($path);
+	#use Data::Dumper; print Dumper($extraFiles);
+	my $result = $nms->validate_method({id=>$id, spec_json=>$spec, display_yaml=>$display, extra_files=>$extraFiles});
 	if (!(-d $path.'/img')) { 
 		my $mssg = "Method at '$path' does not have an 'img' directory.";
 		if(defined $result->{'warnings'}) {
@@ -201,9 +224,10 @@ sub validateApp {
 	my $spec = read_file($path.'/spec.json');
 	my $display = read_file($path.'/display.yaml');
 
-	# todo: pull all files from this directory
+	# pull all files from this directory
+	my $extraFiles = gatherExtraFiles($path);
 
-	my $result = $nms->validate_app({id=>$id, spec_json=>$spec, display_yaml=>$display});
+	my $result = $nms->validate_app({id=>$id, spec_json=>$spec, display_yaml=>$display, extra_files=>$extraFiles});
 	if (!(-d $path.'/img')) { 
 		my $mssg = "App at '$path' does not have an 'img' directory.";
 		if(defined $result->{'warnings'}) {
@@ -225,10 +249,31 @@ sub validateType {
 	my $spec = read_file($path.'/spec.json');
 	my $display = read_file($path.'/display.yaml');
 
-	# todo: pull all files from this directory
+	# pull all files from this directory
+	my $extraFiles = gatherExtraFiles($path);
 
-	my $result = $nms->validate_type({id=>$id, spec_json=>$spec, display_yaml=>$display});
+	my $result = $nms->validate_type({id=>$id, spec_json=>$spec, display_yaml=>$display, extra_files=>$extraFiles});
+
 	return $result;
+};
+
+sub gatherExtraFiles {
+	my ($path) = @_;
+	my $extraFiles = {};
+
+	opendir(my $dh, $path) or return -1;
+	my %foundDirs;
+    while(readdir $dh) {
+    	my $name = $_;
+    	next if(-d $path.'/'.$name);
+    	next if($name eq 'spec.json');
+    	next if($name eq 'display.yaml');
+    	if(-e $path.'/'.$name) {
+    		$extraFiles->{$name}=read_file($path.'/'.$name);
+    	}
+    }
+    closedir $dh;
+    return $extraFiles;
 };
 
 sub printResult {
@@ -268,7 +313,27 @@ sub printResult {
 
 
 sub saveParse {
-	my ($parse, $prefix, $id) = @_;
+	my ($result, $outputdir, $prefix, $type, $id) = @_;
+
+	make_path($outputdir,{error => \my $err});
+	if(@$err) {
+		print STDERR "Cannot write parse to $outputdir\n";
+		for my $diag (@$err) {
+          	my ($file, $message) = %$diag;
+          	if ($file eq '') {
+            	print "    $message\n";
+	        }
+	        else {
+	            print "    problem unlinking $file: $message\n";
+	        }
+      	}
+	} else {
+		my $filename = $outputdir."/".$prefix."-".$id."-result.json";
+		open(my $fh, '>', $filename);
+		print $fh to_json( $result, { pretty => 1 } )."\n";
+		close $fh;
+	}
+
 
 };
 
