@@ -4,6 +4,15 @@ The Narrative Method Store provides an API to dynamically access the available
 narrative method specifications and documentation.
 
 
+VERSION: 0.2.4 (Released 3/26/15)
+--------------------------------------
+UPDATED FEATURES / MAJOR BUG FIXES:
+- Added service methods for validating submitted specs/yaml for Apps, Methods & Types
+- Added new CLI (nms-validate) for validating local narrative_method_specs repos
+- CLI built-in urls now include next, ci, dev, sandbox, localhost
+- New Makefile target build-nms-bin for building the CLI outside of the KB runtime
+
+
 VERSION: 0.2.3 (Released 1/21/15)
 --------------------------------------
 UPDATED FEATURES / MAJOR BUG FIXES:
