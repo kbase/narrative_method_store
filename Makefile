@@ -180,6 +180,4 @@ clean:
 	-rm -f lib/Bio/KBase/Exceptions.pm
 	-rm -f test/run_tests.sh
 	-rm -rf bin
-	-rm -rf classes
-	-rm -rf dist
 	@#TODO remove lib once files are generated on the fly
