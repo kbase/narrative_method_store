@@ -172,5 +172,6 @@ clean:
 	-rm -rf docs/javadoc
 	-rm -rf docs/$(SERVICE_CAPS).html
 	-rm -rf docs/$(SPEC_FILE)
+	-rm -rf lib/Bio/KBase/Exceptions.pm
 	-rm -rf bin
 	@#TODO remove lib once files are generated on the fly
