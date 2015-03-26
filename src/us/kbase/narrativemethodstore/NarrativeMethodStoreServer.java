@@ -556,6 +556,11 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
     public List<TypeInfo> getTypeInfo(GetTypeParams params) throws Exception {
         List<TypeInfo> returnVal = null;
         //BEGIN get_type_info
+        config();
+        List<String> typeNames = params.getTypeNames();
+        returnVal = new ArrayList<TypeInfo>(typeNames.size());
+        for(String typeName: typeNames)
+        	returnVal.add(localGitDB.getTypeInfo(typeName));
         //END get_type_info
         return returnVal;
     }
