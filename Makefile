@@ -21,7 +21,10 @@ TOP_DIR_NAME = $(shell basename $(TOP_DIR))
 DIR = $(shell pwd)
 
 ifeq ($(TOP_DIR_NAME), dev_container)
-include $(TOP_DIR)/tools/Makefile.common
+	ifeq ($(KB_TOP),) #only include if we've also sourced the user-env.sh
+	else
+		include $(TOP_DIR)/tools/Makefile.common
+	endif
 endif
 
 DEPLOY_RUNTIME ?= /kb/runtime
@@ -47,8 +50,6 @@ default: build-bin build-docs build-bin
 # fake deploy-cfg target for when this is run outside the dev_container
 deploy-cfg:
 
-
-
 SCRIPTBINDESTINATION = $(DIR)/bin
 ifeq ($(TOP_DIR_NAME), dev_container)
 include $(TOP_DIR)/tools/Makefile.common.rules
@@ -60,8 +61,20 @@ build-libs:
 
 build-bin: $(BIN_PERL)
 
+# make the nms-* scripts within the repo outside of the KBase Runtime
+build-nms-bin:
+	mkdir -p bin
+	cp -r scripts/simpledeploy/common/Bio lib/.
+	./scripts/simpledeploy/wrap_nms_scripts.sh $(DIR)/scripts/nms-version.pl bin/nms-version $(DIR)/lib
+	./scripts/simpledeploy/wrap_nms_scripts.sh $(DIR)/scripts/nms-status.pl bin/nms-status $(DIR)/lib
+	./scripts/simpledeploy/wrap_nms_scripts.sh $(DIR)/scripts/nms-validate.pl bin/nms-validate $(DIR)/lib
+	./scripts/simpledeploy/wrap_nms_scripts.sh $(DIR)/scripts/nms-listapps.pl bin/nms-listapps $(DIR)/lib
+	./scripts/simpledeploy/wrap_nms_scripts.sh $(DIR)/scripts/nms-listmethods.pl bin/nms-listmethods $(DIR)/lib
+	./scripts/simpledeploy/wrap_nms_scripts.sh $(DIR)/scripts/nms-getapp.pl bin/nms-getapp $(DIR)/lib
+	./scripts/simpledeploy/wrap_nms_scripts.sh $(DIR)/scripts/nms-getmethod.pl bin/nms-getmethod $(DIR)/lib
+	echo "export PATH=$(DIR)/bin:\$$PATH" > bin/nms-env.sh
+
 build-docs: build-libs
-	mkdir -p docs
 	@#$(ANT) javadoc
 	pod2html --infile=lib/Bio/KBase/$(SERVICE_CAPS)/Client.pm --outfile=docs/$(SERVICE_CAPS).html
 	rm -f pod2htm?.tmp
@@ -156,6 +169,8 @@ undeploy:
 
 clean:
 	$(ANT) clean
-	-rm -rf docs
+	-rm -rf docs/javadoc
+	-rm -rf docs/$(SERVICE_CAPS).html
+	-rm -rf docs/$(SPEC_FILE)
 	-rm -rf bin
 	@#TODO remove lib once files are generated on the fly
