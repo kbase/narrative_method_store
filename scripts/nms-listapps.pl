@@ -24,8 +24,20 @@ if($help) {
      exit 0;
 }
 
+if ($url eq "localhost") {
+    $url = 'http://localhost:7125';
+}
 if ($url eq "dev") {
-    $url = 'http://dev19.berkeley.kbase.us/narrative_method_store'
+    $url = 'https://narrative-dev.kbase.us/services/narrative_method_store';
+}
+if ($url eq "ci") {
+    $url = 'https://ci.kbase.us/services/narrative_method_store';
+}
+if ($url eq "next") {
+    $url = 'https://next.kbase.us/services/narrative_method_store';
+}
+if ($url eq "sandbox") {
+    $url = 'https://narrative-sandbox.kbase.us/services/narrative_method_store';
 }
 
 print STDERR "rpc_url=>".$url."/rpc\n";
