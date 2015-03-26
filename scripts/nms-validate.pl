@@ -275,10 +275,11 @@ sub gatherExtraFiles {
 	my %foundDirs;
     while(readdir $dh) {
     	my $name = $_;
+    	print 'looking at'.$name."\n";
     	next if(-d $path.'/'.$name);
-    	next if($name eq 'spec.json');
-    	next if($name eq 'display.yaml');
+    	next if($name !~ /\.html$/);
     	if(-e $path.'/'.$name) {
+    		print 'including'.$name."\n";
     		$extraFiles->{$name}=read_file($path.'/'.$name);
     	}
     }

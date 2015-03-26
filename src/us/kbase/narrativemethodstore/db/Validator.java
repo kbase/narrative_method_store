@@ -25,26 +25,24 @@ public class Validator {
 	protected static final ObjectMapper mapper = new ObjectMapper();
 	protected static final Yaml yaml = new Yaml();
 	
-	
+	/**
+	 * Just for local testing...
+	 */
 	public static void main(String []args) throws Exception {
 		
 		String name = "gapfill_a_metabolic_model";
 		String spec = new String(Files.readAllBytes(Paths.get("/kb/dev_container/modules/narrative_method_specs/methods/"+name+"/spec.json")));
 		String display = new String(Files.readAllBytes(Paths.get("/kb/dev_container/modules/narrative_method_specs/methods/"+name+"/display.yaml")));
 		
-		ValidateMethodParams params = new ValidateMethodParams().withId(name).withSpecJson(spec).withDisplayYaml(display);
+		Map<String, String> extraFiles = new HashMap<String,String>();
+		
+		extraFiles.put("description.html", "blah");
+		
+		ValidateMethodParams params = new ValidateMethodParams().withId(name).withSpecJson(spec).withDisplayYaml(display)
+				.withExtraFiles(extraFiles);
 		ValidationResults vr = Validator.validateMethod(params);
 		
 		System.out.println(vr);
-		
-		Map<String,String> m = new HashMap<String,String>();
-		m.put("stuff.h", "contentasdf");
-		
-		FileLookup f = createFileLookup(m);
-		
-		System.out.println(f.loadFileContent("stuff.h"));
-		System.out.println(f.loadFileContent("madeup"));
-		
 	}
 	
 	@SuppressWarnings("unchecked")
