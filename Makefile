@@ -21,10 +21,16 @@ TOP_DIR_NAME = $(shell basename $(TOP_DIR))
 DIR = $(shell pwd)
 
 ifeq ($(TOP_DIR_NAME), dev_container)
-	ifeq ($(KB_TOP),) #only include if we've also sourced the user-env.sh
-	else
-		include $(TOP_DIR)/tools/Makefile.common
-	endif
+ifeq ($(KB_TOP),) #only include if we've also sourced the user-env.sh
+default:
+    $(error KB_TOP not set - did you forget to source user-env.sh?)
+else
+include $(TOP_DIR)/tools/Makefile.common
+default: build-bin build-docs build-bin
+endif
+else
+default:
+    $(error Only the build-nms-bin target is supported outside of the dev_container)
 endif
 
 DEPLOY_RUNTIME ?= /kb/runtime
@@ -45,7 +51,6 @@ BIN_PERL = $(addprefix $(BIN_DIR)/,$(basename $(notdir $(SRC_PERL))))
 # make sure our make test works
 .PHONY : test
 
-default: build-bin build-docs build-bin
 
 # fake deploy-cfg target for when this is run outside the dev_container
 deploy-cfg:
