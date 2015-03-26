@@ -175,8 +175,11 @@ undeploy:
 clean:
 	$(ANT) clean
 	-rm -rf docs/javadoc
-	-rm -rf docs/$(SERVICE_CAPS).html
-	-rm -rf docs/$(SPEC_FILE)
-	-rm -rf lib/Bio/KBase/Exceptions.pm
+	-rm -f docs/$(SERVICE_CAPS).html
+	-rm -f docs/$(SPEC_FILE)
+	-rm -f lib/Bio/KBase/Exceptions.pm
+	-rm -f test/run_tests.sh
 	-rm -rf bin
+	-rm -rf classes
+	-rm -rf dist
 	@#TODO remove lib once files are generated on the fly
