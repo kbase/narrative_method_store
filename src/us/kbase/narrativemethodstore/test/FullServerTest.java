@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -18,11 +19,13 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import us.kbase.common.service.ServerException;
 import us.kbase.common.service.Tuple4;
 import us.kbase.narrativemethodstore.AppFullInfo;
 import us.kbase.narrativemethodstore.AppSpec;
 import us.kbase.narrativemethodstore.Category;
 import us.kbase.narrativemethodstore.GetAppParams;
+import us.kbase.narrativemethodstore.GetCategoryParams;
 import us.kbase.narrativemethodstore.GetMethodParams;
 import us.kbase.narrativemethodstore.GetTypeParams;
 import us.kbase.narrativemethodstore.ListCategoriesParams;
@@ -35,6 +38,7 @@ import us.kbase.narrativemethodstore.NarrativeMethodStoreClient;
 import us.kbase.narrativemethodstore.NarrativeMethodStoreServer;
 import us.kbase.narrativemethodstore.Publication;
 import us.kbase.narrativemethodstore.RegexMatcher;
+import us.kbase.narrativemethodstore.Status;
 import us.kbase.narrativemethodstore.TypeInfo;
 
 /*
@@ -78,6 +82,36 @@ public class FullServerTest {
 	
 	
 	@Test
+	public void testVersion() throws Exception {
+		String ver = CLIENT.ver();
+		assertTrue("Testing that ver() returns a version string that looks valid",
+				ver.matches("^\\d+\\.\\d+\\.\\d+$"));
+	}
+	
+	@Test
+	public void testStatus() throws Exception {
+		Status status = CLIENT.status();
+		
+		assertTrue("Testing that status() returns a git spec branch that is not null",
+				status.getGitSpecBranch()!=null);
+		assertTrue("Testing that status() returns a git spec branch that is not empty",
+				status.getGitSpecBranch().length()>0);
+		assertTrue("Testing that status() returns a git spec commit that is not null",
+				status.getGitSpecCommit()!=null);
+		assertTrue("Testing that status() returns a git spec commit that is not empty",
+				status.getGitSpecCommit().length()>0);
+		assertTrue("Testing that status() returns a git spec repo url that is not null",
+				status.getGitSpecUrl()!=null);
+		assertTrue("Testing that status() returns a git spec repo url that is not empty",
+				status.getGitSpecUrl().length()>0);
+		assertTrue("Testing that status() returns a git spec update interval that is not null",
+				status.getUpdateInterval()!=null);
+		assertTrue("Testing that status() returns a git spec update interval that is not empty",
+				status.getUpdateInterval().length()>0);
+	}
+	
+	
+	@Test
 	public void testListMethodIds() throws Exception {
 		Map<String, String> methods = CLIENT.listMethodIdsAndNames();
 		assertTrue("Testing that test_method_1 returns from listMethodIdsAndNames()",
@@ -113,6 +147,32 @@ public class FullServerTest {
 	
 	
 	@Test
+	public void testGetCategory() throws Exception {
+		//first just check that we didn't get anything if we didn't ask for anything
+		GetCategoryParams params = new GetCategoryParams().withIds(new ArrayList<String>());
+		List<Category> categories = CLIENT.getCategory(params);
+		assertTrue("Get categories without categories should return an empty list", categories.size()==0);
+		
+		//next check that what we asked for is returned
+		params = new GetCategoryParams().withIds(Arrays.asList("testmethods"));
+		categories = CLIENT.getCategory(params);
+		assertTrue("Get categories with one valid category should return exactly one thing", categories.size()==1);
+		assertTrue("The one category should be the one we asked for", categories.get(0).getId().compareTo("testmethods")==0);
+		assertTrue("The one category should have the right name", categories.get(0).getName().compareTo("Test Methods")==0);
+	
+		// test that we don't get something if it doesn't exist
+		try {
+			params = new GetCategoryParams().withIds(Arrays.asList("blah_blah_blah_category"));
+			categories = CLIENT.getCategory(params);
+			fail("Get category with an invalid category id worked, but it shouldn't");
+		} catch (ServerException e) {
+			assertTrue("Getting an invalid category throws an error, and the error has the correct message",
+					e.getMessage().compareTo("No category with id=blah_blah_blah_category")==0);
+		}
+	}
+	
+	
+	@Test
 	public void testListCategories() throws Exception {
 		ListCategoriesParams params = new ListCategoriesParams().withLoadMethods(0L);
 		Tuple4<Map<String,Category>, Map<String,MethodBriefInfo>, Map<String,AppBriefInfo>, Map<String,TypeInfo>> methods = CLIENT.listCategories(params);
@@ -125,13 +185,16 @@ public class FullServerTest {
 		params = new ListCategoriesParams().withLoadMethods(1L);
 		methods = CLIENT.listCategories(params);
 		
-		//first just check that the method did not return methods if we did not request them
+		//check that the method did not return methods if we did not request them
 		assertTrue("We should get methods from listCategories if we asked for it.", methods.getE2().size()>0);
 		assertTrue("We should get a proper method in the methods returned by listCategories.", methods.getE2().get("test_method_1").getName().equals("Test Method 1"));
 		assertTrue("We should get categories from listCategories.", methods.getE1().size()>0);
 		assertTrue("We should get the proper category name for testmethods.", methods.getE1().get("testmethods").getName().equals("Test Methods"));
 		
 	}
+	
+	
+	
 	
 	@Test
 	public void testListMethodsBriefInfo() throws Exception {
@@ -174,6 +237,73 @@ public class FullServerTest {
 				foundTestMethod7);
 	}
 	
+	
+	@Test
+	public void testListAppIdsAndNames() throws Exception {
+		Map<String, String> apps = CLIENT.listAppIdsAndNames();
+
+		assertTrue("listing apps and names got test_app_1",apps.containsKey("test_app_1"));
+		assertTrue("listing apps and names got test_app_1, and name is correct",apps.get("test_app_1").compareTo("Test All 1")==0);
+		assertTrue("listing apps and names got test_app_2",apps.containsKey("test_app_2"));
+		assertTrue("listing apps and names got test_app_2, and name is correct",apps.get("test_app_1").compareTo("Test All 1")==0);
+	}
+	
+	@Test
+	public void testGetAppBriefInfo() throws Exception {
+		GetAppParams params = new GetAppParams().withIds(Arrays.asList("test_app_1"));
+		List<AppBriefInfo> apps = CLIENT.getAppBriefInfo(params);
+		
+		boolean foundTestApp1 = false;
+		boolean foundTestApp2 = false;
+		assertTrue("Testing that exactly one app was returned as requested",apps.size()==1);
+		for(AppBriefInfo a : apps) {
+			// check specific things in specific test methods
+			if(a.getId().equals("test_app_1")) {
+				foundTestApp1 = true;
+				assertTrue("Testing that test_app_1 does not have an icon",
+						a.getIcon()==null);
+			}
+			if(a.getId().equals("test_app_2")) {
+				foundTestApp2 = true;
+			}
+		}
+
+		assertTrue("Testing that test_app_1 was returned from getAppBriefInfo",
+				foundTestApp1);
+		assertFalse("Testing that test_app_2 was not returned from getAppBriefInfo because it was not in arguements",
+				foundTestApp2);
+	}
+	
+	@Test
+	public void testListApps() throws Exception {
+		ListParams params = new ListParams();
+		List<AppBriefInfo> apps = CLIENT.listApps(params);
+	
+		boolean foundTestApp1 = false;
+		boolean foundTestApp2 = false;
+		for(AppBriefInfo a : apps) {
+			
+			// check specific things in specific test methods
+			if(a.getId().equals("test_app_1")) {
+				foundTestApp1 = true;
+				assertTrue("Testing that test_app_1 does not have an icon",
+						a.getIcon()==null);
+			}
+			if(a.getId().equals("test_app_2")) {
+				foundTestApp2 = true;
+				assertTrue("Testing that test_app_2 has an icon",
+						a.getIcon()!=null);
+				assertTrue("Testing that test_app_2 has an icon url",
+						a.getIcon().getUrl()!=null);
+				assertEquals("img?method_id=test_app_2&image_name=someIcon.png",a.getIcon().getUrl());
+			}
+		}
+
+		assertTrue("Testing that test_app_1 was returned from listApps",
+				foundTestApp1);
+		assertTrue("Testing that test_app_2 was returned from listApps",
+				foundTestApp2);
+	}
 	
 	@Test
 	public void testListAppsFullInfo() throws Exception {

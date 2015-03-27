@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import us.kbase.narrativemethodstore.ValidateAppParams;
-import us.kbase.narrativemethodstore.ValidateCategoryParams;
+//import us.kbase.narrativemethodstore.ValidateCategoryParams;
 import us.kbase.narrativemethodstore.ValidateMethodParams;
 import us.kbase.narrativemethodstore.ValidateTypeParams;
 import us.kbase.narrativemethodstore.ValidationResults;
