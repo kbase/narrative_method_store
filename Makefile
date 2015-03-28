@@ -80,6 +80,7 @@ build-nms-bin:
 	echo "export PATH=$(DIR)/bin:\$$PATH" > bin/nms-env.sh
 
 build-docs: build-libs
+	mkdir docs
 	@#$(ANT) javadoc
 	pod2html --infile=lib/Bio/KBase/$(SERVICE_CAPS)/Client.pm --outfile=docs/$(SERVICE_CAPS).html
 	rm -f pod2htm?.tmp
