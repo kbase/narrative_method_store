@@ -4,6 +4,14 @@ The Narrative Method Store provides an API to dynamically access the available
 narrative method specifications and documentation.
 
 
+VERSION: 0.2.5 (Released TBD)
+--------------------------------------
+UPDATED FEATURES / MAJOR BUG FIXES:
+- Update documentation in Readme and on CLI deployment
+- Improved test coverage
+- Minor bug fixes in validation code (nms-validate and validation service methods)
+
+
 VERSION: 0.2.4 (Released 3/26/15)
 --------------------------------------
 UPDATED FEATURES / MAJOR BUG FIXES:
