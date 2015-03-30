@@ -1,10 +1,10 @@
 NARRATIVE METHOD STORE OVERVIEW
 -----------------------------------------
 The Narrative Method Store provides an API to dynamically access the available
-narrative method specifications and documentation.
+narrative method/app/type specifications and documentation.
 
 
-VERSION: 0.2.5 (Released TBD)
+VERSION: 0.2.5 (Released 3/30/15)
 --------------------------------------
 UPDATED FEATURES / MAJOR BUG FIXES:
 - Update documentation in Readme and on CLI deployment
