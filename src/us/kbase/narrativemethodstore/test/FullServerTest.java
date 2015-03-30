@@ -2,7 +2,10 @@ package us.kbase.narrativemethodstore.test;
 
 import static org.junit.Assert.*;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.net.URL;
 import java.util.ArrayList;
@@ -40,6 +43,10 @@ import us.kbase.narrativemethodstore.Publication;
 import us.kbase.narrativemethodstore.RegexMatcher;
 import us.kbase.narrativemethodstore.Status;
 import us.kbase.narrativemethodstore.TypeInfo;
+import us.kbase.narrativemethodstore.ValidateAppParams;
+import us.kbase.narrativemethodstore.ValidateMethodParams;
+import us.kbase.narrativemethodstore.ValidateTypeParams;
+import us.kbase.narrativemethodstore.ValidationResults;
 
 /*
  * 
@@ -246,6 +253,23 @@ public class FullServerTest {
 		assertTrue("listing apps and names got test_app_1, and name is correct",apps.get("test_app_1").compareTo("Test All 1")==0);
 		assertTrue("listing apps and names got test_app_2",apps.containsKey("test_app_2"));
 		assertTrue("listing apps and names got test_app_2, and name is correct",apps.get("test_app_1").compareTo("Test All 1")==0);
+	}
+	
+	@Test
+	public void testListAppSpecs() throws Exception {
+		List<AppSpec> apps = CLIENT.listAppsSpec(new ListParams());
+		boolean foundApp1 = false; boolean foundApp2 = false;
+		for(AppSpec a:apps) {
+			if(a.getInfo().getId().compareTo("test_app_1")==0) {
+				foundApp1 = true;
+			} else if (a.getInfo().getId().compareTo("test_app_2")==0) {
+				foundApp2 = true;
+			}
+		}
+		assertTrue("Testing that test_app_1 was returned from listAppsSpec",
+				foundApp1);
+		assertTrue("Testing that test_app_2 was returned from listAppsSpec",
+				foundApp2);
 	}
 	
 	@Test
@@ -612,16 +636,12 @@ public class FullServerTest {
 		}
 		assertTrue("Testing that test_method_1 was returned from listMethodSpec",
 				foundTestMethod1);
-
 		assertTrue("Testing that test_method_3 was returned from listMethodSpec",
 				foundTestMethod3);
-
 		assertTrue("Testing that test_method_4 was returned from listMethodSpec",
 				foundTestMethod4);
-		
 		assertTrue("Testing that test_method_5 was returned from listMethodSpec",
 				foundTestMethod5);
-		
 		assertTrue("Testing that test_method_7 was returned from listMethodSpec",
 				foundTestMethod7);
 	}
@@ -825,6 +845,20 @@ public class FullServerTest {
 	}
 
 	@Test
+	public void testListTypes() throws Exception {
+		List<TypeInfo> typeInfo = CLIENT.listTypes(new ListParams());
+		assertTrue("Got list of types", typeInfo.size()>0);
+		boolean foundTestType1 = false;
+		for(TypeInfo ti : typeInfo) {
+			if(ti.getTypeName().compareTo("Test.Type1")==0) {
+				foundTestType1 = true;
+				assertTrue("Test.Type1 has name Genome", ti.getName().compareTo("Genome")==0);
+			}
+		}
+		assertTrue("Type1 was returned successfully in list types.",foundTestType1);
+	}
+	
+	@Test
 	public void testType() throws Exception {
 		Map<String, TypeInfo> typeInfo = CLIENT.listCategories(new ListCategoriesParams().withLoadTypes(1L)).getE4();
 		TypeInfo ti = typeInfo.get("Test.Type1");
@@ -839,17 +873,146 @@ public class FullServerTest {
 		assertEquals(1, ti.getImportMethodIds().size());
 		assertEquals("genomes", ti.getLandingPageUrlPrefix());
 	}
+	
+	@Test
+	public void testValidateMethod() throws Exception {
+		// Test a valid spec
+		ValidateMethodParams params = 
+				new ValidateMethodParams()
+					.withId("test_method_1")
+					.withDisplayYaml(getTestFileFromSpecsRepo("methods/test_method_1/display.yaml"))
+					.withSpecJson(getTestFileFromSpecsRepo("methods/test_method_1/spec.json"));
+		ValidationResults results = CLIENT.validateMethod(params);
+		assertTrue("Method validation results of test_method_1 returns is valid", results.getIsValid()==1L);
+		assertTrue("Method validation contains an empty error report",results.getErrors().isEmpty());
+		assertTrue("Method validation results of test_method_1 spec is not null", results.getMethodSpec()!=null);
+		assertTrue("Method validation results of test_method_1 full info is not null", results.getMethodFullInfo()!=null);
+		assertTrue("Method validation results of test_method_1 app spec is null", results.getAppSpec()==null);
+		assertTrue("Method validation results of test_method_1 app full info info is null", results.getAppFullInfo()==null);
+		assertTrue("Method validation results of test_method_1 type info is null", results.getTypeInfo()==null);
+		assertTrue("Method validation results of test_method_1 got the right name", results.getMethodFullInfo().getName().compareTo("Test Method 1")==0);
+		
+		// Test an error case
+		params = 
+				new ValidateMethodParams()
+					.withId("test_error_1")
+					.withDisplayYaml(getTestFileFromSpecsRepo("methods/test_error_1/display.yaml"))
+					.withSpecJson(getTestFileFromSpecsRepo("methods/test_error_1/spec.json"));
+		results = CLIENT.validateMethod(params);
+		assertTrue("Method validation results of test_error_1 returns is not valid", results.getIsValid()==0L);
+		assertTrue("Method validation contains some error report",results.getErrors().size()>0);
+		assertTrue("Method validation results of test_method_1 spec is null", results.getMethodSpec()==null);
+		assertTrue("Method validation results of test_method_1 full info is null", results.getMethodFullInfo()==null);
+		assertTrue("Method validation results of test_method_1 app spec is null", results.getAppSpec()==null);
+		assertTrue("Method validation results of test_method_1 app full info info is null", results.getAppFullInfo()==null);
+		assertTrue("Method validation results of test_method_1 type info is null", results.getTypeInfo()==null);
+	}
+	
+	
+	@Test
+	public void testValidateApp() throws Exception {
+		// Test a valid spec
+		ValidateAppParams params = 
+				new ValidateAppParams()
+					.withId("test_method_1")
+					.withDisplayYaml(getTestFileFromSpecsRepo("apps/test_app_1/display.yaml"))
+					.withSpecJson(getTestFileFromSpecsRepo("apps/test_app_1/spec.json"));
+		ValidationResults results = CLIENT.validateApp(params);
+		assertTrue("App validation results of test_app_1 returns is valid", results.getIsValid()==1L);
+		assertTrue("App validation contains an empty error report",results.getErrors().isEmpty());
+		assertTrue("App validation results of test_app_1 spec is not null", results.getAppSpec()!=null);
+		assertTrue("App validation results of test_app_1 full info is not null", results.getAppFullInfo()!=null);
+		assertTrue("App validation results of test_app_1 method spec is null", results.getMethodSpec()==null);
+		assertTrue("App validation results of test_app_1 method full info info is null", results.getMethodFullInfo()==null);
+		assertTrue("App validation results of test_app_1 type info is null", results.getTypeInfo()==null);
+		assertTrue("App validation results of test_app_1 got the right name", results.getAppFullInfo().getName().compareTo("Test All 1")==0);
+		
+		// Test an error case
+		params = 
+				new ValidateAppParams()
+					.withId("test_error_1")
+					.withDisplayYaml("madeup: nothing")
+					.withSpecJson(getTestFileFromSpecsRepo("methods/test_error_1/spec.json"));
+		results = CLIENT.validateApp(params);
+		assertTrue("App validation results of test_error_1 returns is not valid", results.getIsValid()==0L);
+		assertTrue("App validation contains some error report",results.getErrors().size()>0);
+		assertTrue("App validation results of test_method_1 spec is null", results.getMethodSpec()==null);
+		assertTrue("App validation results of test_method_1 full info is null", results.getMethodFullInfo()==null);
+		assertTrue("App validation results of test_method_1 app spec is null", results.getAppSpec()==null);
+		assertTrue("App validation results of test_method_1 app full info info is null", results.getAppFullInfo()==null);
+		assertTrue("App validation results of test_method_1 type info is null", results.getTypeInfo()==null);
+	}
+	
+	@Test
+	public void testValidateType() throws Exception {
+		// Test a valid spec
+		ValidateTypeParams params = 
+				new ValidateTypeParams()
+					.withId("Test.Type1")
+					.withDisplayYaml(getTestFileFromSpecsRepo("types/Test.Type1/display.yaml"))
+					.withSpecJson(getTestFileFromSpecsRepo("types/Test.Type1/spec.json"));
+		ValidationResults results = CLIENT.validateType(params);
+		assertTrue("Type validation results of Test.Type1 returns is valid", results.getIsValid()==1L);
+		assertTrue("Type validation contains an empty error report",results.getErrors().isEmpty());
+		assertTrue("Type validation results of Test.Type1 spec is null", results.getMethodSpec()==null);
+		assertTrue("Type validation results of Test.Type1 full info is null", results.getMethodFullInfo()==null);
+		assertTrue("Type validation results of Test.Type1 app spec is null", results.getAppSpec()==null);
+		assertTrue("Type validation results of Test.Type1 app full info info is null", results.getAppFullInfo()==null);
+		assertTrue("Type validation results of Test.Type1 type info is not null", results.getTypeInfo()!=null);
+		assertTrue("Type validation results of Test.Type1 got the right name", results.getTypeInfo().getName().compareTo("Genome")==0);
+		
+		// Test an error case
+		params = 
+				new ValidateTypeParams()
+					.withId("Test.Type1")
+					.withDisplayYaml("not a field: 23\n\n").withSpecJson("{}");
+		results = CLIENT.validateType(params);
+		System.out.println(results);
+		assertTrue("Type validation results of test_error_1 returns is not valid", results.getIsValid()==0L);
+		assertTrue("Type validation contains some error report",results.getErrors().size()>0);
+		assertTrue("Type validation results of test_method_1 spec is null", results.getMethodSpec()==null);
+		assertTrue("Type validation results of test_method_1 full info is null", results.getMethodFullInfo()==null);
+		assertTrue("Type validation results of test_method_1 app spec is null", results.getAppSpec()==null);
+		assertTrue("Type validation results of test_method_1 app full info info is null", results.getAppFullInfo()==null);
+		assertTrue("Type validation results of test_method_1 type info is null", results.getTypeInfo()==null);
+	}
+	
+	
 
+	private static String getTestFileFromSpecsRepo(String path) {
+		StringBuilder content = new StringBuilder();
+		try {
+			URL githubFile = new URL(gitRepo + "/raw/" + gitRepoBranch + "/"+path);
+	        BufferedReader in = new BufferedReader(new InputStreamReader(githubFile.openStream()));
+	        String line;
+	        while ((line = in.readLine()) != null) {
+	        	content.append(line+"\n");
+	        }
+	        in.close();
+		} catch (IOException e) {
+			throw new IllegalStateException(e);
+		}
+		
+		return content.toString();
+	}
+	
+
+	private static String tempDirName;
+	private static String gitRepo;
+	private static String gitRepoBranch;
+	private static String gitRepoRefreshRate;
+	private static String gitRepoCacheSize;
+	
 	@BeforeClass
 	public static void setUpClass() throws Exception {
 
 		// Parse the test config variables
-		String tempDirName = System.getProperty("test.temp-dir");
+		tempDirName = System.getProperty("test.temp-dir");
 		
-		String gitRepo = System.getProperty("test.method-spec-git-repo");
-		String gitRepoBranch = System.getProperty("test.method-spec-git-repo-branch");
-		String gitRepoRefreshRate = System.getProperty("test.method-spec-git-repo-refresh-rate");
-		String gitRepoCacheSize = System.getProperty("test.method-spec-cache-size");
+		gitRepo = System.getProperty("test.method-spec-git-repo");
+		gitRepoBranch = System.getProperty("test.method-spec-git-repo-branch");
+		gitRepoRefreshRate = System.getProperty("test.method-spec-git-repo-refresh-rate");
+		gitRepoCacheSize = System.getProperty("test.method-spec-cache-size");
 		
 		String s = System.getProperty("test.remove-temp-dir");
 		removeTempDir = false;

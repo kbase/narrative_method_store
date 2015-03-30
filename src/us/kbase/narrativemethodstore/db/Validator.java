@@ -47,6 +47,10 @@ public class Validator {
 	
 	@SuppressWarnings("unchecked")
 	public static ValidationResults validateMethod(ValidateMethodParams params) throws NarrativeMethodStoreException {
+		if(params.getSpecJson()==null) {
+			throw new NarrativeMethodStoreException("spec_json parameter was not defined, cannot validate");
+		}
+		
 		// grab the relevant input
 		String spec = params.getSpecJson();
 		String display = cleanYaml(params.getDisplayYaml());
