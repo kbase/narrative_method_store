@@ -967,7 +967,6 @@ public class FullServerTest {
 					.withId("Test.Type1")
 					.withDisplayYaml("not a field: 23\n\n").withSpecJson("{}");
 		results = CLIENT.validateType(params);
-		System.out.println(results);
 		assertTrue("Type validation results of test_error_1 returns is not valid", results.getIsValid()==0L);
 		assertTrue("Type validation contains some error report",results.getErrors().size()>0);
 		assertTrue("Type validation results of test_method_1 spec is null", results.getMethodSpec()==null);
