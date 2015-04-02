@@ -27,6 +27,8 @@ ANT_OPTIONS =
 
 TESTCFG ?= test.cfg
 
+default: build-libs build-docs build-bin
+
 ifeq ($(TOP_DIR_NAME), dev_container)
 
 ##############################
@@ -68,9 +70,6 @@ deploy-cfg:
 
 endif
 
-
-
-default: build-libs build-docs build-bin
 
 submodule-init:
 	git submodule init

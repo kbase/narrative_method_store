@@ -92,7 +92,11 @@ if($outdir) {
 	$year += 1900;
 	$outdir .= "/validation-dump-"."$year-$mon-$mday-$hour-$min-$sec";
 }
-validateTargets($nms, $root, $targets, $verbose, $outdir);
+my $totalErrors = validateTargets($nms, $root, $targets, $verbose, $outdir);
+
+if($totalErrors>0) {
+    exit 1;
+}
 
 exit 0;
 
@@ -135,6 +139,7 @@ sub validateTargets {
 	if(!$verbose && $totalWarnings>0) {
 		print "    Run with --verbose to view warnings.\n\n";
 	}
+	return $totalErrors;
 };
 
 sub printStat {
