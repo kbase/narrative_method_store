@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/msneddon/narrative_method_store.svg?branch=develop)](https://travis-ci.org/msneddon/narrative_method_store)
+
 Narrative Method Store
 ======================
 
