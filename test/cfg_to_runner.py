@@ -24,8 +24,7 @@ CONFIG_OPTS = ['test.temp-dir',
 def write_runner(out, ant_target):
     with open(out, 'w') as run:
         run.write('# Generated file - do not check into git\n')
-#        run.write('cd ..\n')
-        run.write(ANT + ' ' + ant_target)
+        run.write(ANT + ' ' + ant_target + ' ' + ant_opts)
         for o in CONFIG_OPTS:
             if o in testcfg:
                 run.write(' -D' + o + '=' + testcfg[o])
@@ -37,8 +36,11 @@ def write_runner(out, ant_target):
 if __name__ == '__main__':
     d, _ = os.path.split(os.path.abspath(__file__))
     fn = 'test.cfg'
+    ant_opts = ''
     if len(sys.argv) > 1:
         fn = sys.argv[1]
+    if len(sys.argv) > 2:
+        ant_opts = sys.argv[2]
     fn = os.path.join(d, fn)
     if not os.path.isfile(fn):
         print 'No such config file ' + fn + '. Halting.'
