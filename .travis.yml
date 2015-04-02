@@ -1,0 +1,11 @@
+---
+language: java
+script: make && make test
+jdk:
+  -openjdk7
+
+branches:
+  only:
+  - master
+  - staging
+  - develop
