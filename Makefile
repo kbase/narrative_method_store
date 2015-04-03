@@ -1,4 +1,4 @@
-#port is now set in deploy.cfg
+
 SERVICE_PORT = $(shell perl server_scripts/get_deploy_cfg.pm NarrativeMethodStore.port)
 SERVICE = narrative_method_store
 SERVICE_CAPS = NarrativeMethodStore
@@ -6,8 +6,6 @@ SPEC_FILE = NarrativeMethodStore.spec
 CLIENT_JAR = NarrativeMethodStoreClient.jar
 WAR = NarrativeMethodStoreService.war
 URL = https://kbase.us/services/narrative_method_store/rpc
-DEFAULT_SCRIPT_URL = $(URL)
-DEV_SCRIPT_URL = http://dev19.berkeley.kbase.us:$(SERVICE_PORT)/rpc
 
 #End of user defined variables
 
@@ -20,18 +18,23 @@ TOP_DIR_NAME = $(shell basename $(TOP_DIR))
 
 DIR = $(shell pwd)
 
+ANT ?= ant
+
+# make sure our make test works
+.PHONY : test
+
+ANT_OPTIONS =
+
+TESTCFG ?= test.cfg
+
+default: build-libs build-docs build-bin
+
 ifeq ($(TOP_DIR_NAME), dev_container)
-ifeq ($(KB_TOP),) #only include if we've also sourced the user-env.sh
-default:
-    $(error KB_TOP not set - did you forget to source user-env.sh?)
-else
+
+##############################
+#### INSIDE DEV CONTAINER ####
 include $(TOP_DIR)/tools/Makefile.common
-default: build-bin build-docs build-bin
-endif
-else
-default:
-    $(error Only the build-nms-bin target is supported outside of the dev_container)
-endif
+include $(TOP_DIR)/tools/Makefile.common.rules
 
 DEPLOY_RUNTIME ?= /kb/runtime
 JAVA_HOME ?= $(DEPLOY_RUNTIME)/java
@@ -42,31 +45,43 @@ SERVICE_USER ?= kbase
 
 ASADMIN = $(GLASSFISH_HOME)/glassfish/bin/asadmin
 
-ANT = ant
-
-
 SRC_PERL = $(wildcard scripts/*.pl)
 BIN_PERL = $(addprefix $(BIN_DIR)/,$(basename $(notdir $(SRC_PERL))))
 
-# make sure our make test works
-.PHONY : test
-
-
-# fake deploy-cfg target for when this is run outside the dev_container
-deploy-cfg:
-
-SCRIPTBINDESTINATION = $(DIR)/bin
-ifeq ($(TOP_DIR_NAME), dev_container)
-include $(TOP_DIR)/tools/Makefile.common.rules
-SCRIPTBINDESTINATION = $(TOP_DIR)/bin
-endif
-
 build-libs:
-	$(ANT) compile
+	$(ANT) compile $(ANT_OPTIONS)
 
 build-bin: $(BIN_PERL)
+##############################
 
-# make the nms-* scripts within the repo outside of the KBase Runtime
+else
+
+###############################
+#### OUTSIDE DEV CONTAINER ####
+ANT_OPTIONS = -Djardir=submodules/jars/lib/jars
+
+build-libs: submodule-init
+	$(ANT) compile $(ANT_OPTIONS)
+
+build-bin: build-nms-bin
+
+deploy-cfg:
+###############################
+
+endif
+
+
+submodule-init:
+	git submodule init
+	git submodule update
+
+build-docs:
+	mkdir -p docs
+	$(ANT) javadoc -Djardir=submodules/jars/lib/jars $(ANT_OPTIONS)
+	-pod2html --infile=lib/Bio/KBase/$(SERVICE_CAPS)/Client.pm --outfile=docs/$(SERVICE_CAPS).html
+	rm -f pod2htm?.tmp
+	cp $(SPEC_FILE) docs/.
+
 build-nms-bin:
 	mkdir -p bin
 	cp -r scripts/simpledeploy/common/Bio lib/.
@@ -79,17 +94,10 @@ build-nms-bin:
 	./scripts/simpledeploy/wrap_nms_scripts.sh $(DIR)/scripts/nms-getmethod.pl bin/nms-getmethod $(DIR)/lib
 	echo "export PATH=$(DIR)/bin:\$$PATH" > bin/nms-env.sh
 
-build-docs: build-libs
-	mkdir -p docs
-	@#$(ANT) javadoc
-	pod2html --infile=lib/Bio/KBase/$(SERVICE_CAPS)/Client.pm --outfile=docs/$(SERVICE_CAPS).html
-	rm -f pod2htm?.tmp
-	cp $(SPEC_FILE) docs/.
+build-java-client:
+	$(ANT) compile_client $(ANT_OPTIONS)
 
 compile: compile-typespec compile-typespec-java
-
-compile-java-client:
-	@# $(ANT) compile_client
 
 compile-typespec-java:
 	gen_java_types -S -o . -u $(URL) $(SPEC_FILE)
@@ -110,23 +118,30 @@ compile-typespec:
 	rm -f lib/*Impl.p*   #should be no perl/py impl files in our lib dir
 
 
+
+
 test: test-client test-service test-scripts
 
-test-client: test-service
-	@# $(ANT) test_client_import
+test-client:
 
 test-service:
-	test/cfg_to_runner.py $(TESTCFG)
+	test/cfg_to_runner.py $(TESTCFG) "$(ANT_OPTIONS)"
 	test/run_tests.sh
 
 test-scripts:
 	
+
+
 
 deploy: deploy-client deploy-service
 
 deploy-client: deploy-client-libs deploy-docs deploy-perl-scripts
 
 deploy-client-libs:
+	@if ["$(TARGET)" -eq ""]; \
+	  then \
+	    $(error makefile variable TARGET must be defined to deploy-client-libs); \
+	fi;
 	mkdir -p $(TARGET)/lib/
 	cp dist/client/$(CLIENT_JAR) $(TARGET)/lib/
 	cp -rv lib/* $(TARGET)/lib/
@@ -134,39 +149,48 @@ deploy-client-libs:
 	echo $(TAGS) >> $(TARGET)/lib/$(SERVICE).clientdist
 
 deploy-docs:
+	@if ["$(SERVICE_DIR)" -eq ""]; \
+	  then \
+	    $(error makefile variable SERVICE_DIR must be defined to deploy-docs); \
+	fi;
 	mkdir -p $(SERVICE_DIR)/webroot
 	cp  -r docs/* $(SERVICE_DIR)/webroot/.
 
 deploy-service: deploy-service-libs deploy-service-scripts deploy-cfg
 
 deploy-service-libs:
-	$(ANT) buildwar
+	@if ["$(SERVICE_DIR)" -eq ""]; \
+	  then \
+	    $(error makefile variable SERVICE_DIR must be defined to deploy-service-libs); \
+	fi;
+	$(ANT) buildwar $(ANT_OPTIONS)
 	mkdir -p $(SERVICE_DIR)
 	cp dist/$(WAR) $(SERVICE_DIR)
 	echo $(GITCOMMIT) > $(SERVICE_DIR)/$(SERVICE).serverdist
 	echo $(TAGS) >> $(SERVICE_DIR)/$(SERVICE).serverdist
 
 deploy-service-scripts:
+	@if ["$(TARGET)" -eq ""]; \
+	  then \
+	    $(error makefile variable TARGET must be defined to deploy-service-scripts); \
+	fi;
+	@if ["$(ASADMIN)" -eq ""]; \
+	  then \
+	    $(error makefile variable ASADMIN must be defined to deploy-service-scripts); \
+	fi;
 	cp server_scripts/glassfish_administer_service.py $(SERVICE_DIR)
 	server_scripts/build_server_control_scripts.py $(SERVICE_DIR) $(WAR)\
 		$(TARGET) $(JAVA_HOME) deploy.cfg $(ASADMIN) $(SERVICE_CAPS)\
 		$(SERVICE_PORT)
-
-deploy-upstart:
-	echo "# $(SERVICE) service" > /etc/init/$(SERVICE).conf
-	echo "# NOTE: stop $(SERVICE) does not work" >> /etc/init/$(SERVICE).conf
-	echo "# Use the standard stop_service script as the $(SERVICE_USER) user" >> /etc/init/$(SERVICE).conf
-	echo "#" >> /etc/init/$(SERVICE).conf
-	echo "# Make sure to set up the $(SERVICE_USER) user account" >> /etc/init/$(SERVICE).conf
-	echo "# shell> groupadd kbase" >> /etc/init/$(SERVICE).conf
-	echo "# shell> useradd -r -g $(SERVICE_USER) $(SERVICE_USER)" >> /etc/init/$(SERVICE).conf
-	echo "#" >> /etc/init/$(SERVICE).conf
-	echo "start on runlevel [23]" >> /etc/init/$(SERVICE).conf 
-	echo "stop on runlevel [!23]" >> /etc/init/$(SERVICE).conf 
-	echo "pre-start exec chown -R $(SERVICE_USER) $(TARGET)/services/$(SERVICE)" >> /etc/init/$(SERVICE).conf 
-	echo "exec su kbase -c '$(TARGET)/services/$(SERVICE)/start_service'" >> /etc/init/$(SERVICE).conf 
-
 undeploy:
+	@if ["$(SERVICE_DIR)" -eq ""]; \
+	  then \
+	    $(error makefile variable SERVICE_DIR must be defined to undeploy); \
+	fi;
+	@if ["$(TARGET)" -eq ""]; \
+	  then \
+	    $(error makefile variable SERVICE_DIR must be defined to undeploy); \
+	fi;
 	-rm -rf $(SERVICE_DIR)
 	-rm -rfv $(TARGET)/lib/Bio/KBase/$(SERVICE)
 	-rm -rfv $(TARGET)/lib/biokbase/$(SERVICE)
