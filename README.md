@@ -1,5 +1,4 @@
-[![Build Status](https://travis-ci.org/msneddon/narrative_method_store.svg?branch=develop)](https://travis-ci.org/msneddon/narrative_method_store)
-
+[![Build Status](https://travis-ci.org/kbase/narrative_method_store.svg?branch=master)](https://travis-ci.org/msneddon/narrative_method_store)
 Narrative Method Store
 ======================
 
@@ -8,5 +7,4 @@ A KBase service for dynamically listing and accessing specifications and documen
 The Narrative Method Store has a CLI for developers and documenters to check the status of the method store, list and fetch specifications and documentation, and validate local changes to specifications/documentation.  Instructions on deploying the CLI can be found at [docs/CLI_Deployment_Guide.md](docs/CLI_Deployment_Guide.md).
 
 The Narrative Method Store can be deployed within a standard KBase runtime environment with the standard KBase deployment process. Briefly, from within the dev_container, clone this repo into the modules directory.  Rebuild any environment variables by running the dev_container bootstrap script and sourcing the user-env.sh file.  Within this repo directory, run `make`, optionally `make test`, and finally `make deploy TARGET=[deployment_directory]`.
-
 
