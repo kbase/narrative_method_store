@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/kbase/narrative_method_store.svg?branch=master)](https://travis-ci.org/msneddon/narrative_method_store)
+[![Build Status](https://travis-ci.org/kbase/narrative_method_store.svg?branch=master)](https://travis-ci.org/kbase/narrative_method_store)
 Narrative Method Store
 ======================
 
