@@ -1,4 +1,5 @@
-[![Build Status](https://travis-ci.org/kbase/narrative_method_store.svg?branch=master)](https://travis-ci.org/kbase/narrative_method_store)
+**master:** [![Build Status](https://travis-ci.org/kbase/narrative_method_store.svg?branch=master)](https://travis-ci.org/kbase/narrative_method_store) | **staging:** [![Build Status](https://travis-ci.org/kbase/narrative_method_store.svg?branch=staging)](https://travis-ci.org/kbase/narrative_method_store) | **develop:** [![Build Status](https://travis-ci.org/kbase/narrative_method_store.svg?branch=develop)](https://travis-ci.org/kbase/narrative_method_store)
+
 Narrative Method Store
 ======================
 
