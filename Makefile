@@ -77,7 +77,7 @@ submodule-init:
 
 build-docs:
 	mkdir -p docs
-	$(ANT) javadoc -Djardir=submodules/jars/lib/jars $(ANT_OPTIONS)
+	$(ANT) javadoc $(ANT_OPTIONS)
 	-pod2html --infile=lib/Bio/KBase/$(SERVICE_CAPS)/Client.pm --outfile=docs/$(SERVICE_CAPS).html
 	rm -f pod2htm?.tmp
 	cp $(SPEC_FILE) docs/.
