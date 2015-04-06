@@ -93,6 +93,7 @@ public class FullServerTest {
 		String ver = CLIENT.ver();
 		assertTrue("Testing that ver() returns a version string that looks valid",
 				ver.matches("^\\d+\\.\\d+\\.\\d+$"));
+		System.out.println("Testing NMS Server Version "+ver);
 	}
 	
 	@Test
