@@ -4,6 +4,14 @@ The Narrative Method Store provides an API to dynamically access the available
 narrative method/app/type specifications and documentation.
 
 
+VERSION: 0.2.6 (Released 4/6/15)
+--------------------------------------
+UPDATED FEATURES / MAJOR BUG FIXES:
+- Setup CI testing with travis-ci (see https://travis-ci.org/kbase/narrative_method_store)
+- Updates to Makefile to support travis-ci and running tests outside of the dev_container
+- Updates to some documentation
+
+
 VERSION: 0.2.5 (Released 3/30/15)
 --------------------------------------
 UPDATED FEATURES / MAJOR BUG FIXES:
