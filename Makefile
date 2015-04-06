@@ -138,9 +138,10 @@ deploy: deploy-client deploy-service
 deploy-client: deploy-client-libs deploy-docs deploy-perl-scripts
 
 deploy-client-libs:
-	@if ["$(TARGET)" -eq ""]; \
+	if ["$(TARGET)" -eq ""]; \
 	  then \
-	    $(error makefile variable TARGET must be defined to deploy-client-libs); \
+	  	 echo "Error makefile variable TARGET must be defined to deploy-client-libs"; \
+	  	 exit 1; \
 	fi;
 	mkdir -p $(TARGET)/lib/
 	cp dist/client/$(CLIENT_JAR) $(TARGET)/lib/
@@ -151,7 +152,8 @@ deploy-client-libs:
 deploy-docs:
 	@if ["$(SERVICE_DIR)" -eq ""]; \
 	  then \
-	    $(error makefile variable SERVICE_DIR must be defined to deploy-docs); \
+	  	echo "Error makefile variable SERVICE_DIR must be defined to deploy-docs"; \
+	  	exit 1; \
 	fi;
 	mkdir -p $(SERVICE_DIR)/webroot
 	cp  -r docs/* $(SERVICE_DIR)/webroot/.
@@ -161,7 +163,8 @@ deploy-service: deploy-service-libs deploy-service-scripts deploy-cfg
 deploy-service-libs:
 	@if ["$(SERVICE_DIR)" -eq ""]; \
 	  then \
-	    $(error makefile variable SERVICE_DIR must be defined to deploy-service-libs); \
+	  	echo "Error makefile variable SERVICE_DIR must be defined to deploy-service-libs"; \
+	  	exit 1; \
 	fi;
 	$(ANT) buildwar $(ANT_OPTIONS)
 	mkdir -p $(SERVICE_DIR)
@@ -172,11 +175,13 @@ deploy-service-libs:
 deploy-service-scripts:
 	@if ["$(TARGET)" -eq ""]; \
 	  then \
-	    $(error makefile variable TARGET must be defined to deploy-service-scripts); \
+	  	echo "Error makefile variable TARGET must be defined to deploy-service-scripts"; \
+	  	exit 1; \
 	fi;
 	@if ["$(ASADMIN)" -eq ""]; \
 	  then \
-	    $(error makefile variable ASADMIN must be defined to deploy-service-scripts); \
+	  	echo "Error makefile variable ASADMIN must be defined to deploy-service-scripts"; \
+	  	exit 1; \
 	fi;
 	cp server_scripts/glassfish_administer_service.py $(SERVICE_DIR)
 	server_scripts/build_server_control_scripts.py $(SERVICE_DIR) $(WAR)\
@@ -185,11 +190,13 @@ deploy-service-scripts:
 undeploy:
 	@if ["$(SERVICE_DIR)" -eq ""]; \
 	  then \
-	    $(error makefile variable SERVICE_DIR must be defined to undeploy); \
+	  	echo "Error makefile variable SERVICE_DIR must be defined to undeploy"; \
+	  	exit 1; \
 	fi;
 	@if ["$(TARGET)" -eq ""]; \
 	  then \
-	    $(error makefile variable SERVICE_DIR must be defined to undeploy); \
+	  	echo "Error makefile variable TARGET must be defined to undeploy"; \
+	  	exit 1; \
 	fi;
 	-rm -rf $(SERVICE_DIR)
 	-rm -rfv $(TARGET)/lib/Bio/KBase/$(SERVICE)
