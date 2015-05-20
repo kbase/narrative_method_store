@@ -31,14 +31,10 @@ public class GitHubRepoProvider extends FileRepoProvider {
             throw new NarrativeMethodStoreException(ex.getMessage(), ex);
         }
     }
-    
+
     @Override
-    public String getNamespace() throws NarrativeMethodStoreException {
-        String[] parts = url.getPath().split("/");
-        String ret = parts[parts.length - 1];
-        if (parts.length > 1)
-            ret = parts[parts.length - 2] + "/" + ret;
-        return "[" + ret + "]";
+    public String getUrl() {
+        return "" + url;
     }
     
     @Override

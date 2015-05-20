@@ -8,27 +8,55 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import us.kbase.narrativemethodstore.db.RepoProvider;
 import us.kbase.narrativemethodstore.exceptions.NarrativeMethodStoreException;
 
 public class FileRepoProvider implements RepoProvider {
-    protected File rootDir;
+    protected final File rootDir;
+    protected final String moduleName;
+    protected String moduleDescription = null;
+    protected String serviceLanguage = null;
     
-    public FileRepoProvider(File rootDir) {
+    public FileRepoProvider(File rootDir) throws NarrativeMethodStoreException {
         this.rootDir = rootDir;
+        String kbaseConfig = get(new File(rootDir, "kbase.yml"));
+        try {
+            Map<String,Object> map = YamlUtils.getDocumentAsYamlMap(kbaseConfig);
+            moduleName = (String)map.get("module-name");
+            if (moduleName == null)
+                throw new NarrativeMethodStoreException("module-name is not set in repository configuration");
+            moduleDescription = (String)map.get("module-description");
+            serviceLanguage = (String)map.get("service-language");
+        } catch (IOException ex) {
+            throw new NarrativeMethodStoreException(ex);
+        }
+    }
+    
+    @Override
+    public String getUrl() {
+        return rootDir.getAbsolutePath();
     }
     
     /////////// [root]  ///////////
     
     @Override
-    public String getNamespace() throws NarrativeMethodStoreException {
-        return rootDir.getName();
+    public String getModuleName() {
+        return moduleName;
     }
     
-    public String loadKBaseConfig() throws NarrativeMethodStoreException {
-        return get(new File(rootDir, "kbase.yml"));
+    @Override
+    public String getModuleDescription() {
+        return moduleDescription;
     }
+    
+    @Override
+    public String getServiceLanguage() {
+        return serviceLanguage;
+    }
+    
+    @Override
     public String loadReadmeFile() throws NarrativeMethodStoreException {
         return get(new File(rootDir, "README.md"), true);
     }
@@ -59,6 +87,7 @@ public class FileRepoProvider implements RepoProvider {
         return new File(getUIDir(), "widgets");
     }
 
+    @Override
     public List<String> listUINarrativeMethodIDs() throws NarrativeMethodStoreException {
         List <String> methodList = new ArrayList<String>();
         if (!getMethodsDir().exists())
@@ -77,16 +106,19 @@ public class FileRepoProvider implements RepoProvider {
         return dir;
     }
 
+    @Override
     public String loadUINarrativeMethodSpec(String methodId) throws NarrativeMethodStoreException {
         File ret = new File(getMethodDir(methodId), "spec.json");
         return get(ret);
     }
     
+    @Override
     public String loadUINarrativeMethodDisplay(String methodId) throws NarrativeMethodStoreException {
         File ret = new File(getMethodDir(methodId), "display.yaml");
         return get(ret);
     }
     
+    @Override
     public List<String> listUIWidgetIds() throws NarrativeMethodStoreException {
         List <String> ret = new ArrayList<String>();
         if (!getWidgetsDir().exists())
@@ -98,6 +130,7 @@ public class FileRepoProvider implements RepoProvider {
         return ret;
     }
     
+    @Override
     public String loadUIWidgetJS(String widgetId) throws NarrativeMethodStoreException {
         File ret = new File(getWidgetsDir(), widgetId);
         return get(ret);
@@ -105,6 +138,7 @@ public class FileRepoProvider implements RepoProvider {
     
     /////////// [utils] ///////////
     
+    @Override
     public void dispose() throws NarrativeMethodStoreException {
         // Do nothing
     }

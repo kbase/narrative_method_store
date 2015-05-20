@@ -12,11 +12,12 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.concurrent.ExecutionException;
 
 import org.apache.commons.io.FileUtils;
-import org.yaml.snakeyaml.Yaml;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -53,7 +54,6 @@ public class LocalGitDB implements MethodSpecDB {
 	protected final int cacheSize;
 	
 	protected final ObjectMapper mapper = new ObjectMapper();
-	protected final Yaml yaml = new Yaml();
 	
 	protected long lastPullTime = -1;
 	protected String lastCommit = null;
@@ -65,7 +65,8 @@ public class LocalGitDB implements MethodSpecDB {
 	protected final LoadingCache<String, AppSpec> appSpecCache;
 	
 	protected final DynamicRepoDB dynamicRepos;
-	protected final Map<String, String> dynamicMethodToRepoUrl = new TreeMap<String, String>();
+	protected final Set<String> dynamicRepoMethods = new TreeSet<String>();
+	protected final Map<String, Exception> dynamicRepoModuleNameToLoadingError = new TreeMap<String, Exception>();
 	
 	public LocalGitDB(URL gitRepoUrl, String branch, File localPath, 
 			int refreshTimeInMinutes, int cacheSize, DynamicRepoDB dynamicRepos) 
@@ -109,11 +110,14 @@ public class LocalGitDB implements MethodSpecDB {
         this.dynamicRepos = dynamicRepos;
         if (dynamicRepos != null) {
             try {
-                for (String repoUrl : dynamicRepos.listRepoURLs()) {
-                    RepoProvider repo = dynamicRepos.getRepoDetails(repoUrl);
-                    String namespace = repo.getNamespace();
-                    for (String methodId : repo.listUINarrativeMethodIDs()) {
-                        dynamicMethodToRepoUrl.put(namespace + methodId, repoUrl);
+                for (String repoMN : dynamicRepos.listRepoModuleNames()) {
+                    try {
+                        RepoProvider repo = dynamicRepos.getRepoDetails(repoMN);
+                        for (String methodId : repo.listUINarrativeMethodIDs()) {
+                            dynamicRepoMethods.add(repoMN + "/" + methodId);
+                        }
+                    } catch (Exception ex) {
+                        dynamicRepoModuleNameToLoadingError.put(repoMN, ex);
                     }
                 }
             } catch (NarrativeMethodStoreInitializationException ex) {
@@ -128,7 +132,7 @@ public class LocalGitDB implements MethodSpecDB {
             throw new NarrativeMethodStoreInitializationException(e.getMessage(), e);
         }
 	}
-	
+		
 	protected void initializeLocalRepo() throws NarrativeMethodStoreInitializationException {
 		try {
 			FileUtils.deleteDirectory(gitLocalPath);
@@ -194,7 +198,7 @@ public class LocalGitDB implements MethodSpecDB {
 			if (sub.isDirectory())
 				methodList.add(sub.getName());
 		}
-		methodList.addAll(dynamicMethodToRepoUrl.keySet());
+		methodList.addAll(dynamicRepoMethods);
 		return methodList;
 	}
 
@@ -252,18 +256,11 @@ public class LocalGitDB implements MethodSpecDB {
 			// Fetch the resources needed
 			JsonNode spec = null;
 			Map<String,Object> display = null;
-			if (dynamicMethodToRepoUrl.containsKey(methodId)) {
-			    String repoUrl = dynamicMethodToRepoUrl.get(methodId);
-			    RepoProvider repo = dynamicRepos.getRepoDetails(repoUrl);
-			    String namespace = repo.getNamespace();
-			    for (String mId : repo.listUINarrativeMethodIDs()) {
-			        if (methodId.equals(namespace + mId)) {
-		                spec = mapper.readTree(repo.loadUINarrativeMethodSpec(mId));
-		                display = getDocumentAsYamlMap(repo.loadUINarrativeMethodDisplay(mId));
-			        }
-			    }
-			    if (spec == null || display == null)
-			        throw new NarrativeMethodStoreException("Method " + methodId + " not found in repository: " + repoUrl);
+			if (dynamicRepoMethods.contains(methodId)) {
+			    String[] moduleNameAndMethodId = methodId.split("/");
+			    RepoProvider repo = dynamicRepos.getRepoDetails(moduleNameAndMethodId[0]);
+			    spec = mapper.readTree(repo.loadUINarrativeMethodSpec(moduleNameAndMethodId[1]));
+			    display = YamlUtils.getDocumentAsYamlMap(repo.loadUINarrativeMethodDisplay(moduleNameAndMethodId[1]));
 			} else {
 			    spec = getResourceAsJson("methods/"+methodId+"/spec.json");
 			    display = getResourceAsYamlMap("methods/"+methodId+"/display.yaml");
@@ -481,10 +478,6 @@ public class LocalGitDB implements MethodSpecDB {
 		return;
 	}
 	
-	
-	
-	
-	
 	protected JsonNode getResourceAsJson(String path) throws JsonProcessingException, IOException {
 		File f = new File(gitLocalPath, path);
 		return getAsJson(f);
@@ -498,25 +491,9 @@ public class LocalGitDB implements MethodSpecDB {
 	protected Map<String,Object> getResourceAsYamlMap(String path) throws IOException {
 		File f = new File(gitLocalPath, path);
 		String document = get(f);
-		return getDocumentAsYamlMap(document);
+		return YamlUtils.getDocumentAsYamlMap(document);
 	}
 
-	protected Map<String,Object> getDocumentAsYamlMap(String document) throws IOException {
-	    StringBuilder sb = new StringBuilder();
-		for (int i = 0; i < document.length(); i++) {
-			char ch = document.charAt(i);
-			if ((ch < 32 && ch != 10 && ch != 13) || ch >= 127)
-				ch = ' ';
-			sb.append(ch);
-		}
-		document = sb.toString();
-		@SuppressWarnings("unchecked")
-		Map<String,Object> data = (Map<String, Object>) yaml.load(document);
-		//System.out.println("fetched yaml ("+url+"):\n"+yaml.dump(data));
-		return data;
-	}
-	
-	
 	protected JsonNode getAsJson(File f) throws JsonProcessingException, IOException {
 		return mapper.readTree(get(f));
 	}

@@ -5,9 +5,11 @@ import java.util.List;
 import us.kbase.narrativemethodstore.exceptions.NarrativeMethodStoreException;
 
 public interface RepoProvider {
+    public String getUrl();
     /////////// [root]  ///////////
-    public String getNamespace() throws NarrativeMethodStoreException;
-    public String loadKBaseConfig() throws NarrativeMethodStoreException;
+    public String getModuleName();
+    public String getModuleDescription();
+    public String getServiceLanguage();
     public String loadReadmeFile() throws NarrativeMethodStoreException;
     /////////// data    ///////////
     /////////// docs    ///////////
