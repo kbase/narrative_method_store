@@ -220,6 +220,10 @@ public class LocalGitDB implements MethodSpecDB {
 		return ret;
 	}
 
+	public String getCommitInfo() throws NarrativeMethodStoreInitializationException {
+	    return GitUtils.getCommitInfo(gitLocalPath, gitRepoUrl);
+	}
+	
 	@Override
 	public List<String> listMethodIds(boolean withErrors) {
 		checkForChanges();
