@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.ExecutionException;
 
 import org.apache.commons.io.FileUtils;
@@ -31,12 +32,14 @@ import us.kbase.narrativemethodstore.MethodBriefInfo;
 import us.kbase.narrativemethodstore.MethodFullInfo;
 import us.kbase.narrativemethodstore.MethodSpec;
 import us.kbase.narrativemethodstore.TypeInfo;
+import us.kbase.narrativemethodstore.db.DynamicRepoDB;
 import us.kbase.narrativemethodstore.db.FileLookup;
 import us.kbase.narrativemethodstore.db.MethodSpecDB;
 import us.kbase.narrativemethodstore.db.NarrativeAppData;
 import us.kbase.narrativemethodstore.db.NarrativeCategoriesIndex;
 import us.kbase.narrativemethodstore.db.NarrativeMethodData;
 import us.kbase.narrativemethodstore.db.NarrativeTypeData;
+import us.kbase.narrativemethodstore.db.RepoProvider;
 import us.kbase.narrativemethodstore.exceptions.NarrativeMethodStoreException;
 import us.kbase.narrativemethodstore.exceptions.NarrativeMethodStoreInitializationException;
 
@@ -61,8 +64,12 @@ public class LocalGitDB implements MethodSpecDB {
 	protected final LoadingCache<String, AppFullInfo> appFullInfoCache;
 	protected final LoadingCache<String, AppSpec> appSpecCache;
 	
+	protected final DynamicRepoDB dynamicRepos;
+	protected final Map<String, String> dynamicMethodToRepoUrl = new TreeMap<String, String>();
+	
 	public LocalGitDB(URL gitRepoUrl, String branch, File localPath, 
-			int refreshTimeInMinutes, int cacheSize) throws NarrativeMethodStoreInitializationException {
+			int refreshTimeInMinutes, int cacheSize, DynamicRepoDB dynamicRepos) 
+			        throws NarrativeMethodStoreInitializationException {
 		this.gitRepoUrl = gitRepoUrl;
 		this.gitBranch = branch;
 		this.gitLocalPath = localPath;
@@ -99,11 +106,27 @@ public class LocalGitDB implements MethodSpecDB {
 		if (!localPath.exists())
 			localPath.mkdirs();
 		initializeLocalRepo();
-		try {
-			loadCategoriesIndex();
-		} catch(NarrativeMethodStoreException e) {
-			throw new NarrativeMethodStoreInitializationException(e.getMessage(), e);
-		}
+        this.dynamicRepos = dynamicRepos;
+        if (dynamicRepos != null) {
+            try {
+                for (String repoUrl : dynamicRepos.listRepoURLs()) {
+                    RepoProvider repo = dynamicRepos.getRepoDetails(repoUrl);
+                    String namespace = repo.getNamespace();
+                    for (String methodId : repo.listUINarrativeMethodIDs()) {
+                        dynamicMethodToRepoUrl.put(namespace + methodId, repoUrl);
+                    }
+                }
+            } catch (NarrativeMethodStoreInitializationException ex) {
+                throw ex;
+            } catch (NarrativeMethodStoreException ex) {
+                throw new NarrativeMethodStoreInitializationException(ex);
+            }
+        }
+        try {
+            loadCategoriesIndex();
+        } catch(NarrativeMethodStoreException e) {
+            throw new NarrativeMethodStoreInitializationException(e.getMessage(), e);
+        }
 	}
 	
 	protected void initializeLocalRepo() throws NarrativeMethodStoreInitializationException {
@@ -112,72 +135,11 @@ public class LocalGitDB implements MethodSpecDB {
 		} catch (IOException e) {
 			throw new NarrativeMethodStoreInitializationException("Cannot clone "+gitRepoUrl+", error deleting old directory: " + e.getMessage(), e);
 		}
-		String cloneStatus = gitClone();
+		String cloneStatus = GitUtils.gitClone(gitRepoUrl, gitBranch, gitLocalPath);
 		this.lastPullTime = System.currentTimeMillis();
-		this.lastCommit = getCommitInfo();
+		this.lastCommit = GitUtils.getCommitInfo(gitLocalPath, gitRepoUrl);
 		System.out.println(cloneStatus);
 	}
-
-	/**
-	 * Clones the configured git repo to the target local file location, returns standard output of the command
-	 * if successful, otherwise throws an exception.
-	 */
-	protected String gitClone() throws NarrativeMethodStoreInitializationException {
-		try {
-			return gitCommand("git clone --branch "+gitBranch+" "+gitRepoUrl+" "+gitLocalPath.getAbsolutePath(), 
-					"clone", gitLocalPath.getCanonicalFile().getParentFile());
-		} catch (IOException e) {
-			throw new NarrativeMethodStoreInitializationException("Cannot clone "+gitRepoUrl+": " + e.getMessage(), e);
-		}
-	}
-	
-	/**
-	 * Runs a git pull on the local git spec repo.
-	 */
-	protected String gitPull() throws NarrativeMethodStoreInitializationException {
-		return gitCommand("git pull", "pull", gitLocalPath);
-	}
-	
-	protected String gitCommand(String fullCmd, String nameOfCmd, File curDir) throws NarrativeMethodStoreInitializationException {
-		try {
-			Process p = Runtime.getRuntime().exec(fullCmd, null, curDir);
-			
-			BufferedReader stdOut = new BufferedReader(new InputStreamReader(p.getInputStream()));
-			BufferedReader stdError = new BufferedReader(new InputStreamReader(p.getErrorStream()));
-			StringBuilder out = new StringBuilder();
-			StringBuilder error = new StringBuilder();
-			Thread outT = readInThread(stdOut, out);
-			Thread errT = readInThread(stdError, error);
-			
-			outT.join();
-			errT.join();
-			int exitcode = p.waitFor();
-			
-			if(exitcode!=0) {
-				throw new NarrativeMethodStoreInitializationException("Cannot " + nameOfCmd + " "+gitRepoUrl+": " + error);
-			}
-			return out.toString();
-		} catch (Exception e) {
-			throw new NarrativeMethodStoreInitializationException("Cannot " + nameOfCmd + " "+gitRepoUrl+": " + e.getMessage(), e);
-		}
-	}
-
-	private Thread readInThread(final BufferedReader stdOut, final StringBuilder out) {
-		Thread ret = new Thread(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					String s1 = null;
-					while ((s1 = stdOut.readLine()) != null) { out.append(s1+"\n"); }
-				} catch (IOException ex) {
-					throw new IllegalStateException(ex);
-				}
-			}
-		});
-		ret.start();
-		return ret;
-	}
-	
 	
 	/**
 	 * We need to call this method at the beginning of every public access method.
@@ -189,10 +151,10 @@ public class LocalGitDB implements MethodSpecDB {
 			return;
 		lastPullTime = System.currentTimeMillis();
 		try {
-			String ret = gitPull();
+			String ret = GitUtils.gitPull(gitLocalPath, gitRepoUrl);
 			if (ret != null && ret.startsWith("Already up-to-date."))
 				return;
-			String commit = getCommitInfo();
+			String commit = GitUtils.getCommitInfo(gitLocalPath, gitRepoUrl);
 			if (!commit.equals(lastCommit)) {
 				lastCommit = commit;
 				System.out.println("[" + new Date() + "] NarrativeMethodStore.LocalGitDB: refreshing caches");
@@ -232,6 +194,7 @@ public class LocalGitDB implements MethodSpecDB {
 			if (sub.isDirectory())
 				methodList.add(sub.getName());
 		}
+		methodList.addAll(dynamicMethodToRepoUrl.keySet());
 		return methodList;
 	}
 
@@ -257,10 +220,6 @@ public class LocalGitDB implements MethodSpecDB {
 		return ret;
 	}
 
-	public String getCommitInfo() throws NarrativeMethodStoreInitializationException {
-		return gitCommand("git log -n 1", "log -n 1", gitLocalPath);
-	}
-	
 	@Override
 	public List<String> listMethodIds(boolean withErrors) {
 		checkForChanges();
@@ -287,8 +246,24 @@ public class LocalGitDB implements MethodSpecDB {
 	protected NarrativeMethodData loadMethodDataUncached(final String methodId) throws NarrativeMethodStoreException {
 		try {
 			// Fetch the resources needed
-			JsonNode spec = getResourceAsJson("methods/"+methodId+"/spec.json");
-			Map<String,Object> display = getResourceAsYamlMap("methods/"+methodId+"/display.yaml");
+			JsonNode spec = null;
+			Map<String,Object> display = null;
+			if (dynamicMethodToRepoUrl.containsKey(methodId)) {
+			    String repoUrl = dynamicMethodToRepoUrl.get(methodId);
+			    RepoProvider repo = dynamicRepos.getRepoDetails(repoUrl);
+			    String namespace = repo.getNamespace();
+			    for (String mId : repo.listUINarrativeMethodIDs()) {
+			        if (methodId.equals(namespace + mId)) {
+		                spec = mapper.readTree(repo.loadUINarrativeMethodSpec(mId));
+		                display = getDocumentAsYamlMap(repo.loadUINarrativeMethodDisplay(mId));
+			        }
+			    }
+			    if (spec == null || display == null)
+			        throw new NarrativeMethodStoreException("Method " + methodId + " not found in repository: " + repoUrl);
+			} else {
+			    spec = getResourceAsJson("methods/"+methodId+"/spec.json");
+			    display = getResourceAsYamlMap("methods/"+methodId+"/display.yaml");
+			}
 
 			// Initialize the actual data
 			NarrativeMethodData data = new NarrativeMethodData(methodId, spec, display,
@@ -519,7 +494,11 @@ public class LocalGitDB implements MethodSpecDB {
 	protected Map<String,Object> getResourceAsYamlMap(String path) throws IOException {
 		File f = new File(gitLocalPath, path);
 		String document = get(f);
-		StringBuilder sb = new StringBuilder();
+		return getDocumentAsYamlMap(document);
+	}
+
+	protected Map<String,Object> getDocumentAsYamlMap(String document) throws IOException {
+	    StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < document.length(); i++) {
 			char ch = document.charAt(i);
 			if ((ch < 32 && ch != 10 && ch != 13) || ch >= 127)
