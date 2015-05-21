@@ -18,15 +18,27 @@ public class GitHubRepoProvider extends FileRepoProvider {
     }
 
     public GitHubRepoProvider(URL url, String branch, File parentTempDir) throws NarrativeMethodStoreException {
-        super(generateTempDir(parentTempDir));
-        GitUtils.gitClone(url, branch, rootDir);
+        super(prepareGitClone(url, branch, generateTempDir(parentTempDir)));
         this.url = url;
         this.branch = branch;
     }
     
+    private static File prepareGitClone(URL url, String branch, File rootDir) throws NarrativeMethodStoreException {
+        GitUtils.gitClone(url, branch, rootDir);
+        return rootDir;
+    }
+    
     private static File generateTempDir(File parentTempDir) throws NarrativeMethodStoreException {
         try {
-            return File.createTempFile("github_", ".temp", parentTempDir);
+            long start = System.currentTimeMillis();
+            while (true) {
+                File dir = new File(parentTempDir, "github_" + start + ".temp");
+                if (!dir.exists()) {
+                    dir.mkdirs();
+                    return dir;
+                }
+                start++;
+            }
         } catch (Exception ex) {
             throw new NarrativeMethodStoreException(ex.getMessage(), ex);
         }

@@ -70,7 +70,7 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
         List<Long> vers = getProjection(jdb.getCollection(TABLE_REPO_DATA),
                 String.format("{%s:#}", FIELD_RD_MODULE_NAME), 
                 FIELD_RD_LAST_VERSION, Long.class, repoModuleName);
-        return vers.size() == 0;
+        return vers.size() > 0;
     }
     
     @SuppressWarnings({ "rawtypes", "unchecked" })
