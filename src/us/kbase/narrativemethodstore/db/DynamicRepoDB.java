@@ -17,15 +17,15 @@ public interface DynamicRepoDB {
     
     public RepoProvider getRepoDetails(String repoModuleName) throws NarrativeMethodStoreException;
     
-    public List<Long> getRepoVersions(String repoModuleName) throws NarrativeMethodStoreException;
+    public List<Long> listRepoVersions(String repoModuleName) throws NarrativeMethodStoreException;
     
     public RepoProvider getRepoDetailsHistory(String repoModuleName, long version) throws NarrativeMethodStoreException;
     
-    public Set<String> getRepoOwners(String repoModuleName) throws NarrativeMethodStoreException;
+    public Set<String> listRepoOwners(String repoModuleName) throws NarrativeMethodStoreException;
     
-    public void setRepoOwner(String repoModuleName, String userId, boolean isAdmin) throws NarrativeMethodStoreException;
+    public void setRepoOwner(String currentUserId, String repoModuleName, String changedUserId, boolean isAdmin) throws NarrativeMethodStoreException;
     
-    public void removeRepoOwner(String repoModuleName, String userId) throws NarrativeMethodStoreException;
+    public void removeRepoOwner(String currentUserId, String repoModuleName, String removedUserId) throws NarrativeMethodStoreException;
     
     public boolean isRepoOwner(String repoModuleName, String userId) throws NarrativeMethodStoreException;
     
