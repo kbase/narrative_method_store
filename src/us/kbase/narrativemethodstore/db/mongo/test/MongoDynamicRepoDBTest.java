@@ -11,6 +11,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import us.kbase.common.mongo.GetMongoDB;
+import us.kbase.narrativemethodstore.db.JsonRepoProvider;
+import us.kbase.narrativemethodstore.db.RepoProvider;
 import us.kbase.narrativemethodstore.db.github.GitHubRepoProvider;
 import us.kbase.narrativemethodstore.db.mongo.MongoDynamicRepoDB;
 import us.kbase.narrativemethodstore.exceptions.NarrativeMethodStoreException;
@@ -33,7 +35,7 @@ public class MongoDynamicRepoDBTest extends MongoDBTester {
         String host = "localhost:" + mongoPort;
         MongoDynamicRepoDB db = new MongoDynamicRepoDB(host, dbName, Arrays.asList(globalAdmin));
         Assert.assertEquals(0, db.listRepoModuleNames().size());
-        GitHubRepoProvider pvd = new GitHubRepoProvider(
+        RepoProvider pvd = new GitHubRepoProvider(
                 new URL("https://github.com/kbaseIncubator/genome_feature_comparator"), workDir);
         db.registerRepo(user1, pvd);
         Assert.assertEquals("[" + repoModuleName + "]", db.listRepoModuleNames().toString());
@@ -49,24 +51,47 @@ public class MongoDynamicRepoDBTest extends MongoDBTester {
             db.registerRepo(user2, pvd);
             Assert.fail("User " + user2 + " is not in owner list at this point");
         } catch (NarrativeMethodStoreException ex) {
-            Assert.assertTrue(ex.getMessage(), ex.getMessage().equals("User " + user2 + 
-                    " is not owner of repository " + repoModuleName));
+            Assert.assertEquals("User " + user2 + " is not owner of repository " + 
+                    repoModuleName, ex.getMessage());
         }
         db.setRepoOwner(user1, repoModuleName, user2, false);
         Assert.assertTrue(db.isRepoOwner(repoModuleName, user2));
         Assert.assertFalse(db.isRepoAdmin(repoModuleName, user2));
-        Assert.assertEquals("[" + user1 + ", " + user2 + "]", db.listRepoOwners(repoModuleName).toString());        
+        Assert.assertEquals("[" + user1 + ", " + user2 + "]", 
+                db.listRepoOwners(repoModuleName).toString());        
         db.registerRepo(user2, pvd);
         long ver2 = db.getRepoLastVersion(repoModuleName);
         List<Long> verHist2 = db.listRepoVersions(repoModuleName);
         Assert.assertEquals(2, verHist2.size());
         Assert.assertEquals(ver1, (long)verHist2.get(0));
         Assert.assertEquals(ver2, (long)verHist2.get(1));
-        Assert.assertTrue("Versions " + ver1 + " and " + ver2 + " should be different", ver1 != ver2);
+        Assert.assertTrue("Versions " + ver1 + " and " + ver2 + " should be different", 
+                ver1 != ver2);
         
+        try {
+            db.setRepoOwner(user2, repoModuleName, "user3", false);
+            Assert.fail("User " + user2 + " is not in admin list at this point");
+        } catch (NarrativeMethodStoreException ex) {
+            Assert.assertEquals("User " + user2 + " is not admin of repository " + 
+                    repoModuleName, ex.getMessage());
+        }
+        db.removeRepoOwner(globalAdmin, repoModuleName, user2);
+        Assert.assertEquals("[" + user1 + "]", db.listRepoOwners(repoModuleName).toString());
+        
+        RepoProvider savedRP = db.getRepoDetails(repoModuleName);
+        Assert.assertEquals(JsonRepoProvider.repoProviderToJsonString(pvd), 
+                JsonRepoProvider.repoProviderToJsonString(savedRP));
+        Assert.assertFalse(savedRP.getGitCommitHash().contains("\n"));
+        Assert.assertEquals(40, savedRP.getGitCommitHash().length());
         
         Assert.assertFalse(db.isRepoRegistered(unregModuleName));
-        
+        try {
+            db.getRepoDetails(unregModuleName);
+            Assert.fail("Repository " + unregModuleName + " wasn't registered at this point");
+        } catch (NarrativeMethodStoreException ex) {
+            Assert.assertEquals("Repository " + unregModuleName + " wasn't registered", 
+                    ex.getMessage());
+        }
     }
     
     @Before 

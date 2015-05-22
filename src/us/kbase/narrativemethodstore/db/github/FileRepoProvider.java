@@ -39,6 +39,11 @@ public class FileRepoProvider implements RepoProvider {
         return rootDir.getAbsolutePath();
     }
     
+    @Override
+    public String getGitCommitHash() {
+        return "";
+    }
+    
     /////////// [root]  ///////////
     
     @Override

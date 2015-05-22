@@ -26,6 +26,11 @@ public class JsonRepoProvider implements RepoProvider {
         return data.url;
     }
     
+    @Override
+    public String getGitCommitHash() {
+        return data.gitCommitHash;
+    }
+    
     /////////// [root]  ///////////
     
     @Override
@@ -109,6 +114,7 @@ public class JsonRepoProvider implements RepoProvider {
     public static RepoData repoProviderToData(RepoProvider repo) throws NarrativeMethodStoreException {
         RepoData ret = new RepoData();
         ret.url = repo.getUrl();
+        ret.gitCommitHash = repo.getGitCommitHash();
         ret.moduleName = repo.getModuleName();
         ret.moduleDescription = repo.getModuleDescription();
         ret.serviceLanguage = repo.getServiceLanguage();
@@ -131,6 +137,7 @@ public class JsonRepoProvider implements RepoProvider {
     
     public static class RepoData {
         public String url;
+        public String gitCommitHash;
         public String moduleName;
         public String moduleDescription;
         public String serviceLanguage;

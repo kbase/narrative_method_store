@@ -12,6 +12,7 @@ import us.kbase.narrativemethodstore.exceptions.NarrativeMethodStoreInitializati
 public class GitHubRepoProvider extends FileRepoProvider {
     protected URL url;
     protected String branch;
+    protected String commitHash;
 
     public GitHubRepoProvider(URL url, File parentTempDir) throws NarrativeMethodStoreException {
         this(url, "master", parentTempDir);
@@ -21,6 +22,7 @@ public class GitHubRepoProvider extends FileRepoProvider {
         super(prepareGitClone(url, branch, generateTempDir(parentTempDir)));
         this.url = url;
         this.branch = branch;
+        this.commitHash = GitUtils.getCommitHash(parentTempDir, url);
     }
     
     private static File prepareGitClone(URL url, String branch, File rootDir) throws NarrativeMethodStoreException {
@@ -47,6 +49,11 @@ public class GitHubRepoProvider extends FileRepoProvider {
     @Override
     public String getUrl() {
         return "" + url;
+    }
+    
+    @Override
+    public String getGitCommitHash() {
+        return commitHash;
     }
     
     @Override

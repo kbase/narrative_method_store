@@ -6,6 +6,7 @@ import us.kbase.narrativemethodstore.exceptions.NarrativeMethodStoreException;
 
 public interface RepoProvider {
     public String getUrl();
+    public String getGitCommitHash();
     /////////// [root]  ///////////
     public String getModuleName();
     public String getModuleDescription();

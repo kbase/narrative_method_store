@@ -34,6 +34,10 @@ public class GitUtils {
         return gitCommand("git log -n 1", "log -n 1", gitLocalPath, gitRepoUrl);
     }
 
+    public static String getCommitHash(File gitLocalPath, URL gitRepoUrl) throws NarrativeMethodStoreInitializationException {
+        return gitCommand("git rev-parse HEAD", "rev-parse HEAD", gitLocalPath, gitRepoUrl).trim();
+    }
+    
     public static String gitCommand(String fullCmd, String nameOfCmd, File curDir, URL gitRepoUrl) throws NarrativeMethodStoreInitializationException {
         try {
             Process p = Runtime.getRuntime().exec(fullCmd, null, curDir);
