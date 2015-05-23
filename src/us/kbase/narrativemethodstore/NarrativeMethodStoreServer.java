@@ -37,6 +37,11 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
     public static final String    CFG_PROP_GIT_LOCAL_DIR = "method-spec-git-repo-local-dir";
     public static final String CFG_PROP_GIT_REFRESH_RATE = "method-spec-git-repo-refresh-rate";
     public static final String       CFG_PROP_CACHE_SIZE = "method-spec-cache-size";
+    public static final String         CFG_PROP_TEMP_DIR = "method-spec-temp-dir";
+    public static final String       CFG_PROP_MONGO_HOST = "method-spec-mongo-host";
+    public static final String     CFG_PROP_MONGO_DBNAME = "method-spec-mongo-dbname";
+    public static final String       CFG_PROP_MONGO_USER = "method-spec-mongo-user";
+    public static final String   CFG_PROP_MONGO_PASSWORD = "method-spec-mongo-password";
     
     public static final String VERSION = "0.2.6";
     
@@ -130,7 +135,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
         System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_GIT_REFRESH_RATE +" = " + getGitRefreshRate());
         System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_CACHE_SIZE +" = " + getCacheSize());
         
-        localGitDB = new LocalGitDB(new URL(getGitRepo()), getGitBranch(), new File(getGitLocalDir()), getGitRefreshRate(), getCacheSize(), null);
+        localGitDB = new LocalGitDB(new URL(getGitRepo()), getGitBranch(), new File(getGitLocalDir()), getGitRefreshRate(), getCacheSize(), null, null);
         
         //END_CONSTRUCTOR
     }

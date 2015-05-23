@@ -3,6 +3,7 @@ package us.kbase.narrativemethodstore.db.github;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -16,6 +17,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.ExecutionException;
+import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
 
@@ -64,13 +66,13 @@ public class LocalGitDB implements MethodSpecDB {
 	protected final LoadingCache<String, AppFullInfo> appFullInfoCache;
 	protected final LoadingCache<String, AppSpec> appSpecCache;
 	
+	protected final File tempDir;
 	protected final DynamicRepoDB dynamicRepos;
-	protected final Set<String> dynamicRepoMethods = new TreeSet<String>();
-	protected final Map<String, Exception> dynamicRepoModuleNameToLoadingError = new TreeMap<String, Exception>();
+	protected Set<String> dynamicRepoMethods = new TreeSet<String>();
+	protected Map<String, Exception> dynamicRepoModuleNameToLoadingError = new TreeMap<String, Exception>();
 	
-	public LocalGitDB(URL gitRepoUrl, String branch, File localPath, 
-			int refreshTimeInMinutes, int cacheSize, DynamicRepoDB dynamicRepos) 
-			        throws NarrativeMethodStoreInitializationException {
+	public LocalGitDB(URL gitRepoUrl, String branch, File localPath, int refreshTimeInMinutes, 
+	        int cacheSize, DynamicRepoDB dynamicRepos, File tempDir) throws NarrativeMethodStoreInitializationException {
 		this.gitRepoUrl = gitRepoUrl;
 		this.gitBranch = branch;
 		this.gitLocalPath = localPath;
@@ -107,27 +109,12 @@ public class LocalGitDB implements MethodSpecDB {
 		if (!localPath.exists())
 			localPath.mkdirs();
 		initializeLocalRepo();
+		this.tempDir = tempDir;
         this.dynamicRepos = dynamicRepos;
-        if (dynamicRepos != null) {
-            try {
-                for (String repoMN : dynamicRepos.listRepoModuleNames()) {
-                    try {
-                        RepoProvider repo = dynamicRepos.getRepoDetails(repoMN);
-                        for (String methodId : repo.listUINarrativeMethodIDs()) {
-                            dynamicRepoMethods.add(repoMN + "/" + methodId);
-                        }
-                    } catch (Exception ex) {
-                        dynamicRepoModuleNameToLoadingError.put(repoMN, ex);
-                    }
-                }
-            } catch (NarrativeMethodStoreInitializationException ex) {
-                throw ex;
-            } catch (NarrativeMethodStoreException ex) {
-                throw new NarrativeMethodStoreInitializationException(ex);
-            }
-        }
         try {
             loadCategoriesIndex();
+        } catch (NarrativeMethodStoreInitializationException ex) {
+            throw ex;
         } catch(NarrativeMethodStoreException e) {
             throw new NarrativeMethodStoreInitializationException(e.getMessage(), e);
         }
@@ -188,6 +175,10 @@ public class LocalGitDB implements MethodSpecDB {
 
 	protected File getTypesDir() {
 		return new File(gitLocalPath, "types");
+	}
+
+	protected File getRepositoriesFile() {
+	    return new File(gitLocalPath, "repositories");
 	}
 
 	protected List<String> listMethodIdsUncached() {
@@ -418,11 +409,64 @@ public class LocalGitDB implements MethodSpecDB {
 		return narCatIndex;
 	}
 	
+	private File getTempDir() {
+	    return tempDir == null ? new File(".") : tempDir;
+	}
+	
 	/**
 	 * Reloads from files the entire categories index
 	 */
 	protected synchronized void loadCategoriesIndex() throws NarrativeMethodStoreException {
-		
+	    dynamicRepoMethods = new TreeSet<String>();
+	    dynamicRepoModuleNameToLoadingError = new TreeMap<String, Exception>();
+        if (dynamicRepos != null) {
+            File f = getRepositoriesFile();
+            if (f.exists()) {
+                try {
+                    BufferedReader br = new BufferedReader(new FileReader(f));
+                    while (true) {
+                        String l = br.readLine();
+                        if (l == null)
+                            break;
+                        String[] parts = l.trim().split("\\s+");
+                        if (parts.length < 2)
+                            continue;
+                        String url = parts[0];
+                        String userIdsCommaSep = parts[1];
+                        String[] userIds = userIdsCommaSep.split(Pattern.quote(","));
+                        RepoProvider pvd = new GitHubRepoProvider(new URL(url), getTempDir());
+                        String repoModuleName = pvd.getModuleName();
+                        boolean newReg = !dynamicRepos.isRepoRegistered(repoModuleName);
+                        String owner = newReg ? userIds[0]:
+                                dynamicRepos.listRepoOwners(repoModuleName).iterator().next();
+                        if (newReg) {
+                            dynamicRepos.registerRepo(owner, pvd);
+                        } else {
+                            String oldCommitHash = dynamicRepos.getRepoDetails(repoModuleName).getGitCommitHash();
+                            if (!oldCommitHash.equals(pvd.getGitCommitHash()))
+                                dynamicRepos.registerRepo(owner, pvd);
+                        }
+                        for (String userId : userIds)
+                            if (!owner.equals(userId))
+                                dynamicRepos.setRepoOwner(owner, repoModuleName, userId, true);
+                    }
+                    br.close();
+                } catch (IOException ex) {
+                    throw new NarrativeMethodStoreException(ex);
+                }
+            }
+            for (String repoMN : dynamicRepos.listRepoModuleNames()) {
+                try {
+                    RepoProvider repo = dynamicRepos.getRepoDetails(repoMN);
+                    for (String methodId : repo.listUINarrativeMethodIDs()) {
+                        dynamicRepoMethods.add(repoMN + "/" + methodId);
+                    }
+                } catch (Exception ex) {
+                    dynamicRepoModuleNameToLoadingError.put(repoMN, ex);
+                }
+            }
+        }
+
 		narCatIndex = new NarrativeCategoriesIndex();  // create a new index
 		try {
 			List<String> catIds = listCategoryIds(); // iterate over each category

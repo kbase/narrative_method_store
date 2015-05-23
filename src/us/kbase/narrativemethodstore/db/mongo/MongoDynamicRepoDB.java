@@ -1,18 +1,13 @@
 package us.kbase.narrativemethodstore.db.mongo;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.regex.Pattern;
 
 import org.jongo.Jongo;
 import org.jongo.MongoCollection;
 
-import com.google.common.collect.Lists;
 import com.mongodb.DB;
 
 import us.kbase.common.mongo.GetMongoDB;
@@ -70,7 +65,7 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
     @Override
     public boolean isRepoRegistered(String repoModuleName)
             throws NarrativeMethodStoreException {
-        List<Long> vers = getProjection(jdb.getCollection(TABLE_REPO_DATA),
+        List<Long> vers = MongoUtils.getProjection(jdb.getCollection(TABLE_REPO_DATA),
                 String.format("{%s:#}", FIELD_RD_MODULE_NAME), 
                 FIELD_RD_LAST_VERSION, Long.class, repoModuleName);
         return vers.size() > 0;
@@ -92,53 +87,6 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
             throws NarrativeMethodStoreException {
         throw new NarrativeMethodStoreException("Repository " + repoModuleName + 
                 " wasn't registered");
-    }
-
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    protected <T> List<T> getProjection(MongoCollection infos,
-            String whereCondition, String selectField, Class<T> type, Object... params)
-            throws NarrativeMethodStoreException {
-        List<Map> data = Lists.newArrayList(infos.find(whereCondition, params).projection(
-                "{" + selectField + ":1}").as(Map.class));
-        List<T> ret = new ArrayList<T>();
-        for (Map<?,?> item : data) {
-            Object value = item.get(selectField);
-            if (value == null || !(type.isInstance(value)))
-                throw new NarrativeMethodStoreException("Value is wrong: " + value);
-            ret.add((T)value);
-        }
-        return ret;
-    }
-
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    protected <KT, VT> Map<KT, VT> getProjection(MongoCollection infos, String whereCondition, 
-            String keySelectField, Class<KT> keyType, String valueSelectField, Class<VT> valueType, 
-            Object... params) throws NarrativeMethodStoreException {
-        List<Map> data = Lists.newArrayList(infos.find(whereCondition, params).projection(
-                "{'" + keySelectField + "':1,'" + valueSelectField + "':1}").as(Map.class));
-        Map<KT, VT> ret = new LinkedHashMap<KT, VT>();
-        for (Map<?,?> item : data) {
-            Object key = getMongoProp(item, keySelectField);
-            if (key == null || !(keyType.isInstance(key)))
-                throw new NarrativeMethodStoreException("Key is wrong: " + key);
-            Object value = getMongoProp(item, valueSelectField);
-            if (value == null || !(valueType.isInstance(value)))
-                throw new NarrativeMethodStoreException("Value is wrong: " + value);
-            ret.put((KT)key, (VT)value);
-        }
-        return ret;
-    }
-    
-    private static Object getMongoProp(Map<?,?> data, String propWithDots) {
-        String[] parts = propWithDots.split(Pattern.quote("."));
-        Object value = null;
-        for (String part : parts) {
-            if (value != null) {
-                data = (Map<?,?>)value;
-            }
-            value = data.get(part);
-        }
-        return value;
     }
     
     @Override
@@ -179,7 +127,7 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
     @Override
     public long getRepoLastVersion(String repoModuleName)
             throws NarrativeMethodStoreException {
-        List<Long> vers = getProjection(jdb.getCollection(TABLE_REPO_DATA),
+        List<Long> vers = MongoUtils.getProjection(jdb.getCollection(TABLE_REPO_DATA),
                 String.format("{%s:#}", FIELD_RD_MODULE_NAME), 
                 FIELD_RD_LAST_VERSION, Long.class, repoModuleName);
         checkRepoRegistered(repoModuleName, vers);
@@ -189,7 +137,7 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
     @Override
     public List<String> listRepoModuleNames()
             throws NarrativeMethodStoreException {
-        List<String> ret = getProjection(jdb.getCollection(TABLE_REPO_DATA),
+        List<String> ret = MongoUtils.getProjection(jdb.getCollection(TABLE_REPO_DATA),
                 "{}", FIELD_RD_MODULE_NAME, String.class);
         return ret;
     }
@@ -197,7 +145,7 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
     @Override
     public RepoProvider getRepoDetails(String repoModuleName)
             throws NarrativeMethodStoreException {
-        List<String> ret = getProjection(jdb.getCollection(TABLE_REPO_DATA),
+        List<String> ret = MongoUtils.getProjection(jdb.getCollection(TABLE_REPO_DATA),
                 String.format("{%s:#}", FIELD_RD_MODULE_NAME), 
                 FIELD_RD_JSON_DATA, String.class, repoModuleName);
         checkRepoRegistered(repoModuleName, ret);
@@ -208,7 +156,7 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
     public List<Long> listRepoVersions(String repoModuleName)
             throws NarrativeMethodStoreException {
         checkRepoRegistered(repoModuleName);
-        List<Long> ret = getProjection(jdb.getCollection(TABLE_REPO_HISTORY),
+        List<Long> ret = MongoUtils.getProjection(jdb.getCollection(TABLE_REPO_HISTORY),
                 String.format("{%s:#}", FIELD_RH_MODULE_NAME), 
                 FIELD_RH_VERSION, Long.class, repoModuleName);
         return ret;
@@ -217,7 +165,7 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
     @Override
     public RepoProvider getRepoDetailsHistory(String repoModuleName,
             long version) throws NarrativeMethodStoreException {
-        List<String> ret = getProjection(jdb.getCollection(TABLE_REPO_HISTORY),
+        List<String> ret = MongoUtils.getProjection(jdb.getCollection(TABLE_REPO_HISTORY),
                 String.format("{%s:#,%s:#}", FIELD_RH_MODULE_NAME, FIELD_RH_VERSION), 
                 FIELD_RD_JSON_DATA, String.class, repoModuleName, version);
         checkRepoRegistered(repoModuleName, ret);
@@ -228,7 +176,7 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
     public Set<String> listRepoOwners(String repoModuleName)
             throws NarrativeMethodStoreException {
         checkRepoRegistered(repoModuleName);
-        List<String> ret = getProjection(jdb.getCollection(TABLE_REPO_OWNERS),
+        List<String> ret = MongoUtils.getProjection(jdb.getCollection(TABLE_REPO_OWNERS),
                 String.format("{%s:#}", FIELD_RO_MODULE_NAME), 
                 FIELD_RO_USER_ID, String.class, repoModuleName);
         return new TreeSet<String>(ret);
@@ -282,7 +230,7 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
     private Boolean getOwnerAdminInfo(String repoModuleName, String userId)
             throws NarrativeMethodStoreException {
         checkRepoRegistered(repoModuleName);
-        List<Boolean> ret = getProjection(jdb.getCollection(TABLE_REPO_OWNERS),
+        List<Boolean> ret = MongoUtils.getProjection(jdb.getCollection(TABLE_REPO_OWNERS),
                 String.format("{%s:#,%s:#}", FIELD_RO_MODULE_NAME, FIELD_RO_USER_ID), 
                 FIELD_RO_IS_ADMIN, Boolean.class, 
                 repoModuleName, userId);
