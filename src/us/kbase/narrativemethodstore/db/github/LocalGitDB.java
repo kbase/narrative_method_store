@@ -120,6 +120,10 @@ public class LocalGitDB implements MethodSpecDB {
         }
 	}
 		
+	public DynamicRepoDB getDynamicRepos() {
+        return dynamicRepos;
+    }
+	
 	protected void initializeLocalRepo() throws NarrativeMethodStoreInitializationException {
 		try {
 			FileUtils.deleteDirectory(gitLocalPath);
@@ -148,18 +152,22 @@ public class LocalGitDB implements MethodSpecDB {
 			String commit = GitUtils.getCommitInfo(gitLocalPath, gitRepoUrl);
 			if (!commit.equals(lastCommit)) {
 				lastCommit = commit;
-				System.out.println("[" + new Date() + "] NarrativeMethodStore.LocalGitDB: refreshing caches");
-				// recreate the categories index
-				loadCategoriesIndex();
-				methodFullInfoCache.invalidateAll();
-				methodSpecCache.invalidateAll();
-				appFullInfoCache.invalidateAll();
-				appSpecCache.invalidateAll();
+				reloadAll();
 			}
 		} catch (Exception ex) {
 			System.err.println("Error doing git pull: " + ex.getMessage());
 		}
-	}	
+	}
+
+    public void reloadAll() throws NarrativeMethodStoreException {
+        System.out.println("[" + new Date() + "] NarrativeMethodStore.LocalGitDB: refreshing caches");
+        // recreate the categories index
+        loadCategoriesIndex();
+        methodFullInfoCache.invalidateAll();
+        methodSpecCache.invalidateAll();
+        appFullInfoCache.invalidateAll();
+        appSpecCache.invalidateAll();
+    }	
 	
 	protected File getMethodsDir() {
 		return new File(gitLocalPath, "methods");

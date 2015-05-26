@@ -47,6 +47,8 @@ import us.kbase.narrativemethodstore.ValidateAppParams;
 import us.kbase.narrativemethodstore.ValidateMethodParams;
 import us.kbase.narrativemethodstore.ValidateTypeParams;
 import us.kbase.narrativemethodstore.ValidationResults;
+import us.kbase.narrativemethodstore.db.DynamicRepoDB;
+import us.kbase.narrativemethodstore.db.mongo.test.MongoDBHelper;
 
 /*
  * 
@@ -60,7 +62,18 @@ public class FullServerTest {
 	private static NarrativeMethodStoreClient CLIENT;
 	
 	private static boolean removeTempDir;
+
+	private static String tempDirName;
+	private static String gitRepo;
+	private static String gitRepoBranch;
+	private static String gitRepoRefreshRate;
+	private static String gitRepoCacheSize;
 	
+	private static String mongoExePath;
+	private static MongoDBHelper dbHelper;
+	
+    private static final String dbName = "method_store_full_server_test_temp_db";
+
 	private static class ServerThread extends Thread {
 		private NarrativeMethodStoreServer server;
 		private ServerThread(NarrativeMethodStoreServer server) {
@@ -977,7 +990,36 @@ public class FullServerTest {
 		assertTrue("Type validation results of test_method_1 type info is null", results.getTypeInfo()==null);
 	}
 	
-	
+	@Test
+	public void testDynamicRepos() throws Exception {
+	    Map<String,MethodBriefInfo> methods = CLIENT.listCategories(new ListCategoriesParams().withLoadMethods(1L)).getE2();
+	    String moduleName = "GenomeFeatureComparator";
+	    String methodId = moduleName + "/compare_genome_features";
+	    MethodBriefInfo bi = methods.get(methodId);
+	    Assert.assertNotNull(bi);
+	    Assert.assertEquals("Compare Genome Features", bi.getName());
+	    Assert.assertEquals("Compare the feature calls of two genomes.", bi.getTooltip().trim());
+	    Assert.assertEquals("[active]", bi.getCategories().toString());
+	    MethodFullInfo fi = CLIENT.getMethodFullInfo(new GetMethodParams().withIds(Arrays.asList(methodId))).get(0);
+        Assert.assertNotNull(fi);
+        Assert.assertTrue("Description: " + fi.getDescription(), fi.getDescription().contains("by looking at the start/stop posistions"));
+        MethodSpec ms = CLIENT.getMethodSpec(new GetMethodParams().withIds(Arrays.asList(methodId))).get(0);
+        Assert.assertNotNull(ms);
+        Assert.assertEquals(2, ms.getParameters().size());
+        Assert.assertEquals("genomeA", ms.getParameters().get(0).getId());
+        Assert.assertEquals("Genome A", ms.getParameters().get(0).getUiName().trim());
+        Assert.assertEquals("First genome to compare", ms.getParameters().get(0).getShortHint().trim());
+        Assert.assertEquals("text", ms.getParameters().get(0).getFieldType());
+        Assert.assertEquals("[KBaseGenomes.Genome]", ms.getParameters().get(0).getTextOptions().getValidWsTypes().toString());
+        DynamicRepoDB db = SERVER.getLocalGitDB().getDynamicRepos();
+        Assert.assertEquals(1, db.listRepoVersions(moduleName).size());
+        long repoVer = db.getRepoLastVersion(moduleName);
+        String commitHash = db.getRepoDetails(moduleName).getGitCommitHash();
+        SERVER.getLocalGitDB().reloadAll();
+        Assert.assertEquals(1, db.listRepoVersions(moduleName).size());
+        Assert.assertEquals(repoVer, db.getRepoLastVersion(moduleName));
+        Assert.assertEquals(commitHash, db.getRepoDetails(moduleName).getGitCommitHash());
+	}
 
 	private static String getTestFileFromSpecsRepo(String path) {
 		StringBuilder content = new StringBuilder();
@@ -996,13 +1038,6 @@ public class FullServerTest {
 		return content.toString();
 	}
 	
-
-	private static String tempDirName;
-	private static String gitRepo;
-	private static String gitRepoBranch;
-	private static String gitRepoRefreshRate;
-	private static String gitRepoCacheSize;
-	
 	@BeforeClass
 	public static void setUpClass() throws Exception {
 
@@ -1013,11 +1048,12 @@ public class FullServerTest {
 		gitRepoBranch = System.getProperty("test.method-spec-git-repo-branch");
 		gitRepoRefreshRate = System.getProperty("test.method-spec-git-repo-refresh-rate");
 		gitRepoCacheSize = System.getProperty("test.method-spec-cache-size");
+		mongoExePath = System.getProperty("test.mongo-exe-path");
 		
 		String s = System.getProperty("test.remove-temp-dir");
 		removeTempDir = false;
 		if(s!=null) {
-			if(s.trim().equals("1") || s.trim().equals("yes")) {
+			if(s.trim().equals("1") || s.trim().equals("yes") || s.trim().equals("true")) {
 				removeTempDir = true;
 			}
 		}
@@ -1028,6 +1064,7 @@ public class FullServerTest {
 		System.out.println("test.method-spec-git-repo-branch       = " + gitRepoBranch);
 		System.out.println("test.method-spec-git-repo-refresh-rate = " + gitRepoRefreshRate);
 		System.out.println("test.method-spec-cache-size            = " + gitRepoCacheSize);
+        System.out.println("test.mongo-exe-path                    = " + mongoExePath);
 		
 		//create the temp directory for this test
 		tempDir = new File(tempDirName);
@@ -1039,7 +1076,11 @@ public class FullServerTest {
 		if (iniFile.exists()) {
 			iniFile.delete();
 		}
-		System.out.println("Created temporary config file: " + iniFile.getAbsolutePath());
+		
+        dbHelper = new MongoDBHelper("narrative_method_db", tempDirName);
+        dbHelper.startup(mongoExePath);
+
+        System.out.println("Created temporary config file: " + iniFile.getAbsolutePath());
 		
 		Ini ini = new Ini();
 		Section ws = ini.add("NarrativeMethodStore");
@@ -1048,6 +1089,10 @@ public class FullServerTest {
 		ws.add("method-spec-git-repo-local-dir", tempDir.getAbsolutePath()+"/narrative_method_specs");
 		ws.add("method-spec-git-repo-refresh-rate", gitRepoRefreshRate);
 		ws.add("method-spec-cache-size", gitRepoCacheSize);
+		ws.add("method-spec-temp-dir", dbHelper.getWorkDir());
+		ws.add("method-spec-mongo-host", "localhost:" + dbHelper.getMongoPort());
+		ws.add("method-spec-mongo-dbname", dbName);
+		ws.add("method-spec-admin-users", "admin1,admin2");
 		
 		ini.store(iniFile);
 		iniFile.deleteOnExit();
@@ -1068,13 +1113,20 @@ public class FullServerTest {
 	
 	@AfterClass
 	public static void tearDownClass() throws Exception {
-		if (SERVER != null) {
-			System.out.print("Killing narrative method store server... ");
-			SERVER.stopServer();
-			System.out.println("Done");
-		}
-		if(removeTempDir) {
-			FileUtils.deleteDirectory(tempDir);
+	    try {
+	        if (SERVER != null) {
+	            System.out.print("Killing narrative method store server... ");
+	            SERVER.stopServer();
+	            System.out.println("Done");
+	        }
+	    } finally {
+	        try {
+	            if (dbHelper != null)
+	                dbHelper.shutdown();
+	        } finally {
+	            if (removeTempDir)
+	                FileUtils.deleteDirectory(tempDir);
+	        }
 		}
 	}
 	

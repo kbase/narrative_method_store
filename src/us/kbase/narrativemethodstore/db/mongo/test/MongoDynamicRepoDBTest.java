@@ -7,7 +7,9 @@ import java.util.List;
 import junit.framework.Assert;
 
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import us.kbase.common.mongo.GetMongoDB;
@@ -17,11 +19,20 @@ import us.kbase.narrativemethodstore.db.github.GitHubRepoProvider;
 import us.kbase.narrativemethodstore.db.mongo.MongoDynamicRepoDB;
 import us.kbase.narrativemethodstore.exceptions.NarrativeMethodStoreException;
 
-public class MongoDynamicRepoDBTest extends MongoDBTester {
+public class MongoDynamicRepoDBTest {
     private static final String dbName = "test_repo_registry_mongo";
 
-    static {
-        testName = "registry";
+    private static final MongoDBHelper dbHelper = new MongoDBHelper("registry");
+    
+    @BeforeClass
+    public static void beforeClass() throws Exception {
+        dbHelper.startup(System.getProperty("mongod.path"));
+    }
+    
+    @AfterClass
+    public static void afterClass() throws Exception {
+        if (dbHelper != null)
+            dbHelper.shutdown();
     }
     
     @Test
@@ -32,11 +43,11 @@ public class MongoDynamicRepoDBTest extends MongoDBTester {
         String user2 = "user2";
         String unregModuleName = "Unregistered";
         
-        String host = "localhost:" + mongoPort;
-        MongoDynamicRepoDB db = new MongoDynamicRepoDB(host, dbName, Arrays.asList(globalAdmin));
+        String host = "localhost:" + dbHelper.getMongoPort();
+        MongoDynamicRepoDB db = new MongoDynamicRepoDB(host, dbName, null, null, Arrays.asList(globalAdmin));
         Assert.assertEquals(0, db.listRepoModuleNames().size());
         RepoProvider pvd = new GitHubRepoProvider(
-                new URL("https://github.com/kbaseIncubator/genome_feature_comparator"), workDir);
+                new URL("https://github.com/kbaseIncubator/genome_feature_comparator"), dbHelper.getWorkDir());
         db.registerRepo(user1, pvd);
         Assert.assertEquals("[" + repoModuleName + "]", db.listRepoModuleNames().toString());
         Assert.assertTrue(db.isRepoOwner(repoModuleName, user1));
@@ -97,7 +108,7 @@ public class MongoDynamicRepoDBTest extends MongoDBTester {
     @Before 
     @After
     public void cleanup() throws Exception {
-        String host = "localhost:" + mongoPort;
+        String host = "localhost:" + dbHelper.getMongoPort();
         GetMongoDB.getDB(host, dbName, 0, 10).dropDatabase();
     }
 }

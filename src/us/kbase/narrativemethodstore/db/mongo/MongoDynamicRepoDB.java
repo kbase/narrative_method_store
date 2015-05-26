@@ -38,10 +38,14 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
     private static final String FIELD_RO_IS_ADMIN = "is_admin";
     ////////////////////////////////////////////////////////////////////
     
-    public MongoDynamicRepoDB(String host, String database, 
+    public MongoDynamicRepoDB(String host, String database, String dbUser, String dbPwd,
             List<String> globalAdminUserIds) throws NarrativeMethodStoreException {
         try {
-            db = GetMongoDB.getDB(host, database, 0, 10);
+            if (dbUser == null && dbPwd == null) {
+                db = GetMongoDB.getDB(host, database, 0, 10);
+            } else {
+                db = GetMongoDB.getDB(host, database, dbUser, dbPwd, 0, 10);
+            }
             jdb = new Jongo(db);
             ensureIndeces();
             globalAdmins = new HashSet<String>(globalAdminUserIds);

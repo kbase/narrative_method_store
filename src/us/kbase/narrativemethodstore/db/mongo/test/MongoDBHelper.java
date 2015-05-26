@@ -11,29 +11,40 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-
 import us.kbase.common.utils.ProcessHelper;
 
-public class MongoDBTester {
-    public static final String tempDirName = "temp_files";
-
-    protected static String testName = "test";
+public class MongoDBHelper {
+    private String tempDirName = "test/temp";
+    private final String testName;
     
-    protected static File workDir = null;
-    private static File mongoDir = null;
-    protected static int mongoPort = -1;
+    private File workDir = null;
+    private File mongoDir = null;
+    private int mongoPort = -1;
 
-    @BeforeClass
-    public static void beforeClass() throws Exception {
-        workDir = prepareWorkDir(testName);
-        mongoDir = new File(workDir, "mongo");
-        mongoPort = startupMongo(System.getProperty("mongod.path"), mongoDir);
+    public MongoDBHelper(String testName) {
+        this.testName = testName;
+    }
+
+    public MongoDBHelper(String testName, String tempDirName) {
+        this(testName);
+        this.tempDirName = tempDirName;
+    }
+
+    public File getWorkDir() {
+        return workDir;
     }
     
-    @AfterClass
-    public static void afterClass() throws Exception {
+    public int getMongoPort() {
+        return mongoPort;
+    }
+    
+    public void startup(String mongoExePath) throws Exception {
+        workDir = prepareWorkDir(testName);
+        mongoDir = new File(workDir, "mongo");
+        mongoPort = startupMongo(mongoExePath, mongoDir);
+    }
+    
+    public void shutdown() throws Exception {
         killPid(mongoDir);
         if (workDir.exists())
             deleteRecursively(workDir);
@@ -133,7 +144,7 @@ public class MongoDBTester {
         throw new IllegalStateException("Can not find available port in system");
     }
 
-    private static File prepareWorkDir(String testName) throws IOException {
+    private File prepareWorkDir(String testName) throws IOException {
         File tempDir = new File(".").getCanonicalFile();
         if (!tempDir.getName().equals(tempDirName)) {
             tempDir = new File(tempDir, tempDirName);
