@@ -23,12 +23,12 @@ public interface DynamicRepoDB {
     
     public Set<String> listRepoOwners(String repoModuleName) throws NarrativeMethodStoreException;
     
-    public void setRepoOwner(String currentUserId, String repoModuleName, String changedUserId, boolean isAdmin) throws NarrativeMethodStoreException;
+    //public void setRepoOwner(String currentUserId, String repoModuleName, String changedUserId, boolean isAdmin) throws NarrativeMethodStoreException;
     
-    public void removeRepoOwner(String currentUserId, String repoModuleName, String removedUserId) throws NarrativeMethodStoreException;
+    //public void removeRepoOwner(String currentUserId, String repoModuleName, String removedUserId) throws NarrativeMethodStoreException;
     
     public boolean isRepoOwner(String repoModuleName, String userId) throws NarrativeMethodStoreException;
     
-    public boolean isRepoAdmin(String repoModuleName, String userId) throws NarrativeMethodStoreException;
+    //public boolean isRepoAdmin(String repoModuleName, String userId) throws NarrativeMethodStoreException;
     
 }

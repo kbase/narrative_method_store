@@ -49,6 +49,11 @@ public class JsonRepoProvider implements RepoProvider {
     }
     
     @Override
+    public List<String> listOwners() {
+        return Collections.unmodifiableList(data.owners);
+    }
+    
+    @Override
     public String loadReadmeFile() throws NarrativeMethodStoreException {
         return data.readmeFile;
     }
@@ -118,6 +123,8 @@ public class JsonRepoProvider implements RepoProvider {
         ret.moduleName = repo.getModuleName();
         ret.moduleDescription = repo.getModuleDescription();
         ret.serviceLanguage = repo.getServiceLanguage();
+        ret.owners = repo.listOwners();
+        ret.readmeFile = repo.loadReadmeFile();
         ret.uiNarrativeMethodIds = repo.listUINarrativeMethodIDs();
         ret.uiNarrativeMethodIdToSpec = new TreeMap<String, String>();
         ret.uiNarrativeMethodIdToDisplay = new TreeMap<String, String>();
@@ -141,6 +148,7 @@ public class JsonRepoProvider implements RepoProvider {
         public String moduleName;
         public String moduleDescription;
         public String serviceLanguage;
+        public List<String> owners;
         public String readmeFile;
         public List<String> uiNarrativeMethodIds;
         public Map<String, String> uiNarrativeMethodIdToSpec;

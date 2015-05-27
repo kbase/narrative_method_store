@@ -37,22 +37,21 @@ public class MongoDynamicRepoDBTest {
     
     @Test
     public void mainTest() throws Exception {
+        String url = "https://github.com/kbaseIncubator/genome_feature_comparator";
         String repoModuleName = "GenomeFeatureComparator";
         String globalAdmin = "admin";
-        String user1 = "user1";
+        String user1 = "rsutormin";
         String user2 = "user2";
         String unregModuleName = "Unregistered";
         
         String host = "localhost:" + dbHelper.getMongoPort();
         MongoDynamicRepoDB db = new MongoDynamicRepoDB(host, dbName, null, null, Arrays.asList(globalAdmin));
         Assert.assertEquals(0, db.listRepoModuleNames().size());
-        RepoProvider pvd = new GitHubRepoProvider(
-                new URL("https://github.com/kbaseIncubator/genome_feature_comparator"), dbHelper.getWorkDir());
+        RepoProvider pvd = new GitHubRepoProvider(new URL(url), dbHelper.getWorkDir());
         db.registerRepo(user1, pvd);
         Assert.assertEquals("[" + repoModuleName + "]", db.listRepoModuleNames().toString());
         Assert.assertTrue(db.isRepoOwner(repoModuleName, user1));
-        Assert.assertTrue(db.isRepoAdmin(repoModuleName, user1));
-        Assert.assertEquals("[" + user1 + "]", db.listRepoOwners(repoModuleName).toString());
+        Assert.assertEquals("[msneddon, " + user1 + "]", db.listRepoOwners(repoModuleName).toString());
         long ver1 = db.getRepoLastVersion(repoModuleName);
         List<Long> verHist1 = db.listRepoVersions(repoModuleName);
         Assert.assertEquals(1, verHist1.size());
@@ -65,12 +64,8 @@ public class MongoDynamicRepoDBTest {
             Assert.assertEquals("User " + user2 + " is not owner of repository " + 
                     repoModuleName, ex.getMessage());
         }
-        db.setRepoOwner(user1, repoModuleName, user2, false);
-        Assert.assertTrue(db.isRepoOwner(repoModuleName, user2));
-        Assert.assertFalse(db.isRepoAdmin(repoModuleName, user2));
-        Assert.assertEquals("[" + user1 + ", " + user2 + "]", 
-                db.listRepoOwners(repoModuleName).toString());        
-        db.registerRepo(user2, pvd);
+        // Register second version
+        db.registerRepo(globalAdmin, pvd);
         long ver2 = db.getRepoLastVersion(repoModuleName);
         List<Long> verHist2 = db.listRepoVersions(repoModuleName);
         Assert.assertEquals(2, verHist2.size());
@@ -78,16 +73,6 @@ public class MongoDynamicRepoDBTest {
         Assert.assertEquals(ver2, (long)verHist2.get(1));
         Assert.assertTrue("Versions " + ver1 + " and " + ver2 + " should be different", 
                 ver1 != ver2);
-        
-        try {
-            db.setRepoOwner(user2, repoModuleName, "user3", false);
-            Assert.fail("User " + user2 + " is not in admin list at this point");
-        } catch (NarrativeMethodStoreException ex) {
-            Assert.assertEquals("User " + user2 + " is not admin of repository " + 
-                    repoModuleName, ex.getMessage());
-        }
-        db.removeRepoOwner(globalAdmin, repoModuleName, user2);
-        Assert.assertEquals("[" + user1 + "]", db.listRepoOwners(repoModuleName).toString());
         
         RepoProvider savedRP = db.getRepoDetails(repoModuleName);
         Assert.assertEquals(JsonRepoProvider.repoProviderToJsonString(pvd), 

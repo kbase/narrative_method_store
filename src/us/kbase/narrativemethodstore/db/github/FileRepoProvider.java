@@ -7,8 +7,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+
+import com.fasterxml.jackson.core.type.TypeReference;
 
 import us.kbase.narrativemethodstore.db.RepoProvider;
 import us.kbase.narrativemethodstore.exceptions.NarrativeMethodStoreException;
@@ -18,17 +21,19 @@ public class FileRepoProvider implements RepoProvider {
     protected final String moduleName;
     protected String moduleDescription = null;
     protected String serviceLanguage = null;
+    protected List<String> owners = null;
     
     public FileRepoProvider(File rootDir) throws NarrativeMethodStoreException {
         this.rootDir = rootDir;
-        String kbaseConfig = get(new File(rootDir, "kbase.yml"));
+        String source = "kbase.yml";
+        String kbaseConfig = get(new File(rootDir, source));
         try {
             Map<String,Object> map = YamlUtils.getDocumentAsYamlMap(kbaseConfig);
-            moduleName = (String)map.get("module-name");
-            if (moduleName == null)
-                throw new NarrativeMethodStoreException("module-name is not set in repository configuration");
-            moduleDescription = (String)map.get("module-description");
-            serviceLanguage = (String)map.get("service-language");
+            moduleName = YamlUtils.getPropertyNotNull(source, map, "module-name", String.class);
+            moduleDescription = YamlUtils.getPropertyOrNull(source, map, "module-description", String.class);
+            serviceLanguage = YamlUtils.getPropertyOrNull(source, map, "service-language", String.class);
+            owners = Collections.unmodifiableList(YamlUtils.getPropertyNotNull(source, map, "owners", 
+                    new TypeReference<List<String>>() {}));
         } catch (IOException ex) {
             throw new NarrativeMethodStoreException(ex);
         }
@@ -64,6 +69,11 @@ public class FileRepoProvider implements RepoProvider {
     @Override
     public String loadReadmeFile() throws NarrativeMethodStoreException {
         return get(new File(rootDir, "README.md"), true);
+    }
+
+    @Override
+    public List<String> listOwners() {
+        return owners;
     }
     
     /////////// data    ///////////

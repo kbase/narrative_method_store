@@ -17,7 +17,6 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.ExecutionException;
-import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
 
@@ -437,16 +436,21 @@ public class LocalGitDB implements MethodSpecDB {
                         if (l == null)
                             break;
                         String[] parts = l.trim().split("\\s+");
-                        if (parts.length < 2)
+                        if (parts.length < 1)
                             continue;
                         String url = parts[0];
-                        String userIdsCommaSep = parts[1];
-                        String[] userIds = userIdsCommaSep.split(Pattern.quote(","));
+                        //String userIdsCommaSep = parts[1];
+                        //String[] userIds = userIdsCommaSep.split(Pattern.quote(","));
                         RepoProvider pvd = new GitHubRepoProvider(new URL(url), getTempDir());
                         String repoModuleName = pvd.getModuleName();
                         boolean newReg = !dynamicRepos.isRepoRegistered(repoModuleName);
-                        String owner = newReg ? userIds[0]:
-                                dynamicRepos.listRepoOwners(repoModuleName).iterator().next();
+                        //String owner = newReg ? userIds[0]:
+                        //        dynamicRepos.listRepoOwners(repoModuleName).iterator().next();
+                        List<String> owners = pvd.listOwners();
+                        if (owners.isEmpty())
+                            throw new NarrativeMethodStoreException("Lists of owners is empty for " +
+                            		"repository " + repoModuleName);
+                        String owner = owners.get(0);
                         if (newReg) {
                             dynamicRepos.registerRepo(owner, pvd);
                         } else {
@@ -454,9 +458,9 @@ public class LocalGitDB implements MethodSpecDB {
                             if (!oldCommitHash.equals(pvd.getGitCommitHash()))
                                 dynamicRepos.registerRepo(owner, pvd);
                         }
-                        for (String userId : userIds)
-                            if (!owner.equals(userId))
-                                dynamicRepos.setRepoOwner(owner, repoModuleName, userId, true);
+                        //for (String userId : userIds)
+                        //    if (!owner.equals(userId))
+                        //        dynamicRepos.setRepoOwner(owner, repoModuleName, userId, true);
                     }
                     br.close();
                 } catch (IOException ex) {

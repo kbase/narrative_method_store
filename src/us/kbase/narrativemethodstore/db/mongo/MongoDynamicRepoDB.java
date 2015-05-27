@@ -14,6 +14,7 @@ import us.kbase.common.mongo.GetMongoDB;
 import us.kbase.narrativemethodstore.db.DynamicRepoDB;
 import us.kbase.narrativemethodstore.db.JsonRepoProvider;
 import us.kbase.narrativemethodstore.db.RepoProvider;
+import us.kbase.narrativemethodstore.db.JsonRepoProvider.RepoData;
 import us.kbase.narrativemethodstore.exceptions.NarrativeMethodStoreException;
 
 public class MongoDynamicRepoDB implements DynamicRepoDB {
@@ -24,18 +25,18 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
     private static final String TABLE_REPO_DATA = "repo_data";
     private static final String FIELD_RD_MODULE_NAME = "module_name";
     private static final String FIELD_RD_LAST_VERSION = "last_version";
-    private static final String FIELD_RD_JSON_DATA = "json_data";
+    private static final String FIELD_RD_REPO_DATA = "repo_data";
     private static final String FIELD_RD_IS_INVALID = "is_invalid";
     ////////////////////////////////////////////////////////////////////
     private static final String TABLE_REPO_HISTORY = "repo_history";
     private static final String FIELD_RH_MODULE_NAME = "module_name";
     private static final String FIELD_RH_VERSION = "version";
-    private static final String FIELD_RH_JSON_DATA = "json_data";
+    private static final String FIELD_RH_REPO_DATA = "repo_data";
     ////////////////////////////////////////////////////////////////////
-    private static final String TABLE_REPO_OWNERS = "repo_owners";
-    private static final String FIELD_RO_MODULE_NAME = "module_name";
-    private static final String FIELD_RO_USER_ID = "user_id";
-    private static final String FIELD_RO_IS_ADMIN = "is_admin";
+    //private static final String TABLE_REPO_OWNERS = "repo_owners";
+    //private static final String FIELD_RO_MODULE_NAME = "module_name";
+    //private static final String FIELD_RO_USER_ID = "user_id";
+    //private static final String FIELD_RO_IS_ADMIN = "is_admin";
     ////////////////////////////////////////////////////////////////////
     
     public MongoDynamicRepoDB(String host, String database, String dbUser, String dbPwd,
@@ -60,10 +61,10 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
         MongoCollection repoHist = jdb.getCollection(TABLE_REPO_HISTORY);
         repoHist.ensureIndex(String.format("{%s:1,%s:1}", FIELD_RH_MODULE_NAME, 
                 FIELD_RH_VERSION), "{unique:true}");
-        MongoCollection owners = jdb.getCollection(TABLE_REPO_OWNERS);
-        owners.ensureIndex(String.format("{%s:1,%s:1}", FIELD_RO_MODULE_NAME, 
-                FIELD_RO_USER_ID), "{unique:true}");
-        owners.ensureIndex(String.format("{%s:1}", FIELD_RO_USER_ID), "{unique:false}");
+        //MongoCollection owners = jdb.getCollection(TABLE_REPO_OWNERS);
+        //owners.ensureIndex(String.format("{%s:1,%s:1}", FIELD_RO_MODULE_NAME, 
+        //        FIELD_RO_USER_ID), "{unique:true}");
+        //owners.ensureIndex(String.format("{%s:1}", FIELD_RO_USER_ID), "{unique:false}");
     }
     
     @Override
@@ -96,35 +97,36 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
     @Override
     public void registerRepo(String userId, RepoProvider repoDetails) 
             throws NarrativeMethodStoreException {
+        checkRepoOwner(repoDetails, userId);
         String repoModuleName = repoDetails.getModuleName();
         long newVersion = System.currentTimeMillis();
         boolean wasReg = isRepoRegistered(repoModuleName);
         if (wasReg) {
-            checkRepoOwner(repoModuleName, userId);
+            //checkRepoOwner(repoModuleName, userId);
             long oldVersion = getRepoLastVersion(repoModuleName);
             if (newVersion <= oldVersion)
                 newVersion = oldVersion + 1;
-        } else {
+        } /*else {
             MongoCollection owners = jdb.getCollection(TABLE_REPO_OWNERS);
             owners.insert(String.format("{%s:#,%s:#,%s:#}", FIELD_RO_MODULE_NAME,
                     FIELD_RO_USER_ID, FIELD_RO_IS_ADMIN), repoModuleName,
                     userId, true);
-        }
-        String jsonData = JsonRepoProvider.repoProviderToJsonString(repoDetails);
+        }*/
+        RepoData repoData = JsonRepoProvider.repoProviderToData(repoDetails);
         MongoCollection hist = jdb.getCollection(TABLE_REPO_HISTORY);
         hist.insert(String.format("{%s:#,%s:#,%s:#}", FIELD_RH_MODULE_NAME,
-                FIELD_RH_VERSION, FIELD_RH_JSON_DATA), repoModuleName,
-                newVersion, jsonData);
+                FIELD_RH_VERSION, FIELD_RH_REPO_DATA), repoModuleName,
+                newVersion, repoData);
         MongoCollection data = jdb.getCollection(TABLE_REPO_DATA);
         if (wasReg) {
             data.update(String.format("{%s:#}", FIELD_RD_MODULE_NAME), 
                     repoModuleName).with(String.format("{%s:#,%s:#,%s:#,%s:#}", 
-                            FIELD_RD_MODULE_NAME, FIELD_RD_LAST_VERSION, FIELD_RD_JSON_DATA, 
-                            FIELD_RD_IS_INVALID), repoModuleName, newVersion, jsonData, false);
+                            FIELD_RD_MODULE_NAME, FIELD_RD_LAST_VERSION, FIELD_RD_REPO_DATA, 
+                            FIELD_RD_IS_INVALID), repoModuleName, newVersion, repoData, false);
         } else {
             data.insert(String.format("{%s:#,%s:#,%s:#,%s:#}", FIELD_RD_MODULE_NAME,
-                    FIELD_RD_LAST_VERSION, FIELD_RD_JSON_DATA, FIELD_RD_IS_INVALID), 
-                    repoModuleName, newVersion, jsonData, false);
+                    FIELD_RD_LAST_VERSION, FIELD_RD_REPO_DATA, FIELD_RD_IS_INVALID), 
+                    repoModuleName, newVersion, repoData, false);
         }
     }
     
@@ -149,9 +151,9 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
     @Override
     public RepoProvider getRepoDetails(String repoModuleName)
             throws NarrativeMethodStoreException {
-        List<String> ret = MongoUtils.getProjection(jdb.getCollection(TABLE_REPO_DATA),
+        List<RepoData> ret = MongoUtils.getProjection(jdb.getCollection(TABLE_REPO_DATA),
                 String.format("{%s:#}", FIELD_RD_MODULE_NAME), 
-                FIELD_RD_JSON_DATA, String.class, repoModuleName);
+                FIELD_RD_REPO_DATA, RepoData.class, repoModuleName);
         checkRepoRegistered(repoModuleName, ret);
         return new JsonRepoProvider(ret.get(0));
     }
@@ -169,9 +171,9 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
     @Override
     public RepoProvider getRepoDetailsHistory(String repoModuleName,
             long version) throws NarrativeMethodStoreException {
-        List<String> ret = MongoUtils.getProjection(jdb.getCollection(TABLE_REPO_HISTORY),
+        List<RepoData> ret = MongoUtils.getProjection(jdb.getCollection(TABLE_REPO_HISTORY),
                 String.format("{%s:#,%s:#}", FIELD_RH_MODULE_NAME, FIELD_RH_VERSION), 
-                FIELD_RD_JSON_DATA, String.class, repoModuleName, version);
+                FIELD_RD_REPO_DATA, RepoData.class, repoModuleName, version);
         checkRepoRegistered(repoModuleName, ret);
         return new JsonRepoProvider(ret.get(0));
     }
@@ -179,14 +181,15 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
     @Override
     public Set<String> listRepoOwners(String repoModuleName)
             throws NarrativeMethodStoreException {
-        checkRepoRegistered(repoModuleName);
-        List<String> ret = MongoUtils.getProjection(jdb.getCollection(TABLE_REPO_OWNERS),
-                String.format("{%s:#}", FIELD_RO_MODULE_NAME), 
-                FIELD_RO_USER_ID, String.class, repoModuleName);
+        List<String> ret = getRepoDetails(repoModuleName).listOwners();
+        //checkRepoRegistered(repoModuleName);
+        //List<String> ret = MongoUtils.getProjection(jdb.getCollection(TABLE_REPO_OWNERS),
+        //        String.format("{%s:#}", FIELD_RO_MODULE_NAME), 
+        //        FIELD_RO_USER_ID, String.class, repoModuleName);
         return new TreeSet<String>(ret);
     }
     
-    @Override
+    /*@Override
     public void setRepoOwner(String currentUserId, String repoModuleName, 
             String changedUserId, boolean isAdmin) throws NarrativeMethodStoreException {
         checkRepoAdmin(repoModuleName, currentUserId);
@@ -213,25 +216,29 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
         MongoCollection owners = jdb.getCollection(TABLE_REPO_OWNERS);
         owners.remove(String.format("{%s:#,%s:#}", FIELD_RO_MODULE_NAME,
                 FIELD_RO_USER_ID), repoModuleName, removedUserId);
-    }
+    }*/
     
     @Override
     public boolean isRepoOwner(String repoModuleName, String userId)
             throws NarrativeMethodStoreException {
+        checkRepoRegistered(repoModuleName);
         if (globalAdmins.contains(userId))
             return true;
-        Boolean ret = getOwnerAdminInfo(repoModuleName, userId);
-        return ret != null;
+        //Boolean ret = getOwnerAdminInfo(repoModuleName, userId);
+        //return ret != null;
+        return listRepoOwners(repoModuleName).contains(userId);
     }
 
-    private void checkRepoOwner(String repoModuleName, String userId)
+    private void checkRepoOwner(RepoProvider repo, String userId)
             throws NarrativeMethodStoreException {
-        if (!isRepoOwner(repoModuleName, userId))
+        if (globalAdmins.contains(userId))
+            return;
+        if (!new TreeSet<String>(repo.listOwners()).contains(userId))
             throw new NarrativeMethodStoreException("User " + userId + 
-                    " is not owner of repository " + repoModuleName);
+                    " is not owner of repository " + repo.getModuleName());
     }
 
-    private Boolean getOwnerAdminInfo(String repoModuleName, String userId)
+    /*private Boolean getOwnerAdminInfo(String repoModuleName, String userId)
             throws NarrativeMethodStoreException {
         checkRepoRegistered(repoModuleName);
         List<Boolean> ret = MongoUtils.getProjection(jdb.getCollection(TABLE_REPO_OWNERS),
@@ -255,5 +262,5 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
         if (!isRepoAdmin(repoModuleName, userId))
             throw new NarrativeMethodStoreException("User " + userId + " is not " +
                     "admin of repository " + repoModuleName);
-    }
+    }*/
 }
