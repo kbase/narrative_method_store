@@ -22,12 +22,22 @@ public class GitHubRepoProvider extends FileRepoProvider {
         super(prepareGitClone(url, branch, generateTempDir(parentTempDir)));
         this.url = url;
         this.branch = branch;
-        this.commitHash = GitUtils.getCommitHash(parentTempDir, url);
+        try {
+            this.commitHash = GitUtils.getCommitHash(parentTempDir, url);
+        } catch (NarrativeMethodStoreException ex) {
+            dispose(rootDir);
+            throw ex;
+        }
     }
     
     private static File prepareGitClone(URL url, String branch, File rootDir) throws NarrativeMethodStoreException {
-        GitUtils.gitClone(url, branch, rootDir);
-        return rootDir;
+        try {
+            GitUtils.gitClone(url, branch, rootDir);
+            return rootDir;
+        } catch (NarrativeMethodStoreException ex) {
+            dispose(rootDir);
+            throw ex;
+        }
     }
     
     private static File generateTempDir(File parentTempDir) throws NarrativeMethodStoreException {
@@ -58,6 +68,10 @@ public class GitHubRepoProvider extends FileRepoProvider {
     
     @Override
     public void dispose() throws NarrativeMethodStoreException {
+        dispose(rootDir);
+    }
+    
+    private static void dispose(File rootDir) throws NarrativeMethodStoreException {
         try {
             FileUtils.deleteDirectory(rootDir);
         } catch (IOException e) {

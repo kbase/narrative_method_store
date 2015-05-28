@@ -2,6 +2,7 @@ package us.kbase.narrativemethodstore;
 
 import java.util.List;
 import java.util.Map;
+import us.kbase.auth.AuthToken;
 import us.kbase.common.service.JsonServerMethod;
 import us.kbase.common.service.JsonServerServlet;
 import us.kbase.common.service.Tuple4;
@@ -18,6 +19,7 @@ import java.util.regex.Pattern;
 import org.ini4j.Ini;
 
 import us.kbase.narrativemethodstore.db.NarrativeCategoriesIndex;
+import us.kbase.narrativemethodstore.db.RepoProvider;
 import us.kbase.narrativemethodstore.db.Validator;
 import us.kbase.narrativemethodstore.db.github.LocalGitDB;
 import us.kbase.narrativemethodstore.db.mongo.MongoDynamicRepoDB;
@@ -656,6 +658,164 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
         //BEGIN validate_type
         returnVal = Validator.validateType(params);
         //END validate_type
+        return returnVal;
+    }
+
+    /**
+     * <p>Original spec-file function name: is_repo_registered</p>
+     * <pre>
+     * </pre>
+     * @param   params   instance of type {@link us.kbase.narrativemethodstore.CurrentRepoParams CurrentRepoParams}
+     * @return   instance of original type "boolean" (@range [0,1])
+     */
+    @JsonServerMethod(rpc = "NarrativeMethodStore.is_repo_registered")
+    public Long isRepoRegistered(CurrentRepoParams params) throws Exception {
+        Long returnVal = null;
+        //BEGIN is_repo_registered
+        returnVal = getLocalGitDB().isRepoRegistered(params.getModuleName(), params.getWithDisabled());
+        //END is_repo_registered
+        return returnVal;
+    }
+
+    /**
+     * <p>Original spec-file function name: register_repo</p>
+     * <pre>
+     * </pre>
+     * @param   params   instance of type {@link us.kbase.narrativemethodstore.RegisterRepoParams RegisterRepoParams}
+     * @return   parameter "version" of Long
+     */
+    @JsonServerMethod(rpc = "NarrativeMethodStore.register_repo")
+    public Long registerRepo(RegisterRepoParams params, AuthToken authPart) throws Exception {
+        Long returnVal = null;
+        //BEGIN register_repo
+        returnVal = getLocalGitDB().registerRepo(authPart.getClientId(), params.getGitUrl());
+        //END register_repo
+        return returnVal;
+    }
+
+    /**
+     * <p>Original spec-file function name: get_repo_last_version</p>
+     * <pre>
+     * </pre>
+     * @param   params   instance of type {@link us.kbase.narrativemethodstore.CurrentRepoParams CurrentRepoParams}
+     * @return   parameter "version" of Long
+     */
+    @JsonServerMethod(rpc = "NarrativeMethodStore.get_repo_last_version")
+    public Long getRepoLastVersion(CurrentRepoParams params) throws Exception {
+        Long returnVal = null;
+        //BEGIN get_repo_last_version
+        returnVal = getLocalGitDB().getRepoLastVersion(params.getModuleName(), params.getWithDisabled());
+        //END get_repo_last_version
+        return returnVal;
+    }
+
+    /**
+     * <p>Original spec-file function name: list_repo_module_names</p>
+     * <pre>
+     * </pre>
+     * @param   params   instance of type {@link us.kbase.narrativemethodstore.ListReposParams ListReposParams}
+     * @return   instance of list of String
+     */
+    @JsonServerMethod(rpc = "NarrativeMethodStore.list_repo_module_names")
+    public List<String> listRepoModuleNames(ListReposParams params) throws Exception {
+        List<String> returnVal = null;
+        //BEGIN list_repo_module_names
+        returnVal = getLocalGitDB().listRepoModuleNames(params.getWithDisabled());
+        //END list_repo_module_names
+        return returnVal;
+    }
+
+    /**
+     * <p>Original spec-file function name: get_repo_details</p>
+     * <pre>
+     * </pre>
+     * @param   params   instance of type {@link us.kbase.narrativemethodstore.HistoryRepoParams HistoryRepoParams}
+     * @return   instance of type {@link us.kbase.narrativemethodstore.RepoDetails RepoDetails}
+     */
+    @JsonServerMethod(rpc = "NarrativeMethodStore.get_repo_details")
+    public RepoDetails getRepoDetails(HistoryRepoParams params) throws Exception {
+        RepoDetails returnVal = null;
+        //BEGIN get_repo_details
+        LocalGitDB db = getLocalGitDB();
+        RepoProvider repo = db.getRepoDetails(params.getModuleName(), 
+                params.getVersion(), params.getWithDisabled());
+        String repoModuleName = repo.getModuleName();
+        List<String> methodIds = new ArrayList<String>();
+        for (String shortId : repo.listUINarrativeMethodIDs())
+            methodIds.add(db.getFullMethodName(repoModuleName, shortId));
+        returnVal = new RepoDetails().withModuleName(repoModuleName)
+                .withModuleDescription(repo.getModuleDescription())
+                .withServiceLanguage(repo.getServiceLanguage())
+                .withGitUrl(repo.getUrl())
+                .withGitCommitHash(repo.getGitCommitHash())
+                .withOwners(repo.listOwners())
+                .withReadme(repo.loadReadmeFile())
+                .withMethodIds(methodIds)
+                .withWidgetIds(repo.listUIWidgetIds());
+        //END get_repo_details
+        return returnVal;
+    }
+
+    /**
+     * <p>Original spec-file function name: list_repo_versions</p>
+     * <pre>
+     * </pre>
+     * @param   params   instance of type {@link us.kbase.narrativemethodstore.CurrentRepoParams CurrentRepoParams}
+     * @return   parameter "versions" of list of Long
+     */
+    @JsonServerMethod(rpc = "NarrativeMethodStore.list_repo_versions")
+    public List<Long> listRepoVersions(CurrentRepoParams params) throws Exception {
+        List<Long> returnVal = null;
+        //BEGIN list_repo_versions
+        returnVal = getLocalGitDB().listRepoVersions(params.getModuleName(), params.getWithDisabled());
+        //END list_repo_versions
+        return returnVal;
+    }
+
+    /**
+     * <p>Original spec-file function name: load_widget_java_script</p>
+     * <pre>
+     * </pre>
+     * @param   params   instance of type {@link us.kbase.narrativemethodstore.LoadWidgetParams LoadWidgetParams}
+     * @return   parameter "java_script" of String
+     */
+    @JsonServerMethod(rpc = "NarrativeMethodStore.load_widget_java_script")
+    public String loadWidgetJavaScript(LoadWidgetParams params) throws Exception {
+        String returnVal = null;
+        //BEGIN load_widget_java_script
+        returnVal = getLocalGitDB().loadWidgetJavaScript(params.getModuleName(), 
+                params.getVersion(), params.getWidgetId());
+        //END load_widget_java_script
+        return returnVal;
+    }
+
+    /**
+     * <p>Original spec-file function name: set_repo_state</p>
+     * <pre>
+     * </pre>
+     * @param   params   instance of type {@link us.kbase.narrativemethodstore.SetRepoStateParams SetRepoStateParams}
+     */
+    @JsonServerMethod(rpc = "NarrativeMethodStore.set_repo_state")
+    public void setRepoState(SetRepoStateParams params, AuthToken authPart) throws Exception {
+        //BEGIN set_repo_state
+        getLocalGitDB().setRepoState(authPart.getClientId(), params.getModuleName(), params.getState());
+        //END set_repo_state
+    }
+
+    /**
+     * <p>Original spec-file function name: get_repo_state</p>
+     * <pre>
+     * Get repo state (one of 'ready', 'building', 'testing', 'disabled').
+     * </pre>
+     * @param   params   instance of type {@link us.kbase.narrativemethodstore.CurrentRepoParams CurrentRepoParams}
+     * @return   parameter "state" of String
+     */
+    @JsonServerMethod(rpc = "NarrativeMethodStore.get_repo_state")
+    public String getRepoState(CurrentRepoParams params) throws Exception {
+        String returnVal = null;
+        //BEGIN get_repo_state
+        returnVal = getLocalGitDB().getRepoState(params.getModuleName());
+        //END get_repo_state
         return returnVal;
     }
 

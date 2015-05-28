@@ -7,6 +7,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -42,6 +43,7 @@ import us.kbase.narrativemethodstore.db.NarrativeCategoriesIndex;
 import us.kbase.narrativemethodstore.db.NarrativeMethodData;
 import us.kbase.narrativemethodstore.db.NarrativeTypeData;
 import us.kbase.narrativemethodstore.db.RepoProvider;
+import us.kbase.narrativemethodstore.db.DynamicRepoDB.RepoState;
 import us.kbase.narrativemethodstore.exceptions.NarrativeMethodStoreException;
 import us.kbase.narrativemethodstore.exceptions.NarrativeMethodStoreInitializationException;
 
@@ -431,47 +433,49 @@ public class LocalGitDB implements MethodSpecDB {
             if (f.exists()) {
                 try {
                     BufferedReader br = new BufferedReader(new FileReader(f));
-                    while (true) {
-                        String l = br.readLine();
-                        if (l == null)
-                            break;
-                        String[] parts = l.trim().split("\\s+");
-                        if (parts.length < 1)
-                            continue;
-                        String url = parts[0];
-                        //String userIdsCommaSep = parts[1];
-                        //String[] userIds = userIdsCommaSep.split(Pattern.quote(","));
-                        RepoProvider pvd = new GitHubRepoProvider(new URL(url), getTempDir());
-                        String repoModuleName = pvd.getModuleName();
-                        boolean newReg = !dynamicRepos.isRepoRegistered(repoModuleName);
-                        //String owner = newReg ? userIds[0]:
-                        //        dynamicRepos.listRepoOwners(repoModuleName).iterator().next();
-                        List<String> owners = pvd.listOwners();
-                        if (owners.isEmpty())
-                            throw new NarrativeMethodStoreException("Lists of owners is empty for " +
-                            		"repository " + repoModuleName);
-                        String owner = owners.get(0);
-                        if (newReg) {
-                            dynamicRepos.registerRepo(owner, pvd);
-                        } else {
-                            String oldCommitHash = dynamicRepos.getRepoDetails(repoModuleName).getGitCommitHash();
-                            if (!oldCommitHash.equals(pvd.getGitCommitHash()))
-                                dynamicRepos.registerRepo(owner, pvd);
+                    try {
+                        while (true) {
+                            String l = br.readLine();
+                            if (l == null)
+                                break;
+                            String[] parts = l.trim().split("\\s+");
+                            if (parts.length < 1)
+                                continue;
+                            String url = parts[0];
+                            RepoProvider pvd = null;
+                            try {
+                                pvd = new GitHubRepoProvider(new URL(url), getTempDir());
+                                String repoModuleName = pvd.getModuleName();
+                                boolean newReg = !dynamicRepos.isRepoRegistered(repoModuleName, true);
+                                List<String> owners = pvd.listOwners();
+                                if (owners.isEmpty())
+                                    throw new NarrativeMethodStoreException("Lists of owners is empty for " +
+                                            "repository " + repoModuleName);
+                                String owner = owners.get(0);
+                                if (newReg) {
+                                    dynamicRepos.registerRepo(owner, pvd);
+                                } else {
+                                    String oldCommitHash = dynamicRepos.getRepoDetails(repoModuleName).getGitCommitHash();
+                                    if (!oldCommitHash.equals(pvd.getGitCommitHash()))
+                                        dynamicRepos.registerRepo(owner, pvd);
+                                }
+                            } finally {
+                                if (pvd != null)
+                                    pvd.dispose();
+                            }
                         }
-                        //for (String userId : userIds)
-                        //    if (!owner.equals(userId))
-                        //        dynamicRepos.setRepoOwner(owner, repoModuleName, userId, true);
+                    } finally {
+                        br.close();
                     }
-                    br.close();
                 } catch (IOException ex) {
                     throw new NarrativeMethodStoreException(ex);
                 }
             }
-            for (String repoMN : dynamicRepos.listRepoModuleNames()) {
+            for (String repoMN : dynamicRepos.listRepoModuleNames(false)) {
                 try {
                     RepoProvider repo = dynamicRepos.getRepoDetails(repoMN);
                     for (String methodId : repo.listUINarrativeMethodIDs()) {
-                        dynamicRepoMethods.add(repoMN + "/" + methodId);
+                        dynamicRepoMethods.add(getFullMethodName(repoMN, methodId));
                     }
                 } catch (Exception ex) {
                     dynamicRepoModuleNameToLoadingError.put(repoMN, ex);
@@ -533,6 +537,10 @@ public class LocalGitDB implements MethodSpecDB {
 		
 		return;
 	}
+
+    public String getFullMethodName(String repoModuleName, String shortMethodId) {
+        return repoModuleName + "/" + shortMethodId;
+    }
 	
 	protected JsonNode getResourceAsJson(String path) throws JsonProcessingException, IOException {
 		File f = new File(gitLocalPath, path);
@@ -571,5 +579,83 @@ public class LocalGitDB implements MethodSpecDB {
 		in.close();
 		return response.toString();
 	}
+
+	private boolean bool(Long value) {
+	    return bool(value, false);
+	}
 	
+	private boolean bool(Long value, boolean defaultValue) {
+	    return value == null ? defaultValue : (((long)value) != 0L);
+	}
+	
+	public long isRepoRegistered(String moduleName, Long withDisabled) 
+	        throws NarrativeMethodStoreException {
+        boolean found = dynamicRepos.isRepoRegistered(moduleName, bool(withDisabled));
+        return found ? 1L : 0L;
+	}
+
+	public long registerRepo(String userId, String url) throws NarrativeMethodStoreException {
+	    RepoProvider pvd = null;
+	    try {
+	        pvd = new GitHubRepoProvider(new URL(url), getTempDir());
+	        dynamicRepos.registerRepo(userId, pvd);
+	        return dynamicRepos.getRepoLastVersion(pvd.getModuleName());
+	    } catch (MalformedURLException ex) {
+	        throw new NarrativeMethodStoreException("Error parsing repository url: " + 
+	                url + " (" + ex.getMessage() + ")", ex);
+	    } finally {
+	        if (pvd != null)
+	            pvd.dispose();
+	    }
+	}
+	
+	private void checkIfRepoDisabled(String moduleName, Long withDisabled) 
+	        throws NarrativeMethodStoreException {
+	    if (bool(withDisabled))
+	        return;
+	    if (dynamicRepos.getRepoState(moduleName) == RepoState.disabled)
+	        throw new NarrativeMethodStoreException("Repository " + moduleName + " is disabled");
+	}
+	
+	public long getRepoLastVersion(String moduleName, Long withDisabled)
+	        throws NarrativeMethodStoreException {
+	    checkIfRepoDisabled(moduleName, withDisabled);
+	    return dynamicRepos.getRepoLastVersion(moduleName);
+	}
+
+	public List<String> listRepoModuleNames(Long withDisabled) 
+	        throws NarrativeMethodStoreException {
+	    return dynamicRepos.listRepoModuleNames(bool(withDisabled));
+	}
+	
+	public RepoProvider getRepoDetails(String moduleName, Long version, Long withDisabled)
+	    throws NarrativeMethodStoreException {
+	    checkIfRepoDisabled(moduleName, withDisabled);
+	    if (version == null) {
+	        return dynamicRepos.getRepoDetails(moduleName);
+	    } else {
+	        return dynamicRepos.getRepoDetailsHistory(moduleName, version);
+	    }
+	}
+	
+	public List<Long> listRepoVersions(String moduleName, Long withDisabled) 
+	        throws NarrativeMethodStoreException {
+	    checkIfRepoDisabled(moduleName, withDisabled);
+	    return dynamicRepos.listRepoVersions(moduleName);
+	}
+	
+	public String loadWidgetJavaScript(String moduleName, Long version, String widgetId)
+	        throws NarrativeMethodStoreException {
+	    RepoProvider repo = getRepoDetails(moduleName, version, null);
+	    return repo.loadUIWidgetJS(widgetId);
+	}
+	
+	public void setRepoState(String userId, String moduleName, String repoState)
+	        throws NarrativeMethodStoreException {
+	    dynamicRepos.setRepoState(userId, moduleName, RepoState.valueOf(repoState));
+	}
+	
+	public String getRepoState(String moduleName) throws NarrativeMethodStoreException {
+	    return dynamicRepos.getRepoState(moduleName).name();
+	}
 }

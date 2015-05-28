@@ -12,6 +12,7 @@ eval {
     $get_time = sub { Time::HiRes::gettimeofday() };
 };
 
+use Bio::KBase::AuthToken;
 
 # Client version should match Impl version
 # This is a Semantic Version number,
@@ -78,6 +79,20 @@ sub new
 	push(@{$self->{headers}}, 'Kbrpc-Errordest', $self->{kbrpc_error_dest});
     }
 
+    #
+    # This module requires authentication.
+    #
+    # We create an auth token, passing through the arguments that we were (hopefully) given.
+
+    {
+	my $token = Bio::KBase::AuthToken->new(@args);
+	
+	if (!$token->error_message)
+	{
+	    $self->{token} = $token->token;
+	    $self->{client}->{token} = $token->token;
+	}
+    }
 
     my $ua = $self->{client}->ua;	 
     my $timeout = $ENV{CDMI_TIMEOUT} || (30 * 60);	 
@@ -4546,6 +4561,819 @@ sub validate_type
 
 
 
+=head2 is_repo_registered
+
+  $return = $obj->is_repo_registered($params)
+
+=over 4
+
+=item Parameter and return types
+
+=begin html
+
+<pre>
+$params is a NarrativeMethodStore.CurrentRepoParams
+$return is a NarrativeMethodStore.boolean
+CurrentRepoParams is a reference to a hash where the following keys are defined:
+	module_name has a value which is a string
+	with_disabled has a value which is a NarrativeMethodStore.boolean
+boolean is an int
+
+</pre>
+
+=end html
+
+=begin text
+
+$params is a NarrativeMethodStore.CurrentRepoParams
+$return is a NarrativeMethodStore.boolean
+CurrentRepoParams is a reference to a hash where the following keys are defined:
+	module_name has a value which is a string
+	with_disabled has a value which is a NarrativeMethodStore.boolean
+boolean is an int
+
+
+=end text
+
+=item Description
+
+
+
+=back
+
+=cut
+
+sub is_repo_registered
+{
+    my($self, @args) = @_;
+
+# Authentication: none
+
+    if ((my $n = @args) != 1)
+    {
+	Bio::KBase::Exceptions::ArgumentValidationError->throw(error =>
+							       "Invalid argument count for function is_repo_registered (received $n, expecting 1)");
+    }
+    {
+	my($params) = @args;
+
+	my @_bad_arguments;
+        (ref($params) eq 'HASH') or push(@_bad_arguments, "Invalid type for argument 1 \"params\" (value was \"$params\")");
+        if (@_bad_arguments) {
+	    my $msg = "Invalid arguments passed to is_repo_registered:\n" . join("", map { "\t$_\n" } @_bad_arguments);
+	    Bio::KBase::Exceptions::ArgumentValidationError->throw(error => $msg,
+								   method_name => 'is_repo_registered');
+	}
+    }
+
+    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
+	method => "NarrativeMethodStore.is_repo_registered",
+	params => \@args,
+    });
+    if ($result) {
+	if ($result->is_error) {
+	    Bio::KBase::Exceptions::JSONRPC->throw(error => $result->error_message,
+					       code => $result->content->{error}->{code},
+					       method_name => 'is_repo_registered',
+					       data => $result->content->{error}->{error} # JSON::RPC::ReturnObject only supports JSONRPC 1.1 or 1.O
+					      );
+	} else {
+	    return wantarray ? @{$result->result} : $result->result->[0];
+	}
+    } else {
+        Bio::KBase::Exceptions::HTTP->throw(error => "Error invoking method is_repo_registered",
+					    status_line => $self->{client}->status_line,
+					    method_name => 'is_repo_registered',
+				       );
+    }
+}
+
+
+
+=head2 register_repo
+
+  $version = $obj->register_repo($params)
+
+=over 4
+
+=item Parameter and return types
+
+=begin html
+
+<pre>
+$params is a NarrativeMethodStore.RegisterRepoParams
+$version is an int
+RegisterRepoParams is a reference to a hash where the following keys are defined:
+	git_url has a value which is a string
+
+</pre>
+
+=end html
+
+=begin text
+
+$params is a NarrativeMethodStore.RegisterRepoParams
+$version is an int
+RegisterRepoParams is a reference to a hash where the following keys are defined:
+	git_url has a value which is a string
+
+
+=end text
+
+=item Description
+
+
+
+=back
+
+=cut
+
+sub register_repo
+{
+    my($self, @args) = @_;
+
+# Authentication: required
+
+    if ((my $n = @args) != 1)
+    {
+	Bio::KBase::Exceptions::ArgumentValidationError->throw(error =>
+							       "Invalid argument count for function register_repo (received $n, expecting 1)");
+    }
+    {
+	my($params) = @args;
+
+	my @_bad_arguments;
+        (ref($params) eq 'HASH') or push(@_bad_arguments, "Invalid type for argument 1 \"params\" (value was \"$params\")");
+        if (@_bad_arguments) {
+	    my $msg = "Invalid arguments passed to register_repo:\n" . join("", map { "\t$_\n" } @_bad_arguments);
+	    Bio::KBase::Exceptions::ArgumentValidationError->throw(error => $msg,
+								   method_name => 'register_repo');
+	}
+    }
+
+    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
+	method => "NarrativeMethodStore.register_repo",
+	params => \@args,
+    });
+    if ($result) {
+	if ($result->is_error) {
+	    Bio::KBase::Exceptions::JSONRPC->throw(error => $result->error_message,
+					       code => $result->content->{error}->{code},
+					       method_name => 'register_repo',
+					       data => $result->content->{error}->{error} # JSON::RPC::ReturnObject only supports JSONRPC 1.1 or 1.O
+					      );
+	} else {
+	    return wantarray ? @{$result->result} : $result->result->[0];
+	}
+    } else {
+        Bio::KBase::Exceptions::HTTP->throw(error => "Error invoking method register_repo",
+					    status_line => $self->{client}->status_line,
+					    method_name => 'register_repo',
+				       );
+    }
+}
+
+
+
+=head2 get_repo_last_version
+
+  $version = $obj->get_repo_last_version($params)
+
+=over 4
+
+=item Parameter and return types
+
+=begin html
+
+<pre>
+$params is a NarrativeMethodStore.CurrentRepoParams
+$version is an int
+CurrentRepoParams is a reference to a hash where the following keys are defined:
+	module_name has a value which is a string
+	with_disabled has a value which is a NarrativeMethodStore.boolean
+boolean is an int
+
+</pre>
+
+=end html
+
+=begin text
+
+$params is a NarrativeMethodStore.CurrentRepoParams
+$version is an int
+CurrentRepoParams is a reference to a hash where the following keys are defined:
+	module_name has a value which is a string
+	with_disabled has a value which is a NarrativeMethodStore.boolean
+boolean is an int
+
+
+=end text
+
+=item Description
+
+
+
+=back
+
+=cut
+
+sub get_repo_last_version
+{
+    my($self, @args) = @_;
+
+# Authentication: none
+
+    if ((my $n = @args) != 1)
+    {
+	Bio::KBase::Exceptions::ArgumentValidationError->throw(error =>
+							       "Invalid argument count for function get_repo_last_version (received $n, expecting 1)");
+    }
+    {
+	my($params) = @args;
+
+	my @_bad_arguments;
+        (ref($params) eq 'HASH') or push(@_bad_arguments, "Invalid type for argument 1 \"params\" (value was \"$params\")");
+        if (@_bad_arguments) {
+	    my $msg = "Invalid arguments passed to get_repo_last_version:\n" . join("", map { "\t$_\n" } @_bad_arguments);
+	    Bio::KBase::Exceptions::ArgumentValidationError->throw(error => $msg,
+								   method_name => 'get_repo_last_version');
+	}
+    }
+
+    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
+	method => "NarrativeMethodStore.get_repo_last_version",
+	params => \@args,
+    });
+    if ($result) {
+	if ($result->is_error) {
+	    Bio::KBase::Exceptions::JSONRPC->throw(error => $result->error_message,
+					       code => $result->content->{error}->{code},
+					       method_name => 'get_repo_last_version',
+					       data => $result->content->{error}->{error} # JSON::RPC::ReturnObject only supports JSONRPC 1.1 or 1.O
+					      );
+	} else {
+	    return wantarray ? @{$result->result} : $result->result->[0];
+	}
+    } else {
+        Bio::KBase::Exceptions::HTTP->throw(error => "Error invoking method get_repo_last_version",
+					    status_line => $self->{client}->status_line,
+					    method_name => 'get_repo_last_version',
+				       );
+    }
+}
+
+
+
+=head2 list_repo_module_names
+
+  $return = $obj->list_repo_module_names($params)
+
+=over 4
+
+=item Parameter and return types
+
+=begin html
+
+<pre>
+$params is a NarrativeMethodStore.ListReposParams
+$return is a reference to a list where each element is a string
+ListReposParams is a reference to a hash where the following keys are defined:
+	with_disabled has a value which is a NarrativeMethodStore.boolean
+boolean is an int
+
+</pre>
+
+=end html
+
+=begin text
+
+$params is a NarrativeMethodStore.ListReposParams
+$return is a reference to a list where each element is a string
+ListReposParams is a reference to a hash where the following keys are defined:
+	with_disabled has a value which is a NarrativeMethodStore.boolean
+boolean is an int
+
+
+=end text
+
+=item Description
+
+
+
+=back
+
+=cut
+
+sub list_repo_module_names
+{
+    my($self, @args) = @_;
+
+# Authentication: none
+
+    if ((my $n = @args) != 1)
+    {
+	Bio::KBase::Exceptions::ArgumentValidationError->throw(error =>
+							       "Invalid argument count for function list_repo_module_names (received $n, expecting 1)");
+    }
+    {
+	my($params) = @args;
+
+	my @_bad_arguments;
+        (ref($params) eq 'HASH') or push(@_bad_arguments, "Invalid type for argument 1 \"params\" (value was \"$params\")");
+        if (@_bad_arguments) {
+	    my $msg = "Invalid arguments passed to list_repo_module_names:\n" . join("", map { "\t$_\n" } @_bad_arguments);
+	    Bio::KBase::Exceptions::ArgumentValidationError->throw(error => $msg,
+								   method_name => 'list_repo_module_names');
+	}
+    }
+
+    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
+	method => "NarrativeMethodStore.list_repo_module_names",
+	params => \@args,
+    });
+    if ($result) {
+	if ($result->is_error) {
+	    Bio::KBase::Exceptions::JSONRPC->throw(error => $result->error_message,
+					       code => $result->content->{error}->{code},
+					       method_name => 'list_repo_module_names',
+					       data => $result->content->{error}->{error} # JSON::RPC::ReturnObject only supports JSONRPC 1.1 or 1.O
+					      );
+	} else {
+	    return wantarray ? @{$result->result} : $result->result->[0];
+	}
+    } else {
+        Bio::KBase::Exceptions::HTTP->throw(error => "Error invoking method list_repo_module_names",
+					    status_line => $self->{client}->status_line,
+					    method_name => 'list_repo_module_names',
+				       );
+    }
+}
+
+
+
+=head2 get_repo_details
+
+  $return = $obj->get_repo_details($params)
+
+=over 4
+
+=item Parameter and return types
+
+=begin html
+
+<pre>
+$params is a NarrativeMethodStore.HistoryRepoParams
+$return is a NarrativeMethodStore.RepoDetails
+HistoryRepoParams is a reference to a hash where the following keys are defined:
+	module_name has a value which is a string
+	version has a value which is an int
+	with_disabled has a value which is a NarrativeMethodStore.boolean
+boolean is an int
+RepoDetails is a reference to a hash where the following keys are defined:
+	module_name has a value which is a string
+	git_url has a value which is a string
+	git_commit_hash has a value which is a string
+	module_description has a value which is a string
+	service_language has a value which is a string
+	owners has a value which is a reference to a list where each element is a string
+	readme has a value which is a string
+	method_ids has a value which is a reference to a list where each element is a string
+	widget_ids has a value which is a reference to a list where each element is a string
+
+</pre>
+
+=end html
+
+=begin text
+
+$params is a NarrativeMethodStore.HistoryRepoParams
+$return is a NarrativeMethodStore.RepoDetails
+HistoryRepoParams is a reference to a hash where the following keys are defined:
+	module_name has a value which is a string
+	version has a value which is an int
+	with_disabled has a value which is a NarrativeMethodStore.boolean
+boolean is an int
+RepoDetails is a reference to a hash where the following keys are defined:
+	module_name has a value which is a string
+	git_url has a value which is a string
+	git_commit_hash has a value which is a string
+	module_description has a value which is a string
+	service_language has a value which is a string
+	owners has a value which is a reference to a list where each element is a string
+	readme has a value which is a string
+	method_ids has a value which is a reference to a list where each element is a string
+	widget_ids has a value which is a reference to a list where each element is a string
+
+
+=end text
+
+=item Description
+
+
+
+=back
+
+=cut
+
+sub get_repo_details
+{
+    my($self, @args) = @_;
+
+# Authentication: none
+
+    if ((my $n = @args) != 1)
+    {
+	Bio::KBase::Exceptions::ArgumentValidationError->throw(error =>
+							       "Invalid argument count for function get_repo_details (received $n, expecting 1)");
+    }
+    {
+	my($params) = @args;
+
+	my @_bad_arguments;
+        (ref($params) eq 'HASH') or push(@_bad_arguments, "Invalid type for argument 1 \"params\" (value was \"$params\")");
+        if (@_bad_arguments) {
+	    my $msg = "Invalid arguments passed to get_repo_details:\n" . join("", map { "\t$_\n" } @_bad_arguments);
+	    Bio::KBase::Exceptions::ArgumentValidationError->throw(error => $msg,
+								   method_name => 'get_repo_details');
+	}
+    }
+
+    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
+	method => "NarrativeMethodStore.get_repo_details",
+	params => \@args,
+    });
+    if ($result) {
+	if ($result->is_error) {
+	    Bio::KBase::Exceptions::JSONRPC->throw(error => $result->error_message,
+					       code => $result->content->{error}->{code},
+					       method_name => 'get_repo_details',
+					       data => $result->content->{error}->{error} # JSON::RPC::ReturnObject only supports JSONRPC 1.1 or 1.O
+					      );
+	} else {
+	    return wantarray ? @{$result->result} : $result->result->[0];
+	}
+    } else {
+        Bio::KBase::Exceptions::HTTP->throw(error => "Error invoking method get_repo_details",
+					    status_line => $self->{client}->status_line,
+					    method_name => 'get_repo_details',
+				       );
+    }
+}
+
+
+
+=head2 list_repo_versions
+
+  $versions = $obj->list_repo_versions($params)
+
+=over 4
+
+=item Parameter and return types
+
+=begin html
+
+<pre>
+$params is a NarrativeMethodStore.CurrentRepoParams
+$versions is a reference to a list where each element is an int
+CurrentRepoParams is a reference to a hash where the following keys are defined:
+	module_name has a value which is a string
+	with_disabled has a value which is a NarrativeMethodStore.boolean
+boolean is an int
+
+</pre>
+
+=end html
+
+=begin text
+
+$params is a NarrativeMethodStore.CurrentRepoParams
+$versions is a reference to a list where each element is an int
+CurrentRepoParams is a reference to a hash where the following keys are defined:
+	module_name has a value which is a string
+	with_disabled has a value which is a NarrativeMethodStore.boolean
+boolean is an int
+
+
+=end text
+
+=item Description
+
+
+
+=back
+
+=cut
+
+sub list_repo_versions
+{
+    my($self, @args) = @_;
+
+# Authentication: none
+
+    if ((my $n = @args) != 1)
+    {
+	Bio::KBase::Exceptions::ArgumentValidationError->throw(error =>
+							       "Invalid argument count for function list_repo_versions (received $n, expecting 1)");
+    }
+    {
+	my($params) = @args;
+
+	my @_bad_arguments;
+        (ref($params) eq 'HASH') or push(@_bad_arguments, "Invalid type for argument 1 \"params\" (value was \"$params\")");
+        if (@_bad_arguments) {
+	    my $msg = "Invalid arguments passed to list_repo_versions:\n" . join("", map { "\t$_\n" } @_bad_arguments);
+	    Bio::KBase::Exceptions::ArgumentValidationError->throw(error => $msg,
+								   method_name => 'list_repo_versions');
+	}
+    }
+
+    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
+	method => "NarrativeMethodStore.list_repo_versions",
+	params => \@args,
+    });
+    if ($result) {
+	if ($result->is_error) {
+	    Bio::KBase::Exceptions::JSONRPC->throw(error => $result->error_message,
+					       code => $result->content->{error}->{code},
+					       method_name => 'list_repo_versions',
+					       data => $result->content->{error}->{error} # JSON::RPC::ReturnObject only supports JSONRPC 1.1 or 1.O
+					      );
+	} else {
+	    return wantarray ? @{$result->result} : $result->result->[0];
+	}
+    } else {
+        Bio::KBase::Exceptions::HTTP->throw(error => "Error invoking method list_repo_versions",
+					    status_line => $self->{client}->status_line,
+					    method_name => 'list_repo_versions',
+				       );
+    }
+}
+
+
+
+=head2 load_widget_java_script
+
+  $java_script = $obj->load_widget_java_script($params)
+
+=over 4
+
+=item Parameter and return types
+
+=begin html
+
+<pre>
+$params is a NarrativeMethodStore.LoadWidgetParams
+$java_script is a string
+LoadWidgetParams is a reference to a hash where the following keys are defined:
+	module_name has a value which is a string
+	version has a value which is an int
+	widget_id has a value which is a string
+
+</pre>
+
+=end html
+
+=begin text
+
+$params is a NarrativeMethodStore.LoadWidgetParams
+$java_script is a string
+LoadWidgetParams is a reference to a hash where the following keys are defined:
+	module_name has a value which is a string
+	version has a value which is an int
+	widget_id has a value which is a string
+
+
+=end text
+
+=item Description
+
+
+
+=back
+
+=cut
+
+sub load_widget_java_script
+{
+    my($self, @args) = @_;
+
+# Authentication: none
+
+    if ((my $n = @args) != 1)
+    {
+	Bio::KBase::Exceptions::ArgumentValidationError->throw(error =>
+							       "Invalid argument count for function load_widget_java_script (received $n, expecting 1)");
+    }
+    {
+	my($params) = @args;
+
+	my @_bad_arguments;
+        (ref($params) eq 'HASH') or push(@_bad_arguments, "Invalid type for argument 1 \"params\" (value was \"$params\")");
+        if (@_bad_arguments) {
+	    my $msg = "Invalid arguments passed to load_widget_java_script:\n" . join("", map { "\t$_\n" } @_bad_arguments);
+	    Bio::KBase::Exceptions::ArgumentValidationError->throw(error => $msg,
+								   method_name => 'load_widget_java_script');
+	}
+    }
+
+    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
+	method => "NarrativeMethodStore.load_widget_java_script",
+	params => \@args,
+    });
+    if ($result) {
+	if ($result->is_error) {
+	    Bio::KBase::Exceptions::JSONRPC->throw(error => $result->error_message,
+					       code => $result->content->{error}->{code},
+					       method_name => 'load_widget_java_script',
+					       data => $result->content->{error}->{error} # JSON::RPC::ReturnObject only supports JSONRPC 1.1 or 1.O
+					      );
+	} else {
+	    return wantarray ? @{$result->result} : $result->result->[0];
+	}
+    } else {
+        Bio::KBase::Exceptions::HTTP->throw(error => "Error invoking method load_widget_java_script",
+					    status_line => $self->{client}->status_line,
+					    method_name => 'load_widget_java_script',
+				       );
+    }
+}
+
+
+
+=head2 set_repo_state
+
+  $obj->set_repo_state($params)
+
+=over 4
+
+=item Parameter and return types
+
+=begin html
+
+<pre>
+$params is a NarrativeMethodStore.SetRepoStateParams
+SetRepoStateParams is a reference to a hash where the following keys are defined:
+	module_name has a value which is a string
+	state has a value which is a string
+
+</pre>
+
+=end html
+
+=begin text
+
+$params is a NarrativeMethodStore.SetRepoStateParams
+SetRepoStateParams is a reference to a hash where the following keys are defined:
+	module_name has a value which is a string
+	state has a value which is a string
+
+
+=end text
+
+=item Description
+
+
+
+=back
+
+=cut
+
+sub set_repo_state
+{
+    my($self, @args) = @_;
+
+# Authentication: required
+
+    if ((my $n = @args) != 1)
+    {
+	Bio::KBase::Exceptions::ArgumentValidationError->throw(error =>
+							       "Invalid argument count for function set_repo_state (received $n, expecting 1)");
+    }
+    {
+	my($params) = @args;
+
+	my @_bad_arguments;
+        (ref($params) eq 'HASH') or push(@_bad_arguments, "Invalid type for argument 1 \"params\" (value was \"$params\")");
+        if (@_bad_arguments) {
+	    my $msg = "Invalid arguments passed to set_repo_state:\n" . join("", map { "\t$_\n" } @_bad_arguments);
+	    Bio::KBase::Exceptions::ArgumentValidationError->throw(error => $msg,
+								   method_name => 'set_repo_state');
+	}
+    }
+
+    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
+	method => "NarrativeMethodStore.set_repo_state",
+	params => \@args,
+    });
+    if ($result) {
+	if ($result->is_error) {
+	    Bio::KBase::Exceptions::JSONRPC->throw(error => $result->error_message,
+					       code => $result->content->{error}->{code},
+					       method_name => 'set_repo_state',
+					       data => $result->content->{error}->{error} # JSON::RPC::ReturnObject only supports JSONRPC 1.1 or 1.O
+					      );
+	} else {
+	    return;
+	}
+    } else {
+        Bio::KBase::Exceptions::HTTP->throw(error => "Error invoking method set_repo_state",
+					    status_line => $self->{client}->status_line,
+					    method_name => 'set_repo_state',
+				       );
+    }
+}
+
+
+
+=head2 get_repo_state
+
+  $state = $obj->get_repo_state($params)
+
+=over 4
+
+=item Parameter and return types
+
+=begin html
+
+<pre>
+$params is a NarrativeMethodStore.CurrentRepoParams
+$state is a string
+CurrentRepoParams is a reference to a hash where the following keys are defined:
+	module_name has a value which is a string
+	with_disabled has a value which is a NarrativeMethodStore.boolean
+boolean is an int
+
+</pre>
+
+=end html
+
+=begin text
+
+$params is a NarrativeMethodStore.CurrentRepoParams
+$state is a string
+CurrentRepoParams is a reference to a hash where the following keys are defined:
+	module_name has a value which is a string
+	with_disabled has a value which is a NarrativeMethodStore.boolean
+boolean is an int
+
+
+=end text
+
+=item Description
+
+Get repo state (one of 'ready', 'building', 'testing', 'disabled').
+
+=back
+
+=cut
+
+sub get_repo_state
+{
+    my($self, @args) = @_;
+
+# Authentication: none
+
+    if ((my $n = @args) != 1)
+    {
+	Bio::KBase::Exceptions::ArgumentValidationError->throw(error =>
+							       "Invalid argument count for function get_repo_state (received $n, expecting 1)");
+    }
+    {
+	my($params) = @args;
+
+	my @_bad_arguments;
+        (ref($params) eq 'HASH') or push(@_bad_arguments, "Invalid type for argument 1 \"params\" (value was \"$params\")");
+        if (@_bad_arguments) {
+	    my $msg = "Invalid arguments passed to get_repo_state:\n" . join("", map { "\t$_\n" } @_bad_arguments);
+	    Bio::KBase::Exceptions::ArgumentValidationError->throw(error => $msg,
+								   method_name => 'get_repo_state');
+	}
+    }
+
+    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
+	method => "NarrativeMethodStore.get_repo_state",
+	params => \@args,
+    });
+    if ($result) {
+	if ($result->is_error) {
+	    Bio::KBase::Exceptions::JSONRPC->throw(error => $result->error_message,
+					       code => $result->content->{error}->{code},
+					       method_name => 'get_repo_state',
+					       data => $result->content->{error}->{error} # JSON::RPC::ReturnObject only supports JSONRPC 1.1 or 1.O
+					      );
+	} else {
+	    return wantarray ? @{$result->result} : $result->result->[0];
+	}
+    } else {
+        Bio::KBase::Exceptions::HTTP->throw(error => "Error invoking method get_repo_state",
+					    status_line => $self->{client}->status_line,
+					    method_name => 'get_repo_state',
+				       );
+    }
+}
+
+
+
 sub version {
     my ($self) = @_;
     my $result = $self->{client}->call($self->{url}, $self->{headers}, {
@@ -4557,16 +5385,16 @@ sub version {
             Bio::KBase::Exceptions::JSONRPC->throw(
                 error => $result->error_message,
                 code => $result->content->{code},
-                method_name => 'validate_type',
+                method_name => 'get_repo_state',
             );
         } else {
             return wantarray ? @{$result->result} : $result->result->[0];
         }
     } else {
         Bio::KBase::Exceptions::HTTP->throw(
-            error => "Error invoking method validate_type",
+            error => "Error invoking method get_repo_state",
             status_line => $self->{client}->status_line,
-            method_name => 'validate_type',
+            method_name => 'get_repo_state',
         );
     }
 }
@@ -6647,6 +7475,286 @@ id has a value which is a string
 spec_json has a value which is a string
 display_yaml has a value which is a string
 extra_files has a value which is a reference to a hash where the key is a string and the value is a string
+
+
+=end text
+
+=back
+
+
+
+=head2 CurrentRepoParams
+
+=over 4
+
+
+
+=item Description
+
+*********************************** Registry API *********************************
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a reference to a hash where the following keys are defined:
+module_name has a value which is a string
+with_disabled has a value which is a NarrativeMethodStore.boolean
+
+</pre>
+
+=end html
+
+=begin text
+
+a reference to a hash where the following keys are defined:
+module_name has a value which is a string
+with_disabled has a value which is a NarrativeMethodStore.boolean
+
+
+=end text
+
+=back
+
+
+
+=head2 RegisterRepoParams
+
+=over 4
+
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a reference to a hash where the following keys are defined:
+git_url has a value which is a string
+
+</pre>
+
+=end html
+
+=begin text
+
+a reference to a hash where the following keys are defined:
+git_url has a value which is a string
+
+
+=end text
+
+=back
+
+
+
+=head2 ListReposParams
+
+=over 4
+
+
+
+=item Description
+
+Describes how to filter repositories.
+with_disabled - optional flag adding disabled repos (default value is false).
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a reference to a hash where the following keys are defined:
+with_disabled has a value which is a NarrativeMethodStore.boolean
+
+</pre>
+
+=end html
+
+=begin text
+
+a reference to a hash where the following keys are defined:
+with_disabled has a value which is a NarrativeMethodStore.boolean
+
+
+=end text
+
+=back
+
+
+
+=head2 RepoDetails
+
+=over 4
+
+
+
+=item Description
+
+method_ids - list of method ids (each id is fully qualified, i.e. contains module 
+    name prefix followed by slash);
+widget_ids - list of widget ids (each id is name of JavaScript file stored in
+    repo's 'ui/widgets' folder).
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a reference to a hash where the following keys are defined:
+module_name has a value which is a string
+git_url has a value which is a string
+git_commit_hash has a value which is a string
+module_description has a value which is a string
+service_language has a value which is a string
+owners has a value which is a reference to a list where each element is a string
+readme has a value which is a string
+method_ids has a value which is a reference to a list where each element is a string
+widget_ids has a value which is a reference to a list where each element is a string
+
+</pre>
+
+=end html
+
+=begin text
+
+a reference to a hash where the following keys are defined:
+module_name has a value which is a string
+git_url has a value which is a string
+git_commit_hash has a value which is a string
+module_description has a value which is a string
+service_language has a value which is a string
+owners has a value which is a reference to a list where each element is a string
+readme has a value which is a string
+method_ids has a value which is a reference to a list where each element is a string
+widget_ids has a value which is a reference to a list where each element is a string
+
+
+=end text
+
+=back
+
+
+
+=head2 HistoryRepoParams
+
+=over 4
+
+
+
+=item Description
+
+Describes how to find repository details (including old versions).
+module_name - name of module defined in kbase.yaml file;
+version - optional parameter limiting search by certain version timestamp;
+with_disabled - optional flag adding disabled repos (default value is false).
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a reference to a hash where the following keys are defined:
+module_name has a value which is a string
+version has a value which is an int
+with_disabled has a value which is a NarrativeMethodStore.boolean
+
+</pre>
+
+=end html
+
+=begin text
+
+a reference to a hash where the following keys are defined:
+module_name has a value which is a string
+version has a value which is an int
+with_disabled has a value which is a NarrativeMethodStore.boolean
+
+
+=end text
+
+=back
+
+
+
+=head2 LoadWidgetParams
+
+=over 4
+
+
+
+=item Description
+
+Describes how to find repository widget JavaScript.
+module_name - name of module defined in kbase.yaml;
+version - optional parameter limiting search by certain version timestamp;
+widget_id - name of java-script file stored in repo's 'ui/widgets' folder.
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a reference to a hash where the following keys are defined:
+module_name has a value which is a string
+version has a value which is an int
+widget_id has a value which is a string
+
+</pre>
+
+=end html
+
+=begin text
+
+a reference to a hash where the following keys are defined:
+module_name has a value which is a string
+version has a value which is an int
+widget_id has a value which is a string
+
+
+=end text
+
+=back
+
+
+
+=head2 SetRepoStateParams
+
+=over 4
+
+
+
+=item Description
+
+Describes how to find repository details.
+module_name - name of module defined in kbase.yaml file;
+state - one of 'ready', 'building', 'testing', 'disabled'.
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a reference to a hash where the following keys are defined:
+module_name has a value which is a string
+state has a value which is a string
+
+</pre>
+
+=end html
+
+=begin text
+
+a reference to a hash where the following keys are defined:
+module_name has a value which is a string
+state has a value which is a string
 
 
 =end text

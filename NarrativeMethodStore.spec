@@ -646,4 +646,104 @@ module NarrativeMethodStore {
 
     /* need to add category validation as well */
 
+    /************************************ Registry API **********************************/
+
+    /*
+        Describes how to find repository details.
+        module_name - name of module defined in kbase.yaml file;
+        with_disabled - optional flag adding disabled repos (default value is false).
+    */
+    typedef structure {
+        string module_name;
+        boolean with_disabled;
+    } CurrentRepoParams;
+
+    funcdef is_repo_registered(CurrentRepoParams params) returns (boolean);
+
+    typedef structure {
+        string git_url;
+    } RegisterRepoParams;
+
+    funcdef register_repo(RegisterRepoParams params) returns (int version)  
+        authentication required;
+
+    funcdef get_repo_last_version(CurrentRepoParams params) returns (int version);
+
+    /*
+        Describes how to filter repositories.
+        with_disabled - optional flag adding disabled repos (default value is false).
+    */
+    typedef structure {
+        boolean with_disabled;
+    } ListReposParams;
+
+    funcdef list_repo_module_names(ListReposParams params) returns (list<string>);
+
+    /*
+        method_ids - list of method ids (each id is fully qualified, i.e. contains module 
+            name prefix followed by slash);
+        widget_ids - list of widget ids (each id is name of JavaScript file stored in
+            repo's 'ui/widgets' folder).
+    */
+    typedef structure {
+        string module_name;
+        string git_url;
+        string git_commit_hash;
+        string module_description;
+        string service_language;
+        list<string> owners;
+        string readme;
+        list<string> method_ids;
+        list<string> widget_ids;
+    } RepoDetails;    
+
+    /*
+        Describes how to find repository details (including old versions).
+        module_name - name of module defined in kbase.yaml file;
+        version - optional parameter limiting search by certain version timestamp;
+        with_disabled - optional flag adding disabled repos (default value is false).
+    */
+    typedef structure {
+        string module_name;
+        int version;
+        boolean with_disabled;
+    } HistoryRepoParams;
+
+    funcdef get_repo_details(HistoryRepoParams params) returns (RepoDetails);
+
+    funcdef list_repo_versions(CurrentRepoParams params) returns (list<int> 
+        versions);
+
+    /*
+        Describes how to find repository widget JavaScript.
+        module_name - name of module defined in kbase.yaml;
+        version - optional parameter limiting search by certain version timestamp;
+        widget_id - name of java-script file stored in repo's 'ui/widgets' folder.
+    */
+    typedef structure {
+        string module_name;
+        int version;
+        string widget_id;
+    } LoadWidgetParams;
+
+    funcdef load_widget_java_script(LoadWidgetParams params) returns (string 
+        java_script);
+
+    /*
+        Describes how to find repository details.
+        module_name - name of module defined in kbase.yaml file;
+        state - one of 'ready', 'building', 'testing', 'disabled'.
+    */
+    typedef structure {
+        string module_name;
+        string state;
+    } SetRepoStateParams;
+
+    funcdef set_repo_state(SetRepoStateParams params) returns () authentication 
+        required;
+
+    /*
+        Get repo state (one of 'ready', 'building', 'testing', 'disabled').
+    */
+    funcdef get_repo_state(CurrentRepoParams params) returns (string state);
 };

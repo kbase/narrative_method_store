@@ -34,7 +34,11 @@ public class FileRepoProvider implements RepoProvider {
             serviceLanguage = YamlUtils.getPropertyOrNull(source, map, "service-language", String.class);
             owners = Collections.unmodifiableList(YamlUtils.getPropertyNotNull(source, map, "owners", 
                     new TypeReference<List<String>>() {}));
+        } catch (NarrativeMethodStoreException ex) {
+            dispose();
+            throw ex;
         } catch (IOException ex) {
+            dispose();
             throw new NarrativeMethodStoreException(ex);
         }
     }
