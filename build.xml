@@ -217,6 +217,7 @@
       <sysproperty key="test.method-spec-git-repo-branch" value="${test.method-spec-git-repo-branch}"/>
       <sysproperty key="test.method-spec-git-repo-refresh-rate" value="${test.method-spec-git-repo-refresh-rate}"/>
       <sysproperty key="test.method-spec-cache-size" value="${test.method-spec-cache-size}"/>
+      <test name="us.kbase.narrativemethodstore.db.mongo.test.MongoDynamicRepoDBTest"/>
       <test name="us.kbase.narrativemethodstore.test.FullServerTest"/>
     </junit>
     <fail message="Test failure detected, check test results." if="test.failed" />
