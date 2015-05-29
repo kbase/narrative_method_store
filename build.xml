@@ -134,7 +134,7 @@
 
   <target name="compile_client" description="compile only the client">
     <mkdir dir="${client_classes}"/>
-    <javac destdir="${client_classes}" includeantruntime="false" target="1.6" source="1.6"
+    <javac destdir="${client_classes}" includeantruntime="false" target="1.7" source="1.7"
       debug="true" classpathref="compile.classpath">
       <src path="${src}"/>
     </javac>
@@ -144,7 +144,7 @@
 
   <target name="compile" depends="init" description="compile the source">
     <!-- Compile class files-->
-    <javac destdir="${classes}" includeantruntime="false" target="1.6" source="1.6"
+    <javac destdir="${classes}" includeantruntime="false" target="1.7" source="1.7"
       debug="true" classpathref="compile.classpath">
       <src path="${src}"/>
     </javac>
