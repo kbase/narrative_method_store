@@ -23,7 +23,7 @@ public class GitHubRepoProvider extends FileRepoProvider {
         this.url = url;
         this.branch = branch;
         try {
-            this.commitHash = GitUtils.getCommitHash(parentTempDir, url);
+            this.commitHash = GitUtils.getCommitHash(rootDir, url);
         } catch (NarrativeMethodStoreException ex) {
             dispose(rootDir);
             throw ex;
