@@ -156,7 +156,8 @@ public class LocalGitDB implements MethodSpecDB {
 				reloadAll();
 			}
 		} catch (Exception ex) {
-			System.err.println("Error doing git pull: " + ex.getMessage());
+			System.err.println("Error checking for changed:");
+			ex.printStackTrace();
 		}
 	}
 
