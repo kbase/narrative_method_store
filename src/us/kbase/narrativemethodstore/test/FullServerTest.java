@@ -22,17 +22,23 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.mongodb.gridfs.CLI;
+
 import us.kbase.common.service.ServerException;
 import us.kbase.common.service.Tuple4;
 import us.kbase.narrativemethodstore.AppFullInfo;
 import us.kbase.narrativemethodstore.AppSpec;
 import us.kbase.narrativemethodstore.Category;
+import us.kbase.narrativemethodstore.CurrentRepoParams;
 import us.kbase.narrativemethodstore.GetAppParams;
 import us.kbase.narrativemethodstore.GetCategoryParams;
 import us.kbase.narrativemethodstore.GetMethodParams;
 import us.kbase.narrativemethodstore.GetTypeParams;
+import us.kbase.narrativemethodstore.HistoryRepoParams;
 import us.kbase.narrativemethodstore.ListCategoriesParams;
 import us.kbase.narrativemethodstore.ListParams;
+import us.kbase.narrativemethodstore.ListReposParams;
+import us.kbase.narrativemethodstore.LoadWidgetParams;
 import us.kbase.narrativemethodstore.MethodBriefInfo;
 import us.kbase.narrativemethodstore.MethodFullInfo;
 import us.kbase.narrativemethodstore.MethodSpec;
@@ -41,6 +47,7 @@ import us.kbase.narrativemethodstore.NarrativeMethodStoreClient;
 import us.kbase.narrativemethodstore.NarrativeMethodStoreServer;
 import us.kbase.narrativemethodstore.Publication;
 import us.kbase.narrativemethodstore.RegexMatcher;
+import us.kbase.narrativemethodstore.RepoDetails;
 import us.kbase.narrativemethodstore.Status;
 import us.kbase.narrativemethodstore.TypeInfo;
 import us.kbase.narrativemethodstore.ValidateAppParams;
@@ -48,6 +55,7 @@ import us.kbase.narrativemethodstore.ValidateMethodParams;
 import us.kbase.narrativemethodstore.ValidateTypeParams;
 import us.kbase.narrativemethodstore.ValidationResults;
 import us.kbase.narrativemethodstore.db.DynamicRepoDB;
+import us.kbase.narrativemethodstore.db.DynamicRepoDB.RepoState;
 import us.kbase.narrativemethodstore.db.mongo.test.MongoDBHelper;
 
 /*
@@ -1019,6 +1027,20 @@ public class FullServerTest {
         Assert.assertEquals(1, db.listRepoVersions(moduleName).size());
         Assert.assertEquals(repoVer, db.getRepoLastVersion(moduleName));
         Assert.assertEquals(commitHash, db.getRepoDetails(moduleName).getGitCommitHash());
+        Assert.assertEquals(1L, (long)CLIENT.isRepoRegistered(new CurrentRepoParams().withModuleName(moduleName)));
+        long ver1 = CLIENT.getRepoLastVersion(new CurrentRepoParams().withModuleName(moduleName));
+        Assert.assertEquals("[" + moduleName + "]", CLIENT.listRepoModuleNames(new ListReposParams()).toString());
+        RepoDetails rd = CLIENT.getRepoDetails(new HistoryRepoParams().withModuleName(moduleName));
+        Assert.assertEquals(moduleName, rd.getModuleName());
+        Assert.assertEquals("[FeatureComparisionResultView.js]", rd.getWidgetIds().toString());
+        Assert.assertEquals("[" + ver1 + "]", CLIENT.listRepoVersions(new CurrentRepoParams().withModuleName(moduleName)).toString());
+        Assert.assertNotNull(CLIENT.loadWidgetJavaScript(new LoadWidgetParams().withModuleName(moduleName).withWidgetId("FeatureComparisionResultView.js")));
+        SERVER.getLocalGitDB().setRepoState(rd.getOwners().get(0), moduleName, "disabled");
+        Assert.assertEquals("disabled", CLIENT.getRepoState(new CurrentRepoParams().withModuleName(moduleName)));
+        long ver2 = SERVER.getLocalGitDB().registerRepo(rd.getOwners().get(0), rd.getGitUrl());
+        Assert.assertEquals("ready", CLIENT.getRepoState(new CurrentRepoParams().withModuleName(moduleName)));
+        Assert.assertEquals(ver2, (long)CLIENT.getRepoLastVersion(new CurrentRepoParams().withModuleName(moduleName)));
+        Assert.assertEquals("[" + ver1 + ", " + ver2 + "]", CLIENT.listRepoVersions(new CurrentRepoParams().withModuleName(moduleName)).toString());
 	}
 
 	private static String getTestFileFromSpecsRepo(String path) {
