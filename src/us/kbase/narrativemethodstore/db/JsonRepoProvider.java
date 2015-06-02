@@ -1,5 +1,6 @@
 package us.kbase.narrativemethodstore.db;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -11,13 +12,15 @@ import us.kbase.narrativemethodstore.exceptions.NarrativeMethodStoreException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class JsonRepoProvider implements RepoProvider {
+    private final DynamicRepoDB db;
     private final RepoData data;
     
-    public JsonRepoProvider(String jsonString) throws NarrativeMethodStoreException {
-        this(jsonStringToRepoData(jsonString));
+    public JsonRepoProvider(DynamicRepoDB db, String jsonString) throws NarrativeMethodStoreException {
+        this(db, jsonStringToRepoData(jsonString));
     }
 
-    public JsonRepoProvider(RepoData data) throws NarrativeMethodStoreException {
+    public JsonRepoProvider(DynamicRepoDB db, RepoData data) throws NarrativeMethodStoreException {
+        this.db = db;
         this.data = data;
     }
     
@@ -54,8 +57,8 @@ public class JsonRepoProvider implements RepoProvider {
     }
     
     @Override
-    public String loadReadmeFile() throws NarrativeMethodStoreException {
-        return data.readmeFile;
+    public FilePointer getReadmeFile() throws NarrativeMethodStoreException {
+        return fp(data.readmeFile);
     }
     
     /////////// data    ///////////
@@ -74,25 +77,36 @@ public class JsonRepoProvider implements RepoProvider {
     }
     
     @Override
-    public String loadUINarrativeMethodSpec(String methodId) throws NarrativeMethodStoreException {
-        return data.uiNarrativeMethodIdToSpec.get(methodId);
+    public FilePointer getUINarrativeMethodSpec(String methodId) throws NarrativeMethodStoreException {
+        return fp(data.uiNarrativeMethods.get(methodId).specFile);
     }
     
     @Override
-    public String loadUINarrativeMethodDisplay(String methodId) throws NarrativeMethodStoreException {
-        return data.uiNarrativeMethodIdToDisplay.get(methodId);
+    public FilePointer getUINarrativeMethodDisplay(String methodId) throws NarrativeMethodStoreException {
+        return fp(data.uiNarrativeMethods.get(methodId).displayFile);
+    }
+
+    @Override
+    public List<String> listScreenshotIDs(String methodId)
+            throws NarrativeMethodStoreException {
+        return new ArrayList<String>(data.uiNarrativeMethods.get(methodId).screenshotIdToFile.keySet());
     }
     
+    @Override
+    public FilePointer getScreenshot(String methodId, String screenshotId)
+            throws NarrativeMethodStoreException {
+        return fp(data.uiNarrativeMethods.get(methodId).screenshotIdToFile.get(screenshotId));
+    }
+
     @Override
     public List<String> listUIWidgetIds() throws NarrativeMethodStoreException {
-        return new ArrayList<String>(data.uiWidgetIdToJavaScript.keySet());
+        return new ArrayList<String>(data.uiWidgetIdToFile.keySet());
     }
     
     @Override
-    public String loadUIWidgetJS(String widgetId) throws NarrativeMethodStoreException {
-        return data.uiWidgetIdToJavaScript.get(widgetId);
+    public FilePointer getUIWidgetJS(String widgetId) throws NarrativeMethodStoreException {
+        return fp(data.uiWidgetIdToFile.get(widgetId));
     }
-    
     /////////// [utils] ///////////
     
     @Override
@@ -116,30 +130,60 @@ public class JsonRepoProvider implements RepoProvider {
         }
     }
     
-    public static RepoData repoProviderToData(RepoProvider repo) throws NarrativeMethodStoreException {
+    private static String fId(DynamicRepoDB db, String moduleName, FilePointer fp) throws NarrativeMethodStoreException {
+        if (fp.getFileId() != null)
+            return fp.getFileId().getId();
+        return db.saveFile(moduleName, fp.getFile()).getId();
+    }
+    
+    /**
+     * Transform RepoProvider data into simple structure with storing files into DB.
+     * @param db
+     * @param repo
+     * @return
+     * @throws NarrativeMethodStoreException
+     */
+    public static RepoData repoProviderToData(DynamicRepoDB db, RepoProvider repo) throws NarrativeMethodStoreException {
+        String mn = repo.getModuleName();
         RepoData ret = new RepoData();
         ret.url = repo.getUrl();
         ret.gitCommitHash = repo.getGitCommitHash();
-        ret.moduleName = repo.getModuleName();
+        ret.moduleName = mn;
         ret.moduleDescription = repo.getModuleDescription();
         ret.serviceLanguage = repo.getServiceLanguage();
         ret.owners = repo.listOwners();
-        ret.readmeFile = repo.loadReadmeFile();
+        ret.readmeFile = fId(db, mn, repo.getReadmeFile());
         ret.uiNarrativeMethodIds = repo.listUINarrativeMethodIDs();
-        ret.uiNarrativeMethodIdToSpec = new TreeMap<String, String>();
-        ret.uiNarrativeMethodIdToDisplay = new TreeMap<String, String>();
+        ret.uiNarrativeMethods = new TreeMap<String, MethodData>();
         for (String methodId : ret.uiNarrativeMethodIds) {
-            ret.uiNarrativeMethodIdToSpec.put(methodId, repo.loadUINarrativeMethodSpec(methodId));
-            ret.uiNarrativeMethodIdToDisplay.put(methodId, repo.loadUINarrativeMethodDisplay(methodId));
+            MethodData md = new MethodData();
+            ret.uiNarrativeMethods.put(methodId, md);
+            md.specFile = fId(db, mn, repo.getUINarrativeMethodSpec(methodId));
+            md.displayFile = fId(db, mn, repo.getUINarrativeMethodDisplay(methodId));
+            md.screenshotIdToFile = new TreeMap<String, String>();
+            for (String screenshotId : repo.listScreenshotIDs(methodId)) {
+                md.screenshotIdToFile.put(screenshotId, fId(db, mn, repo.getScreenshot(methodId, screenshotId)));
+            }
         }
-        ret.uiWidgetIdToJavaScript = new TreeMap<String, String>();
+        ret.uiWidgetIdToFile = new TreeMap<String, String>();
         for (String widgetId : repo.listUIWidgetIds())
-            ret.uiWidgetIdToJavaScript.put(widgetId, repo.loadUIWidgetJS(widgetId));
+            ret.uiWidgetIdToFile.put(widgetId, fId(db, mn, repo.getUIWidgetJS(widgetId)));
         return ret;
     }
 
-    public static String repoProviderToJsonString(RepoProvider repo) throws NarrativeMethodStoreException {
-        return repoDataToJsonString(repoProviderToData(repo));
+    /**
+     * Transform data into JSON string with storing files into db.
+     * @param db
+     * @param repo
+     * @return
+     * @throws NarrativeMethodStoreException
+     */
+    public static String repoProviderToJsonString(DynamicRepoDB db, RepoProvider repo) throws NarrativeMethodStoreException {
+        return repoDataToJsonString(repoProviderToData(db, repo));
+    }
+    
+    private FilePointer fp(String fileId) throws NarrativeMethodStoreException {
+        return db.loadFile(new FileId(fileId));
     }
     
     public static class RepoData {
@@ -151,8 +195,13 @@ public class JsonRepoProvider implements RepoProvider {
         public List<String> owners;
         public String readmeFile;
         public List<String> uiNarrativeMethodIds;
-        public Map<String, String> uiNarrativeMethodIdToSpec;
-        public Map<String, String> uiNarrativeMethodIdToDisplay;
-        public Map<String, String> uiWidgetIdToJavaScript;
+        public Map<String, MethodData> uiNarrativeMethods;
+        public Map<String, String> uiWidgetIdToFile;
+    }
+    
+    public static class MethodData {
+        public String specFile;
+        public String displayFile;
+        public Map<String, String> screenshotIdToFile;
     }
 }

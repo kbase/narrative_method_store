@@ -6,13 +6,18 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.io.IOUtils;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 
+import us.kbase.narrativemethodstore.db.FileId;
+import us.kbase.narrativemethodstore.db.FilePointer;
 import us.kbase.narrativemethodstore.db.RepoProvider;
 import us.kbase.narrativemethodstore.exceptions.NarrativeMethodStoreException;
 
@@ -71,8 +76,9 @@ public class FileRepoProvider implements RepoProvider {
     }
     
     @Override
-    public String loadReadmeFile() throws NarrativeMethodStoreException {
-        return get(new File(rootDir, "README.md"), true);
+    public FilePointer getReadmeFile() throws NarrativeMethodStoreException {
+        //return get(new File(rootDir, "README.md"), true);
+        return fp(new File(rootDir, "README.md"));
     }
 
     @Override
@@ -106,6 +112,10 @@ public class FileRepoProvider implements RepoProvider {
         return new File(getUIDir(), "widgets");
     }
 
+    protected File getImgDir(String methodId) throws NarrativeMethodStoreException {
+        return new File(getMethodDir(methodId), "img");
+    }
+
     @Override
     public List<String> listUINarrativeMethodIDs() throws NarrativeMethodStoreException {
         List <String> methodList = new ArrayList<String>();
@@ -126,16 +136,15 @@ public class FileRepoProvider implements RepoProvider {
     }
 
     @Override
-    public String loadUINarrativeMethodSpec(String methodId) throws NarrativeMethodStoreException {
-        File ret = new File(getMethodDir(methodId), "spec.json");
-        return get(ret);
+    public FilePointer getUINarrativeMethodSpec(String methodId) throws NarrativeMethodStoreException {
+        return fp(new File(getMethodDir(methodId), "spec.json"));
     }
     
     @Override
-    public String loadUINarrativeMethodDisplay(String methodId) throws NarrativeMethodStoreException {
-        File ret = new File(getMethodDir(methodId), "display.yaml");
-        return get(ret);
+    public FilePointer getUINarrativeMethodDisplay(String methodId) throws NarrativeMethodStoreException {
+        return fp(new File(getMethodDir(methodId), "display.yaml"));
     }
+    
     
     @Override
     public List<String> listUIWidgetIds() throws NarrativeMethodStoreException {
@@ -150,11 +159,39 @@ public class FileRepoProvider implements RepoProvider {
     }
     
     @Override
-    public String loadUIWidgetJS(String widgetId) throws NarrativeMethodStoreException {
-        File ret = new File(getWidgetsDir(), widgetId);
-        return get(ret);
+    public FilePointer getUIWidgetJS(String widgetId) throws NarrativeMethodStoreException {
+        return fp(new File(getWidgetsDir(), widgetId));
     }
     
+    
+    @Override
+    public List<String> listScreenshotIDs(String methodId)
+            throws NarrativeMethodStoreException {
+        List <String> ret = new ArrayList<String>();
+        if (!getImgDir(methodId).exists())
+            return ret;
+        for (File sub : getImgDir(methodId).listFiles()) {
+            if (sub.isFile() && isScreenshot(sub.getName()))
+                ret.add(sub.getName());
+        }
+        return ret;
+    }
+    
+    private static boolean isScreenshot(String fileName) {
+        int dotPos = fileName.lastIndexOf('.');
+        if (dotPos <= 0)
+            return false;
+        String ext = fileName.substring(dotPos + 1).toLowerCase();
+        return ext.equals("jpg") || ext.equals("jpeg") || ext.equals("png") ||
+                ext.equals("bmp") || ext.equals("gif") || ext.equals("tiff") ||
+                ext.equals("svg");
+    }
+    
+    @Override
+    public FilePointer getScreenshot(String methodId, String screenshotId)
+            throws NarrativeMethodStoreException {
+        return fp(new File(getImgDir(methodId), screenshotId));
+    }
     /////////// [utils] ///////////
     
     @Override
@@ -188,5 +225,48 @@ public class FileRepoProvider implements RepoProvider {
         in.close();
         return response.toString();
     }
-
+    
+    private FilePointer fp(File f) {
+        return new DiskFilePointer(f);
+    }
+    
+    public static class DiskFilePointer implements FilePointer {
+        private final File file;
+        
+        public DiskFilePointer(File f) {
+            this.file = f;
+        }
+        
+        @Override
+        public FileId getFileId() {
+            return null;
+        }
+        
+        @Override
+        public File getFile() {
+            return file;
+        }
+        
+        @Override
+        public String getName() {
+            return file.getName();
+        }
+        
+        @Override
+        public long length() {
+            return file.length();
+        }
+        
+        @Override
+        public void saveToStream(OutputStream os)
+                throws NarrativeMethodStoreException {
+            try {
+                InputStream input = new FileInputStream(file);
+                IOUtils.copy(input, os);
+                input.close();
+            } catch (IOException ex) {
+                throw new NarrativeMethodStoreException(ex);
+            }
+        }
+    }
 }

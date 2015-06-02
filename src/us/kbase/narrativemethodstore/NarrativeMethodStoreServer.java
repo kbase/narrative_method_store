@@ -2,6 +2,8 @@ package us.kbase.narrativemethodstore;
 
 import java.util.List;
 import java.util.Map;
+
+import us.kbase.auth.AuthService;
 import us.kbase.auth.AuthToken;
 import us.kbase.common.service.JsonServerMethod;
 import us.kbase.common.service.JsonServerServlet;
@@ -19,7 +21,6 @@ import java.util.regex.Pattern;
 import org.ini4j.Ini;
 
 import us.kbase.narrativemethodstore.db.NarrativeCategoriesIndex;
-import us.kbase.narrativemethodstore.db.RepoProvider;
 import us.kbase.narrativemethodstore.db.Validator;
 import us.kbase.narrativemethodstore.db.github.LocalGitDB;
 import us.kbase.narrativemethodstore.db.mongo.MongoDynamicRepoDB;
@@ -47,14 +48,18 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
     public static final String     CFG_PROP_MONGO_DBNAME = "method-spec-mongo-dbname";
     public static final String       CFG_PROP_MONGO_USER = "method-spec-mongo-user";
     public static final String   CFG_PROP_MONGO_PASSWORD = "method-spec-mongo-password";
+    public static final String   CFG_PROP_MONGO_READONLY = "method-spec-mongo-readonly";
     public static final String      CFG_PROP_ADMIN_USERS = "method-spec-admin-users";
+    public static final String        CFG_PROP_SHOCK_URL = "method-spec-shock-url";
+    public static final String       CFG_PROP_SHOCK_USER = "method-spec-shock-user";
+    public static final String   CFG_PROP_SHOCK_PASSWORD = "method-spec-shock-password";
     
-    public static final String VERSION = "0.2.6";
+    public static final String VERSION = "0.3.0-alpha";
     
     private static Throwable configError = null;
     private static Map<String, String> config = null;
 
-    private LocalGitDB localGitDB;
+    private static LocalGitDB localGitDB;
 
     public static Map<String, String> config() {
     	if (config != null)
@@ -81,25 +86,25 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
 		return config;
     }
     
-    private String getGitRepo() {
+    private static String getGitRepo() {
     	String ret = config().get(CFG_PROP_GIT_REPO);
     	if (ret == null)
     		throw new IllegalStateException("Parameter " + CFG_PROP_GIT_REPO + " is not defined in configuration");
     	return ret;
     }
-    private String getGitBranch() {
+    private static String getGitBranch() {
     	String ret = config().get(CFG_PROP_GIT_BRANCH);
     	if (ret == null)
     		throw new IllegalStateException("Parameter " + CFG_PROP_GIT_BRANCH + " is not defined in configuration");
     	return ret;
     }
-    private String getGitLocalDir() {
+    private static String getGitLocalDir() {
     	String ret = config().get(CFG_PROP_GIT_LOCAL_DIR);
     	if (ret == null)
     		throw new IllegalStateException("Parameter " + CFG_PROP_GIT_LOCAL_DIR + " is not defined in configuration");
     	return ret;
     }
-    private int getGitRefreshRate() {
+    private static int getGitRefreshRate() {
     	String ret = config().get(CFG_PROP_GIT_REFRESH_RATE);
     	if (ret == null)
     		throw new IllegalStateException("Parameter " + CFG_PROP_GIT_REFRESH_RATE + " is not defined in configuration");
@@ -109,7 +114,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
     		throw new IllegalStateException("Parameter " + CFG_PROP_GIT_REFRESH_RATE + " is not defined in configuration as integer: " + ret);
     	}
     }
-    private int getCacheSize() {
+    private static int getCacheSize() {
     	String ret = config().get(CFG_PROP_CACHE_SIZE);
     	if (ret == null)
     		throw new IllegalStateException("Parameter " + CFG_PROP_CACHE_SIZE + " is not defined in configuration");
@@ -119,25 +124,25 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
     		throw new IllegalStateException("Parameter " + CFG_PROP_CACHE_SIZE + " is not defined in configuration as integer: " + ret);
     	}
     }
-    private String getTempDir() {
+    private static String getTempDir() {
         String ret = config().get(CFG_PROP_TEMP_DIR);
         if (ret == null)
             throw new IllegalStateException("Parameter " + CFG_PROP_TEMP_DIR + " is not defined in configuration");
         return ret;
     }
-    private String getMongoHost() {
+    private static String getMongoHost() {
         String ret = config().get(CFG_PROP_MONGO_HOST);
         if (ret == null)
             throw new IllegalStateException("Parameter " + CFG_PROP_MONGO_HOST + " is not defined in configuration");
         return ret;
     }
-    private String getMongoDbname() {
+    private static String getMongoDbname() {
         String ret = config().get(CFG_PROP_MONGO_DBNAME);
         if (ret == null)
             throw new IllegalStateException("Parameter " + CFG_PROP_MONGO_DBNAME + " is not defined in configuration");
         return ret;
     }
-    private String getAdminUsers() {
+    private static String getAdminUsers() {
         String ret = config().get(CFG_PROP_ADMIN_USERS);
         if (ret == null)
             throw new IllegalStateException("Parameter " + CFG_PROP_ADMIN_USERS + " is not defined in configuration");
@@ -154,7 +159,37 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
     	return data.subList(from, to);
     }
     
-    public LocalGitDB getLocalGitDB() {
+    public static synchronized LocalGitDB getLocalGitDB() throws Exception {
+        if (localGitDB == null) {
+            System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_GIT_REPO +" = " + getGitRepo());
+            System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_GIT_BRANCH +" = " + getGitBranch());
+            System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_GIT_LOCAL_DIR +" = " + getGitLocalDir());
+            System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_GIT_REFRESH_RATE +" = " + getGitRefreshRate());
+            System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_CACHE_SIZE +" = " + getCacheSize());
+            System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_TEMP_DIR +" = " + getTempDir());
+            System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_MONGO_HOST +" = " + getMongoHost());
+            System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_MONGO_DBNAME +" = " + getMongoDbname());
+            String dbUser = config().get(CFG_PROP_MONGO_USER);
+            String dbPwd = config().get(CFG_PROP_MONGO_PASSWORD);
+            System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_MONGO_USER +" = " + (dbUser == null ? "<not-set>" : dbUser));
+            System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_MONGO_PASSWORD +" = " + (dbPwd == null ? "<not-set>" : "[*****]"));
+            String mongoReadOnlyText = config().get(CFG_PROP_MONGO_READONLY);
+            boolean mongoRO = mongoReadOnlyText != null && (mongoReadOnlyText.equals("1") || mongoReadOnlyText.equals("true") || 
+                    mongoReadOnlyText.equals("y") || mongoReadOnlyText.equals("yes"));
+            System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_MONGO_READONLY +" = " + mongoRO);
+            System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_ADMIN_USERS +" = " + getAdminUsers());
+            String shockUrl = config().get(CFG_PROP_SHOCK_URL);
+            System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_SHOCK_URL +" = " + (shockUrl == null ? "<not-set>" : shockUrl));
+            String shockUser = config().get(CFG_PROP_SHOCK_USER);
+            String shockPwd = config().get(CFG_PROP_SHOCK_PASSWORD);
+            System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_SHOCK_USER +" = " + (shockUser == null ? "<not-set>" : shockUser));
+            System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_SHOCK_PASSWORD +" = " + (shockPwd == null ? "<not-set>" : "[*****]"));
+            List<String> adminUsers = Arrays.asList(getAdminUsers().trim().split(Pattern.quote(",")));
+            AuthToken shockToken = shockUser == null && shockPwd == null ? null : AuthService.login(shockUser, shockPwd).getToken();
+            localGitDB = new LocalGitDB(new URL(getGitRepo()), getGitBranch(), new File(getGitLocalDir()), getGitRefreshRate(), getCacheSize(), 
+                    new MongoDynamicRepoDB(getMongoHost(), getMongoDbname(), dbUser, dbPwd, adminUsers, mongoRO, 
+                            shockUrl == null ? null : new URL(shockUrl), shockToken), new File(getTempDir()));
+        }
         return localGitDB;
     }
     //END_CLASS_HEADER
@@ -162,24 +197,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
     public NarrativeMethodStoreServer() throws Exception {
         super("NarrativeMethodStore");
         //BEGIN_CONSTRUCTOR
-        
-        System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_GIT_REPO +" = " + getGitRepo());
-        System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_GIT_BRANCH +" = " + getGitBranch());
-        System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_GIT_LOCAL_DIR +" = " + getGitLocalDir());
-        System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_GIT_REFRESH_RATE +" = " + getGitRefreshRate());
-        System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_CACHE_SIZE +" = " + getCacheSize());
-        System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_TEMP_DIR +" = " + getTempDir());
-        System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_MONGO_HOST +" = " + getMongoHost());
-        System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_MONGO_DBNAME +" = " + getMongoDbname());
-        String dbUser = config().get(CFG_PROP_MONGO_USER);
-        String dbPwd = config().get(CFG_PROP_MONGO_PASSWORD);
-        System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_MONGO_USER +" = " + (dbUser == null ? "<not-set>" : dbUser));
-        System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_MONGO_PASSWORD +" = " + (dbPwd == null ? "<not-set>" : "[*****]"));
-        System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_ADMIN_USERS +" = " + getAdminUsers());
-        List<String> adminUsers = Arrays.asList(getAdminUsers().trim().split(Pattern.quote(",")));
-        localGitDB = new LocalGitDB(new URL(getGitRepo()), getGitBranch(), new File(getGitLocalDir()), getGitRefreshRate(), getCacheSize(), 
-                new MongoDynamicRepoDB(getMongoHost(), getMongoDbname(), dbUser, dbPwd, adminUsers), new File(getTempDir()));
-        
+        getLocalGitDB();
         //END_CONSTRUCTOR
     }
 
@@ -737,21 +755,8 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
         RepoDetails returnVal = null;
         //BEGIN get_repo_details
         LocalGitDB db = getLocalGitDB();
-        RepoProvider repo = db.getRepoDetails(params.getModuleName(), 
+        returnVal = db.getRepoDetails(params.getModuleName(), 
                 params.getVersion(), params.getWithDisabled());
-        String repoModuleName = repo.getModuleName();
-        List<String> methodIds = new ArrayList<String>();
-        for (String shortId : repo.listUINarrativeMethodIDs())
-            methodIds.add(db.getFullMethodName(repoModuleName, shortId));
-        returnVal = new RepoDetails().withModuleName(repoModuleName)
-                .withModuleDescription(repo.getModuleDescription())
-                .withServiceLanguage(repo.getServiceLanguage())
-                .withGitUrl(repo.getUrl())
-                .withGitCommitHash(repo.getGitCommitHash())
-                .withOwners(repo.listOwners())
-                .withReadme(repo.loadReadmeFile())
-                .withMethodIds(methodIds)
-                .withWidgetIds(repo.listUIWidgetIds());
         //END get_repo_details
         return returnVal;
     }

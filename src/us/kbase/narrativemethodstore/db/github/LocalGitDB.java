@@ -1,14 +1,17 @@
 package us.kbase.narrativemethodstore.db.github;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -34,9 +37,11 @@ import us.kbase.narrativemethodstore.AppSpec;
 import us.kbase.narrativemethodstore.MethodBriefInfo;
 import us.kbase.narrativemethodstore.MethodFullInfo;
 import us.kbase.narrativemethodstore.MethodSpec;
+import us.kbase.narrativemethodstore.RepoDetails;
 import us.kbase.narrativemethodstore.TypeInfo;
 import us.kbase.narrativemethodstore.db.DynamicRepoDB;
 import us.kbase.narrativemethodstore.db.FileLookup;
+import us.kbase.narrativemethodstore.db.FilePointer;
 import us.kbase.narrativemethodstore.db.MethodSpecDB;
 import us.kbase.narrativemethodstore.db.NarrativeAppData;
 import us.kbase.narrativemethodstore.db.NarrativeCategoriesIndex;
@@ -252,6 +257,12 @@ public class LocalGitDB implements MethodSpecDB {
 		return ret;
 	}
 
+	private String asText(FilePointer fp) throws NarrativeMethodStoreException {
+	    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+	    fp.saveToStream(baos);
+	    return new String(baos.toByteArray(), Charset.forName("utf-8"));
+	}
+	
 	protected NarrativeMethodData loadMethodDataUncached(final String methodId) throws NarrativeMethodStoreException {
 		try {
 			// Fetch the resources needed
@@ -260,8 +271,9 @@ public class LocalGitDB implements MethodSpecDB {
 			if (dynamicRepoMethods.contains(methodId)) {
 			    String[] moduleNameAndMethodId = methodId.split("/");
 			    RepoProvider repo = dynamicRepos.getRepoDetails(moduleNameAndMethodId[0]);
-			    spec = mapper.readTree(repo.loadUINarrativeMethodSpec(moduleNameAndMethodId[1]));
-			    display = YamlUtils.getDocumentAsYamlMap(repo.loadUINarrativeMethodDisplay(moduleNameAndMethodId[1]));
+			    
+			    spec = mapper.readTree(asText(repo.getUINarrativeMethodSpec(moduleNameAndMethodId[1])));
+			    display = YamlUtils.getDocumentAsYamlMap(asText(repo.getUINarrativeMethodDisplay(moduleNameAndMethodId[1])));
 			} else {
 			    spec = getResourceAsJson("methods/"+methodId+"/spec.json");
 			    display = getResourceAsYamlMap("methods/"+methodId+"/display.yaml");
@@ -628,15 +640,34 @@ public class LocalGitDB implements MethodSpecDB {
 	        throws NarrativeMethodStoreException {
 	    return dynamicRepos.listRepoModuleNames(bool(withDisabled));
 	}
-	
-	public RepoProvider getRepoDetails(String moduleName, Long version, Long withDisabled)
-	    throws NarrativeMethodStoreException {
-	    checkIfRepoDisabled(moduleName, withDisabled);
-	    if (version == null) {
-	        return dynamicRepos.getRepoDetails(moduleName);
-	    } else {
-	        return dynamicRepos.getRepoDetailsHistory(moduleName, version);
-	    }
+
+	public RepoProvider getRepoProvider(String moduleName, Long version, Long withDisabled)
+	        throws NarrativeMethodStoreException {
+        checkIfRepoDisabled(moduleName, withDisabled);
+        if (version == null) {
+            return dynamicRepos.getRepoDetails(moduleName);
+        } else {
+            return dynamicRepos.getRepoDetailsHistory(moduleName, version);
+        }
+	}
+
+	public RepoDetails getRepoDetails(String moduleName, Long version, Long withDisabled)
+	        throws NarrativeMethodStoreException {
+	    RepoProvider repo = getRepoProvider(moduleName, version, withDisabled);
+        String repoModuleName = repo.getModuleName();
+        List<String> methodIds = new ArrayList<String>();
+        for (String shortId : repo.listUINarrativeMethodIDs())
+            methodIds.add(getFullMethodName(repoModuleName, shortId));
+        return new RepoDetails().withModuleName(repoModuleName)
+                .withModuleDescription(repo.getModuleDescription())
+                .withServiceLanguage(repo.getServiceLanguage())
+                .withGitUrl(repo.getUrl())
+                .withGitCommitHash(repo.getGitCommitHash())
+                .withOwners(repo.listOwners())
+                .withReadme(asText(repo.getReadmeFile()))
+                .withMethodIds(methodIds)
+                .withWidgetIds(repo.listUIWidgetIds());
+
 	}
 	
 	public List<Long> listRepoVersions(String moduleName, Long withDisabled) 
@@ -647,8 +678,8 @@ public class LocalGitDB implements MethodSpecDB {
 	
 	public String loadWidgetJavaScript(String moduleName, Long version, String widgetId)
 	        throws NarrativeMethodStoreException {
-	    RepoProvider repo = getRepoDetails(moduleName, version, null);
-	    return repo.loadUIWidgetJS(widgetId);
+	    RepoProvider repo = getRepoProvider(moduleName, version, null);
+	    return asText(repo.getUIWidgetJS(widgetId));
 	}
 	
 	public void setRepoState(String userId, String moduleName, String repoState)
@@ -658,5 +689,11 @@ public class LocalGitDB implements MethodSpecDB {
 	
 	public String getRepoState(String moduleName) throws NarrativeMethodStoreException {
 	    return dynamicRepos.getRepoState(moduleName).name();
+	}
+	
+	public void saveScreenshotIntoStream(String moduleName, String methodId, 
+	        String screenshotId, OutputStream os) throws NarrativeMethodStoreException {
+	    dynamicRepos.getRepoDetails(moduleName).getScreenshot(methodId, 
+	            screenshotId).saveToStream(os);
 	}
 }

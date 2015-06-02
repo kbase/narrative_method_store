@@ -1,5 +1,7 @@
 package us.kbase.narrativemethodstore.db;
 
+import java.io.File;
+import java.io.InputStream;
 import java.util.List;
 import java.util.Set;
 
@@ -23,17 +25,17 @@ public interface DynamicRepoDB {
     
     public Set<String> listRepoOwners(String repoModuleName) throws NarrativeMethodStoreException;
     
-    //public void setRepoOwner(String currentUserId, String repoModuleName, String changedUserId, boolean isAdmin) throws NarrativeMethodStoreException;
-    
-    //public void removeRepoOwner(String currentUserId, String repoModuleName, String removedUserId) throws NarrativeMethodStoreException;
-    
     public boolean isRepoOwner(String repoModuleName, String userId) throws NarrativeMethodStoreException;
-    
-    //public boolean isRepoAdmin(String repoModuleName, String userId) throws NarrativeMethodStoreException;
     
     public RepoState getRepoState(String repoModuleName) throws NarrativeMethodStoreException;
     
     public void setRepoState(String userId, String repoModuleName, RepoState state) throws NarrativeMethodStoreException;
+    
+    public FileId saveFile(String moduleName, File file) throws NarrativeMethodStoreException;
+
+    public FileId saveFile(String moduleName, FileProvider file) throws NarrativeMethodStoreException;
+
+    public FilePointer loadFile(FileId fileId) throws NarrativeMethodStoreException;
     
     public enum RepoState {
         ready(true), building(true), testing(true), disabled(false);
@@ -47,5 +49,11 @@ public interface DynamicRepoDB {
         public boolean isAdminOnly() {
             return adminOnly;
         }
+    }
+    
+    public interface FileProvider {
+        public String getName() throws NarrativeMethodStoreException;
+        public long length() throws NarrativeMethodStoreException;
+        public InputStream openStream() throws NarrativeMethodStoreException;
     }
 }

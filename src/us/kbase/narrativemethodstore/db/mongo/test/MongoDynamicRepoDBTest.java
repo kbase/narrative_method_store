@@ -2,16 +2,24 @@ package us.kbase.narrativemethodstore.db.mongo.test;
 
 import java.net.URL;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import junit.framework.Assert;
 
+import org.jongo.Jongo;
+import org.jongo.MongoCollection;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.mongodb.DB;
+
+import us.kbase.auth.AuthService;
+import us.kbase.auth.AuthToken;
 import us.kbase.common.mongo.GetMongoDB;
 import us.kbase.narrativemethodstore.db.JsonRepoProvider;
 import us.kbase.narrativemethodstore.db.RepoProvider;
@@ -19,12 +27,16 @@ import us.kbase.narrativemethodstore.db.DynamicRepoDB.RepoState;
 import us.kbase.narrativemethodstore.db.github.GitHubRepoProvider;
 import us.kbase.narrativemethodstore.db.mongo.MongoDynamicRepoDB;
 import us.kbase.narrativemethodstore.exceptions.NarrativeMethodStoreException;
+import us.kbase.shock.client.BasicShockClient;
+import us.kbase.shock.client.ShockNodeId;
 
 public class MongoDynamicRepoDBTest {
     private static final String dbName = "test_repo_registry_mongo";
-
     private static final MongoDBHelper dbHelper = new MongoDBHelper("registry");
-    
+
+    private static URL shockUrl = null;
+    private static AuthToken shockToken = null;
+
     @BeforeClass
     public static void beforeClass() throws Exception {
         dbHelper.startup(System.getProperty("mongod.path"));
@@ -38,7 +50,8 @@ public class MongoDynamicRepoDBTest {
     
     @Test
     public void mainTest() throws Exception {
-        String url = "https://github.com/kbaseIncubator/genome_feature_comparator";
+        //String url = "https://github.com/kbaseIncubator/genome_feature_comparator";
+        String url = "https://github.com/rsutormin/genome_feature_comparator";
         String repoModuleName = "GenomeFeatureComparator";
         String globalAdmin = "admin";
         String user1 = "rsutormin";
@@ -47,7 +60,7 @@ public class MongoDynamicRepoDBTest {
         
         String host = "localhost:" + dbHelper.getMongoPort();
         MongoDynamicRepoDB db = new MongoDynamicRepoDB(host, dbName, null, null, 
-                Arrays.asList(globalAdmin));
+                Arrays.asList(globalAdmin), false, shockUrl, shockToken);
         Assert.assertEquals(0, db.listRepoModuleNames(false).size());
         RepoProvider pvd = new GitHubRepoProvider(new URL(url), dbHelper.getWorkDir());
         db.registerRepo(user1, pvd);
@@ -84,8 +97,8 @@ public class MongoDynamicRepoDBTest {
                 ver1 != ver2);
         
         RepoProvider savedRP = db.getRepoDetails(repoModuleName);
-        Assert.assertEquals(JsonRepoProvider.repoProviderToJsonString(pvd), 
-                JsonRepoProvider.repoProviderToJsonString(savedRP));
+        Assert.assertEquals(JsonRepoProvider.repoProviderToJsonString(db, pvd), 
+                JsonRepoProvider.repoProviderToJsonString(db, savedRP));
         Assert.assertFalse(savedRP.getGitCommitHash().contains("\n"));
         Assert.assertEquals(40, savedRP.getGitCommitHash().length());
         
@@ -118,10 +131,31 @@ public class MongoDynamicRepoDBTest {
         }
     }
     
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     @Before 
     @After
     public void cleanup() throws Exception {
         String host = "localhost:" + dbHelper.getMongoPort();
-        GetMongoDB.getDB(host, dbName, 0, 10).dropDatabase();
+        DB db = GetMongoDB.getDB(host, dbName, 0, 10);
+        if (shockUrl != null) {
+            try {
+                Jongo jdb = new Jongo(db);
+                MongoCollection files = jdb.getCollection("repo_files");
+                Iterator<Map> it = files.find("{}").as(Map.class).iterator();
+                while (it.hasNext()) {
+                    Map<String, Object> obj = it.next();
+                    String fileName = (String)obj.get("file_name");
+                    String shockNodeId = (String)obj.get("shock_node_id");
+                    if (shockNodeId != null) {
+                        System.out.println("Deleting shock node for " + fileName);
+                        BasicShockClient cl = new BasicShockClient(shockUrl, shockToken);
+                        cl.deleteNode(new ShockNodeId(shockNodeId));
+                    }
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+        db.dropDatabase();
     }
 }

@@ -12,17 +12,19 @@ public interface RepoProvider {
     public String getModuleDescription();
     public String getServiceLanguage();
     public List<String> listOwners();
-    public String loadReadmeFile() throws NarrativeMethodStoreException;
+    public FilePointer getReadmeFile() throws NarrativeMethodStoreException;
     /////////// data    ///////////
     /////////// docs    ///////////
     /////////// service ///////////
     /////////// test    ///////////
     /////////// ui      ///////////
     public List<String> listUINarrativeMethodIDs() throws NarrativeMethodStoreException;
-    public String loadUINarrativeMethodSpec(String methodId) throws NarrativeMethodStoreException;
-    public String loadUINarrativeMethodDisplay(String methodId) throws NarrativeMethodStoreException;
+    public FilePointer getUINarrativeMethodSpec(String methodId) throws NarrativeMethodStoreException;
+    public FilePointer getUINarrativeMethodDisplay(String methodId) throws NarrativeMethodStoreException;
     public List<String> listUIWidgetIds() throws NarrativeMethodStoreException;
-    public String loadUIWidgetJS(String widgetId) throws NarrativeMethodStoreException;
+    public FilePointer getUIWidgetJS(String widgetId) throws NarrativeMethodStoreException;
+    public List<String> listScreenshotIDs(String methodId) throws NarrativeMethodStoreException;
+    public FilePointer getScreenshot(String methodId, String screenshotId) throws NarrativeMethodStoreException;
     /////////// [utils] ///////////
     public void dispose() throws NarrativeMethodStoreException;
 }
