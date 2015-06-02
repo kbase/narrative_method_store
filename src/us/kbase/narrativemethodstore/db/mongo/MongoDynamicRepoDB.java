@@ -332,8 +332,7 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
                 loadFile(obj, ocs);
                 if (!ocs.isDifferent()) {
                     String fileId = (String)obj.get(FIELD_RF_FILE_ID);
-                    //new Exception("File was found: " + fileName + " -> " + fileId).printStackTrace();
-                    System.out.println("File was found: " + fileName + ", " + length + ", " + md5 + " -> " + fileId);
+                    //System.out.println("File was found: " + fileName + ", " + length + ", " + md5 + " -> " + fileId);
                     return new FileId(fileId);
                 }
             } finally {
@@ -383,7 +382,7 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
                         FIELD_RF_LENGTH, FIELD_RF_MD5, FIELD_RF_HEX_DATA, 
                         FIELD_RF_SHOCK_NODE_ID), fileId, moduleName, fileName, length, 
                         md5, hexData, shockNodeId);
-        System.out.println("File was saved: " + fileName + ", " + length + ", " + md5 + " -> " + fileId);
+        //System.out.println("File was saved: " + fileName + ", " + length + ", " + md5 + " -> " + fileId);
         return new FileId(fileId);
     }
     

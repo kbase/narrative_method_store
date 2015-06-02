@@ -161,6 +161,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
     
     public static synchronized LocalGitDB getLocalGitDB() throws Exception {
         if (localGitDB == null) {
+            // TODO: Make sure LocalGitDB doesn't require synchronization for when shared between servlet threads (including ImageServlet).
             System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_GIT_REPO +" = " + getGitRepo());
             System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_GIT_BRANCH +" = " + getGitBranch());
             System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_GIT_LOCAL_DIR +" = " + getGitLocalDir());

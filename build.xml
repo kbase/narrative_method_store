@@ -92,6 +92,7 @@
   <fileset id="client-jdoc-files" dir="${src}/us/kbase" defaultexcludes="yes">
     <include name="narrativemethodstore/*.java"/>
     <exclude name="narrativemethodstore/NarrativeMethodStoreServer.java"/>
+    <exclude name="narrativemethodstore/ImageServlet.java"/>
     <include name="common/service/*.java"/>
     <exclude name="common/service/JsonServer*"/>
     <exclude name="common/service/JacksonTupleModule.java"/>
@@ -110,6 +111,7 @@
   <fileset id="client-class-files" dir="${classes}" defaultexcludes="yes">
     <include name="us/kbase/narrativemethodstore/*.class"/>
     <exclude name="us/kbase/narrativemethodstore/NarrativeMethodStoreServer.class"/>
+    <exclude name="us/kbase/narrativemethodstore/ImageServlet.class"/>
     <include name="us/kbase/common/service/*.class"/>
     <exclude name="us/kbase/common/service/JsonServer*"/>
   </fileset>

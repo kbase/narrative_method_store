@@ -1,5 +1,11 @@
 package us.kbase.narrativemethodstore.db.mongo.test;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -8,6 +14,7 @@ import java.util.Map;
 
 import junit.framework.Assert;
 
+import org.apache.commons.io.IOUtils;
 import org.jongo.Jongo;
 import org.jongo.MongoCollection;
 import org.junit.After;
@@ -26,6 +33,7 @@ import us.kbase.narrativemethodstore.db.RepoProvider;
 import us.kbase.narrativemethodstore.db.DynamicRepoDB.RepoState;
 import us.kbase.narrativemethodstore.db.github.GitHubRepoProvider;
 import us.kbase.narrativemethodstore.db.mongo.MongoDynamicRepoDB;
+import us.kbase.narrativemethodstore.db.mongo.OutputComparatorStream;
 import us.kbase.narrativemethodstore.exceptions.NarrativeMethodStoreException;
 import us.kbase.shock.client.BasicShockClient;
 import us.kbase.shock.client.ShockNodeId;
@@ -129,6 +137,50 @@ public class MongoDynamicRepoDBTest {
             Assert.assertEquals("Repository " + unregModuleName + " wasn't registered", 
                     ex.getMessage());
         }
+        
+        String methodId = "compare_genome_features";
+        String imgId = pvd.listScreenshotIDs(methodId).get(0);
+        File imgFile = pvd.getScreenshot(methodId, imgId).getFile();
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        copyStreams(new FileInputStream(imgFile), baos, 10000);
+        byte[] imgData = baos.toByteArray();
+        File imgFile2 = new File(imgFile.getAbsolutePath() + ".2");
+        FileOutputStream fos = new FileOutputStream(imgFile2);
+        fos.write(imgData, 0, imgData.length / 2);
+        fos.close();
+        imgData[100] = (byte)(imgData[100] + 1);
+        File imgFile3 = new File(imgFile.getAbsolutePath() + ".3");
+        fos = new FileOutputStream(imgFile3);
+        fos.write(imgData);
+        fos.close();
+        int[] bufferSizes = {100, 1000, 10000, 100000};
+        for (int bufferSize: bufferSizes) {
+            Assert.assertTrue("Buffer size: " + bufferSize, diffFiles(imgFile, imgFile2, bufferSize));
+            Assert.assertTrue("Buffer size: " + bufferSize, diffFiles(imgFile2, imgFile, bufferSize));
+            Assert.assertTrue("Buffer size: " + bufferSize, diffFiles(imgFile, imgFile3, bufferSize));
+            Assert.assertFalse("Buffer size: " + bufferSize, diffFiles(imgFile, imgFile, bufferSize));
+        }
+    }
+    
+    private static void copyStreams(InputStream is, OutputStream os, int bufferSize) throws Exception {
+        byte[] buf = new byte[bufferSize];
+        while (true) {
+            int r = is.read(buf);
+            if (r == -1)
+                break;
+            if (r == 0)
+                continue;
+            os.write(buf, 0, r);
+        }
+        is.close();
+        os.close();
+    }
+    
+    private static boolean diffFiles(File f1, File f2, int bufferSize) throws Exception {
+        OutputComparatorStream ocs = new OutputComparatorStream(new FileInputStream(f1));
+        FileInputStream fis = new FileInputStream(f2);
+        copyStreams(fis, ocs, bufferSize);
+        return ocs.isDifferent();
     }
     
     @SuppressWarnings({ "rawtypes", "unchecked" })
