@@ -58,8 +58,7 @@ public class MongoDynamicRepoDBTest {
     
     @Test
     public void mainTest() throws Exception {
-        //String url = "https://github.com/kbaseIncubator/genome_feature_comparator";
-        String url = "https://github.com/rsutormin/genome_feature_comparator";
+        String url = "https://github.com/kbaseIncubator/genome_feature_comparator";
         String repoModuleName = "GenomeFeatureComparator";
         String globalAdmin = "admin";
         String user1 = "rsutormin";
