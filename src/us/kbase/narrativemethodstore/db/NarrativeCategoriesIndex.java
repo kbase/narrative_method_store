@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
@@ -18,16 +21,17 @@ public class NarrativeCategoriesIndex {
 	protected Map<String, MethodBriefInfo> methods;
 	protected Map<String, AppBriefInfo> apps;
 	protected Map<String, TypeInfo> types;
-	
+	protected Set<String> dynamicRepoMethods;
+    protected Map<String, Exception> dynamicRepoModuleNameToLoadingError;
+    protected boolean invalid = false;
+    
 	public NarrativeCategoriesIndex() {
-		clearIndex();
-	}
-
-	public void clearIndex() {
 		categories = new HashMap<String,Category>();
 		methods = new HashMap<String,MethodBriefInfo>();
 		apps = new HashMap<String, AppBriefInfo>();
 		types = new HashMap<String, TypeInfo>();
+	    dynamicRepoMethods = new TreeSet<String>();
+	    dynamicRepoModuleNameToLoadingError = new TreeMap<String, Exception>();
 	}
 	
 	public void updateAllCategories(Map<String,Category> categories) {
@@ -42,6 +46,24 @@ public class NarrativeCategoriesIndex {
 		this.apps = apps;
 	}
 
+	public void updateAllTypes(Map<String, TypeInfo> types) {
+	    this.types = types;
+	}
+	
+	public void updateAllDynamicRepoMethods(Set<String> dynamicRepoMethods,
+	        Map<String, Exception> dynamicRepoModuleNameToLoadingError) {
+	    this.dynamicRepoMethods = dynamicRepoMethods;
+	    this.dynamicRepoModuleNameToLoadingError = dynamicRepoModuleNameToLoadingError;
+	}
+	
+	public boolean isInvalid() {
+        return invalid;
+    }
+	
+	public void invalidate() {
+	    this.invalid = true;
+	}
+	
 	public void addOrUpdateCategory(String catId, JsonNode spec, Map<String,Object> display) {
 		
 		List<String> parentIds = new ArrayList<String>();
@@ -87,4 +109,12 @@ public class NarrativeCategoriesIndex {
 	public Map<String, TypeInfo> getTypes() {
 		return types;
 	}
+	
+	public Set<String> getDynamicRepoMethods() {
+        return dynamicRepoMethods;
+    }
+	
+	public Map<String, Exception> getDynamicRepoModuleNameToLoadingError() {
+        return dynamicRepoModuleNameToLoadingError;
+    }
 }

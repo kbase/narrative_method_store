@@ -74,8 +74,6 @@ public class LocalGitDB implements MethodSpecDB {
 	
 	protected final File tempDir;
 	protected final DynamicRepoDB dynamicRepos;
-	protected Set<String> dynamicRepoMethods = new TreeSet<String>();
-	protected Map<String, Exception> dynamicRepoModuleNameToLoadingError = new TreeMap<String, Exception>();
 	
 	public LocalGitDB(URL gitRepoUrl, String branch, File localPath, int refreshTimeInMinutes, 
 	        int cacheSize, DynamicRepoDB dynamicRepos, File tempDir) throws NarrativeMethodStoreInitializationException {
@@ -88,14 +86,14 @@ public class LocalGitDB implements MethodSpecDB {
 				new CacheLoader<String, MethodFullInfo>() {
 					@Override
 					public MethodFullInfo load(String methodId) throws NarrativeMethodStoreException {
-						return loadMethodDataUncached(methodId).getMethodFullInfo();
+						return loadMethodDataUncached(methodId, narCatIndex).getMethodFullInfo();
 					}
 				});
 		this.methodSpecCache = CacheBuilder.newBuilder().maximumSize(cacheSize).build(
 				new CacheLoader<String, MethodSpec>() {
 					@Override
 					public MethodSpec load(String methodId) throws NarrativeMethodStoreException {
-						return loadMethodDataUncached(methodId).getMethodSpec();
+						return loadMethodDataUncached(methodId, narCatIndex).getMethodSpec();
 					}
 				});
 		this.appFullInfoCache = CacheBuilder.newBuilder().maximumSize(cacheSize).build(
@@ -148,18 +146,21 @@ public class LocalGitDB implements MethodSpecDB {
 	 * caches in case something was changed.
 	 */
 	protected synchronized void checkForChanges() {
-		if (System.currentTimeMillis() < lastPullTime + refreshTimeInMinutes * 60000)
+		if ((!narCatIndex.isInvalid()) && 
+		        System.currentTimeMillis() < lastPullTime + refreshTimeInMinutes * 60000)
 			return;
 		lastPullTime = System.currentTimeMillis();
 		try {
-			String ret = GitUtils.gitPull(gitLocalPath, gitRepoUrl);
-			if (ret != null && ret.startsWith("Already up-to-date."))
-				return;
-			String commit = GitUtils.getCommitInfo(gitLocalPath, gitRepoUrl);
-			if (!commit.equals(lastCommit)) {
-				lastCommit = commit;
-				reloadAll();
-			}
+		    boolean needReload = narCatIndex.isInvalid();
+		    String ret = GitUtils.gitPull(gitLocalPath, gitRepoUrl);
+		    if (ret == null || !ret.startsWith("Already up-to-date.")) {
+		        String commit = GitUtils.getCommitInfo(gitLocalPath, gitRepoUrl);
+		        if (!commit.equals(lastCommit))
+		            needReload = true;
+	            lastCommit = commit;
+		    }
+		    if (needReload)
+		        reloadAll();
 		} catch (Exception ex) {
 			System.err.println("Error checking for changed:");
 			ex.printStackTrace();
@@ -196,7 +197,7 @@ public class LocalGitDB implements MethodSpecDB {
 	    return new File(gitLocalPath, "repositories");
 	}
 
-	protected List<String> listMethodIdsUncached() {
+	protected List<String> listMethodIdsUncached(NarrativeCategoriesIndex narCatIndex) {
 		List <String> methodList = new ArrayList<String>();
 		if (!getMethodsDir().exists())
 			return methodList;
@@ -204,7 +205,7 @@ public class LocalGitDB implements MethodSpecDB {
 			if (sub.isDirectory())
 				methodList.add(sub.getName());
 		}
-		methodList.addAll(dynamicRepoMethods);
+		methodList.addAll(narCatIndex.getDynamicRepoMethods());
 		return methodList;
 	}
 
@@ -263,12 +264,13 @@ public class LocalGitDB implements MethodSpecDB {
 	    return new String(baos.toByteArray(), Charset.forName("utf-8"));
 	}
 	
-	protected NarrativeMethodData loadMethodDataUncached(final String methodId) throws NarrativeMethodStoreException {
+	protected NarrativeMethodData loadMethodDataUncached(final String methodId,
+	        NarrativeCategoriesIndex narCatIndex) throws NarrativeMethodStoreException {
 		try {
 			// Fetch the resources needed
 			JsonNode spec = null;
 			Map<String,Object> display = null;
-			if (dynamicRepoMethods.contains(methodId)) {
+			if (narCatIndex.getDynamicRepoMethods().contains(methodId)) {
 			    String[] moduleNameAndMethodId = methodId.split("/");
 			    RepoProvider repo = dynamicRepos.getRepoDetails(moduleNameAndMethodId[0]);
 			    
@@ -417,6 +419,10 @@ public class LocalGitDB implements MethodSpecDB {
 
 	public List<String> listCategoryIds() throws NarrativeMethodStoreException {
 		checkForChanges();
+		return listCategoryIdsUncached();
+	}
+	
+	protected List<String> listCategoryIdsUncached() throws NarrativeMethodStoreException {
 		List <String> catList = new ArrayList<String>();
 		for (File sub : getCategoriesDir().listFiles()) {
 			if (sub.isDirectory())
@@ -439,8 +445,8 @@ public class LocalGitDB implements MethodSpecDB {
 	 * Reloads from files the entire categories index
 	 */
 	protected synchronized void loadCategoriesIndex() throws NarrativeMethodStoreException {
-	    dynamicRepoMethods = new TreeSet<String>();
-	    dynamicRepoModuleNameToLoadingError = new TreeMap<String, Exception>();
+	    Set<String> dynamicRepoMethods = new TreeSet<String>();
+	    Map<String, Exception> dynamicRepoModuleNameToLoadingError = new TreeMap<String, Exception>();
         if (dynamicRepos != null) {
             File f = getRepositoriesFile();
             if (f.exists()) {
@@ -496,9 +502,10 @@ public class LocalGitDB implements MethodSpecDB {
             }
         }
 
-		narCatIndex = new NarrativeCategoriesIndex();  // create a new index
+        NarrativeCategoriesIndex narCatIndex = new NarrativeCategoriesIndex();  // create a new index
+        narCatIndex.updateAllDynamicRepoMethods(dynamicRepoMethods, dynamicRepoModuleNameToLoadingError);
 		try {
-			List<String> catIds = listCategoryIds(); // iterate over each category
+			List<String> catIds = listCategoryIdsUncached(); // iterate over each category
 			for(String catId : catIds) {
 				JsonNode spec = getResourceAsJson("categories/"+catId+"/spec.json");
 				//Map<String,Object> display = getResourceAsYamlMap("categories/"+catId+"/display.yaml");
@@ -506,14 +513,14 @@ public class LocalGitDB implements MethodSpecDB {
 				narCatIndex.addOrUpdateCategory(catId, spec, display);
 			}
 			
-			List<String> methIds = listMethodIdsUncached(); // iterate over each category
+			List<String> methIds = listMethodIdsUncached(narCatIndex); // iterate over each category
 			for(String mId : methIds) {
 				// TODO: check cache for data instead of loading it all directly; Roman: I doubt it's a good 
 				// idea to check cache first cause narrative engine more likely loads list of all categories 
 				// before any full infos and specs.
 				MethodBriefInfo mbi;
 				try {
-					NarrativeMethodData data = loadMethodDataUncached(mId);
+					NarrativeMethodData data = loadMethodDataUncached(mId, narCatIndex);
 					mbi = data.getMethodBriefInfo();
 				} catch (NarrativeMethodStoreException ex) {
 					mbi = ex.getErrorMethod();
@@ -544,6 +551,7 @@ public class LocalGitDB implements MethodSpecDB {
 				}
 				narCatIndex.addOrUpdateType(typeName, ti);
 			}
+			this.narCatIndex = narCatIndex;
 		} catch (IOException e) {
 			throw new NarrativeMethodStoreException("Cannot load category index : "+e.getMessage(),e);
 		}
