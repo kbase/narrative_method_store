@@ -620,6 +620,9 @@ public class LocalGitDB implements MethodSpecDB {
 	    try {
 	        pvd = new GitHubRepoProvider(new URL(url), getTempDir());
 	        dynamicRepos.registerRepo(userId, pvd);
+	        // TODO: Index invalidation is temp solution, we need to substitute it by small 
+	        // corrections related to this particular repo.
+	        narCatIndex.invalidate();
 	        return dynamicRepos.getRepoLastVersion(pvd.getModuleName());
 	    } catch (MalformedURLException ex) {
 	        throw new NarrativeMethodStoreException("Error parsing repository url: " + 

@@ -60,6 +60,9 @@ public class NarrativeCategoriesIndex {
         return invalid;
     }
 	
+	/**
+	 * Invalidate this index which will lead to complete recreation of this index later.
+	 */
 	public void invalidate() {
 	    this.invalid = true;
 	}
