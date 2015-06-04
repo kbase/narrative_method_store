@@ -14,7 +14,6 @@ import java.util.Map;
 
 import junit.framework.Assert;
 
-import org.apache.commons.io.IOUtils;
 import org.jongo.Jongo;
 import org.jongo.MongoCollection;
 import org.junit.After;
@@ -25,12 +24,12 @@ import org.junit.Test;
 
 import com.mongodb.DB;
 
-import us.kbase.auth.AuthService;
 import us.kbase.auth.AuthToken;
 import us.kbase.common.mongo.GetMongoDB;
 import us.kbase.narrativemethodstore.db.JsonRepoProvider;
 import us.kbase.narrativemethodstore.db.RepoProvider;
 import us.kbase.narrativemethodstore.db.DynamicRepoDB.RepoState;
+import us.kbase.narrativemethodstore.db.github.FileRepoProvider;
 import us.kbase.narrativemethodstore.db.github.GitHubRepoProvider;
 import us.kbase.narrativemethodstore.db.mongo.MongoDynamicRepoDB;
 import us.kbase.narrativemethodstore.db.mongo.OutputComparatorStream;
@@ -58,7 +57,13 @@ public class MongoDynamicRepoDBTest {
     
     @Test
     public void mainTest() throws Exception {
-        String url = "https://github.com/kbaseIncubator/genome_feature_comparator";
+        testRepo(true);
+        //testRepo(false);
+    }
+    
+    private void testRepo(boolean localFiles) throws Exception {
+        String gitUrl = "https://github.com/kbaseIncubator/genome_feature_comparator";
+        String localPath = "test/data/test_repo_1";
         String repoModuleName = "GenomeFeatureComparator";
         String globalAdmin = "admin";
         String user1 = "rsutormin";
@@ -69,7 +74,8 @@ public class MongoDynamicRepoDBTest {
         MongoDynamicRepoDB db = new MongoDynamicRepoDB(host, dbName, null, null, 
                 Arrays.asList(globalAdmin), false, shockUrl, shockToken);
         Assert.assertEquals(0, db.listRepoModuleNames(false).size());
-        RepoProvider pvd = new GitHubRepoProvider(new URL(url), dbHelper.getWorkDir());
+        RepoProvider pvd = localFiles ? new FileRepoProvider(new File(localPath)) :
+            new GitHubRepoProvider(new URL(gitUrl), dbHelper.getWorkDir());
         db.registerRepo(user1, pvd);
         Assert.assertEquals("[" + repoModuleName + "]", 
                 db.listRepoModuleNames(false).toString());
@@ -106,8 +112,10 @@ public class MongoDynamicRepoDBTest {
         RepoProvider savedRP = db.getRepoDetails(repoModuleName);
         Assert.assertEquals(JsonRepoProvider.repoProviderToJsonString(db, pvd), 
                 JsonRepoProvider.repoProviderToJsonString(db, savedRP));
-        Assert.assertFalse(savedRP.getGitCommitHash().contains("\n"));
-        Assert.assertEquals(40, savedRP.getGitCommitHash().length());
+        if (!localFiles) {
+            Assert.assertFalse(savedRP.getGitCommitHash().contains("\n"));
+            Assert.assertEquals(40, savedRP.getGitCommitHash().length());
+        }
         
         try {
             db.setRepoState(user2, repoModuleName, RepoState.disabled);
@@ -138,6 +146,7 @@ public class MongoDynamicRepoDBTest {
         }
         
         String methodId = "compare_genome_features";
+        Assert.assertTrue("Screenshots: " + pvd.listScreenshotIDs(methodId).size(), pvd.listScreenshotIDs(methodId).size() > 0);
         String imgId = pvd.listScreenshotIDs(methodId).get(0);
         File imgFile = pvd.getScreenshot(methodId, imgId).getFile();
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
