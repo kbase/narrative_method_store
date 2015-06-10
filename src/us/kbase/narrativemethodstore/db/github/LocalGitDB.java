@@ -51,6 +51,7 @@ import us.kbase.narrativemethodstore.db.RepoProvider;
 import us.kbase.narrativemethodstore.db.DynamicRepoDB.RepoState;
 import us.kbase.narrativemethodstore.exceptions.NarrativeMethodStoreException;
 import us.kbase.narrativemethodstore.exceptions.NarrativeMethodStoreInitializationException;
+import us.kbase.narrativemethodstore.util.TextUtils;
 
 public class LocalGitDB implements MethodSpecDB {
 
@@ -302,7 +303,7 @@ public class LocalGitDB implements MethodSpecDB {
 				File f = new File(dir, fileName);
 				if (f.exists())
 					try {
-						return get(f);
+						return TextUtils.text(f);
 					} catch (IOException ignore) {}
 				return null;
 			}
@@ -457,7 +458,7 @@ public class LocalGitDB implements MethodSpecDB {
                             String l = br.readLine();
                             if (l == null)
                                 break;
-                            String[] parts = l.trim().split("\\s+");
+                            String[] parts = TextUtils.splitByWhiteSpaces(l);
                             if (parts.length < 1)
                                 continue;
                             String url = parts[0];
@@ -570,37 +571,19 @@ public class LocalGitDB implements MethodSpecDB {
 	
 	protected String getResource(String path) throws IOException {
 		File f = new File(gitLocalPath, path);
-		return get(f);
+		return TextUtils.text(f);
 	}
 	
 	protected Map<String,Object> getResourceAsYamlMap(String path) throws IOException {
 		File f = new File(gitLocalPath, path);
-		String document = get(f);
+		String document = TextUtils.text(f);
 		return YamlUtils.getDocumentAsYamlMap(document);
 	}
 
 	protected JsonNode getAsJson(File f) throws JsonProcessingException, IOException {
-		return mapper.readTree(get(f));
+		return mapper.readTree(TextUtils.text(f));
 	}
 	
-	protected String get(URL url) throws IOException {
-		return get(url.openStream());
-	}
-	
-	protected String get(File f) throws IOException {
-		return get(new FileInputStream(f));
-	}
-	
-	protected String get(InputStream is) throws IOException {
-		StringBuilder response = new StringBuilder();
-		BufferedReader in = new BufferedReader(new InputStreamReader(is));
-		String line;
-		while ((line = in.readLine()) != null) 
-			response.append(line+"\n");
-		in.close();
-		return response.toString();
-	}
-
 	private boolean bool(Long value) {
 	    return bool(value, false);
 	}

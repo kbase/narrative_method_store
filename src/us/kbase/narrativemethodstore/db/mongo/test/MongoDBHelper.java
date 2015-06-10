@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import us.kbase.common.utils.ProcessHelper;
+import us.kbase.narrativemethodstore.util.TextUtils;
 
 public class MongoDBHelper {
     private String tempDirName = "test/temp";
@@ -60,7 +61,7 @@ public class MongoDBHelper {
         File logFile = new File(dir, "mongodb.log");
         int port = findFreePort();
         File configFile = new File(dir, "mongod.conf");
-        writeFileLines(Arrays.asList(
+        TextUtils.writeLines(Arrays.asList(
                 "dbpath=" + dataDir.getAbsolutePath(),
                 "logpath=" + logFile.getAbsolutePath(),
                 "logappend=true",
@@ -68,7 +69,7 @@ public class MongoDBHelper {
                 "bind_ip=127.0.0.1"
                 ), configFile);
         File scriptFile = new File(dir, "start_mongo.sh");
-        writeFileLines(Arrays.asList(
+        TextUtils.writeLines(Arrays.asList(
                 "#!/bin/bash",
                 "cd " + dir.getAbsolutePath(),
                 mongodExePath + " --config " + configFile.getAbsolutePath() + " >out.txt 2>err.txt & pid=$!",
@@ -80,7 +81,7 @@ public class MongoDBHelper {
         for (int n = 0; n < waitSec; n++) {
             Thread.sleep(1000);
             if (logFile.exists()) {
-                if (grep(readFileLines(logFile), "waiting for connections on port " + port).size() > 0) {
+                if (TextUtils.grep(TextUtils.lines(logFile), "waiting for connections on port " + port).size() > 0) {
                     ready = true;
                     break;
                 }
@@ -88,7 +89,7 @@ public class MongoDBHelper {
         }
         if (!ready) {
             if (logFile.exists())
-                for (String l : readFileLines(logFile))
+                for (String l : TextUtils.lines(logFile))
                     System.err.println("MongoDB log: " + l);
             throw new IllegalStateException("MongoDB couldn't startup in " + waitSec + " seconds");
         }
@@ -102,39 +103,11 @@ public class MongoDBHelper {
         try {
             File pidFile = new File(dir, "pid.txt");
             if (pidFile.exists()) {
-                String pid = readFileLines(pidFile).get(0).trim();
+                String pid = TextUtils.lines(pidFile).get(0).trim();
                 ProcessHelper.cmd("kill", pid).exec(dir);
                 System.out.println(dir.getName() + " was stopped");
             }
         } catch (Exception ignore) {}
-    }
-
-    private static void writeFileLines(List<String> lines, File targetFile) throws IOException {
-        PrintWriter pw = new PrintWriter(targetFile);
-        for (String l : lines)
-            pw.println(l);
-        pw.close();
-    }
-
-    private static List<String> readFileLines(File f) throws IOException {
-        List<String> ret = new ArrayList<String>();
-        BufferedReader br = new BufferedReader(new FileReader(f));
-        while (true) {
-            String l = br.readLine();
-            if (l == null)
-                break;
-            ret.add(l);
-        }
-        br.close();
-        return ret;
-    }
-
-    private static List<String> grep(List<String> lines, String substring) {
-        List<String> ret = new ArrayList<String>();
-        for (String l : lines)
-            if (l.contains(substring))
-                ret.add(l);
-        return ret;
     }
     
     private static int findFreePort() {

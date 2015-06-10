@@ -53,6 +53,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
     public static final String        CFG_PROP_SHOCK_URL = "method-spec-shock-url";
     public static final String       CFG_PROP_SHOCK_USER = "method-spec-shock-user";
     public static final String   CFG_PROP_SHOCK_PASSWORD = "method-spec-shock-password";
+    public static final String  CFG_PROP_DOCKER_REGISTRY = "method-spec-docker-registry";
     
     public static final String VERSION = "0.3.0-alpha";
     
