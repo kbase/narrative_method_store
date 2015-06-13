@@ -1,13 +1,18 @@
 package us.kbase.narrativemethodstore.db.docker;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,9 +20,12 @@ import ch.qos.logback.classic.Level;
 
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.BuildImageCmd.Response;
+import com.github.dockerjava.api.command.InspectImageResponse;
+import com.github.dockerjava.api.command.PushImageCmd;
 import com.github.dockerjava.api.model.Container;
 import com.github.dockerjava.api.model.EventStreamItem;
 import com.github.dockerjava.api.model.Image;
+import com.github.dockerjava.api.model.PushEventStreamItem;
 import com.github.dockerjava.core.DockerClientBuilder;
 
 import us.kbase.narrativemethodstore.exceptions.NarrativeMethodStoreException;
@@ -25,17 +33,22 @@ import us.kbase.narrativemethodstore.util.TextUtils;
 
 public class DockerImageBuilder {
     private final String dockerRegistry;
-    private final File tempDir;
+    private final File rootTempDir;
     //
     private static final String kbaseImagePrefix = "kbase";
     
     public DockerImageBuilder(String dockerRegistry, File tempDir) {
         this.dockerRegistry = dockerRegistry;
-        this.tempDir = tempDir;
+        this.rootTempDir = tempDir;
+    }
+
+    public void build(String imageName, String version, File repoDir,
+            StringBuilder log) throws Exception {
+        build(imageName, version, repoDir, log, true);
     }
     
     public void build(String imageName, String version, File repoDir,
-            StringBuilder log) throws Exception {
+            StringBuilder log, boolean removeLocalCopy) throws Exception {
         File dockerFile = new File(repoDir, "Dockerfile");
         List<String> lines = TextUtils.lines(dockerFile);
         int fromCount = 0;
@@ -86,11 +99,12 @@ public class DockerImageBuilder {
                     oldDockerFile.delete();
                 }
             } catch (Exception ignore) {}
-            try {
-                removeImage(imageName, version);
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
+            if (removeLocalCopy)
+                try {
+                    removeImage(imageName, version);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
         }
     }
     
@@ -157,7 +171,11 @@ public class DockerImageBuilder {
     private void pushImage(String targetImageName, String targetImageVer) 
             throws IOException, NarrativeMethodStoreException {
         DockerClient cl = createDockerClient();
-        cl.pushImageCmd(dockerRegistry + "/" + targetImageName).withTag(targetImageVer).exec();
+        PushImageCmd.Response resp = cl.pushImageCmd(dockerRegistry + "/" + targetImageName)
+                .withTag(targetImageVer).exec();
+        for (PushEventStreamItem item : resp.getItems()) {
+            System.out.println("Push: progress=" + item.getProgress() + ", status=" + item.getStatus());
+        }
     }
     
     private void removeImage(String targetImageName, 
@@ -175,13 +193,54 @@ public class DockerImageBuilder {
         DockerClient cl = createDockerClient();
         if (findImageId(cl, requestedTag) == null)
             cl.pullImageCmd(requestedTag).exec();
-        if (findImageId(cl, requestedTag) == null)
-            throw new NarrativeMethodStoreException("Error pulling image: " + 
-                    requestedTag);
+        if (findImageId(cl, requestedTag) == null) {
+            List<String> dockerfile = null;
+            try {
+                URL url = DockerImageBuilder.class.getResource("Dockerfile." + 
+                        imageName + "_" + version + ".properties");
+                if (url != null)
+                    dockerfile = TextUtils.lines(url.openStream());
+            } catch (Exception ignore) {}
+            if (dockerfile != null) {
+                System.out.println("Image " + imageName + ":" + version + " is going to be built now...");
+                long time = System.currentTimeMillis();
+                File tempFile = null;
+                File tempDir = null;
+                StringBuilder log = new StringBuilder();
+                try {
+                    tempDir = new File(rootTempDir, imageName + "_" + version + "_" + System.currentTimeMillis());
+                    tempDir.mkdir();
+                    tempFile = new File(tempDir, "Dockerfile");
+                    TextUtils.writeLines(dockerfile, tempFile);
+                    build(imageName, version, tempDir, log, false);
+                    time = System.currentTimeMillis() - time;
+                    System.out.println("Image " + imageName + ":" + version + " was build in " + time + " ms.");
+                } catch (Exception ex) {
+                    throw new NarrativeMethodStoreException("Error building image: " + 
+                            requestedTag + " (" + ex.getMessage() + ")", ex);
+                } finally {
+                    if (tempFile != null && tempFile.exists())
+                        try {
+                            tempFile.delete();
+                        } catch (Exception ignore) {}
+                    if (tempDir != null && tempDir.exists())
+                        try {
+                            tempDir.delete();
+                        } catch (Exception ignore) {}
+                }
+            } else {
+                throw new NarrativeMethodStoreException("Error pulling image: " + 
+                        requestedTag);
+            }
+        }
     }
 
     private Image findImageId(DockerClient cl, String imageTagOrIdPrefix) {
-        for (Image image: cl.listImagesCmd().exec()) {
+        return findImageId(cl, imageTagOrIdPrefix, false);
+    }
+    
+    private Image findImageId(DockerClient cl, String imageTagOrIdPrefix, boolean all) {
+        for (Image image: cl.listImagesCmd().withShowAll(all).exec()) {
             if (image.getId().startsWith(imageTagOrIdPrefix))
                 return image;
             for (String tag : image.getRepoTags())
@@ -210,5 +269,40 @@ public class DockerImageBuilder {
             log2.setLevel(Level.ERROR);
         }
         return DockerClientBuilder.getInstance().build();
+    }
+    
+    public List<String> reconstructDockerfile(String imageIdOrTag) throws Exception {
+        DockerClient cl = createDockerClient();
+        List<String> cmds = new ArrayList<String>();
+        String fromTag = null;
+        Image img = findImageId(cl, imageIdOrTag);
+        while (true) {
+            InspectImageResponse iir = cl.inspectImageCmd(img.getId()).exec();
+            String[] cmd = iir.getContainerConfig().getCmd();
+            String cmdLine;
+            if (cmd.length == 3 && cmd[0].equals("/bin/sh") && cmd[1].equals("-c")) {
+                cmdLine = cmd[2];
+                if (cmdLine.startsWith("#(nop) ")) {
+                    cmdLine = cmdLine.substring(7);
+                } else {
+                    cmdLine = "RUN " + cmdLine;
+                }
+            } else {
+                cmdLine ="Unexpected command format: " + Arrays.asList(cmd);
+            }
+            cmds.add(0, cmdLine + "    #### ---> " + img.getId());
+            String imageId = img.getParentId();
+            if (imageId == null || imageId.trim().isEmpty())
+                break;
+            img = findImageId(cl, imageId, true);
+            if (img.getRepoTags().length > 1 || (img.getRepoTags().length == 1 && 
+                    !img.getRepoTags()[0].equals("<none>:<none>"))) {
+                fromTag = img.getRepoTags()[0];
+                break;
+            }
+        }
+        if (fromTag != null)
+            cmds.add(0, "FROM " + fromTag);
+        return cmds;
     }
 }

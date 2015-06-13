@@ -14,9 +14,14 @@ public class DockerImageBuilderTest {
         String dockerRegistry = System.getProperty("test.docker-registry");
         File tempDir = new File(tempDirName);
         DockerImageBuilder dib = new DockerImageBuilder(dockerRegistry, tempDir);
-        String imageName = "GenomeFeatureComparator".toLowerCase();
+        String imageName = "genome_feature_comparator_test";
         String imageVer = "1433804926692";
         StringBuilder log = new StringBuilder();
-        dib.build(imageName, imageVer, new File("test/data/test_repo_1"), log);
+        try {
+            dib.build(imageName, imageVer, new File("test/data/test_repo_1"), log, false);
+        } catch (Exception ex) {
+            System.out.println(log.toString());
+            throw ex;
+        }
     }
 }
