@@ -3,12 +3,10 @@ package us.kbase.narrativemethodstore.db.github;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.StringReader;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
@@ -31,6 +29,14 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 
+import us.kbase.jkidl.IncludeProvider;
+import us.kbase.kidl.KbModule;
+import us.kbase.kidl.KidlParseException;
+import us.kbase.mobu.ModuleBuilder;
+import us.kbase.mobu.compiler.PrevCodeParser;
+import us.kbase.mobu.compiler.RunCompileCommand;
+import us.kbase.mobu.util.DiskFileSaver;
+import us.kbase.mobu.util.FileSaver;
 import us.kbase.narrativemethodstore.AppBriefInfo;
 import us.kbase.narrativemethodstore.AppFullInfo;
 import us.kbase.narrativemethodstore.AppSpec;
@@ -689,5 +695,24 @@ public class LocalGitDB implements MethodSpecDB {
 	        String screenshotId, OutputStream os) throws NarrativeMethodStoreException {
 	    dynamicRepos.getRepoDetails(moduleName).getScreenshot(methodId, 
 	            screenshotId).saveToStream(os);
+	}
+	
+	public long registerRepo(String userId, String moduleName, MethodSpec methodSpec, 
+	        String pyhtonCode, String dockerCommands) throws NarrativeMethodStoreException {
+	    File repoDir = null;
+	    try {
+	        repoDir = us.kbase.narrativemethodstore.util.FileUtils.generateTempDir(
+	                getTempDir(), "local_", ".temp");
+	        PySrvRepoPreparator.prepare(userId, moduleName, methodSpec, pyhtonCode, 
+	                dockerCommands, repoDir);
+	    } catch (Exception ex) {
+	        throw new NarrativeMethodStoreException(ex);
+	    } finally {
+	        try {
+	            if (repoDir != null && repoDir.exists())
+	                FileUtils.deleteDirectory(repoDir);
+	        } catch (Exception ignore) {}
+	    }
+	    return -1;
 	}
 }

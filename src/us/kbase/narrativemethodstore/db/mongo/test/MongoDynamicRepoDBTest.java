@@ -26,14 +26,19 @@ import com.mongodb.DB;
 
 import us.kbase.auth.AuthToken;
 import us.kbase.common.mongo.GetMongoDB;
+import us.kbase.narrativemethodstore.MethodBriefInfo;
+import us.kbase.narrativemethodstore.MethodSpec;
 import us.kbase.narrativemethodstore.db.JsonRepoProvider;
 import us.kbase.narrativemethodstore.db.RepoProvider;
 import us.kbase.narrativemethodstore.db.DynamicRepoDB.RepoState;
 import us.kbase.narrativemethodstore.db.github.FileRepoProvider;
 import us.kbase.narrativemethodstore.db.github.GitHubRepoProvider;
+import us.kbase.narrativemethodstore.db.github.PySrvRepoPreparator;
 import us.kbase.narrativemethodstore.db.mongo.MongoDynamicRepoDB;
 import us.kbase.narrativemethodstore.db.mongo.OutputComparatorStream;
 import us.kbase.narrativemethodstore.exceptions.NarrativeMethodStoreException;
+import us.kbase.narrativemethodstore.util.FileUtils;
+import us.kbase.narrativemethodstore.util.TextUtils;
 import us.kbase.shock.client.BasicShockClient;
 import us.kbase.shock.client.ShockNodeId;
 
@@ -168,6 +173,24 @@ public class MongoDynamicRepoDBTest {
             Assert.assertTrue("Buffer size: " + bufferSize, diffFiles(imgFile, imgFile3, bufferSize));
             Assert.assertFalse("Buffer size: " + bufferSize, diffFiles(imgFile, imgFile, bufferSize));
         }
+    }
+    
+    @Test
+    public void testPy() throws Exception {
+        File repoDir = FileUtils.generateTempDir(
+                dbHelper.getWorkDir(), "local_", ".temp");
+        String userId = "user1";
+        String moduleName = "AsyncPyModule";
+        String methodName = "async_py_method_test";
+        MethodSpec methodSpec = new MethodSpec().withInfo(new MethodBriefInfo().withId(methodName));
+        String pythonCode = "returnVal = {'params': params, 'token': ctx['token']}";
+        String dockerCommands = "RUN DEBIAN_FRONTEND=noninteractive apt-get update;" + 
+                "apt-get -y upgrade;apt-get install -y libblas3gf liblapack3gf libhdf5-serial-dev\n" +
+                "RUN pip install tables";
+        PySrvRepoPreparator.prepare(userId, moduleName, methodSpec, pythonCode, dockerCommands, repoDir);
+        String implText = TextUtils.text(new File(repoDir, "service/" + moduleName + "Impl.py"));
+        Assert.assertTrue(implText.contains("class " + moduleName));
+        Assert.assertTrue(implText.contains("        " + pythonCode));
     }
     
     private static void copyStreams(InputStream is, OutputStream os, int bufferSize) throws Exception {

@@ -33,7 +33,7 @@
   <!-- Properties in ant are immutable, so the following assignment will only take place if jardir was not set above. -->
   <property name="jardir" location="${env.JENKINS_JARS_MODULE_PATH}/lib/jars"/>
 
-  <condition property="commonjar" value="kbase/common/kbase-common-0.0.9.jar">
+  <condition property="commonjar" value="${jardir}/kbase/common/kbase-common-0.0.9.jar">
     <or>
       <equals arg1="${env.JENKINS_JAVA_COMMON_JARFILE}" arg2=""/>
       <not>
@@ -42,7 +42,7 @@
     </or>
   </condition>
   <!-- Properties in ant are immutable, so the following assignment will only take place if jardir was not set above. -->
-  <property name="commonjar" value="${env.JENKINS_JAVA_COMMON_JARFILE}"/>
+  <property name="commonjar" value="${jardir}/${env.JENKINS_JAVA_COMMON_JARFILE}"/>
 
   <fileset dir="${jardir}" id="sourceslib">
     <include name="kbase/kbase-common-temp.jar"/>
@@ -112,12 +112,18 @@
     <include name="persistence/persistence-api-1.0.jar"/>
     <include name="testinfected/core-matchers-1.6.jar"/>
     <include name="testinfected/jpa-matchers-1.6.jar"/>
+    <include name="apache_commons/velocity-1.7.jar"/>
+    <include name="apache_commons/commons-collections-3.2.1.jar"/>
   </fileset>
 	
   <union id="serverside">
     <fileset refid="serverlib"/>
     <fileset refid="clientserverlib"/>
     <fileset refid="applicationlib"/>
+    <fileset dir=".">
+      <include name="${commonjar}"/>
+      <include name="${modulebuilderjar}"/>
+    </fileset>
   </union>
 
   <fileset id="client-jdoc-files" dir="${src}/us/kbase" defaultexcludes="yes">
@@ -181,6 +187,9 @@
 
   <target name="compile" depends="init" description="compile the source">
     <!-- Compile class files-->
+    <echo>${commonjar}</echo>
+    <pathconvert property="compile_classpath_prop" refid="compile.classpath"/>
+    <echo>${compile_classpath_prop}</echo>
     <javac destdir="${classes}" includeantruntime="false" target="1.7" source="1.7"
       debug="true" classpathref="compile.classpath">
       <src path="${src}"/>

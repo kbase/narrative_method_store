@@ -23,7 +23,7 @@ ANT ?= ant
 # make sure our make test works
 .PHONY : test
 
-ANT_OPTIONS =
+ANT_OPTIONS = -Dcommonjar=../module_builder/kbase-common-temp.jar -Dmodulebuilderjar=../module_builder/dist/kbase_module_builder.jar
 
 TESTCFG ?= test.cfg
 
@@ -58,7 +58,7 @@ else
 
 ###############################
 #### OUTSIDE DEV CONTAINER ####
-ANT_OPTIONS = -Djardir=submodules/jars/lib/jars
+ANT_OPTIONS = -Djardir=submodules/jars/lib/jars -Dcommonjar=submodules/module_builder/kbase-common-temp.jar -Dmodulebuilderjar=submodules/module_builder/dist/kbase_module_builder.jar
 
 build-libs: submodule-init
 	$(ANT) compile $(ANT_OPTIONS)
@@ -73,7 +73,8 @@ endif
 
 submodule-init:
 	git submodule init
-	git submodule update
+	#git submodule update --remote
+	$(MAKE) -C submodules/module_builder
 
 build-docs:
 	mkdir -p docs

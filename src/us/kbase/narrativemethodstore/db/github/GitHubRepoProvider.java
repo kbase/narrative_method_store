@@ -39,23 +39,15 @@ public class GitHubRepoProvider extends FileRepoProvider {
             throw ex;
         }
     }
-    
+
     private static File generateTempDir(File parentTempDir) throws NarrativeMethodStoreException {
         try {
-            long start = System.currentTimeMillis();
-            while (true) {
-                File dir = new File(parentTempDir, "github_" + start + ".temp");
-                if (!dir.exists()) {
-                    dir.mkdirs();
-                    return dir;
-                }
-                start++;
-            }
+            return us.kbase.narrativemethodstore.util.FileUtils.generateTempDir(parentTempDir, "github_", ".temp");
         } catch (Exception ex) {
             throw new NarrativeMethodStoreException(ex.getMessage(), ex);
         }
     }
-
+    
     @Override
     public String getUrl() {
         return "" + url;

@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.io.Reader;
+import java.io.StringReader;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -40,10 +42,22 @@ public class TextUtils {
     public static List<String> lines(File f) throws IOException {
         return lines(new FileInputStream(f));
     }
-    
+
+    public static List<String> lines(String text) {
+        try {
+            return lines(new StringReader(text));
+        } catch (IOException ex) {
+            throw new IllegalStateException(ex);
+        }
+    }
+
     public static List<String> lines(InputStream is) throws IOException {
+        return lines(new InputStreamReader(is));
+    }
+    
+    public static List<String> lines(Reader r) throws IOException {
         List<String> ret = new ArrayList<String>();
-        BufferedReader in = new BufferedReader(new InputStreamReader(is));
+        BufferedReader in = new BufferedReader(r);
         String line;
         while ((line = in.readLine()) != null) 
             ret.add(line);
