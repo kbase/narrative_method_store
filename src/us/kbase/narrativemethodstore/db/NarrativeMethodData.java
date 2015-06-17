@@ -124,7 +124,6 @@ public class NarrativeMethodData {
 				screenshots.add(new ScreenShot().withUrl("img?method_id=" + this.methodId + "&image_name=" + imageName));
 		}
 		
-		@SuppressWarnings("unchecked")
 		Icon icon = null;
 		try {
 			String iconName = getDisplayProp(display,"icon",lookup);

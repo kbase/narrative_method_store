@@ -7,6 +7,7 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -22,20 +23,28 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.mongodb.DB;
 
 import us.kbase.auth.AuthService;
 import us.kbase.auth.AuthToken;
 import us.kbase.common.mongo.GetMongoDB;
+import us.kbase.common.service.UObject;
 import us.kbase.narrativemethodstore.MethodBriefInfo;
+import us.kbase.narrativemethodstore.MethodParameter;
 import us.kbase.narrativemethodstore.MethodSpec;
+import us.kbase.narrativemethodstore.TextOptions;
+import us.kbase.narrativemethodstore.db.FileLookup;
+import us.kbase.narrativemethodstore.db.FilePointer;
 import us.kbase.narrativemethodstore.db.JsonRepoProvider;
+import us.kbase.narrativemethodstore.db.NarrativeMethodData;
 import us.kbase.narrativemethodstore.db.RepoProvider;
 import us.kbase.narrativemethodstore.db.DynamicRepoDB.RepoState;
 import us.kbase.narrativemethodstore.db.docker.DockerImageBuilder;
 import us.kbase.narrativemethodstore.db.github.FileRepoProvider;
 import us.kbase.narrativemethodstore.db.github.GitHubRepoProvider;
 import us.kbase.narrativemethodstore.db.github.PySrvRepoPreparator;
+import us.kbase.narrativemethodstore.db.github.YamlUtils;
 import us.kbase.narrativemethodstore.db.mongo.MongoDynamicRepoDB;
 import us.kbase.narrativemethodstore.db.mongo.OutputComparatorStream;
 import us.kbase.narrativemethodstore.exceptions.NarrativeMethodStoreException;
@@ -183,8 +192,15 @@ public class MongoDynamicRepoDBTest {
                 dbHelper.getWorkDir(), "local_", ".temp");
         String userId = "user1";
         String moduleName = "AsyncPyModule";
-        String methodName = "async_py_method_test";
-        MethodSpec methodSpec = new MethodSpec().withInfo(new MethodBriefInfo().withId(methodName));
+        String methodId = "async_py_method_test";
+        MethodSpec methodSpec = new MethodSpec().withInfo(
+                new MethodBriefInfo().withId(methodId).withName("Asynchronous Python Method Test"))
+                .withParameters(Arrays.asList(new MethodParameter().withId("genomeA")
+                        .withTextOptions(new TextOptions().withValidWsTypes(
+                                Arrays.asList("KBaseGenomes.Genome"))),
+                                new MethodParameter().withId("genomeB")
+                                .withTextOptions(new TextOptions().withValidWsTypes(
+                                        Arrays.asList("KBaseGenomes.Genome")))));
         String pythonCode = "returnVal = {'params': params, 'token': ctx['token']}";
         String dockerCommands = "RUN DEBIAN_FRONTEND=noninteractive apt-get update;" + 
                 "apt-get -y upgrade;apt-get install -y libblas3gf liblapack3gf libhdf5-serial-dev\n" +
@@ -194,6 +210,42 @@ public class MongoDynamicRepoDBTest {
         Assert.assertTrue(implText.contains("class " + moduleName));
         Assert.assertTrue(implText.contains("        " + pythonCode));
         //buildAndRunDockerImage(dbHelper.getWorkDir(), repoDir, moduleName, methodName);
+        String globalAdmin = "admin";
+        String host = "localhost:" + dbHelper.getMongoPort();
+        MongoDynamicRepoDB db = new MongoDynamicRepoDB(host, dbName, null, null, 
+                Arrays.asList(globalAdmin), false, shockUrl, shockToken);
+        Assert.assertEquals(0, db.listRepoModuleNames(false).size());
+        RepoProvider pvd = new FileRepoProvider(repoDir);
+        db.registerRepo(userId, pvd);
+        Assert.assertEquals("[" + moduleName + "]", 
+                db.listRepoModuleNames(false).toString());
+        Assert.assertTrue(db.isRepoOwner(moduleName, userId));
+        Assert.assertEquals("[" + userId + "]", 
+                db.listRepoOwners(moduleName).toString());
+        long ver1 = db.getRepoLastVersion(moduleName);
+        List<Long> verHist1 = db.listRepoVersions(moduleName);
+        Assert.assertEquals(1, verHist1.size());
+        Assert.assertEquals(ver1, (long)verHist1.get(0));
+        Assert.assertEquals(RepoState.ready, db.getRepoState(moduleName));
+        JsonNode spec = UObject.getMapper().readTree(asText(pvd.getUINarrativeMethodSpec(methodId)));
+        Map<String,Object>display = YamlUtils.getDocumentAsYamlMap(asText(pvd.getUINarrativeMethodDisplay(methodId)));
+        NarrativeMethodData parser = new NarrativeMethodData(methodId, spec, display, new FileLookup() {
+            @Override
+            public String loadFileContent(String fileName) {
+                return null;
+            }
+        });
+        Assert.assertEquals(methodId, parser.getMethodBriefInfo().getId());
+        Assert.assertEquals(methodId, parser.getMethodFullInfo().getId());
+        Assert.assertEquals(methodId, parser.getMethodSpec().getInfo().getId());
+        Assert.assertEquals(2, parser.getMethodSpec().getParameters().size());
+        Assert.assertEquals("genomeA", parser.getMethodSpec().getParameters().get(0).getId());
+    }
+    
+    private static String asText(FilePointer fp) throws NarrativeMethodStoreException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        fp.saveToStream(baos);
+        return new String(baos.toByteArray(), Charset.forName("utf-8"));
     }
     
     private void buildAndRunDockerImage(File tempRootDir, File repoDir, 
