@@ -1,11 +1,15 @@
 package us.kbase.narrativemethodstore.db.docker;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -20,12 +24,16 @@ import ch.qos.logback.classic.Level;
 
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.command.BuildImageCmd.Response;
+import com.github.dockerjava.api.command.CreateContainerResponse;
+import com.github.dockerjava.api.command.InspectContainerResponse;
 import com.github.dockerjava.api.command.InspectImageResponse;
 import com.github.dockerjava.api.command.PushImageCmd;
+import com.github.dockerjava.api.model.Bind;
 import com.github.dockerjava.api.model.Container;
 import com.github.dockerjava.api.model.EventStreamItem;
 import com.github.dockerjava.api.model.Image;
 import com.github.dockerjava.api.model.PushEventStreamItem;
+import com.github.dockerjava.api.model.Volume;
 import com.github.dockerjava.core.DockerClientBuilder;
 
 import us.kbase.narrativemethodstore.exceptions.NarrativeMethodStoreException;
@@ -49,6 +57,11 @@ public class DockerImageBuilder {
     
     public void build(String imageName, String version, File repoDir,
             StringBuilder log, boolean removeLocalCopy) throws Exception {
+        build(imageName, version, repoDir, log, removeLocalCopy, true);
+    }
+
+    public void build(String imageName, String version, File repoDir,
+            StringBuilder log, boolean removeLocalCopy, boolean pushImage) throws Exception {
         File dockerFile = new File(repoDir, "Dockerfile");
         List<String> lines = TextUtils.lines(dockerFile);
         int fromCount = 0;
@@ -91,7 +104,8 @@ public class DockerImageBuilder {
                 TextUtils.writeLines(newLines, dockerFile);
             }
             buildImage(repoDir, imageName, version, log);
-            pushImage(imageName, version);
+            if (pushImage)
+                pushImage(imageName, version);
         } finally {
             try {
                 if (oldDockerFile != null) {
@@ -105,6 +119,106 @@ public class DockerImageBuilder {
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
+        }
+    }
+    
+    public File run(String imageName, String version, String moduleName, 
+            File inputData, String token, StringBuilder log, 
+            boolean removeImage) throws Exception {
+        if (!inputData.getName().equals("input.json"))
+            throw new NarrativeMethodStoreException("Input file has wrong name: " + 
+                    inputData.getName() + "(it should be named input.json)");
+        File workDir = inputData.getCanonicalFile().getParentFile();
+        File tokenFile = new File(workDir, "token");
+        String fullImgName = checkImagePulled(imageName, version);
+        DockerClient cl = createDockerClient();
+        String cntName = null;
+        try {
+            InputStream is = new ByteArrayInputStream(token.getBytes(
+                    Charset.forName("utf-8")));
+            OutputStream os = new FileOutputStream(tokenFile);
+            IOUtils.copy(is, os);
+            os.close();
+            is.close();
+            File outputFile = new File(workDir, "output.json");
+            if (outputFile.exists())
+                outputFile.delete();
+            long suffix = System.currentTimeMillis();
+            while (true) {
+                cntName = imageName + "_" + suffix;
+                if (findContainerByNameOrIdPrefix(cl, cntName) == null)
+                    break;
+                suffix++;
+            }
+            CreateContainerResponse resp = cl.createContainerCmd(fullImgName)
+                    .withName(cntName).withBinds(new Bind(workDir.getAbsolutePath(), 
+                            new Volume("/kb/deployment/services/" + moduleName + 
+                                    "/work"))).exec();
+            String cntId = resp.getId();
+            cl.startContainerCmd(cntId).exec();
+            cl.waitContainerCmd(cntId).exec();
+            InspectContainerResponse resp2 = cl.inspectContainerCmd(cntId).exec();
+            if (resp2.getState().isRunning()) {
+                try {
+                    Container cnt = findContainerByNameOrIdPrefix(cl, cntName);
+                    cl.stopContainerCmd(cnt.getId()).exec();
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+                throw new NarrativeMethodStoreException("Container was still running");
+            }
+            int exitCode = resp2.getState().getExitCode();
+            BufferedReader br = new BufferedReader(new InputStreamReader(
+                    cl.logContainerCmd(cntId).withStdOut(true).exec()));
+            while (true) {
+                String l = br.readLine();
+                if (l == null)
+                    break;
+                log.append(l).append("\n");
+            }
+            br.close();
+            StringBuilder err = new StringBuilder();
+            br = new BufferedReader(new InputStreamReader(
+                    cl.logContainerCmd(cntId).withStdErr(true).exec()));
+            while (true) {
+                String l = br.readLine();
+                if (l == null)
+                    break;
+                log.append(l).append("\n");
+                err.append(l).append("\n");
+            }
+            br.close();
+            if (outputFile.exists()) {
+                return outputFile;
+            } else {
+                String msg = "Output file is not found, exit code is " + exitCode;
+                if (err.length() > 0)
+                    msg += ", errors: " + err;
+                throw new NarrativeMethodStoreException(msg);
+            }
+        } finally {
+            if (cntName != null) {
+                Container cnt = findContainerByNameOrIdPrefix(cl, cntName);
+                if (cnt != null) {
+                    try {
+                        cl.removeContainerCmd(cnt.getId()).withRemoveVolumes(true).exec();
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
+                }
+            }
+            if (removeImage) {
+                try {
+                    Image img = findImageId(cl, fullImgName);
+                    cl.removeImageCmd(img.getId()).exec();
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+            if (tokenFile.exists())
+                try {
+                    tokenFile.delete();
+                } catch (Exception ignore) {}
         }
     }
     
@@ -187,7 +301,7 @@ public class DockerImageBuilder {
             cl.removeImageCmd(mainImage.getId()).exec();
     }
     
-    private void checkImagePulled(String imageName, String version)
+    private String checkImagePulled(String imageName, String version)
             throws NarrativeMethodStoreException {
         String requestedTag = dockerRegistry + "/" + imageName + ":" + version;
         DockerClient cl = createDockerClient();
@@ -233,6 +347,7 @@ public class DockerImageBuilder {
                         requestedTag);
             }
         }
+        return requestedTag;
     }
 
     private Image findImageId(DockerClient cl, String imageTagOrIdPrefix) {
@@ -255,7 +370,7 @@ public class DockerImageBuilder {
             if (cnt.getId().startsWith(nameOrIdPrefix))
                 return cnt;
             for (String name : cnt.getNames())
-                if (name.equals(nameOrIdPrefix))
+                if (name.equals(nameOrIdPrefix) || name.equals("/" + nameOrIdPrefix))
                     return cnt;
         }
         return null;

@@ -24,6 +24,7 @@ import org.junit.Test;
 
 import com.mongodb.DB;
 
+import us.kbase.auth.AuthService;
 import us.kbase.auth.AuthToken;
 import us.kbase.common.mongo.GetMongoDB;
 import us.kbase.narrativemethodstore.MethodBriefInfo;
@@ -31,6 +32,7 @@ import us.kbase.narrativemethodstore.MethodSpec;
 import us.kbase.narrativemethodstore.db.JsonRepoProvider;
 import us.kbase.narrativemethodstore.db.RepoProvider;
 import us.kbase.narrativemethodstore.db.DynamicRepoDB.RepoState;
+import us.kbase.narrativemethodstore.db.docker.DockerImageBuilder;
 import us.kbase.narrativemethodstore.db.github.FileRepoProvider;
 import us.kbase.narrativemethodstore.db.github.GitHubRepoProvider;
 import us.kbase.narrativemethodstore.db.github.PySrvRepoPreparator;
@@ -191,6 +193,39 @@ public class MongoDynamicRepoDBTest {
         String implText = TextUtils.text(new File(repoDir, "service/" + moduleName + "Impl.py"));
         Assert.assertTrue(implText.contains("class " + moduleName));
         Assert.assertTrue(implText.contains("        " + pythonCode));
+        //buildAndRunDockerImage(dbHelper.getWorkDir(), repoDir, moduleName, methodName);
+    }
+    
+    private void buildAndRunDockerImage(File tempRootDir, File repoDir, 
+            String moduleName, String methodName) throws Exception {
+        String dockerRegistry = System.getProperty("test.docker-registry");
+        String testUser = System.getProperty("test.user");
+        String testPassword = System.getProperty("test.password");
+        String token = AuthService.login(testUser, testPassword).getTokenString();
+        DockerImageBuilder dib = new DockerImageBuilder(dockerRegistry, tempRootDir);
+        String imageName = "async_py_module";
+        String imageVer = "1433804926692";
+        StringBuilder log = new StringBuilder();
+        File dir = new File(repoDir, "work");
+        dir.mkdir();
+        File inputData = new File(dir, "input.json");
+        TextUtils.writeLines(Arrays.asList("{" +
+                "\"version\":\"1.1\"," +
+                "\"method\":\""+moduleName+"."+methodName+"\"," +
+                "\"params\":[{\"genomeA\":\"myws.mygenome1\",\"genomeB\":\"myws.mygenome2\"}]," +
+                "\"context\":null" +
+                "}"), inputData);
+        try {
+            dib.build(imageName, imageVer, repoDir, log, false, false);
+            log = new StringBuilder();
+            File outputFile = dib.run(imageName, imageVer, moduleName, inputData, token, log, true);
+            String output = TextUtils.text(outputFile);
+            Assert.assertTrue(output.contains(token));
+            Assert.assertTrue(output.contains("\"genomeA\": \"myws.mygenome1\""));
+        } catch (Exception ex) {
+            System.out.println(log.toString());
+            throw ex;
+        }
     }
     
     private static void copyStreams(InputStream is, OutputStream os, int bufferSize) throws Exception {

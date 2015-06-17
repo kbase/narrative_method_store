@@ -1,18 +1,25 @@
 package us.kbase.narrativemethodstore.db.github;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.io.StringReader;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.velocity.VelocityContext;
+import org.apache.velocity.app.Velocity;
 
 import us.kbase.jkidl.IncludeProvider;
 import us.kbase.kidl.KbModule;
 import us.kbase.kidl.KidlParseException;
 import us.kbase.mobu.compiler.RunCompileCommand;
 import us.kbase.mobu.util.DiskFileSaver;
-import us.kbase.mobu.util.FileSaver;
 import us.kbase.narrativemethodstore.MethodSpec;
 import us.kbase.narrativemethodstore.exceptions.NarrativeMethodStoreException;
 import us.kbase.narrativemethodstore.util.TextUtils;
@@ -58,10 +65,49 @@ public class PySrvRepoPreparator {
                     null, false, null, false, null, null, null, false, false, null, true, 
                     srvrName, implName, false, false, null, null, null, null, null, true, 
                     ip, new DiskFileSaver(srvcDir), null, true);
+            File kbaseFile = new File(repoDir, "kbase.yml");
+            TextUtils.writeLines(Arrays.asList(
+                    "module-name:",
+                    "    GenomeFeatureComparator",
+                    "module-description:",
+                    "    KBase module for comparing feature calls of two microbial genomes.",
+                    "service-language:",
+                    "    python",
+                    "owners:",
+                    "    [" + userId + "]"), kbaseFile);
+            Map<String, Object> context = new HashMap<String, Object>();
+            context.put("module_name", moduleName);
+            context.put("docker_commands", dockerCommands == null ? "" : dockerCommands);
+            File dockerFile = new File(repoDir, "Dockerfile");
+            formatTemplate("dockerfile", context, dockerFile);
+            File makeFile = new File(srvcDir, "Makefile");
+            formatTemplate("makefile", context, makeFile);
         } catch (NarrativeMethodStoreException ex) {
             throw ex;
         } catch (Exception ex) {
             throw new NarrativeMethodStoreException(ex);
+        }
+    }
+    
+    public static boolean formatTemplate(String templateName, Map<?,?> context, 
+            File output) throws NarrativeMethodStoreException {
+        FileWriter fw = null;
+        try {
+            fw = new FileWriter(output);
+            Reader input = new InputStreamReader(PySrvRepoPreparator.class.getResourceAsStream(
+                    "py_srv_" + templateName + ".vm.properties"), Charset.forName("utf-8"));
+            VelocityContext cntx = new VelocityContext(context);
+            boolean ret = Velocity.evaluate(cntx, fw, "Template " + templateName, input);
+            input.close();
+            return ret;
+        } catch (Exception ex) {
+            throw new NarrativeMethodStoreException("Problems with template evaluation (" + 
+                    templateName + ")", ex);
+        } finally {
+            if (fw != null)
+                try {
+                    fw.close();
+                } catch (Exception ignore) {}
         }
     }
 }
