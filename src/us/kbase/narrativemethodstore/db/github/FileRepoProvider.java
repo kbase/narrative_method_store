@@ -41,6 +41,7 @@ public class FileRepoProvider implements RepoProvider {
     
     public FileRepoProvider(File rootDir, URL url) throws NarrativeMethodStoreException {
         this.rootDir = rootDir;
+        this.url = url;
         String source = "kbase.yml";
         String kbaseConfig = get(new File(rootDir, source));
         try {

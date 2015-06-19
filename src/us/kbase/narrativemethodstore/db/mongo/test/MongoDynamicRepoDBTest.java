@@ -78,7 +78,6 @@ public class MongoDynamicRepoDBTest {
     }
 
     private void testRepo(boolean localFiles) throws Exception {
-        System.out.println("Before mainTest");
         String gitUrl = "https://github.com/kbaseIncubator/genome_feature_comparator";
         String localPath = "test/data/test_repo_1";
         String repoModuleName = "GenomeFeatureComparator";
@@ -95,7 +94,6 @@ public class MongoDynamicRepoDBTest {
             new GitHubRepoProvider(new URL(gitUrl), dbHelper.getWorkDir());
         try {
             db.registerRepo(user1, pvd);
-            System.out.println("\tafter registerRepo");
             Assert.assertEquals("[" + repoModuleName + "]", 
                     db.listRepoModuleNames(false).toString());
             Assert.assertTrue(db.isRepoOwner(repoModuleName, user1));
@@ -120,7 +118,6 @@ public class MongoDynamicRepoDBTest {
             Assert.assertEquals(1, db.listRepoModuleNames(true).size());
             // Register second version
             db.registerRepo(globalAdmin, pvd);
-            System.out.println("\tafter registerRepo");
             long ver2 = db.getRepoLastVersion(repoModuleName);
             List<Long> verHist2 = db.listRepoVersions(repoModuleName);
             Assert.assertEquals(2, verHist2.size());
@@ -189,7 +186,6 @@ public class MongoDynamicRepoDBTest {
                 Assert.assertFalse("Buffer size: " + bufferSize, diffFiles(imgFile, imgFile, bufferSize));
             }
         } finally {
-            System.out.println("After mainTest");
             try {
                 pvd.dispose();
             } catch (Exception ex) {
@@ -200,7 +196,6 @@ public class MongoDynamicRepoDBTest {
     
     @Test
     public void testPy() throws Exception {
-        System.out.println("Before testPy");
         File repoDir = FileUtils.generateTempDir(
                 dbHelper.getWorkDir(), "local_", ".temp");
         String userId = "user1";
@@ -230,7 +225,6 @@ public class MongoDynamicRepoDBTest {
         Assert.assertEquals(0, db.listRepoModuleNames(false).size());
         RepoProvider pvd = new FileRepoProvider(repoDir);
         db.registerRepo(userId, pvd);
-        System.out.println("\tafter registerRepo");
         Assert.assertEquals("[" + moduleName + "]", 
                 db.listRepoModuleNames(false).toString());
         Assert.assertTrue(db.isRepoOwner(moduleName, userId));
@@ -254,7 +248,6 @@ public class MongoDynamicRepoDBTest {
         Assert.assertEquals(methodId, parser.getMethodSpec().getInfo().getId());
         Assert.assertEquals(2, parser.getMethodSpec().getParameters().size());
         Assert.assertEquals("genomeA", parser.getMethodSpec().getParameters().get(0).getId());
-        System.out.println("After testPy");
     }
     
     private static String asText(FilePointer fp) throws NarrativeMethodStoreException {
