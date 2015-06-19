@@ -46,6 +46,7 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
     ////////////////////////////////////////////////////////////////////
     private static final String TABLE_REPO_INFO = "repo_info";
     private static final String FIELD_RI_MODULE_NAME = "module_name";
+    private static final String FIELD_RI_DOCKER_IMAGE = "docker_image";
     private static final String FIELD_RI_LAST_VERSION = "last_version";
     private static final String FIELD_RI_STATE = "state";
     ////////////////////////////////////////////////////////////////////
@@ -87,6 +88,7 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
     private void ensureIndeces() {
         MongoCollection repoData = jdb.getCollection(TABLE_REPO_INFO);
         repoData.ensureIndex(String.format("{%s:1}", FIELD_RI_MODULE_NAME), "{unique:true}");
+        repoData.ensureIndex(String.format("{%s:1}", FIELD_RI_DOCKER_IMAGE), "{unique:true}");
         MongoCollection repoHist = jdb.getCollection(TABLE_REPO_HISTORY);
         repoHist.ensureIndex(String.format("{%s:1,%s:1}", FIELD_RH_MODULE_NAME, 
                 FIELD_RH_VERSION), "{unique:true}");
@@ -146,13 +148,23 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
             RepoProvider oldDetails = getRepoDetailsHistory(repoModuleName, 
                     oldVersion);
             String oldUrl = oldDetails.getUrl();
+            if (oldUrl == null)
+                oldUrl = "";
             String newUrl = repoDetails.getUrl();
-            if (!newUrl.equals(oldUrl)) {
-                if (isRepoOwner(repoModuleName, userId))
-                    throw new NarrativeMethodStoreException("Only current owner " +
-                    		"can change git url of repository: " + oldUrl + " -> " +
-                    				newUrl);
-            }
+            if (newUrl == null)
+                newUrl = "";
+            if ((!newUrl.equals(oldUrl)) && (!isRepoOwner(repoModuleName, userId)))
+                throw new NarrativeMethodStoreException("Only current owner " +
+                        "can change git url of repository: [" + oldUrl + "] -> [" +
+                        newUrl + "]");
+            if (newUrl.isEmpty() && (!isRepoOwner(repoModuleName, userId)))
+                throw new NarrativeMethodStoreException("Only current owner " +
+                        "can update non-git repository: [" + oldUrl + "] -> [" +
+                        newUrl + "]");
+            if (newUrl.isEmpty() && (!oldUrl.isEmpty()))
+                throw new NarrativeMethodStoreException("Git repository " +
+                        "can not be updated by non-git repository: [" + oldUrl + 
+                        "] -> [" + newUrl + "]");
         }
         RepoData repoData = JsonRepoProvider.repoProviderToData(this, repoDetails);
         MongoCollection hist = jdb.getCollection(TABLE_REPO_HISTORY);
@@ -171,6 +183,14 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
                     repoModuleName, newVersion, RepoState.ready);
         }
     }
+    
+    /*private boolean isDockerImageInUse(String dockerImage) 
+            throws NarrativeMethodStoreException {
+        List<String> ret = MongoUtils.getProjection(jdb.getCollection(TABLE_REPO_INFO),
+                String.format("{%s:#}", FIELD_RI_DOCKER_IMAGE), 
+                FIELD_RI_MODULE_NAME, String.class, dockerImage);
+        return !ret.isEmpty();
+    }*/
     
     @Override
     public long getRepoLastVersion(String repoModuleName)

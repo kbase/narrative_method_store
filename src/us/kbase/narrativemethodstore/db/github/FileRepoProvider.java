@@ -3,12 +3,16 @@ package us.kbase.narrativemethodstore.db.github;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -20,15 +24,22 @@ import us.kbase.narrativemethodstore.db.FileId;
 import us.kbase.narrativemethodstore.db.FilePointer;
 import us.kbase.narrativemethodstore.db.RepoProvider;
 import us.kbase.narrativemethodstore.exceptions.NarrativeMethodStoreException;
+import us.kbase.narrativemethodstore.util.FileUtils;
 
 public class FileRepoProvider implements RepoProvider {
     protected final File rootDir;
+    protected URL url;
     protected final String moduleName;
     protected String moduleDescription = null;
     protected String serviceLanguage = null;
     protected List<String> owners = null;
-    
+    private File repoZipFile = null;
+
     public FileRepoProvider(File rootDir) throws NarrativeMethodStoreException {
+        this(rootDir, null);
+    }
+    
+    public FileRepoProvider(File rootDir, URL url) throws NarrativeMethodStoreException {
         this.rootDir = rootDir;
         String source = "kbase.yml";
         String kbaseConfig = get(new File(rootDir, source));
@@ -50,7 +61,7 @@ public class FileRepoProvider implements RepoProvider {
     
     @Override
     public String getUrl() {
-        return rootDir.getAbsolutePath();
+        return url == null ? null : ("" + url);
     }
     
     @Override
@@ -199,6 +210,20 @@ public class FileRepoProvider implements RepoProvider {
         // Do nothing
     }
 
+    @Override
+    public FilePointer getRepoZip() throws NarrativeMethodStoreException {
+        if (repoZipFile == null) {
+            try {
+                repoZipFile = File.createTempFile("repo_", ".zip", rootDir);
+                FileUtils.zip(rootDir, new FileOutputStream(repoZipFile), false, 
+                        new HashSet<String>(Arrays.asList(repoZipFile.getName())));
+            } catch (IOException ex) {
+                throw new NarrativeMethodStoreException(ex);
+            }
+        }
+        return fp(repoZipFile);
+    }
+    
     protected String get(File f) throws NarrativeMethodStoreException {
         return get(f, false);
     }

@@ -1,6 +1,5 @@
 package us.kbase.narrativemethodstore.db;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -110,6 +109,12 @@ public class JsonRepoProvider implements RepoProvider {
     /////////// [utils] ///////////
     
     @Override
+    public FilePointer getRepoZip() throws NarrativeMethodStoreException {
+        String fileId = data.repoZip;
+        return fileId == null ? null : fp(fileId);
+    }
+    
+    @Override
     public void dispose() throws NarrativeMethodStoreException {
         // Do nothing
     }
@@ -168,6 +173,8 @@ public class JsonRepoProvider implements RepoProvider {
         ret.uiWidgetIdToFile = new TreeMap<String, String>();
         for (String widgetId : repo.listUIWidgetIds())
             ret.uiWidgetIdToFile.put(widgetId, fId(db, mn, repo.getUIWidgetJS(widgetId)));
+        FilePointer zipFp = repo.getRepoZip();
+        ret.repoZip = zipFp == null ? null : fId(db, mn, zipFp);
         return ret;
     }
 
@@ -197,6 +204,7 @@ public class JsonRepoProvider implements RepoProvider {
         public List<String> uiNarrativeMethodIds;
         public Map<String, MethodData> uiNarrativeMethods;
         public Map<String, String> uiWidgetIdToFile;
+        public String repoZip;
     }
     
     public static class MethodData {

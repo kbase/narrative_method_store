@@ -6,11 +6,11 @@ import java.net.URL;
 
 import org.apache.commons.io.FileUtils;
 
+import us.kbase.narrativemethodstore.db.FilePointer;
 import us.kbase.narrativemethodstore.exceptions.NarrativeMethodStoreException;
 import us.kbase.narrativemethodstore.exceptions.NarrativeMethodStoreInitializationException;
 
 public class GitHubRepoProvider extends FileRepoProvider {
-    protected URL url;
     protected String branch;
     protected String commitHash;
 
@@ -19,8 +19,7 @@ public class GitHubRepoProvider extends FileRepoProvider {
     }
 
     public GitHubRepoProvider(URL url, String branch, File parentTempDir) throws NarrativeMethodStoreException {
-        super(prepareGitClone(url, branch, generateTempDir(parentTempDir)));
-        this.url = url;
+        super(prepareGitClone(url, branch, generateTempDir(parentTempDir)), url);
         this.branch = branch;
         try {
             this.commitHash = GitUtils.getCommitHash(rootDir, url);
@@ -49,13 +48,14 @@ public class GitHubRepoProvider extends FileRepoProvider {
     }
     
     @Override
-    public String getUrl() {
-        return "" + url;
+    public String getGitCommitHash() {
+        return commitHash;
     }
     
     @Override
-    public String getGitCommitHash() {
-        return commitHash;
+    public FilePointer getRepoZip() throws NarrativeMethodStoreException {
+        // We don't create git repo zip because we have git-url + commit-hash to track files.
+        return null;
     }
     
     @Override

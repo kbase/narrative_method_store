@@ -26,5 +26,6 @@ public interface RepoProvider {
     public List<String> listScreenshotIDs(String methodId) throws NarrativeMethodStoreException;
     public FilePointer getScreenshot(String methodId, String screenshotId) throws NarrativeMethodStoreException;
     /////////// [utils] ///////////
+    public FilePointer getRepoZip() throws NarrativeMethodStoreException;
     public void dispose() throws NarrativeMethodStoreException;
 }
