@@ -207,7 +207,8 @@ public class FileRepoProvider implements RepoProvider {
     
     @Override
     public void dispose() throws NarrativeMethodStoreException {
-        // Do nothing
+        if (repoZipFile != null && repoZipFile.exists())
+            repoZipFile.delete();
     }
 
     @Override

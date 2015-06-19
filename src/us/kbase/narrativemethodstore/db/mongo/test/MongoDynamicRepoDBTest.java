@@ -76,8 +76,9 @@ public class MongoDynamicRepoDBTest {
         testRepo(true);
         //testRepo(false);
     }
-    
+
     private void testRepo(boolean localFiles) throws Exception {
+        System.out.println("Before mainTest");
         String gitUrl = "https://github.com/kbaseIncubator/genome_feature_comparator";
         String localPath = "test/data/test_repo_1";
         String repoModuleName = "GenomeFeatureComparator";
@@ -85,109 +86,121 @@ public class MongoDynamicRepoDBTest {
         String user1 = "rsutormin";
         String user2 = "user2";
         String unregModuleName = "Unregistered";
-        
+
         String host = "localhost:" + dbHelper.getMongoPort();
         MongoDynamicRepoDB db = new MongoDynamicRepoDB(host, dbName, null, null, 
                 Arrays.asList(globalAdmin), false, shockUrl, shockToken);
         Assert.assertEquals(0, db.listRepoModuleNames(false).size());
         RepoProvider pvd = localFiles ? new FileRepoProvider(new File(localPath)) :
             new GitHubRepoProvider(new URL(gitUrl), dbHelper.getWorkDir());
-        db.registerRepo(user1, pvd);
-        Assert.assertEquals("[" + repoModuleName + "]", 
-                db.listRepoModuleNames(false).toString());
-        Assert.assertTrue(db.isRepoOwner(repoModuleName, user1));
-        Assert.assertEquals("[msneddon, " + user1 + "]", 
-                db.listRepoOwners(repoModuleName).toString());
-        long ver1 = db.getRepoLastVersion(repoModuleName);
-        List<Long> verHist1 = db.listRepoVersions(repoModuleName);
-        Assert.assertEquals(1, verHist1.size());
-        Assert.assertEquals(ver1, (long)verHist1.get(0));
-        Assert.assertEquals(RepoState.ready, db.getRepoState(repoModuleName));
+        try {
+            db.registerRepo(user1, pvd);
+            System.out.println("\tafter registerRepo");
+            Assert.assertEquals("[" + repoModuleName + "]", 
+                    db.listRepoModuleNames(false).toString());
+            Assert.assertTrue(db.isRepoOwner(repoModuleName, user1));
+            Assert.assertEquals("[msneddon, " + user1 + "]", 
+                    db.listRepoOwners(repoModuleName).toString());
+            long ver1 = db.getRepoLastVersion(repoModuleName);
+            List<Long> verHist1 = db.listRepoVersions(repoModuleName);
+            Assert.assertEquals(1, verHist1.size());
+            Assert.assertEquals(ver1, (long)verHist1.get(0));
+            Assert.assertEquals(RepoState.ready, db.getRepoState(repoModuleName));
 
-        try {
-            db.registerRepo(user2, pvd);
-            Assert.fail("User " + user2 + " is not in owner list at this point");
-        } catch (NarrativeMethodStoreException ex) {
-            Assert.assertEquals("User " + user2 + " is not owner of repository " + 
-                    repoModuleName, ex.getMessage());
-        }
-        db.setRepoState(user1, repoModuleName, RepoState.disabled);
-        Assert.assertEquals(RepoState.disabled, db.getRepoState(repoModuleName));
-        Assert.assertEquals(0, db.listRepoModuleNames(false).size());
-        Assert.assertEquals(1, db.listRepoModuleNames(true).size());
-        // Register second version
-        db.registerRepo(globalAdmin, pvd);
-        long ver2 = db.getRepoLastVersion(repoModuleName);
-        List<Long> verHist2 = db.listRepoVersions(repoModuleName);
-        Assert.assertEquals(2, verHist2.size());
-        Assert.assertEquals(ver1, (long)verHist2.get(0));
-        Assert.assertEquals(ver2, (long)verHist2.get(1));
-        Assert.assertTrue("Versions " + ver1 + " and " + ver2 + " should be different", 
-                ver1 != ver2);
-        
-        RepoProvider savedRP = db.getRepoDetails(repoModuleName);
-        Assert.assertEquals(JsonRepoProvider.repoProviderToJsonString(db, pvd), 
-                JsonRepoProvider.repoProviderToJsonString(db, savedRP));
-        if (!localFiles) {
-            Assert.assertFalse(savedRP.getGitCommitHash().contains("\n"));
-            Assert.assertEquals(40, savedRP.getGitCommitHash().length());
-        }
-        
-        try {
-            db.setRepoState(user2, repoModuleName, RepoState.disabled);
-            Assert.fail("User " + user2 + " is not in owner list at this point");
-        } catch (NarrativeMethodStoreException ex) {
-            Assert.assertEquals("User " + user2 + " is not owner of repository " + 
-                    repoModuleName, ex.getMessage());
-        }
-        try {
-            db.setRepoState(user1, repoModuleName, RepoState.testing);
-            Assert.fail("User " + user1 + " is not global admin");
-        } catch (NarrativeMethodStoreException ex) {
-            Assert.assertEquals("User " + user1 + " is not global admin", ex.getMessage());
-        }
-        db.setRepoState(globalAdmin, repoModuleName, RepoState.testing);
-        db.setRepoState(globalAdmin, repoModuleName, RepoState.disabled);
-        Assert.assertEquals(0, db.listRepoModuleNames(false).size());
-        Assert.assertEquals(1, db.listRepoModuleNames(true).size());
+            try {
+                db.registerRepo(user2, pvd);
+                Assert.fail("User " + user2 + " is not in owner list at this point");
+            } catch (NarrativeMethodStoreException ex) {
+                Assert.assertEquals("User " + user2 + " is not owner of repository " + 
+                        repoModuleName, ex.getMessage());
+            }
+            db.setRepoState(user1, repoModuleName, RepoState.disabled);
+            Assert.assertEquals(RepoState.disabled, db.getRepoState(repoModuleName));
+            Assert.assertEquals(0, db.listRepoModuleNames(false).size());
+            Assert.assertEquals(1, db.listRepoModuleNames(true).size());
+            // Register second version
+            db.registerRepo(globalAdmin, pvd);
+            System.out.println("\tafter registerRepo");
+            long ver2 = db.getRepoLastVersion(repoModuleName);
+            List<Long> verHist2 = db.listRepoVersions(repoModuleName);
+            Assert.assertEquals(2, verHist2.size());
+            Assert.assertEquals(ver1, (long)verHist2.get(0));
+            Assert.assertEquals(ver2, (long)verHist2.get(1));
+            Assert.assertTrue("Versions " + ver1 + " and " + ver2 + " should be different", 
+                    ver1 != ver2);
 
-        Assert.assertFalse(db.isRepoRegistered(unregModuleName, true));
-        try {
-            db.getRepoDetails(unregModuleName);
-            Assert.fail("Repository " + unregModuleName + " wasn't registered at this " +
-            		"point");
-        } catch (NarrativeMethodStoreException ex) {
-            Assert.assertEquals("Repository " + unregModuleName + " wasn't registered", 
-                    ex.getMessage());
-        }
-        
-        String methodId = "compare_genome_features";
-        Assert.assertTrue("Screenshots: " + pvd.listScreenshotIDs(methodId).size(), pvd.listScreenshotIDs(methodId).size() > 0);
-        String imgId = pvd.listScreenshotIDs(methodId).get(0);
-        File imgFile = pvd.getScreenshot(methodId, imgId).getFile();
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        copyStreams(new FileInputStream(imgFile), baos, 10000);
-        byte[] imgData = baos.toByteArray();
-        File imgFile2 = new File(imgFile.getAbsolutePath() + ".2");
-        FileOutputStream fos = new FileOutputStream(imgFile2);
-        fos.write(imgData, 0, imgData.length / 2);
-        fos.close();
-        imgData[100] = (byte)(imgData[100] + 1);
-        File imgFile3 = new File(imgFile.getAbsolutePath() + ".3");
-        fos = new FileOutputStream(imgFile3);
-        fos.write(imgData);
-        fos.close();
-        int[] bufferSizes = {100, 1000, 10000, 100000};
-        for (int bufferSize: bufferSizes) {
-            Assert.assertTrue("Buffer size: " + bufferSize, diffFiles(imgFile, imgFile2, bufferSize));
-            Assert.assertTrue("Buffer size: " + bufferSize, diffFiles(imgFile2, imgFile, bufferSize));
-            Assert.assertTrue("Buffer size: " + bufferSize, diffFiles(imgFile, imgFile3, bufferSize));
-            Assert.assertFalse("Buffer size: " + bufferSize, diffFiles(imgFile, imgFile, bufferSize));
+            RepoProvider savedRP = db.getRepoDetails(repoModuleName);
+            Assert.assertEquals(JsonRepoProvider.repoProviderToJsonString(db, pvd), 
+                    JsonRepoProvider.repoProviderToJsonString(db, savedRP));
+            if (!localFiles) {
+                Assert.assertFalse(savedRP.getGitCommitHash().contains("\n"));
+                Assert.assertEquals(40, savedRP.getGitCommitHash().length());
+            }
+
+            try {
+                db.setRepoState(user2, repoModuleName, RepoState.disabled);
+                Assert.fail("User " + user2 + " is not in owner list at this point");
+            } catch (NarrativeMethodStoreException ex) {
+                Assert.assertEquals("User " + user2 + " is not owner of repository " + 
+                        repoModuleName, ex.getMessage());
+            }
+            try {
+                db.setRepoState(user1, repoModuleName, RepoState.testing);
+                Assert.fail("User " + user1 + " is not global admin");
+            } catch (NarrativeMethodStoreException ex) {
+                Assert.assertEquals("User " + user1 + " is not global admin", ex.getMessage());
+            }
+            db.setRepoState(globalAdmin, repoModuleName, RepoState.testing);
+            db.setRepoState(globalAdmin, repoModuleName, RepoState.disabled);
+            Assert.assertEquals(0, db.listRepoModuleNames(false).size());
+            Assert.assertEquals(1, db.listRepoModuleNames(true).size());
+
+            Assert.assertFalse(db.isRepoRegistered(unregModuleName, true));
+            try {
+                db.getRepoDetails(unregModuleName);
+                Assert.fail("Repository " + unregModuleName + " wasn't registered at this " +
+                        "point");
+            } catch (NarrativeMethodStoreException ex) {
+                Assert.assertEquals("Repository " + unregModuleName + " wasn't registered", 
+                        ex.getMessage());
+            }
+
+            String methodId = "compare_genome_features";
+            Assert.assertTrue("Screenshots: " + pvd.listScreenshotIDs(methodId).size(), pvd.listScreenshotIDs(methodId).size() > 0);
+            String imgId = pvd.listScreenshotIDs(methodId).get(0);
+            File imgFile = pvd.getScreenshot(methodId, imgId).getFile();
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            copyStreams(new FileInputStream(imgFile), baos, 10000);
+            byte[] imgData = baos.toByteArray();
+            File imgFile2 = new File(imgFile.getAbsolutePath() + ".2");
+            FileOutputStream fos = new FileOutputStream(imgFile2);
+            fos.write(imgData, 0, imgData.length / 2);
+            fos.close();
+            imgData[100] = (byte)(imgData[100] + 1);
+            File imgFile3 = new File(imgFile.getAbsolutePath() + ".3");
+            fos = new FileOutputStream(imgFile3);
+            fos.write(imgData);
+            fos.close();
+            int[] bufferSizes = {100, 1000, 10000, 100000};
+            for (int bufferSize: bufferSizes) {
+                Assert.assertTrue("Buffer size: " + bufferSize, diffFiles(imgFile, imgFile2, bufferSize));
+                Assert.assertTrue("Buffer size: " + bufferSize, diffFiles(imgFile2, imgFile, bufferSize));
+                Assert.assertTrue("Buffer size: " + bufferSize, diffFiles(imgFile, imgFile3, bufferSize));
+                Assert.assertFalse("Buffer size: " + bufferSize, diffFiles(imgFile, imgFile, bufferSize));
+            }
+        } finally {
+            System.out.println("After mainTest");
+            try {
+                pvd.dispose();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
         }
     }
     
     @Test
     public void testPy() throws Exception {
+        System.out.println("Before testPy");
         File repoDir = FileUtils.generateTempDir(
                 dbHelper.getWorkDir(), "local_", ".temp");
         String userId = "user1";
@@ -217,6 +230,7 @@ public class MongoDynamicRepoDBTest {
         Assert.assertEquals(0, db.listRepoModuleNames(false).size());
         RepoProvider pvd = new FileRepoProvider(repoDir);
         db.registerRepo(userId, pvd);
+        System.out.println("\tafter registerRepo");
         Assert.assertEquals("[" + moduleName + "]", 
                 db.listRepoModuleNames(false).toString());
         Assert.assertTrue(db.isRepoOwner(moduleName, userId));
@@ -240,6 +254,7 @@ public class MongoDynamicRepoDBTest {
         Assert.assertEquals(methodId, parser.getMethodSpec().getInfo().getId());
         Assert.assertEquals(2, parser.getMethodSpec().getParameters().size());
         Assert.assertEquals("genomeA", parser.getMethodSpec().getParameters().get(0).getId());
+        System.out.println("After testPy");
     }
     
     private static String asText(FilePointer fp) throws NarrativeMethodStoreException {

@@ -43,16 +43,17 @@ public class FileUtils {
         }
     }
     
-    private static void addToZip(File input, String dirPrefix, ZipOutputStream zos, 
+    private static void addToZip(File input, String entryName, ZipOutputStream zos, 
             boolean withHidden, Set<String> excludeEntries) throws IOException {
         if (input.isHidden() && !withHidden)
             return;
         if (input.isDirectory()) {
+            if (entryName.length() > 0)
+                entryName += "/";
             for (File f : input.listFiles())
-                addToZip(f, dirPrefix + input.getName() + "/", zos, withHidden,
+                addToZip(f, entryName + f.getName(), zos, withHidden,
                         excludeEntries);
         } else if (input.isFile()) {
-            String entryName = dirPrefix + input.getName();
             if (excludeEntries != null && excludeEntries.contains(entryName))
                 return;
             FileInputStream fis = null;
