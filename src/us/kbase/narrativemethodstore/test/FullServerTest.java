@@ -549,7 +549,7 @@ public class FullServerTest {
 			} else if (m.getInfo().getId().equals("test_method_3")) {
 				foundTestMethod3 = true;
 				
-				assertEquals(6, m.getParameters().size());
+				assertEquals(7, m.getParameters().size());
 				assertEquals(0, m.getFixedParameters().size());
 				////////////////////////
 				assertEquals("param0", m.getParameters().get(0).getId());
@@ -569,17 +569,23 @@ public class FullServerTest {
 				assertEquals("param2", m.getParameters().get(3).getId());
 				assertEquals("textarea", m.getParameters().get(3).getFieldType());
 				assertEquals(10L, (long)m.getParameters().get(3).getTextareaOptions().getNRows());
+				assertEquals("place holder here", m.getParameters().get(3).getTextareaOptions().getPlaceholder());
 				////////////////////////
-				assertEquals("param3", m.getParameters().get(4).getId());
-				assertEquals("dropdown", m.getParameters().get(4).getFieldType());
-				assertEquals(2, m.getParameters().get(4).getDropdownOptions().getOptions().size());
-				assertEquals("item0", m.getParameters().get(4).getDropdownOptions().getOptions().get(0).getValue());
+				assertEquals("param2.2", m.getParameters().get(4).getId());
+				assertEquals("textarea", m.getParameters().get(4).getFieldType());
+				assertEquals(10L, (long)m.getParameters().get(4).getTextareaOptions().getNRows());
+				assertEquals("", m.getParameters().get(4).getTextareaOptions().getPlaceholder());
 				////////////////////////
-				assertEquals("param4", m.getParameters().get(5).getId());
-				assertEquals("radio", m.getParameters().get(5).getFieldType());
-				assertEquals(2, m.getParameters().get(5).getRadioOptions().getIdsToOptions().size());
-				assertEquals("First", m.getParameters().get(5).getRadioOptions().getIdsToOptions().get("item0"));
-				assertEquals("First tooltip", m.getParameters().get(5).getRadioOptions().getIdsToTooltip().get("item0"));
+				assertEquals("param3", m.getParameters().get(5).getId());
+				assertEquals("dropdown", m.getParameters().get(5).getFieldType());
+				assertEquals(2, m.getParameters().get(5).getDropdownOptions().getOptions().size());
+				assertEquals("item0", m.getParameters().get(5).getDropdownOptions().getOptions().get(0).getValue());
+				////////////////////////
+				assertEquals("param4", m.getParameters().get(6).getId());
+				assertEquals("radio", m.getParameters().get(6).getFieldType());
+				assertEquals(2, m.getParameters().get(6).getRadioOptions().getIdsToOptions().size());
+				assertEquals("First", m.getParameters().get(6).getRadioOptions().getIdsToOptions().get("item0"));
+				assertEquals("First tooltip", m.getParameters().get(6).getRadioOptions().getIdsToTooltip().get("item0"));
 			} else if (m.getInfo().getId().equals("test_method_4")) {
 				foundTestMethod4 = true;
 				assertEquals(0, m.getFixedParameters().size());

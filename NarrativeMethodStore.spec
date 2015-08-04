@@ -138,6 +138,7 @@ module NarrativeMethodStore {
 
     typedef structure {
         int n_rows;
+        string placeholder;
     } TextAreaOptions;
     
     typedef structure {

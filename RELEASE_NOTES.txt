@@ -4,6 +4,13 @@ The Narrative Method Store provides an API to dynamically access the available
 narrative method/app/type specifications and documentation.
 
 
+
+VERSION: 0.2.7 (Released TBA)
+--------------------------------------
+UPDATED FEATURES / MAJOR BUG FIXES:
+- Placeholder now supported in textarea method parameters
+
+
 VERSION: 0.2.6 (Released 4/6/15)
 --------------------------------------
 UPDATED FEATURES / MAJOR BUG FIXES:

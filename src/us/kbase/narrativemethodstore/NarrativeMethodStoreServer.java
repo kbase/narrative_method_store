@@ -38,7 +38,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
     public static final String CFG_PROP_GIT_REFRESH_RATE = "method-spec-git-repo-refresh-rate";
     public static final String       CFG_PROP_CACHE_SIZE = "method-spec-cache-size";
     
-    public static final String VERSION = "0.2.6";
+    public static final String VERSION = "0.2.7";
     
     private static Throwable configError = null;
     private static Map<String, String> config = null;

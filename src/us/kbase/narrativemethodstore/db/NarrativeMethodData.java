@@ -547,7 +547,11 @@ public class NarrativeMethodData {
 			if (paramNode.has("textarea_options")) {
 				JsonNode optNode = get(paramPath, paramNode, "textarea_options");
 				long nRows = get(paramPath + "/textarea_options", optNode, "n_rows").asLong();
-				taOpt = new TextAreaOptions().withNRows(nRows);
+				String placeholder = "";
+				try {
+					placeholder = (String) getDisplayProp("parameters/" + paramId, paramDisplay, "placeholder");
+				} catch (IllegalStateException e) { }
+				taOpt = new TextAreaOptions().withNRows(nRows).withPlaceholder(placeholder);
 			}
 			TabOptions tabOpt = null;
 			if (paramNode.has("tab_options")) {
