@@ -9,6 +9,7 @@ VERSION: 0.2.7 (Released TBA)
 --------------------------------------
 UPDATED FEATURES / MAJOR BUG FIXES:
 - Placeholder now supported in textarea method parameters
+- Subdata method parameter type now supported
 
 
 VERSION: 0.2.6 (Released 4/6/15)
