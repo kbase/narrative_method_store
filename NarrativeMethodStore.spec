@@ -203,6 +203,7 @@ module NarrativeMethodStore {
     typedef structure {
         list <string> constant_ref;
         string parameter_id;
+        list <string> subdata_included;
         list <string> path_to_subdata;
         string selection_id;
         list <string> selection_description;

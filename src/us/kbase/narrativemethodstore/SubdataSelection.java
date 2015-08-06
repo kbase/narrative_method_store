@@ -39,6 +39,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @JsonPropertyOrder({
     "constant_ref",
     "parameter_id",
+    "subdata_included",
     "path_to_subdata",
     "selection_id",
     "selection_description"
@@ -49,6 +50,8 @@ public class SubdataSelection {
     private List<String> constantRef;
     @JsonProperty("parameter_id")
     private java.lang.String parameterId;
+    @JsonProperty("subdata_included")
+    private List<String> subdataIncluded;
     @JsonProperty("path_to_subdata")
     private List<String> pathToSubdata;
     @JsonProperty("selection_id")
@@ -84,6 +87,21 @@ public class SubdataSelection {
 
     public SubdataSelection withParameterId(java.lang.String parameterId) {
         this.parameterId = parameterId;
+        return this;
+    }
+
+    @JsonProperty("subdata_included")
+    public List<String> getSubdataIncluded() {
+        return subdataIncluded;
+    }
+
+    @JsonProperty("subdata_included")
+    public void setSubdataIncluded(List<String> subdataIncluded) {
+        this.subdataIncluded = subdataIncluded;
+    }
+
+    public SubdataSelection withSubdataIncluded(List<String> subdataIncluded) {
+        this.subdataIncluded = subdataIncluded;
         return this;
     }
 
@@ -144,7 +162,7 @@ public class SubdataSelection {
 
     @Override
     public java.lang.String toString() {
-        return ((((((((((((("SubdataSelection"+" [constantRef=")+ constantRef)+", parameterId=")+ parameterId)+", pathToSubdata=")+ pathToSubdata)+", selectionId=")+ selectionId)+", selectionDescription=")+ selectionDescription)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((((((((((("SubdataSelection"+" [constantRef=")+ constantRef)+", parameterId=")+ parameterId)+", subdataIncluded=")+ subdataIncluded)+", pathToSubdata=")+ pathToSubdata)+", selectionId=")+ selectionId)+", selectionDescription=")+ selectionDescription)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }

@@ -893,6 +893,7 @@ TextSubdataOptions is a reference to a hash where the following keys are defined
 SubdataSelection is a reference to a hash where the following keys are defined:
 	constant_ref has a value which is a reference to a list where each element is a string
 	parameter_id has a value which is a string
+	subdata_included has a value which is a reference to a list where each element is a string
 	path_to_subdata has a value which is a reference to a list where each element is a string
 	selection_id has a value which is a string
 	selection_description has a value which is a reference to a list where each element is a string
@@ -1058,6 +1059,7 @@ TextSubdataOptions is a reference to a hash where the following keys are defined
 SubdataSelection is a reference to a hash where the following keys are defined:
 	constant_ref has a value which is a reference to a list where each element is a string
 	parameter_id has a value which is a string
+	subdata_included has a value which is a reference to a list where each element is a string
 	path_to_subdata has a value which is a reference to a list where each element is a string
 	selection_id has a value which is a string
 	selection_description has a value which is a reference to a list where each element is a string
@@ -2189,6 +2191,7 @@ TextSubdataOptions is a reference to a hash where the following keys are defined
 SubdataSelection is a reference to a hash where the following keys are defined:
 	constant_ref has a value which is a reference to a list where each element is a string
 	parameter_id has a value which is a string
+	subdata_included has a value which is a reference to a list where each element is a string
 	path_to_subdata has a value which is a reference to a list where each element is a string
 	selection_id has a value which is a string
 	selection_description has a value which is a reference to a list where each element is a string
@@ -2353,6 +2356,7 @@ TextSubdataOptions is a reference to a hash where the following keys are defined
 SubdataSelection is a reference to a hash where the following keys are defined:
 	constant_ref has a value which is a reference to a list where each element is a string
 	parameter_id has a value which is a string
+	subdata_included has a value which is a reference to a list where each element is a string
 	path_to_subdata has a value which is a reference to a list where each element is a string
 	selection_id has a value which is a string
 	selection_description has a value which is a reference to a list where each element is a string
@@ -3161,6 +3165,7 @@ TextSubdataOptions is a reference to a hash where the following keys are defined
 SubdataSelection is a reference to a hash where the following keys are defined:
 	constant_ref has a value which is a reference to a list where each element is a string
 	parameter_id has a value which is a string
+	subdata_included has a value which is a reference to a list where each element is a string
 	path_to_subdata has a value which is a reference to a list where each element is a string
 	selection_id has a value which is a string
 	selection_description has a value which is a reference to a list where each element is a string
@@ -3415,6 +3420,7 @@ TextSubdataOptions is a reference to a hash where the following keys are defined
 SubdataSelection is a reference to a hash where the following keys are defined:
 	constant_ref has a value which is a reference to a list where each element is a string
 	parameter_id has a value which is a string
+	subdata_included has a value which is a reference to a list where each element is a string
 	path_to_subdata has a value which is a reference to a list where each element is a string
 	selection_id has a value which is a string
 	selection_description has a value which is a reference to a list where each element is a string
@@ -3732,6 +3738,7 @@ TextSubdataOptions is a reference to a hash where the following keys are defined
 SubdataSelection is a reference to a hash where the following keys are defined:
 	constant_ref has a value which is a reference to a list where each element is a string
 	parameter_id has a value which is a string
+	subdata_included has a value which is a reference to a list where each element is a string
 	path_to_subdata has a value which is a reference to a list where each element is a string
 	selection_id has a value which is a string
 	selection_description has a value which is a reference to a list where each element is a string
@@ -3986,6 +3993,7 @@ TextSubdataOptions is a reference to a hash where the following keys are defined
 SubdataSelection is a reference to a hash where the following keys are defined:
 	constant_ref has a value which is a reference to a list where each element is a string
 	parameter_id has a value which is a string
+	subdata_included has a value which is a reference to a list where each element is a string
 	path_to_subdata has a value which is a reference to a list where each element is a string
 	selection_id has a value which is a string
 	selection_description has a value which is a reference to a list where each element is a string
@@ -4303,6 +4311,7 @@ TextSubdataOptions is a reference to a hash where the following keys are defined
 SubdataSelection is a reference to a hash where the following keys are defined:
 	constant_ref has a value which is a reference to a list where each element is a string
 	parameter_id has a value which is a string
+	subdata_included has a value which is a reference to a list where each element is a string
 	path_to_subdata has a value which is a reference to a list where each element is a string
 	selection_id has a value which is a string
 	selection_description has a value which is a reference to a list where each element is a string
@@ -4557,6 +4566,7 @@ TextSubdataOptions is a reference to a hash where the following keys are defined
 SubdataSelection is a reference to a hash where the following keys are defined:
 	constant_ref has a value which is a reference to a list where each element is a string
 	parameter_id has a value which is a string
+	subdata_included has a value which is a reference to a list where each element is a string
 	path_to_subdata has a value which is a reference to a list where each element is a string
 	selection_id has a value which is a string
 	selection_description has a value which is a reference to a list where each element is a string
@@ -5612,6 +5622,7 @@ Information about a subdata selection
 a reference to a hash where the following keys are defined:
 constant_ref has a value which is a reference to a list where each element is a string
 parameter_id has a value which is a string
+subdata_included has a value which is a reference to a list where each element is a string
 path_to_subdata has a value which is a reference to a list where each element is a string
 selection_id has a value which is a string
 selection_description has a value which is a reference to a list where each element is a string
@@ -5625,6 +5636,7 @@ selection_description has a value which is a reference to a list where each elem
 a reference to a hash where the following keys are defined:
 constant_ref has a value which is a reference to a list where each element is a string
 parameter_id has a value which is a string
+subdata_included has a value which is a reference to a list where each element is a string
 path_to_subdata has a value which is a reference to a list where each element is a string
 selection_id has a value which is a string
 selection_description has a value which is a reference to a list where each element is a string

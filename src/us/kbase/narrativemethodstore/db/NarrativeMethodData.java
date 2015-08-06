@@ -34,10 +34,12 @@ import us.kbase.narrativemethodstore.ScriptInputMapping;
 import us.kbase.narrativemethodstore.ScriptOutputMapping;
 import us.kbase.narrativemethodstore.ServiceMethodInputMapping;
 import us.kbase.narrativemethodstore.ServiceMethodOutputMapping;
+import us.kbase.narrativemethodstore.SubdataSelection;
 import us.kbase.narrativemethodstore.Suggestions;
 import us.kbase.narrativemethodstore.TabOptions;
 import us.kbase.narrativemethodstore.TextAreaOptions;
 import us.kbase.narrativemethodstore.TextOptions;
+import us.kbase.narrativemethodstore.TextSubdataOptions;
 import us.kbase.narrativemethodstore.WidgetSpec;
 import us.kbase.narrativemethodstore.exceptions.NarrativeMethodStoreException;
 
@@ -490,6 +492,64 @@ public class NarrativeMethodData {
 				}
 				textOpt.withRegexConstraint(regexList);
 			}
+			TextSubdataOptions textSubdataOpt = null;
+			if (paramNode.has("textsubdata_options")) {
+				JsonNode optNode = get(paramPath, paramNode, "textsubdata_options");
+				
+				// multiselection - default is false
+				JsonNode multiselection = optNode.get("multiselection");
+				long multiselectionFlag = 0L;
+				if(multiselection!=null) {
+					if(multiselection.asBoolean()){
+						multiselectionFlag = 1L;
+					}
+				}
+				// show_src_obj - default is true
+				JsonNode show_src_obj = optNode.get("show_src_obj");
+				long show_src_objFlag = 1L;
+				if(show_src_obj!=null) {
+					if(!show_src_obj.asBoolean()){
+						show_src_objFlag = 0L;
+					}
+				}
+				// allow_custom - default is false
+				JsonNode allow_custom = optNode.get("allow_custom");
+				long allow_customFlag = 0L;
+				if(allow_custom!=null) {
+					if(allow_custom.asBoolean()){
+						allow_customFlag = 1L;
+					}
+				}
+				
+				String placeholder = "";
+				try {
+					placeholder = (String) getDisplayProp("parameters/" + paramId, paramDisplay, "placeholder");
+				} catch (IllegalStateException e) { }
+				
+				JsonNode subdataSelection = optNode.get("subdata_selection");
+				if(subdataSelection==null) {
+					throw new IllegalStateException("In parameter [" + paramId + "] has textsubdata_options  " +
+							"without a subdata selection defined");
+				}
+				List <String> pathToSubdata = jsonListToStringList(subdataSelection.get("path_to_subdata"));
+				if(pathToSubdata==null) pathToSubdata = new ArrayList<String>();
+				List <String> subdata_included = jsonListToStringList(subdataSelection.get("subdata_included"));
+				if(subdata_included==null) subdata_included = new ArrayList<String>();
+				SubdataSelection ss = new SubdataSelection()
+											.withConstantRef(jsonListToStringList(subdataSelection.get("constant_ref")))
+											.withParameterId(getTextOrNull(subdataSelection.get("parameter_id")))
+											.withSubdataIncluded(subdata_included)
+											.withPathToSubdata(pathToSubdata)
+											.withSelectionId(getTextOrNull(subdataSelection.get("selection_id")))
+											.withSelectionDescription(jsonListToStringList(subdataSelection.get("selection_description")));
+				
+				textSubdataOpt = new TextSubdataOptions()
+										.withPlaceholder(placeholder)
+										.withMultiselection(multiselectionFlag)
+										.withShowSrcObj(show_src_objFlag)
+										.withAllowCustom(allow_customFlag)
+										.withSubdataSelection(ss);
+			}
 			CheckboxOptions cbOpt = null;
 			if (paramNode.has("checkbox_options")) {
 				JsonNode optNode = get(paramPath, paramNode, "checkbox_options");
@@ -599,6 +659,7 @@ public class NarrativeMethodData {
 							.withDefaultValues(jsonListToStringList(get(paramPath, paramNode, "default_values")))
 							.withFieldType(get(paramPath, paramNode, "field_type").asText())
 							.withTextOptions(textOpt)
+							.withTextsubdataOptions(textSubdataOpt)
 							.withCheckboxOptions(cbOpt)
 							.withDropdownOptions(ddOpt)
 							.withFloatsliderOptions(floatOpt)
