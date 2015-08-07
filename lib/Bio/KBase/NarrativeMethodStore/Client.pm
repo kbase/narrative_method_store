@@ -897,6 +897,7 @@ SubdataSelection is a reference to a hash where the following keys are defined:
 	path_to_subdata has a value which is a reference to a list where each element is a string
 	selection_id has a value which is a string
 	selection_description has a value which is a reference to a list where each element is a string
+	description_template has a value which is a string
 FixedMethodParameter is a reference to a hash where the following keys are defined:
 	ui_name has a value which is a string
 	description has a value which is a string
@@ -1063,6 +1064,7 @@ SubdataSelection is a reference to a hash where the following keys are defined:
 	path_to_subdata has a value which is a reference to a list where each element is a string
 	selection_id has a value which is a string
 	selection_description has a value which is a reference to a list where each element is a string
+	description_template has a value which is a string
 FixedMethodParameter is a reference to a hash where the following keys are defined:
 	ui_name has a value which is a string
 	description has a value which is a string
@@ -2195,6 +2197,7 @@ SubdataSelection is a reference to a hash where the following keys are defined:
 	path_to_subdata has a value which is a reference to a list where each element is a string
 	selection_id has a value which is a string
 	selection_description has a value which is a reference to a list where each element is a string
+	description_template has a value which is a string
 FixedMethodParameter is a reference to a hash where the following keys are defined:
 	ui_name has a value which is a string
 	description has a value which is a string
@@ -2360,6 +2363,7 @@ SubdataSelection is a reference to a hash where the following keys are defined:
 	path_to_subdata has a value which is a reference to a list where each element is a string
 	selection_id has a value which is a string
 	selection_description has a value which is a reference to a list where each element is a string
+	description_template has a value which is a string
 FixedMethodParameter is a reference to a hash where the following keys are defined:
 	ui_name has a value which is a string
 	description has a value which is a string
@@ -3169,6 +3173,7 @@ SubdataSelection is a reference to a hash where the following keys are defined:
 	path_to_subdata has a value which is a reference to a list where each element is a string
 	selection_id has a value which is a string
 	selection_description has a value which is a reference to a list where each element is a string
+	description_template has a value which is a string
 FixedMethodParameter is a reference to a hash where the following keys are defined:
 	ui_name has a value which is a string
 	description has a value which is a string
@@ -3424,6 +3429,7 @@ SubdataSelection is a reference to a hash where the following keys are defined:
 	path_to_subdata has a value which is a reference to a list where each element is a string
 	selection_id has a value which is a string
 	selection_description has a value which is a reference to a list where each element is a string
+	description_template has a value which is a string
 FixedMethodParameter is a reference to a hash where the following keys are defined:
 	ui_name has a value which is a string
 	description has a value which is a string
@@ -3742,6 +3748,7 @@ SubdataSelection is a reference to a hash where the following keys are defined:
 	path_to_subdata has a value which is a reference to a list where each element is a string
 	selection_id has a value which is a string
 	selection_description has a value which is a reference to a list where each element is a string
+	description_template has a value which is a string
 FixedMethodParameter is a reference to a hash where the following keys are defined:
 	ui_name has a value which is a string
 	description has a value which is a string
@@ -3997,6 +4004,7 @@ SubdataSelection is a reference to a hash where the following keys are defined:
 	path_to_subdata has a value which is a reference to a list where each element is a string
 	selection_id has a value which is a string
 	selection_description has a value which is a reference to a list where each element is a string
+	description_template has a value which is a string
 FixedMethodParameter is a reference to a hash where the following keys are defined:
 	ui_name has a value which is a string
 	description has a value which is a string
@@ -4315,6 +4323,7 @@ SubdataSelection is a reference to a hash where the following keys are defined:
 	path_to_subdata has a value which is a reference to a list where each element is a string
 	selection_id has a value which is a string
 	selection_description has a value which is a reference to a list where each element is a string
+	description_template has a value which is a string
 FixedMethodParameter is a reference to a hash where the following keys are defined:
 	ui_name has a value which is a string
 	description has a value which is a string
@@ -4570,6 +4579,7 @@ SubdataSelection is a reference to a hash where the following keys are defined:
 	path_to_subdata has a value which is a reference to a list where each element is a string
 	selection_id has a value which is a string
 	selection_description has a value which is a reference to a list where each element is a string
+	description_template has a value which is a string
 FixedMethodParameter is a reference to a hash where the following keys are defined:
 	ui_name has a value which is a string
 	description has a value which is a string
@@ -5612,6 +5622,9 @@ Information about a subdata selection
                     which fields should be included as a short description of
                     the selection.  For features, for instance, this may include
                     the feature function, or feature aliases.
+    description_template - Defines how the description of items is rendered using
+                    Handlebar templates (use the name of items in the 
+                    selection_description list as variable names)
 
 
 =item Definition
@@ -5626,6 +5639,7 @@ subdata_included has a value which is a reference to a list where each element i
 path_to_subdata has a value which is a reference to a list where each element is a string
 selection_id has a value which is a string
 selection_description has a value which is a reference to a list where each element is a string
+description_template has a value which is a string
 
 </pre>
 
@@ -5640,6 +5654,7 @@ subdata_included has a value which is a reference to a list where each element i
 path_to_subdata has a value which is a reference to a list where each element is a string
 selection_id has a value which is a string
 selection_description has a value which is a reference to a list where each element is a string
+description_template has a value which is a string
 
 
 =end text

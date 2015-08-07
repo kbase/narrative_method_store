@@ -71,6 +71,9 @@ public class TextSubdataOptions {
      *                     which fields should be included as a short description of
      *                     the selection.  For features, for instance, this may include
      *                     the feature function, or feature aliases.
+     *     description_template - Defines how the description of items is rendered using
+     *                     Handlebar templates (use the name of items in the 
+     *                     selection_description list as variable names)
      * </pre>
      * 
      */
@@ -157,6 +160,9 @@ public class TextSubdataOptions {
      *                     which fields should be included as a short description of
      *                     the selection.  For features, for instance, this may include
      *                     the feature function, or feature aliases.
+     *     description_template - Defines how the description of items is rendered using
+     *                     Handlebar templates (use the name of items in the 
+     *                     selection_description list as variable names)
      * </pre>
      * 
      */
@@ -184,6 +190,9 @@ public class TextSubdataOptions {
      *                     which fields should be included as a short description of
      *                     the selection.  For features, for instance, this may include
      *                     the feature function, or feature aliases.
+     *     description_template - Defines how the description of items is rendered using
+     *                     Handlebar templates (use the name of items in the 
+     *                     selection_description list as variable names)
      * </pre>
      * 
      */

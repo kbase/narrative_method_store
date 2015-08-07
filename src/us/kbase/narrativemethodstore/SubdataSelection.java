@@ -31,6 +31,9 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
  *                     which fields should be included as a short description of
  *                     the selection.  For features, for instance, this may include
  *                     the feature function, or feature aliases.
+ *     description_template - Defines how the description of items is rendered using
+ *                     Handlebar templates (use the name of items in the 
+ *                     selection_description list as variable names)
  * </pre>
  * 
  */
@@ -42,7 +45,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
     "subdata_included",
     "path_to_subdata",
     "selection_id",
-    "selection_description"
+    "selection_description",
+    "description_template"
 })
 public class SubdataSelection {
 
@@ -58,6 +62,8 @@ public class SubdataSelection {
     private java.lang.String selectionId;
     @JsonProperty("selection_description")
     private List<String> selectionDescription;
+    @JsonProperty("description_template")
+    private java.lang.String descriptionTemplate;
     private Map<java.lang.String, Object> additionalProperties = new HashMap<java.lang.String, Object>();
 
     @JsonProperty("constant_ref")
@@ -150,6 +156,21 @@ public class SubdataSelection {
         return this;
     }
 
+    @JsonProperty("description_template")
+    public java.lang.String getDescriptionTemplate() {
+        return descriptionTemplate;
+    }
+
+    @JsonProperty("description_template")
+    public void setDescriptionTemplate(java.lang.String descriptionTemplate) {
+        this.descriptionTemplate = descriptionTemplate;
+    }
+
+    public SubdataSelection withDescriptionTemplate(java.lang.String descriptionTemplate) {
+        this.descriptionTemplate = descriptionTemplate;
+        return this;
+    }
+
     @JsonAnyGetter
     public Map<java.lang.String, Object> getAdditionalProperties() {
         return this.additionalProperties;
@@ -162,7 +183,7 @@ public class SubdataSelection {
 
     @Override
     public java.lang.String toString() {
-        return ((((((((((((((("SubdataSelection"+" [constantRef=")+ constantRef)+", parameterId=")+ parameterId)+", subdataIncluded=")+ subdataIncluded)+", pathToSubdata=")+ pathToSubdata)+", selectionId=")+ selectionId)+", selectionDescription=")+ selectionDescription)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((((((((((((("SubdataSelection"+" [constantRef=")+ constantRef)+", parameterId=")+ parameterId)+", subdataIncluded=")+ subdataIncluded)+", pathToSubdata=")+ pathToSubdata)+", selectionId=")+ selectionId)+", selectionDescription=")+ selectionDescription)+", descriptionTemplate=")+ descriptionTemplate)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }

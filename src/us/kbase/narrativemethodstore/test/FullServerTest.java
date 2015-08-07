@@ -688,6 +688,7 @@ public class FullServerTest {
 				assertEquals(2, tso.getSubdataSelection().getSelectionDescription().size());
 				assertEquals("aliases", tso.getSubdataSelection().getSelectionDescription().get(0));
 				assertEquals("function", tso.getSubdataSelection().getSelectionDescription().get(1));
+				assertEquals("({{aliases}}, {{function}})", tso.getSubdataSelection().getDescriptionTemplate());
 				
 				assertEquals("more_features", m.getParameters().get(2).getId());
 				assertEquals("textsubdata", m.getParameters().get(2).getFieldType());
@@ -709,6 +710,7 @@ public class FullServerTest {
 				assertEquals("features", tso.getSubdataSelection().getPathToSubdata().get(0));
 				assertEquals("id", tso.getSubdataSelection().getSelectionId());
 				assertNull(tso.getSubdataSelection().getSelectionDescription());
+				assertNull(tso.getSubdataSelection().getDescriptionTemplate());
 
 			}
 		}

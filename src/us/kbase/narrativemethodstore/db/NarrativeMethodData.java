@@ -541,7 +541,8 @@ public class NarrativeMethodData {
 											.withSubdataIncluded(subdata_included)
 											.withPathToSubdata(pathToSubdata)
 											.withSelectionId(getTextOrNull(subdataSelection.get("selection_id")))
-											.withSelectionDescription(jsonListToStringList(subdataSelection.get("selection_description")));
+											.withSelectionDescription(jsonListToStringList(subdataSelection.get("selection_description")))
+											.withDescriptionTemplate(getTextOrNull(subdataSelection.get("description_template")));
 				
 				textSubdataOpt = new TextSubdataOptions()
 										.withPlaceholder(placeholder)
@@ -549,6 +550,8 @@ public class NarrativeMethodData {
 										.withShowSrcObj(show_src_objFlag)
 										.withAllowCustom(allow_customFlag)
 										.withSubdataSelection(ss);
+				// TODO: add more validation here, like if the parameter id is valid, or if there were extra fields
+				// that weren't allowed, rather than just setting things to null if they don't exist
 			}
 			CheckboxOptions cbOpt = null;
 			if (paramNode.has("checkbox_options")) {
