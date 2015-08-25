@@ -118,6 +118,11 @@ public class LocalGitDB implements MethodSpecDB {
 		String cloneStatus = gitClone();
 		this.lastCommit = getCommitInfo();
 		System.out.println(cloneStatus);
+		try {
+		    gitPull();
+		} catch (Exception ex) {
+            System.err.println("[" + new Date() + "] NarrativeMethodStore.LocalGitDB: " + ex.getMessage());
+		}
 		startRefreshingThread();
 	}
 
@@ -145,7 +150,7 @@ public class LocalGitDB implements MethodSpecDB {
      * Runs a git fetch on the local git spec repo.
      */
     protected String gitFetch() throws NarrativeMethodStoreInitializationException {
-        return gitCommand("git fetch", "fetch", gitLocalPath);
+        return gitCommand("git fetch origin " + gitBranch, "fetch", gitLocalPath);
     }
 
     /**
@@ -249,6 +254,11 @@ public class LocalGitDB implements MethodSpecDB {
 	 * caches in case something was changed.
 	 */
 	public synchronized void checkForChanges() {
+	    if (refreshingThread == null) {
+            System.out.println("[" + new Date() + "] NarrativeMethodStore.LocalGitDB: refreshing thread wasn't started for some reason");
+	        startRefreshingThread();
+	        return;
+	    }
 		if (inGitFetch || gitMergeWasDoneAfterFetch)
 			return;
 		gitMergeWasDoneAfterFetch = true;
