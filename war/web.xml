@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <web-app>
+    <listener>
+        <listener-class>us.kbase.narrativemethodstore.AppEventListener</listener-class>
+    </listener>
     <servlet>
         <servlet-name>RootServlet</servlet-name>
         <servlet-class>us.kbase.narrativemethodstore.NarrativeMethodStoreServer</servlet-class>

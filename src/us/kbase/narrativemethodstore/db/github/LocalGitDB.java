@@ -52,7 +52,6 @@ public class LocalGitDB implements MethodSpecDB {
 	protected final ObjectMapper mapper = new ObjectMapper();
 	protected final Yaml yaml = new Yaml();
 	
-	protected long lastPullTime = -1;
 	protected String lastCommit = null;
 	
 	protected NarrativeCategoriesIndex narCatIndex;
@@ -60,6 +59,10 @@ public class LocalGitDB implements MethodSpecDB {
 	protected final LoadingCache<String, MethodSpec> methodSpecCache;
 	protected final LoadingCache<String, AppFullInfo> appFullInfoCache;
 	protected final LoadingCache<String, AppSpec> appSpecCache;
+	protected static Thread refreshingThread = null;
+    protected boolean inGitFetch = false;
+    protected boolean gitMergeWasDoneAfterFetch = false;
+	protected boolean needToStopRefreshingThread = false;
 	
 	public LocalGitDB(URL gitRepoUrl, String branch, File localPath, 
 			int refreshTimeInMinutes, int cacheSize) throws NarrativeMethodStoreInitializationException {
@@ -113,9 +116,9 @@ public class LocalGitDB implements MethodSpecDB {
 			throw new NarrativeMethodStoreInitializationException("Cannot clone "+gitRepoUrl+", error deleting old directory: " + e.getMessage(), e);
 		}
 		String cloneStatus = gitClone();
-		this.lastPullTime = System.currentTimeMillis();
 		this.lastCommit = getCommitInfo();
 		System.out.println(cloneStatus);
+		startRefreshingThread();
 	}
 
 	/**
@@ -137,7 +140,21 @@ public class LocalGitDB implements MethodSpecDB {
 	protected String gitPull() throws NarrativeMethodStoreInitializationException {
 		return gitCommand("git pull", "pull", gitLocalPath);
 	}
-	
+
+	/**
+     * Runs a git fetch on the local git spec repo.
+     */
+    protected String gitFetch() throws NarrativeMethodStoreInitializationException {
+        return gitCommand("git fetch", "fetch", gitLocalPath);
+    }
+
+    /**
+     * Runs a git merge FETCH_HEAD on the local git spec repo.
+     */
+    protected String gitMergeFetchHead() throws NarrativeMethodStoreInitializationException {
+        return gitCommand("git merge FETCH_HEAD", "merge FETCH_HEAD", gitLocalPath);
+    }
+
 	protected String gitCommand(String fullCmd, String nameOfCmd, File curDir) throws NarrativeMethodStoreInitializationException {
 		try {
 			Process p = Runtime.getRuntime().exec(fullCmd, null, curDir);
@@ -178,18 +195,65 @@ public class LocalGitDB implements MethodSpecDB {
 		return ret;
 	}
 	
+	public void stopRefreshingThread() {
+	    needToStopRefreshingThread = true;
+        System.out.println("[" + new Date() + "] NarrativeMethodStore.LocalGitDB: refreshing thread was requested to stop");
+	    try {
+	        if (refreshingThread != null)
+	            refreshingThread.interrupt();
+	    } catch (Exception ex) {
+            System.out.println("[" + new Date() + "] NarrativeMethodStore.LocalGitDB: error interrupting refreshing thread (" + ex.getMessage() + ")");
+	    }
+	}
+	
+	private void startRefreshingThread() {
+	    if (refreshingThread != null) {
+            System.out.println("[" + new Date() + "] NarrativeMethodStore.LocalGitDB: refreshing thread was already started earlier");
+	        return;
+	    }
+	    refreshingThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                System.out.println("[" + new Date() + "] NarrativeMethodStore.LocalGitDB: refreshing thread is starting");
+                while (true) {
+                    inGitFetch = true;
+                    gitMergeWasDoneAfterFetch = false;
+                    try {
+                        gitFetch();
+                        inGitFetch = false;
+                        checkForChanges();
+                    } catch (Throwable ex) {
+                        inGitFetch = false;
+                        System.err.println("[" + new Date() + "] NarrativeMethodStore.LocalGitDB: error doing git fetch: " + ex.getMessage());
+                    }
+                    if (needToStopRefreshingThread)
+                        break;
+                    try {
+                        Thread.sleep(refreshTimeInMinutes * 60000);
+                    } catch (Throwable ex) {
+                        System.err.println("[" + new Date() + "] NarrativeMethodStore.LocalGitDB: error waiting: " + ex.getMessage());
+                    }
+                    if (needToStopRefreshingThread)
+                        break;
+                }
+                System.out.println("[" + new Date() + "] NarrativeMethodStore.LocalGitDB: refreshing thread is stoping");
+                refreshingThread = null;
+            }
+        });
+	    refreshingThread.start();
+	}
 	
 	/**
 	 * We need to call this method at the beginning of every public access method.
 	 * This method refreshes file copy of specs-repo if it's necessary and clear
 	 * caches in case something was changed.
 	 */
-	protected synchronized void checkForChanges() {
-		if (System.currentTimeMillis() < lastPullTime + refreshTimeInMinutes * 60000)
+	public synchronized void checkForChanges() {
+		if (inGitFetch || gitMergeWasDoneAfterFetch)
 			return;
-		lastPullTime = System.currentTimeMillis();
+		gitMergeWasDoneAfterFetch = true;
 		try {
-			String ret = gitPull();
+			String ret = gitMergeFetchHead();
 			if (ret != null && ret.startsWith("Already up-to-date."))
 				return;
 			String commit = getCommitInfo();
@@ -204,7 +268,7 @@ public class LocalGitDB implements MethodSpecDB {
 				appSpecCache.invalidateAll();
 			}
 		} catch (Exception ex) {
-			System.err.println("Error doing git pull: " + ex.getMessage());
+			System.err.println("[" + new Date() + "] NarrativeMethodStore.LocalGitDB: error doing git merge FETCH_HEAD: " + ex.getMessage());
 		}
 	}	
 	

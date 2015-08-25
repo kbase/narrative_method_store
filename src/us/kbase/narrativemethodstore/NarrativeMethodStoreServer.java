@@ -43,7 +43,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
     private static Throwable configError = null;
     private static Map<String, String> config = null;
 
-    private LocalGitDB localGitDB;
+    private static LocalGitDB localGitDB;
 
     public static Map<String, String> config() {
     	if (config != null)
@@ -117,6 +117,10 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
     	if (params.getLimit() != null && params.getLimit() > 0 && from + params.getLimit() < to)
     		to = from + (int)(long)params.getLimit();
     	return data.subList(from, to);
+    }
+    
+    public static LocalGitDB getLocalGitDB() {
+        return localGitDB;
     }
     //END_CLASS_HEADER
 
