@@ -236,7 +236,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
         returnVal = new Status()
         				.withGitSpecUrl(getGitRepo())
         				.withGitSpecBranch(getGitBranch())
-        				.withGitSpecCommit(localGitDB.getCommitInfo())
+        				.withGitSpecCommit(getLocalGitDB().getCommitInfo())
         				.withUpdateInterval(Integer.toString(getGitRefreshRate()));
         //END status
         return returnVal;
@@ -275,7 +275,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
         		returnLoadedTypes = true;
         	}
         }
-        NarrativeCategoriesIndex narCatIndex = localGitDB.getCategoriesIndex();
+        NarrativeCategoriesIndex narCatIndex = getLocalGitDB().getCategoriesIndex();
         return1 = narCatIndex.getCategories();
         if(returnLoadedMethods) {
         	return2 = narCatIndex.getMethods();
@@ -315,7 +315,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
         config();
         returnVal = new ArrayList<Category>();
         for (String catId : params.getIds()) {
-        	Category cat = localGitDB.getCategoriesIndex().getCategories().get(catId);
+        	Category cat = getLocalGitDB().getCategoriesIndex().getCategories().get(catId);
         	if (cat == null)
         		throw new IllegalStateException("No category with id=" + catId);
         	returnVal.add(cat);
@@ -336,7 +336,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
         List<MethodBriefInfo> returnVal = null;
         //BEGIN list_methods
         config();
-        returnVal = new ArrayList<MethodBriefInfo>(localGitDB.getCategoriesIndex().getMethods().values());
+        returnVal = new ArrayList<MethodBriefInfo>(getLocalGitDB().getCategoriesIndex().getMethods().values());
         returnVal = trim(returnVal, params);
         //END list_methods
         return returnVal;
@@ -354,7 +354,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
         List<MethodFullInfo> returnVal = null;
         //BEGIN list_methods_full_info
         config();
-        List<String> methodIds = new ArrayList<String>(localGitDB.listMethodIds(false));
+        List<String> methodIds = new ArrayList<String>(getLocalGitDB().listMethodIds(false));
         methodIds = trim(methodIds, params);
         returnVal = getMethodFullInfo(new GetMethodParams().withIds(methodIds));
         //END list_methods_full_info
@@ -373,7 +373,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
         List<MethodSpec> returnVal = null;
         //BEGIN list_methods_spec
         config();
-        List<String> methodIds = new ArrayList<String>(localGitDB.listMethodIds(false));
+        List<String> methodIds = new ArrayList<String>(getLocalGitDB().listMethodIds(false));
         methodIds = trim(methodIds, params);
         returnVal = getMethodSpec(new GetMethodParams().withIds(methodIds));
         //END list_methods_spec
@@ -392,7 +392,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
         //BEGIN list_method_ids_and_names
         config();
         returnVal = new TreeMap<String, String>();
-        for (Map.Entry<String, MethodBriefInfo> entry : localGitDB.getCategoriesIndex().getMethods().entrySet())
+        for (Map.Entry<String, MethodBriefInfo> entry : getLocalGitDB().getCategoriesIndex().getMethods().entrySet())
         	returnVal.put(entry.getKey(), entry.getValue().getName());
         //END list_method_ids_and_names
         return returnVal;
@@ -410,7 +410,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
         List<AppBriefInfo> returnVal = null;
         //BEGIN list_apps
         config();
-        returnVal = new ArrayList<AppBriefInfo>(localGitDB.getCategoriesIndex().getApps().values());
+        returnVal = new ArrayList<AppBriefInfo>(getLocalGitDB().getCategoriesIndex().getApps().values());
         returnVal = trim(returnVal, params);
         //END list_apps
         return returnVal;
@@ -428,7 +428,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
         List<AppFullInfo> returnVal = null;
         //BEGIN list_apps_full_info
         config();
-        List<String> appIds = new ArrayList<String>(localGitDB.listAppIds(false));
+        List<String> appIds = new ArrayList<String>(getLocalGitDB().listAppIds(false));
         appIds = trim(appIds, params);
         returnVal = getAppFullInfo(new GetAppParams().withIds(appIds));
         //END list_apps_full_info
@@ -447,7 +447,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
         List<AppSpec> returnVal = null;
         //BEGIN list_apps_spec
         config();
-        List<String> appIds = new ArrayList<String>(localGitDB.listAppIds(false));
+        List<String> appIds = new ArrayList<String>(getLocalGitDB().listAppIds(false));
         appIds = trim(appIds, params);
         returnVal = getAppSpec(new GetAppParams().withIds(appIds));
         //END list_apps_spec
@@ -466,7 +466,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
         //BEGIN list_app_ids_and_names
         config();
         returnVal = new TreeMap<String, String>();
-        for (Map.Entry<String, AppBriefInfo> entry : localGitDB.getCategoriesIndex().getApps().entrySet())
+        for (Map.Entry<String, AppBriefInfo> entry : getLocalGitDB().getCategoriesIndex().getApps().entrySet())
         	returnVal.put(entry.getKey(), entry.getValue().getName());
         //END list_app_ids_and_names
         return returnVal;
@@ -484,7 +484,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
         List<TypeInfo> returnVal = null;
         //BEGIN list_types
         config();
-        returnVal = new ArrayList<TypeInfo>(localGitDB.getCategoriesIndex().getTypes().values());
+        returnVal = new ArrayList<TypeInfo>(getLocalGitDB().getCategoriesIndex().getTypes().values());
         returnVal = trim(returnVal, params);
         //END list_types
         return returnVal;
@@ -505,7 +505,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
         List <String> methodIds = params.getIds();
         returnVal = new ArrayList<MethodBriefInfo>(methodIds.size());
         for(String id: methodIds) {
-        	returnVal.add(localGitDB.getMethodBriefInfo(id));
+        	returnVal.add(getLocalGitDB().getMethodBriefInfo(id));
         }
         //END get_method_brief_info
         return returnVal;
@@ -526,7 +526,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
         List <String> methodIds = params.getIds();
         returnVal = new ArrayList<MethodFullInfo>(methodIds.size());
         for(String id: methodIds) {
-        	returnVal.add(localGitDB.getMethodFullInfo(id));
+        	returnVal.add(getLocalGitDB().getMethodFullInfo(id));
         }
         //END get_method_full_info
         return returnVal;
@@ -547,7 +547,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
         List<String> methodIds = params.getIds();
         returnVal = new ArrayList<MethodSpec>(methodIds.size());
         for (String id : methodIds)
-        	returnVal.add(localGitDB.getMethodSpec(id));
+        	returnVal.add(getLocalGitDB().getMethodSpec(id));
         //END get_method_spec
         return returnVal;
     }
@@ -567,7 +567,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
         List <String> appIds = params.getIds();
         returnVal = new ArrayList<AppBriefInfo>(appIds.size());
         for(String id: appIds)
-        	returnVal.add(localGitDB.getAppBriefInfo(id));
+        	returnVal.add(getLocalGitDB().getAppBriefInfo(id));
         //END get_app_brief_info
         return returnVal;
     }
@@ -587,7 +587,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
         List <String> appIds = params.getIds();
         returnVal = new ArrayList<AppFullInfo>(appIds.size());
         for(String id: appIds) {
-        	returnVal.add(localGitDB.getAppFullInfo(id));
+        	returnVal.add(getLocalGitDB().getAppFullInfo(id));
         }
         //END get_app_full_info
         return returnVal;
@@ -608,7 +608,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
         List<String> appIds = params.getIds();
         returnVal = new ArrayList<AppSpec>(appIds.size());
         for (String id : appIds)
-        	returnVal.add(localGitDB.getAppSpec(id));
+        	returnVal.add(getLocalGitDB().getAppSpec(id));
         //END get_app_spec
         return returnVal;
     }
@@ -628,7 +628,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
         List<String> typeNames = params.getTypeNames();
         returnVal = new ArrayList<TypeInfo>(typeNames.size());
         for(String typeName: typeNames)
-        	returnVal.add(localGitDB.getTypeInfo(typeName));
+        	returnVal.add(getLocalGitDB().getTypeInfo(typeName));
         //END get_type_info
         return returnVal;
     }

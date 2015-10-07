@@ -4,6 +4,19 @@ The Narrative Method Store provides an API to dynamically access the available
 narrative method/app/type specifications and documentation.
 
 
+VERSION: 0.2.8 (Released 8/25/15)
+--------------------------------------
+UPDATED FEATURES / MAJOR BUG FIXES:
+- Git refreshing mechanism redesigned (there is background thread now)
+
+
+VERSION: 0.2.7 (Released 8/7/15)
+--------------------------------------
+UPDATED FEATURES / MAJOR BUG FIXES:
+- Placeholder now supported in textarea method parameters
+- Subdata method parameter type now supported
+
+
 VERSION: 0.2.6 (Released 4/6/15)
 --------------------------------------
 UPDATED FEATURES / MAJOR BUG FIXES:

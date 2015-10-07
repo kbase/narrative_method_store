@@ -49,6 +49,7 @@ import us.kbase.narrativemethodstore.Publication;
 import us.kbase.narrativemethodstore.RegexMatcher;
 import us.kbase.narrativemethodstore.RepoDetails;
 import us.kbase.narrativemethodstore.Status;
+import us.kbase.narrativemethodstore.TextSubdataOptions;
 import us.kbase.narrativemethodstore.TypeInfo;
 import us.kbase.narrativemethodstore.ValidateAppParams;
 import us.kbase.narrativemethodstore.ValidateMethodParams;
@@ -153,6 +154,7 @@ public class FullServerTest {
 		ListParams params = new ListParams();
 		List<MethodBriefInfo> methods = CLIENT.listMethods(params);
 		boolean foundTestMethod1 = false;
+		boolean foundTestMethod8 = false;
 		for(MethodBriefInfo m : methods) {
 			
 			// check specific things in specific test methods
@@ -168,10 +170,15 @@ public class FullServerTest {
 				assertTrue("Testing that test_method_1 categories in brief info from listMethods is correct",
 						m.getCategories().get(0).equals("testmethods"));
 			}
+			if(m.getId().equals("test_method_8")) {
+				foundTestMethod8 = true;
+			}
 		}
 
 		assertTrue("Testing that test_method_1 was returned from listMethods",
 				foundTestMethod1);
+		assertTrue("Testing that test_method_8 was returned from listMethods",
+				foundTestMethod8);
 	}
 	
 	
@@ -434,6 +441,7 @@ public class FullServerTest {
 		List<MethodFullInfo> methods = CLIENT.listMethodsFullInfo(params);
 		boolean foundTestMethod1 = false;
 		boolean foundTestMethod7 = false;
+		boolean foundTestMethod8 = false;
 		for(MethodFullInfo m : methods) {
 			
 			// check specific things in specific test methods
@@ -517,11 +525,23 @@ public class FullServerTest {
 						m.getSuggestions().getNextMethods().get(1));
 				
 			}
+			
+			// check subdata parameter in test_method_8
+			if(m.getId().equals("test_method_8")) {
+				foundTestMethod8 = true;
+				assertTrue("Testing that test_method_8 technical description is empty",
+					m.getTechnicalDescription().trim().length()==0);
+				assertTrue("Testing that test_method_8 has an icon",
+					m.getIcon()!=null);
+			}
+			
 		}
 		assertTrue("Testing that test_method_1 was returned from listMethodsFullInfo",
 				foundTestMethod1);
 		assertTrue("Testing that test_method_7 was returned from listMethodsFullInfo",
 				foundTestMethod7);
+		assertTrue("Testing that test_method_8 was returned from listMethodsFullInfo",
+				foundTestMethod8);
 	}
 
 	
@@ -534,6 +554,7 @@ public class FullServerTest {
 		boolean foundTestMethod4 = false;
 		boolean foundTestMethod5 = false;
 		boolean foundTestMethod7 = false;
+		boolean foundTestMethod8 = false;
 		for(MethodSpec m : methods) {
 			// check specific things in specific test methods
 			if(m.getInfo().getId().equals("test_method_1")) {
@@ -570,7 +591,7 @@ public class FullServerTest {
 			} else if (m.getInfo().getId().equals("test_method_3")) {
 				foundTestMethod3 = true;
 				
-				assertEquals(6, m.getParameters().size());
+				assertEquals(7, m.getParameters().size());
 				assertEquals(0, m.getFixedParameters().size());
 				////////////////////////
 				assertEquals("param0", m.getParameters().get(0).getId());
@@ -590,17 +611,23 @@ public class FullServerTest {
 				assertEquals("param2", m.getParameters().get(3).getId());
 				assertEquals("textarea", m.getParameters().get(3).getFieldType());
 				assertEquals(10L, (long)m.getParameters().get(3).getTextareaOptions().getNRows());
+				assertEquals("place holder here", m.getParameters().get(3).getTextareaOptions().getPlaceholder());
 				////////////////////////
-				assertEquals("param3", m.getParameters().get(4).getId());
-				assertEquals("dropdown", m.getParameters().get(4).getFieldType());
-				assertEquals(2, m.getParameters().get(4).getDropdownOptions().getOptions().size());
-				assertEquals("item0", m.getParameters().get(4).getDropdownOptions().getOptions().get(0).getValue());
+				assertEquals("param2.2", m.getParameters().get(4).getId());
+				assertEquals("textarea", m.getParameters().get(4).getFieldType());
+				assertEquals(10L, (long)m.getParameters().get(4).getTextareaOptions().getNRows());
+				assertEquals("", m.getParameters().get(4).getTextareaOptions().getPlaceholder());
 				////////////////////////
-				assertEquals("param4", m.getParameters().get(5).getId());
-				assertEquals("radio", m.getParameters().get(5).getFieldType());
-				assertEquals(2, m.getParameters().get(5).getRadioOptions().getIdsToOptions().size());
-				assertEquals("First", m.getParameters().get(5).getRadioOptions().getIdsToOptions().get("item0"));
-				assertEquals("First tooltip", m.getParameters().get(5).getRadioOptions().getIdsToTooltip().get("item0"));
+				assertEquals("param3", m.getParameters().get(5).getId());
+				assertEquals("dropdown", m.getParameters().get(5).getFieldType());
+				assertEquals(2, m.getParameters().get(5).getDropdownOptions().getOptions().size());
+				assertEquals("item0", m.getParameters().get(5).getDropdownOptions().getOptions().get(0).getValue());
+				////////////////////////
+				assertEquals("param4", m.getParameters().get(6).getId());
+				assertEquals("radio", m.getParameters().get(6).getFieldType());
+				assertEquals(2, m.getParameters().get(6).getRadioOptions().getIdsToOptions().size());
+				assertEquals("First", m.getParameters().get(6).getRadioOptions().getIdsToOptions().get("item0"));
+				assertEquals("First tooltip", m.getParameters().get(6).getRadioOptions().getIdsToTooltip().get("item0"));
 			} else if (m.getInfo().getId().equals("test_method_4")) {
 				foundTestMethod4 = true;
 				assertEquals(0, m.getFixedParameters().size());
@@ -654,6 +681,58 @@ public class FullServerTest {
 				assertEquals("a fixed parameter", m.getFixedParameters().get(0).getDescription());
 				assertEquals("FixedParam2", m.getFixedParameters().get(1).getUiName());
 				assertEquals("another fixed parameter", m.getFixedParameters().get(1).getDescription());
+			} else if (m.getInfo().getId().equals("test_method_8")) {
+				foundTestMethod8 = true;
+				assertEquals(3, m.getParameters().size());
+				assertEquals("genome_input", m.getParameters().get(0).getId());
+				assertEquals("text", m.getParameters().get(0).getFieldType());
+				assertNotNull(m.getParameters().get(0).getTextOptions());
+				assertNull(m.getParameters().get(0).getTextsubdataOptions());
+				
+				assertEquals("feature_input", m.getParameters().get(1).getId());
+				assertEquals("textsubdata", m.getParameters().get(1).getFieldType());
+				assertNotNull(m.getParameters().get(1).getTextsubdataOptions());
+				TextSubdataOptions tso = m.getParameters().get(1).getTextsubdataOptions();
+				assertNotNull(tso.getSubdataSelection());
+				assertEquals(new Long(0), tso.getMultiselection());
+				assertEquals(new Long(1), tso.getShowSrcObj());
+				assertEquals(new Long(0), tso.getAllowCustom());
+				assertEquals("genome_input", tso.getSubdataSelection().getParameterId());
+				assertNull(tso.getSubdataSelection().getConstantRef());
+				assertEquals(3, tso.getSubdataSelection().getSubdataIncluded().size());
+				assertEquals("features/[*]/id", tso.getSubdataSelection().getSubdataIncluded().get(0));
+				assertEquals("features/[*]/aliases", tso.getSubdataSelection().getSubdataIncluded().get(1));
+				assertEquals("features/[*]/function", tso.getSubdataSelection().getSubdataIncluded().get(2));
+				assertEquals(1, tso.getSubdataSelection().getPathToSubdata().size());
+				assertEquals("features", tso.getSubdataSelection().getPathToSubdata().get(0));
+				assertEquals("id", tso.getSubdataSelection().getSelectionId());
+				assertEquals(2, tso.getSubdataSelection().getSelectionDescription().size());
+				assertEquals("aliases", tso.getSubdataSelection().getSelectionDescription().get(0));
+				assertEquals("function", tso.getSubdataSelection().getSelectionDescription().get(1));
+				assertEquals("({{aliases}}, {{function}})", tso.getSubdataSelection().getDescriptionTemplate());
+				
+				assertEquals("more_features", m.getParameters().get(2).getId());
+				assertEquals("textsubdata", m.getParameters().get(2).getFieldType());
+				assertNotNull(m.getParameters().get(2).getTextsubdataOptions());
+				tso = m.getParameters().get(2).getTextsubdataOptions();
+				assertNotNull(tso.getSubdataSelection());
+				assertEquals(new Long(1), tso.getMultiselection());
+				assertEquals(new Long(1), tso.getShowSrcObj());
+				assertEquals(new Long(0), tso.getAllowCustom());
+				
+				assertNull(tso.getSubdataSelection().getParameterId());
+				assertEquals(2,tso.getSubdataSelection().getConstantRef().size());
+				assertEquals("12/31",tso.getSubdataSelection().getConstantRef().get(0));
+				assertEquals("ws/MyObj",tso.getSubdataSelection().getConstantRef().get(1));
+				assertEquals(2, tso.getSubdataSelection().getSubdataIncluded().size());
+				assertEquals("features/[*]/id", tso.getSubdataSelection().getSubdataIncluded().get(0));
+				assertEquals("features/[*]/aliases", tso.getSubdataSelection().getSubdataIncluded().get(1));
+				assertEquals(1, tso.getSubdataSelection().getPathToSubdata().size());
+				assertEquals("features", tso.getSubdataSelection().getPathToSubdata().get(0));
+				assertEquals("id", tso.getSubdataSelection().getSelectionId());
+				assertNull(tso.getSubdataSelection().getSelectionDescription());
+				assertNull(tso.getSubdataSelection().getDescriptionTemplate());
+
 			}
 		}
 		assertTrue("Testing that test_method_1 was returned from listMethodSpec",
@@ -666,6 +745,8 @@ public class FullServerTest {
 				foundTestMethod5);
 		assertTrue("Testing that test_method_7 was returned from listMethodSpec",
 				foundTestMethod7);
+		assertTrue("Testing that test_method_8 was returned from listMethodSpec",
+				foundTestMethod8);
 	}
 	
 	

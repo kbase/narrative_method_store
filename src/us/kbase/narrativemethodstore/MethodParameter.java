@@ -20,7 +20,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
  * ui_name - short name that is displayed to the user
  * short_hint - short phrase or sentence describing the parameter
  * description - longer and more technical description of the parameter
- * field_type - one of: text | textarea | intslider | floatslider | checkbox | 
+ * field_type - one of: text | textarea | textsubdata | intslider | floatslider | checkbox |
  *              dropdown | radio | tab | file
  * allow_mutiple - only supported for field_type text, allows entry of a list
  *                 instead of a single value, default is 0
@@ -63,7 +63,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
     "checkbox_options",
     "dropdown_options",
     "radio_options",
-    "tab_options"
+    "tab_options",
+    "textsubdata_options"
 })
 public class MethodParameter {
 
@@ -149,6 +150,30 @@ public class MethodParameter {
      */
     @JsonProperty("tab_options")
     private TabOptions tabOptions;
+    /**
+     * <p>Original spec-file type: TextSubdataOptions</p>
+     * <pre>
+     * Defines a parameter field that allows autocomplete based on 
+     * subdata of an existing object.  For instance, selection of feature ids
+     * from a Genome object.  It will appear as a text field with dropdown
+     * similar to selection of other WS data objects.
+     *     placeholder - placeholder text to display in the field
+     *     multiselection - if true, then multiple selections are allowed in
+     *                      a single input field.  This will override the
+     *                      allow_multiple option (which allows user addition)
+     *                      of additional fields.  If true, then this parameter
+     *                      will return a list. Default= false
+     *     show_src_obj - if true, then the dropdown will indicate the ids along
+     *                    with some text indicating what data object the subdata
+     *                    was retrieved from. Default=true
+     *     allow_custom - if true, then user specified inputs not found in the
+     *                    list are accepted.  if false, users can only select from
+     *                    the valid list of selections. Default=false
+     * </pre>
+     * 
+     */
+    @JsonProperty("textsubdata_options")
+    private TextSubdataOptions textsubdataOptions;
     private Map<java.lang.String, Object> additionalProperties = new HashMap<java.lang.String, Object>();
 
     @JsonProperty("id")
@@ -524,6 +549,65 @@ public class MethodParameter {
         return this;
     }
 
+    /**
+     * <p>Original spec-file type: TextSubdataOptions</p>
+     * <pre>
+     * Defines a parameter field that allows autocomplete based on 
+     * subdata of an existing object.  For instance, selection of feature ids
+     * from a Genome object.  It will appear as a text field with dropdown
+     * similar to selection of other WS data objects.
+     *     placeholder - placeholder text to display in the field
+     *     multiselection - if true, then multiple selections are allowed in
+     *                      a single input field.  This will override the
+     *                      allow_multiple option (which allows user addition)
+     *                      of additional fields.  If true, then this parameter
+     *                      will return a list. Default= false
+     *     show_src_obj - if true, then the dropdown will indicate the ids along
+     *                    with some text indicating what data object the subdata
+     *                    was retrieved from. Default=true
+     *     allow_custom - if true, then user specified inputs not found in the
+     *                    list are accepted.  if false, users can only select from
+     *                    the valid list of selections. Default=false
+     * </pre>
+     * 
+     */
+    @JsonProperty("textsubdata_options")
+    public TextSubdataOptions getTextsubdataOptions() {
+        return textsubdataOptions;
+    }
+
+    /**
+     * <p>Original spec-file type: TextSubdataOptions</p>
+     * <pre>
+     * Defines a parameter field that allows autocomplete based on 
+     * subdata of an existing object.  For instance, selection of feature ids
+     * from a Genome object.  It will appear as a text field with dropdown
+     * similar to selection of other WS data objects.
+     *     placeholder - placeholder text to display in the field
+     *     multiselection - if true, then multiple selections are allowed in
+     *                      a single input field.  This will override the
+     *                      allow_multiple option (which allows user addition)
+     *                      of additional fields.  If true, then this parameter
+     *                      will return a list. Default= false
+     *     show_src_obj - if true, then the dropdown will indicate the ids along
+     *                    with some text indicating what data object the subdata
+     *                    was retrieved from. Default=true
+     *     allow_custom - if true, then user specified inputs not found in the
+     *                    list are accepted.  if false, users can only select from
+     *                    the valid list of selections. Default=false
+     * </pre>
+     * 
+     */
+    @JsonProperty("textsubdata_options")
+    public void setTextsubdataOptions(TextSubdataOptions textsubdataOptions) {
+        this.textsubdataOptions = textsubdataOptions;
+    }
+
+    public MethodParameter withTextsubdataOptions(TextSubdataOptions textsubdataOptions) {
+        this.textsubdataOptions = textsubdataOptions;
+        return this;
+    }
+
     @JsonAnyGetter
     public Map<java.lang.String, Object> getAdditionalProperties() {
         return this.additionalProperties;
@@ -536,7 +620,7 @@ public class MethodParameter {
 
     @Override
     public java.lang.String toString() {
-        return ((((((((((((((((((((((((((((((((((((((((("MethodParameter"+" [id=")+ id)+", uiName=")+ uiName)+", shortHint=")+ shortHint)+", description=")+ description)+", fieldType=")+ fieldType)+", allowMultiple=")+ allowMultiple)+", optional=")+ optional)+", advanced=")+ advanced)+", disabled=")+ disabled)+", uiClass=")+ uiClass)+", defaultValues=")+ defaultValues)+", textOptions=")+ textOptions)+", textareaOptions=")+ textareaOptions)+", intsliderOptions=")+ intsliderOptions)+", floatsliderOptions=")+ floatsliderOptions)+", checkboxOptions=")+ checkboxOptions)+", dropdownOptions=")+ dropdownOptions)+", radioOptions=")+ radioOptions)+", tabOptions=")+ tabOptions)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((((((((((((((((((((((((((((((((((((((("MethodParameter"+" [id=")+ id)+", uiName=")+ uiName)+", shortHint=")+ shortHint)+", description=")+ description)+", fieldType=")+ fieldType)+", allowMultiple=")+ allowMultiple)+", optional=")+ optional)+", advanced=")+ advanced)+", disabled=")+ disabled)+", uiClass=")+ uiClass)+", defaultValues=")+ defaultValues)+", textOptions=")+ textOptions)+", textareaOptions=")+ textareaOptions)+", intsliderOptions=")+ intsliderOptions)+", floatsliderOptions=")+ floatsliderOptions)+", checkboxOptions=")+ checkboxOptions)+", dropdownOptions=")+ dropdownOptions)+", radioOptions=")+ radioOptions)+", tabOptions=")+ tabOptions)+", textsubdataOptions=")+ textsubdataOptions)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }

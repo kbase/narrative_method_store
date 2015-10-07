@@ -5,6 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -69,6 +70,10 @@ public class LocalGitDB implements MethodSpecDB {
 	protected final LoadingCache<String, MethodSpec> methodSpecCache;
 	protected final LoadingCache<String, AppFullInfo> appFullInfoCache;
 	protected final LoadingCache<String, AppSpec> appSpecCache;
+	protected static Thread refreshingThread = null;
+    protected boolean inGitFetch = false;
+    protected boolean gitMergeWasDoneAfterFetch = false;
+	protected boolean needToStopRefreshingThread = false;
 	
 	protected final File tempDir;
 	protected final DynamicRepoDB dynamicRepos;
@@ -136,6 +141,134 @@ public class LocalGitDB implements MethodSpecDB {
 		this.lastPullTime = System.currentTimeMillis();
 		this.lastCommit = GitUtils.getCommitInfo(gitLocalPath, gitRepoUrl);
 		System.out.println(cloneStatus);
+		try {
+		    gitPull();
+		} catch (Exception ex) {
+            System.err.println("[" + new Date() + "] NarrativeMethodStore.LocalGitDB: " + ex.getMessage());
+		}
+		startRefreshingThread();
+	}
+
+	/**
+	 * Clones the configured git repo to the target local file location, returns standard output of the command
+	 * if successful, otherwise throws an exception.
+	 */
+	protected String gitClone() throws NarrativeMethodStoreInitializationException {
+		try {
+			return gitCommand("git clone --branch "+gitBranch+" "+gitRepoUrl+" "+gitLocalPath.getAbsolutePath(), 
+					"clone", gitLocalPath.getCanonicalFile().getParentFile());
+		} catch (IOException e) {
+			throw new NarrativeMethodStoreInitializationException("Cannot clone "+gitRepoUrl+": " + e.getMessage(), e);
+		}
+	}
+	
+	/**
+	 * Runs a git pull on the local git spec repo.
+	 */
+	protected String gitPull() throws NarrativeMethodStoreInitializationException {
+		return gitCommand("git pull", "pull", gitLocalPath);
+	}
+
+	/**
+     * Runs a git fetch on the local git spec repo.
+     */
+    protected String gitFetch() throws NarrativeMethodStoreInitializationException {
+        return gitCommand("git fetch origin " + gitBranch, "fetch", gitLocalPath);
+    }
+
+    /**
+     * Runs a git merge FETCH_HEAD on the local git spec repo.
+     */
+    protected String gitMergeFetchHead() throws NarrativeMethodStoreInitializationException {
+        return gitCommand("git merge FETCH_HEAD", "merge FETCH_HEAD", gitLocalPath);
+    }
+
+	protected String gitCommand(String fullCmd, String nameOfCmd, File curDir) throws NarrativeMethodStoreInitializationException {
+		try {
+			Process p = Runtime.getRuntime().exec(fullCmd, null, curDir);
+			
+			BufferedReader stdOut = new BufferedReader(new InputStreamReader(p.getInputStream()));
+			BufferedReader stdError = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+			StringBuilder out = new StringBuilder();
+			StringBuilder error = new StringBuilder();
+			Thread outT = readInThread(stdOut, out);
+			Thread errT = readInThread(stdError, error);
+			
+			outT.join();
+			errT.join();
+			int exitcode = p.waitFor();
+			
+			if(exitcode!=0) {
+				throw new NarrativeMethodStoreInitializationException("Cannot " + nameOfCmd + " "+gitRepoUrl+": " + error);
+			}
+			return out.toString();
+		} catch (Exception e) {
+			throw new NarrativeMethodStoreInitializationException("Cannot " + nameOfCmd + " "+gitRepoUrl+": " + e.getMessage(), e);
+		}
+	}
+
+	private Thread readInThread(final BufferedReader stdOut, final StringBuilder out) {
+		Thread ret = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					String s1 = null;
+					while ((s1 = stdOut.readLine()) != null) { out.append(s1+"\n"); }
+				} catch (IOException ex) {
+					throw new IllegalStateException(ex);
+				}
+			}
+		});
+		ret.start();
+		return ret;
+	}
+	
+	public void stopRefreshingThread() {
+	    needToStopRefreshingThread = true;
+        System.out.println("[" + new Date() + "] NarrativeMethodStore.LocalGitDB: refreshing thread was requested to stop");
+	    try {
+	        if (refreshingThread != null)
+	            refreshingThread.interrupt();
+	    } catch (Exception ex) {
+            System.out.println("[" + new Date() + "] NarrativeMethodStore.LocalGitDB: error interrupting refreshing thread (" + ex.getMessage() + ")");
+	    }
+	}
+	
+	private void startRefreshingThread() {
+	    if (refreshingThread != null) {
+            System.out.println("[" + new Date() + "] NarrativeMethodStore.LocalGitDB: refreshing thread was already started earlier");
+	        return;
+	    }
+	    refreshingThread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                System.out.println("[" + new Date() + "] NarrativeMethodStore.LocalGitDB: refreshing thread is starting");
+                while (true) {
+                    inGitFetch = true;
+                    gitMergeWasDoneAfterFetch = false;
+                    try {
+                        gitFetch();
+                        inGitFetch = false;
+                        checkForChanges();
+                    } catch (Throwable ex) {
+                        inGitFetch = false;
+                        System.err.println("[" + new Date() + "] NarrativeMethodStore.LocalGitDB: error doing git fetch: " + ex.getMessage());
+                    }
+                    if (needToStopRefreshingThread)
+                        break;
+                    try {
+                        Thread.sleep(refreshTimeInMinutes * 60000);
+                    } catch (Throwable ex) {
+                        System.err.println("[" + new Date() + "] NarrativeMethodStore.LocalGitDB: error waiting: " + ex.getMessage());
+                    }
+                    if (needToStopRefreshingThread)
+                        break;
+                }
+                System.out.println("[" + new Date() + "] NarrativeMethodStore.LocalGitDB: refreshing thread is stoping");
+                refreshingThread = null;
+            }
+        });
+	    refreshingThread.start();
 	}
 	
 	/**
@@ -143,25 +276,28 @@ public class LocalGitDB implements MethodSpecDB {
 	 * This method refreshes file copy of specs-repo if it's necessary and clear
 	 * caches in case something was changed.
 	 */
-	protected synchronized void checkForChanges() {
-		if ((!narCatIndex.isInvalid()) && 
-		        System.currentTimeMillis() < lastPullTime + refreshTimeInMinutes * 60000)
+	public synchronized void checkForChanges() {
+	    if (refreshingThread == null) {
+            System.out.println("[" + new Date() + "] NarrativeMethodStore.LocalGitDB: refreshing thread wasn't started for some reason");
+	        startRefreshingThread();
+	        return;
+	    }
+		if (inGitFetch || gitMergeWasDoneAfterFetch)
 			return;
-		lastPullTime = System.currentTimeMillis();
+		gitMergeWasDoneAfterFetch = true;
 		try {
-		    boolean needReload = narCatIndex.isInvalid();
-		    String ret = GitUtils.gitPull(gitLocalPath, gitRepoUrl);
-		    if (ret == null || !ret.startsWith("Already up-to-date.")) {
-		        String commit = GitUtils.getCommitInfo(gitLocalPath, gitRepoUrl);
-		        if (!commit.equals(lastCommit))
-		            needReload = true;
-	            lastCommit = commit;
-		    }
-		    if (needReload)
-		        reloadAll();
+			String ret = gitMergeFetchHead();
+			if (ret != null && ret.startsWith("Already up-to-date."))
+				return;
+			String commit = getCommitInfo();
+			if (!commit.equals(lastCommit)) {
+				lastCommit = commit;
+				System.out.println("[" + new Date() + "] NarrativeMethodStore.LocalGitDB: refreshing caches");
+				// recreate the categories index
+                reloadAll();
+			}
 		} catch (Exception ex) {
-			System.err.println("Error checking for changed:");
-			ex.printStackTrace();
+			System.err.println("[" + new Date() + "] NarrativeMethodStore.LocalGitDB: error doing git merge FETCH_HEAD: " + ex.getMessage());
 		}
 	}
 
