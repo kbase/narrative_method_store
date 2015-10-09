@@ -42,6 +42,7 @@ module NarrativeMethodStore {
     /* Minimal information about a method suitable for displaying the method in a menu or navigator. */
     typedef structure {
         string id;
+        string namespace;
         string name;
         string ver;
         string subtitle;
@@ -77,6 +78,7 @@ module NarrativeMethodStore {
     /* Full information about a method suitable for displaying a method landing page. */
     typedef structure {
         string id;
+        string namespace;
         string name;
         string ver;
         list <username> authors;
@@ -440,6 +442,7 @@ module NarrativeMethodStore {
         Determines how the method is handled when run.
         kb_service_name - name of service which will be part of fully qualified method name, optional field (in
             case it's not defined developer should enter fully qualified name with dot into 'kb_service_method'.
+        kb_service_version - optional git commit hash defining version of repo registered dynamically.
         kb_service_input_mapping - mapping from input parameters to input service method arguments.
         kb_service_output_mapping - mapping from output of service method to final output of narrative method.
         output_mapping - mapping from input to final output of narrative method to support steps without back-end operations.
@@ -452,6 +455,7 @@ module NarrativeMethodStore {
         string python_function;
         string kb_service_url;
         string kb_service_name;
+        string kb_service_version;
         string kb_service_method;
         string script_module;
         string script_name;
@@ -707,4 +711,35 @@ module NarrativeMethodStore {
 
     /* need to add category validation as well */
 
+    /*
+        Describes how to find repository widget JavaScript.
+        module_name - name of module defined in kbase.yaml;
+        version - optional parameter limiting search by certain version timestamp;
+        widget_id - name of java-script file stored in repo's 'ui/widgets' folder.
+    */
+    typedef structure {
+        string module_name;
+        int version;
+        string widget_id;
+    } LoadWidgetParams;
+
+    funcdef load_widget_java_script(LoadWidgetParams params) returns (string 
+        java_script);
+
+    /****************************** Dynamic Repos API *******************************/
+
+    typedef structure {
+        string git_url;
+        string git_commit_hash;
+    } RegisterRepoParams;
+
+    funcdef register_repo(RegisterRepoParams params) returns () authentication
+        required;
+
+    typedef structure {
+        string module_name;
+    } DisableRepoParams;
+
+    funcdef disable_repo(DisableRepoParams params) returns () authentication 
+        required;
 };

@@ -279,3 +279,16 @@ class NarrativeMethodStore(object):
         resp = self._call('NarrativeMethodStore.validate_type',
                           [params])
         return resp[0]
+
+    def load_widget_java_script(self, params):
+        resp = self._call('NarrativeMethodStore.load_widget_java_script',
+                          [params])
+        return resp[0]
+
+    def register_repo(self, params):
+        self._call('NarrativeMethodStore.register_repo',
+                   [params])
+
+    def disable_repo(self, params):
+        self._call('NarrativeMethodStore.disable_repo',
+                   [params])

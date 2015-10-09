@@ -2,6 +2,8 @@ package us.kbase.narrativemethodstore;
 
 import java.util.List;
 import java.util.Map;
+
+import us.kbase.auth.AuthToken;
 import us.kbase.common.service.JsonServerMethod;
 import us.kbase.common.service.JsonServerServlet;
 import us.kbase.common.service.Tuple4;
@@ -10,14 +12,18 @@ import us.kbase.common.service.Tuple4;
 import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.TreeMap;
+import java.util.regex.Pattern;
 
 import org.ini4j.Ini;
 
+import us.kbase.auth.AuthService;
 import us.kbase.narrativemethodstore.db.NarrativeCategoriesIndex;
 import us.kbase.narrativemethodstore.db.Validator;
 import us.kbase.narrativemethodstore.db.github.LocalGitDB;
+import us.kbase.narrativemethodstore.db.mongo.MongoDynamicRepoDB;
 //END_HEADER
 
 /**
@@ -37,8 +43,19 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
     public static final String    CFG_PROP_GIT_LOCAL_DIR = "method-spec-git-repo-local-dir";
     public static final String CFG_PROP_GIT_REFRESH_RATE = "method-spec-git-repo-refresh-rate";
     public static final String       CFG_PROP_CACHE_SIZE = "method-spec-cache-size";
+    public static final String         CFG_PROP_TEMP_DIR = "method-spec-temp-dir";
+    public static final String       CFG_PROP_MONGO_HOST = "method-spec-mongo-host";
+    public static final String     CFG_PROP_MONGO_DBNAME = "method-spec-mongo-dbname";
+    public static final String       CFG_PROP_MONGO_USER = "method-spec-mongo-user";
+    public static final String   CFG_PROP_MONGO_PASSWORD = "method-spec-mongo-password";
+    public static final String   CFG_PROP_MONGO_READONLY = "method-spec-mongo-readonly";
+    public static final String      CFG_PROP_ADMIN_USERS = "method-spec-admin-users";
+    public static final String        CFG_PROP_SHOCK_URL = "method-spec-shock-url";
+    public static final String       CFG_PROP_SHOCK_USER = "method-spec-shock-user";
+    public static final String   CFG_PROP_SHOCK_PASSWORD = "method-spec-shock-password";
+    public static final String  CFG_PROP_DOCKER_REGISTRY = "method-spec-docker-registry";
     
-    public static final String VERSION = "0.2.8";
+    public static final String VERSION = "0.3.0";
     
     private static Throwable configError = null;
     private static Map<String, String> config = null;
@@ -70,25 +87,25 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
 		return config;
     }
     
-    private String getGitRepo() {
+    private static String getGitRepo() {
     	String ret = config().get(CFG_PROP_GIT_REPO);
     	if (ret == null)
     		throw new IllegalStateException("Parameter " + CFG_PROP_GIT_REPO + " is not defined in configuration");
     	return ret;
     }
-    private String getGitBranch() {
+    private static String getGitBranch() {
     	String ret = config().get(CFG_PROP_GIT_BRANCH);
     	if (ret == null)
     		throw new IllegalStateException("Parameter " + CFG_PROP_GIT_BRANCH + " is not defined in configuration");
     	return ret;
     }
-    private String getGitLocalDir() {
+    private static String getGitLocalDir() {
     	String ret = config().get(CFG_PROP_GIT_LOCAL_DIR);
     	if (ret == null)
     		throw new IllegalStateException("Parameter " + CFG_PROP_GIT_LOCAL_DIR + " is not defined in configuration");
     	return ret;
     }
-    private int getGitRefreshRate() {
+    private static int getGitRefreshRate() {
     	String ret = config().get(CFG_PROP_GIT_REFRESH_RATE);
     	if (ret == null)
     		throw new IllegalStateException("Parameter " + CFG_PROP_GIT_REFRESH_RATE + " is not defined in configuration");
@@ -98,7 +115,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
     		throw new IllegalStateException("Parameter " + CFG_PROP_GIT_REFRESH_RATE + " is not defined in configuration as integer: " + ret);
     	}
     }
-    private int getCacheSize() {
+    private static int getCacheSize() {
     	String ret = config().get(CFG_PROP_CACHE_SIZE);
     	if (ret == null)
     		throw new IllegalStateException("Parameter " + CFG_PROP_CACHE_SIZE + " is not defined in configuration");
@@ -107,6 +124,30 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
     	} catch (NumberFormatException ex) {
     		throw new IllegalStateException("Parameter " + CFG_PROP_CACHE_SIZE + " is not defined in configuration as integer: " + ret);
     	}
+    }
+    private static String getTempDir() {
+        String ret = config().get(CFG_PROP_TEMP_DIR);
+        if (ret == null)
+            throw new IllegalStateException("Parameter " + CFG_PROP_TEMP_DIR + " is not defined in configuration");
+        return ret;
+    }
+    private static String getMongoHost() {
+        String ret = config().get(CFG_PROP_MONGO_HOST);
+        if (ret == null)
+            throw new IllegalStateException("Parameter " + CFG_PROP_MONGO_HOST + " is not defined in configuration");
+        return ret;
+    }
+    private static String getMongoDbname() {
+        String ret = config().get(CFG_PROP_MONGO_DBNAME);
+        if (ret == null)
+            throw new IllegalStateException("Parameter " + CFG_PROP_MONGO_DBNAME + " is not defined in configuration");
+        return ret;
+    }
+    private static String getAdminUsers() {
+        String ret = config().get(CFG_PROP_ADMIN_USERS);
+        if (ret == null)
+            throw new IllegalStateException("Parameter " + CFG_PROP_ADMIN_USERS + " is not defined in configuration");
+        return ret;
     }
     
     private static <T> List<T> trim(List<T> data, ListParams params) {
@@ -119,7 +160,38 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
     	return data.subList(from, to);
     }
     
-    public static LocalGitDB getLocalGitDB() {
+    public static synchronized LocalGitDB getLocalGitDB() throws Exception {
+        if (localGitDB == null) {
+            // TODO: Make sure LocalGitDB doesn't require synchronization for when shared between servlet threads (including ImageServlet).
+            System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_GIT_REPO +" = " + getGitRepo());
+            System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_GIT_BRANCH +" = " + getGitBranch());
+            System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_GIT_LOCAL_DIR +" = " + getGitLocalDir());
+            System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_GIT_REFRESH_RATE +" = " + getGitRefreshRate());
+            System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_CACHE_SIZE +" = " + getCacheSize());
+            System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_TEMP_DIR +" = " + getTempDir());
+            System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_MONGO_HOST +" = " + getMongoHost());
+            System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_MONGO_DBNAME +" = " + getMongoDbname());
+            String dbUser = config().get(CFG_PROP_MONGO_USER);
+            String dbPwd = config().get(CFG_PROP_MONGO_PASSWORD);
+            System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_MONGO_USER +" = " + (dbUser == null ? "<not-set>" : dbUser));
+            System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_MONGO_PASSWORD +" = " + (dbPwd == null ? "<not-set>" : "[*****]"));
+            String mongoReadOnlyText = config().get(CFG_PROP_MONGO_READONLY);
+            boolean mongoRO = mongoReadOnlyText != null && (mongoReadOnlyText.equals("1") || mongoReadOnlyText.equals("true") || 
+                    mongoReadOnlyText.equals("y") || mongoReadOnlyText.equals("yes"));
+            System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_MONGO_READONLY +" = " + mongoRO);
+            System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_ADMIN_USERS +" = " + getAdminUsers());
+            String shockUrl = config().get(CFG_PROP_SHOCK_URL);
+            System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_SHOCK_URL +" = " + (shockUrl == null ? "<not-set>" : shockUrl));
+            String shockUser = config().get(CFG_PROP_SHOCK_USER);
+            String shockPwd = config().get(CFG_PROP_SHOCK_PASSWORD);
+            System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_SHOCK_USER +" = " + (shockUser == null ? "<not-set>" : shockUser));
+            System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_SHOCK_PASSWORD +" = " + (shockPwd == null ? "<not-set>" : "[*****]"));
+            List<String> adminUsers = Arrays.asList(getAdminUsers().trim().split(Pattern.quote(",")));
+            AuthToken shockToken = shockUser == null && shockPwd == null ? null : AuthService.login(shockUser, shockPwd).getToken();
+            localGitDB = new LocalGitDB(new URL(getGitRepo()), getGitBranch(), new File(getGitLocalDir()), getGitRefreshRate(), getCacheSize(), 
+                    new MongoDynamicRepoDB(getMongoHost(), getMongoDbname(), dbUser, dbPwd, adminUsers, mongoRO, 
+                            shockUrl == null ? null : new URL(shockUrl), shockToken), new File(getTempDir()));
+        }
         return localGitDB;
     }
     //END_CLASS_HEADER
@@ -127,15 +199,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
     public NarrativeMethodStoreServer() throws Exception {
         super("NarrativeMethodStore");
         //BEGIN_CONSTRUCTOR
-        
-        System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_GIT_REPO +" = " + getGitRepo());
-        System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_GIT_BRANCH +" = " + getGitBranch());
-        System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_GIT_LOCAL_DIR +" = " + getGitLocalDir());
-        System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_GIT_REFRESH_RATE +" = " + getGitRefreshRate());
-        System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_CACHE_SIZE +" = " + getCacheSize());
-        
-        localGitDB = new LocalGitDB(new URL(getGitRepo()), getGitBranch(), new File(getGitLocalDir()), getGitRefreshRate(), getCacheSize());
-        
+        getLocalGitDB();
         //END_CONSTRUCTOR
     }
 
@@ -172,7 +236,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
         returnVal = new Status()
         				.withGitSpecUrl(getGitRepo())
         				.withGitSpecBranch(getGitBranch())
-        				.withGitSpecCommit(localGitDB.getCommitInfo())
+        				.withGitSpecCommit(getLocalGitDB().getCommitInfo())
         				.withUpdateInterval(Integer.toString(getGitRefreshRate()));
         //END status
         return returnVal;
@@ -211,7 +275,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
         		returnLoadedTypes = true;
         	}
         }
-        NarrativeCategoriesIndex narCatIndex = localGitDB.getCategoriesIndex();
+        NarrativeCategoriesIndex narCatIndex = getLocalGitDB().getCategoriesIndex();
         return1 = narCatIndex.getCategories();
         if(returnLoadedMethods) {
         	return2 = narCatIndex.getMethods();
@@ -251,7 +315,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
         config();
         returnVal = new ArrayList<Category>();
         for (String catId : params.getIds()) {
-        	Category cat = localGitDB.getCategoriesIndex().getCategories().get(catId);
+        	Category cat = getLocalGitDB().getCategoriesIndex().getCategories().get(catId);
         	if (cat == null)
         		throw new IllegalStateException("No category with id=" + catId);
         	returnVal.add(cat);
@@ -272,7 +336,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
         List<MethodBriefInfo> returnVal = null;
         //BEGIN list_methods
         config();
-        returnVal = new ArrayList<MethodBriefInfo>(localGitDB.getCategoriesIndex().getMethods().values());
+        returnVal = new ArrayList<MethodBriefInfo>(getLocalGitDB().getCategoriesIndex().getMethods().values());
         returnVal = trim(returnVal, params);
         //END list_methods
         return returnVal;
@@ -290,7 +354,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
         List<MethodFullInfo> returnVal = null;
         //BEGIN list_methods_full_info
         config();
-        List<String> methodIds = new ArrayList<String>(localGitDB.listMethodIds(false));
+        List<String> methodIds = new ArrayList<String>(getLocalGitDB().listMethodIds(false));
         methodIds = trim(methodIds, params);
         returnVal = getMethodFullInfo(new GetMethodParams().withIds(methodIds));
         //END list_methods_full_info
@@ -309,7 +373,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
         List<MethodSpec> returnVal = null;
         //BEGIN list_methods_spec
         config();
-        List<String> methodIds = new ArrayList<String>(localGitDB.listMethodIds(false));
+        List<String> methodIds = new ArrayList<String>(getLocalGitDB().listMethodIds(false));
         methodIds = trim(methodIds, params);
         returnVal = getMethodSpec(new GetMethodParams().withIds(methodIds));
         //END list_methods_spec
@@ -328,7 +392,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
         //BEGIN list_method_ids_and_names
         config();
         returnVal = new TreeMap<String, String>();
-        for (Map.Entry<String, MethodBriefInfo> entry : localGitDB.getCategoriesIndex().getMethods().entrySet())
+        for (Map.Entry<String, MethodBriefInfo> entry : getLocalGitDB().getCategoriesIndex().getMethods().entrySet())
         	returnVal.put(entry.getKey(), entry.getValue().getName());
         //END list_method_ids_and_names
         return returnVal;
@@ -346,7 +410,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
         List<AppBriefInfo> returnVal = null;
         //BEGIN list_apps
         config();
-        returnVal = new ArrayList<AppBriefInfo>(localGitDB.getCategoriesIndex().getApps().values());
+        returnVal = new ArrayList<AppBriefInfo>(getLocalGitDB().getCategoriesIndex().getApps().values());
         returnVal = trim(returnVal, params);
         //END list_apps
         return returnVal;
@@ -364,7 +428,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
         List<AppFullInfo> returnVal = null;
         //BEGIN list_apps_full_info
         config();
-        List<String> appIds = new ArrayList<String>(localGitDB.listAppIds(false));
+        List<String> appIds = new ArrayList<String>(getLocalGitDB().listAppIds(false));
         appIds = trim(appIds, params);
         returnVal = getAppFullInfo(new GetAppParams().withIds(appIds));
         //END list_apps_full_info
@@ -383,7 +447,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
         List<AppSpec> returnVal = null;
         //BEGIN list_apps_spec
         config();
-        List<String> appIds = new ArrayList<String>(localGitDB.listAppIds(false));
+        List<String> appIds = new ArrayList<String>(getLocalGitDB().listAppIds(false));
         appIds = trim(appIds, params);
         returnVal = getAppSpec(new GetAppParams().withIds(appIds));
         //END list_apps_spec
@@ -402,7 +466,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
         //BEGIN list_app_ids_and_names
         config();
         returnVal = new TreeMap<String, String>();
-        for (Map.Entry<String, AppBriefInfo> entry : localGitDB.getCategoriesIndex().getApps().entrySet())
+        for (Map.Entry<String, AppBriefInfo> entry : getLocalGitDB().getCategoriesIndex().getApps().entrySet())
         	returnVal.put(entry.getKey(), entry.getValue().getName());
         //END list_app_ids_and_names
         return returnVal;
@@ -420,7 +484,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
         List<TypeInfo> returnVal = null;
         //BEGIN list_types
         config();
-        returnVal = new ArrayList<TypeInfo>(localGitDB.getCategoriesIndex().getTypes().values());
+        returnVal = new ArrayList<TypeInfo>(getLocalGitDB().getCategoriesIndex().getTypes().values());
         returnVal = trim(returnVal, params);
         //END list_types
         return returnVal;
@@ -441,7 +505,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
         List <String> methodIds = params.getIds();
         returnVal = new ArrayList<MethodBriefInfo>(methodIds.size());
         for(String id: methodIds) {
-        	returnVal.add(localGitDB.getMethodBriefInfo(id));
+        	returnVal.add(getLocalGitDB().getMethodBriefInfo(id));
         }
         //END get_method_brief_info
         return returnVal;
@@ -462,7 +526,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
         List <String> methodIds = params.getIds();
         returnVal = new ArrayList<MethodFullInfo>(methodIds.size());
         for(String id: methodIds) {
-        	returnVal.add(localGitDB.getMethodFullInfo(id));
+        	returnVal.add(getLocalGitDB().getMethodFullInfo(id));
         }
         //END get_method_full_info
         return returnVal;
@@ -483,7 +547,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
         List<String> methodIds = params.getIds();
         returnVal = new ArrayList<MethodSpec>(methodIds.size());
         for (String id : methodIds)
-        	returnVal.add(localGitDB.getMethodSpec(id));
+        	returnVal.add(getLocalGitDB().getMethodSpec(id));
         //END get_method_spec
         return returnVal;
     }
@@ -503,7 +567,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
         List <String> appIds = params.getIds();
         returnVal = new ArrayList<AppBriefInfo>(appIds.size());
         for(String id: appIds)
-        	returnVal.add(localGitDB.getAppBriefInfo(id));
+        	returnVal.add(getLocalGitDB().getAppBriefInfo(id));
         //END get_app_brief_info
         return returnVal;
     }
@@ -523,7 +587,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
         List <String> appIds = params.getIds();
         returnVal = new ArrayList<AppFullInfo>(appIds.size());
         for(String id: appIds) {
-        	returnVal.add(localGitDB.getAppFullInfo(id));
+        	returnVal.add(getLocalGitDB().getAppFullInfo(id));
         }
         //END get_app_full_info
         return returnVal;
@@ -544,7 +608,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
         List<String> appIds = params.getIds();
         returnVal = new ArrayList<AppSpec>(appIds.size());
         for (String id : appIds)
-        	returnVal.add(localGitDB.getAppSpec(id));
+        	returnVal.add(getLocalGitDB().getAppSpec(id));
         //END get_app_spec
         return returnVal;
     }
@@ -564,7 +628,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
         List<String> typeNames = params.getTypeNames();
         returnVal = new ArrayList<TypeInfo>(typeNames.size());
         for(String typeName: typeNames)
-        	returnVal.add(localGitDB.getTypeInfo(typeName));
+        	returnVal.add(getLocalGitDB().getTypeInfo(typeName));
         //END get_type_info
         return returnVal;
     }
@@ -615,6 +679,49 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
         returnVal = Validator.validateType(params);
         //END validate_type
         return returnVal;
+    }
+
+    /**
+     * <p>Original spec-file function name: load_widget_java_script</p>
+     * <pre>
+     * </pre>
+     * @param   params   instance of type {@link us.kbase.narrativemethodstore.LoadWidgetParams LoadWidgetParams}
+     * @return   parameter "java_script" of String
+     */
+    @JsonServerMethod(rpc = "NarrativeMethodStore.load_widget_java_script")
+    public String loadWidgetJavaScript(LoadWidgetParams params) throws Exception {
+        String returnVal = null;
+        //BEGIN load_widget_java_script
+        returnVal = getLocalGitDB().loadWidgetJavaScript(params.getModuleName(), 
+                params.getVersion(), params.getWidgetId());
+        //END load_widget_java_script
+        return returnVal;
+    }
+
+    /**
+     * <p>Original spec-file function name: register_repo</p>
+     * <pre>
+     * </pre>
+     * @param   params   instance of type {@link us.kbase.narrativemethodstore.RegisterRepoParams RegisterRepoParams}
+     */
+    @JsonServerMethod(rpc = "NarrativeMethodStore.register_repo")
+    public void registerRepo(RegisterRepoParams params, AuthToken authPart) throws Exception {
+        //BEGIN register_repo
+        getLocalGitDB().registerRepo(authPart.getClientId(), params.getGitUrl(), params.getGitCommitHash());
+        //END register_repo
+    }
+
+    /**
+     * <p>Original spec-file function name: disable_repo</p>
+     * <pre>
+     * </pre>
+     * @param   params   instance of type {@link us.kbase.narrativemethodstore.DisableRepoParams DisableRepoParams}
+     */
+    @JsonServerMethod(rpc = "NarrativeMethodStore.disable_repo")
+    public void disableRepo(DisableRepoParams params, AuthToken authPart) throws Exception {
+        //BEGIN disable_repo
+        getLocalGitDB().setRepoState(authPart.getClientId(), params.getModuleName(), "disabled");
+        //END disable_repo
     }
 
     public static void main(String[] args) throws Exception {

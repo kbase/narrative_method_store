@@ -12,6 +12,7 @@ eval {
     $get_time = sub { Time::HiRes::gettimeofday() };
 };
 
+use Bio::KBase::AuthToken;
 
 # Client version should match Impl version
 # This is a Semantic Version number,
@@ -78,6 +79,20 @@ sub new
 	push(@{$self->{headers}}, 'Kbrpc-Errordest', $self->{kbrpc_error_dest});
     }
 
+    #
+    # This module requires authentication.
+    #
+    # We create an auth token, passing through the arguments that we were (hopefully) given.
+
+    {
+	my $token = Bio::KBase::AuthToken->new(@args);
+	
+	if (!$token->error_message)
+	{
+	    $self->{token} = $token->token;
+	    $self->{client}->{token} = $token->token;
+	}
+    }
 
     my $ua = $self->{client}->ua;	 
     my $timeout = $ENV{CDMI_TIMEOUT} || (30 * 60);	 
@@ -268,6 +283,7 @@ Category is a reference to a hash where the following keys are defined:
 	loading_error has a value which is a string
 MethodBriefInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
+	namespace has a value which is a string
 	name has a value which is a string
 	ver has a value which is a string
 	subtitle has a value which is a string
@@ -328,6 +344,7 @@ Category is a reference to a hash where the following keys are defined:
 	loading_error has a value which is a string
 MethodBriefInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
+	namespace has a value which is a string
 	name has a value which is a string
 	ver has a value which is a string
 	subtitle has a value which is a string
@@ -539,6 +556,7 @@ ListParams is a reference to a hash where the following keys are defined:
 	offset has a value which is an int
 MethodBriefInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
+	namespace has a value which is a string
 	name has a value which is a string
 	ver has a value which is a string
 	subtitle has a value which is a string
@@ -563,6 +581,7 @@ ListParams is a reference to a hash where the following keys are defined:
 	offset has a value which is an int
 MethodBriefInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
+	namespace has a value which is a string
 	name has a value which is a string
 	ver has a value which is a string
 	subtitle has a value which is a string
@@ -650,6 +669,7 @@ ListParams is a reference to a hash where the following keys are defined:
 	offset has a value which is an int
 MethodFullInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
+	namespace has a value which is a string
 	name has a value which is a string
 	ver has a value which is a string
 	authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
@@ -694,6 +714,7 @@ ListParams is a reference to a hash where the following keys are defined:
 	offset has a value which is an int
 MethodFullInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
+	namespace has a value which is a string
 	name has a value which is a string
 	ver has a value which is a string
 	authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
@@ -809,6 +830,7 @@ MethodSpec is a reference to a hash where the following keys are defined:
 	job_id_output_field has a value which is a string
 MethodBriefInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
+	namespace has a value which is a string
 	name has a value which is a string
 	ver has a value which is a string
 	subtitle has a value which is a string
@@ -906,6 +928,7 @@ MethodBehavior is a reference to a hash where the following keys are defined:
 	python_function has a value which is a string
 	kb_service_url has a value which is a string
 	kb_service_name has a value which is a string
+	kb_service_version has a value which is a string
 	kb_service_method has a value which is a string
 	script_module has a value which is a string
 	script_name has a value which is a string
@@ -976,6 +999,7 @@ MethodSpec is a reference to a hash where the following keys are defined:
 	job_id_output_field has a value which is a string
 MethodBriefInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
+	namespace has a value which is a string
 	name has a value which is a string
 	ver has a value which is a string
 	subtitle has a value which is a string
@@ -1073,6 +1097,7 @@ MethodBehavior is a reference to a hash where the following keys are defined:
 	python_function has a value which is a string
 	kb_service_url has a value which is a string
 	kb_service_name has a value which is a string
+	kb_service_version has a value which is a string
 	kb_service_method has a value which is a string
 	script_module has a value which is a string
 	script_name has a value which is a string
@@ -1843,6 +1868,7 @@ GetMethodParams is a reference to a hash where the following keys are defined:
 	ids has a value which is a reference to a list where each element is a string
 MethodBriefInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
+	namespace has a value which is a string
 	name has a value which is a string
 	ver has a value which is a string
 	subtitle has a value which is a string
@@ -1866,6 +1892,7 @@ GetMethodParams is a reference to a hash where the following keys are defined:
 	ids has a value which is a reference to a list where each element is a string
 MethodBriefInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
+	namespace has a value which is a string
 	name has a value which is a string
 	ver has a value which is a string
 	subtitle has a value which is a string
@@ -1952,6 +1979,7 @@ GetMethodParams is a reference to a hash where the following keys are defined:
 	ids has a value which is a reference to a list where each element is a string
 MethodFullInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
+	namespace has a value which is a string
 	name has a value which is a string
 	ver has a value which is a string
 	authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
@@ -1995,6 +2023,7 @@ GetMethodParams is a reference to a hash where the following keys are defined:
 	ids has a value which is a reference to a list where each element is a string
 MethodFullInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
+	namespace has a value which is a string
 	name has a value which is a string
 	ver has a value which is a string
 	authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
@@ -2109,6 +2138,7 @@ MethodSpec is a reference to a hash where the following keys are defined:
 	job_id_output_field has a value which is a string
 MethodBriefInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
+	namespace has a value which is a string
 	name has a value which is a string
 	ver has a value which is a string
 	subtitle has a value which is a string
@@ -2206,6 +2236,7 @@ MethodBehavior is a reference to a hash where the following keys are defined:
 	python_function has a value which is a string
 	kb_service_url has a value which is a string
 	kb_service_name has a value which is a string
+	kb_service_version has a value which is a string
 	kb_service_method has a value which is a string
 	script_module has a value which is a string
 	script_name has a value which is a string
@@ -2275,6 +2306,7 @@ MethodSpec is a reference to a hash where the following keys are defined:
 	job_id_output_field has a value which is a string
 MethodBriefInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
+	namespace has a value which is a string
 	name has a value which is a string
 	ver has a value which is a string
 	subtitle has a value which is a string
@@ -2372,6 +2404,7 @@ MethodBehavior is a reference to a hash where the following keys are defined:
 	python_function has a value which is a string
 	kb_service_url has a value which is a string
 	kb_service_name has a value which is a string
+	kb_service_version has a value which is a string
 	kb_service_method has a value which is a string
 	script_module has a value which is a string
 	script_name has a value which is a string
@@ -3061,6 +3094,7 @@ AppStepInputMapping is a reference to a hash where the following keys are define
 	to has a value which is a string
 MethodFullInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
+	namespace has a value which is a string
 	name has a value which is a string
 	ver has a value which is a string
 	authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
@@ -3089,6 +3123,7 @@ MethodSpec is a reference to a hash where the following keys are defined:
 	job_id_output_field has a value which is a string
 MethodBriefInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
+	namespace has a value which is a string
 	name has a value which is a string
 	ver has a value which is a string
 	subtitle has a value which is a string
@@ -3182,6 +3217,7 @@ MethodBehavior is a reference to a hash where the following keys are defined:
 	python_function has a value which is a string
 	kb_service_url has a value which is a string
 	kb_service_name has a value which is a string
+	kb_service_version has a value which is a string
 	kb_service_method has a value which is a string
 	script_module has a value which is a string
 	script_name has a value which is a string
@@ -3317,6 +3353,7 @@ AppStepInputMapping is a reference to a hash where the following keys are define
 	to has a value which is a string
 MethodFullInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
+	namespace has a value which is a string
 	name has a value which is a string
 	ver has a value which is a string
 	authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
@@ -3345,6 +3382,7 @@ MethodSpec is a reference to a hash where the following keys are defined:
 	job_id_output_field has a value which is a string
 MethodBriefInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
+	namespace has a value which is a string
 	name has a value which is a string
 	ver has a value which is a string
 	subtitle has a value which is a string
@@ -3438,6 +3476,7 @@ MethodBehavior is a reference to a hash where the following keys are defined:
 	python_function has a value which is a string
 	kb_service_url has a value which is a string
 	kb_service_name has a value which is a string
+	kb_service_version has a value which is a string
 	kb_service_method has a value which is a string
 	script_module has a value which is a string
 	script_name has a value which is a string
@@ -3636,6 +3675,7 @@ AppStepInputMapping is a reference to a hash where the following keys are define
 	to has a value which is a string
 MethodFullInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
+	namespace has a value which is a string
 	name has a value which is a string
 	ver has a value which is a string
 	authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
@@ -3664,6 +3704,7 @@ MethodSpec is a reference to a hash where the following keys are defined:
 	job_id_output_field has a value which is a string
 MethodBriefInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
+	namespace has a value which is a string
 	name has a value which is a string
 	ver has a value which is a string
 	subtitle has a value which is a string
@@ -3757,6 +3798,7 @@ MethodBehavior is a reference to a hash where the following keys are defined:
 	python_function has a value which is a string
 	kb_service_url has a value which is a string
 	kb_service_name has a value which is a string
+	kb_service_version has a value which is a string
 	kb_service_method has a value which is a string
 	script_module has a value which is a string
 	script_name has a value which is a string
@@ -3892,6 +3934,7 @@ AppStepInputMapping is a reference to a hash where the following keys are define
 	to has a value which is a string
 MethodFullInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
+	namespace has a value which is a string
 	name has a value which is a string
 	ver has a value which is a string
 	authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
@@ -3920,6 +3963,7 @@ MethodSpec is a reference to a hash where the following keys are defined:
 	job_id_output_field has a value which is a string
 MethodBriefInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
+	namespace has a value which is a string
 	name has a value which is a string
 	ver has a value which is a string
 	subtitle has a value which is a string
@@ -4013,6 +4057,7 @@ MethodBehavior is a reference to a hash where the following keys are defined:
 	python_function has a value which is a string
 	kb_service_url has a value which is a string
 	kb_service_name has a value which is a string
+	kb_service_version has a value which is a string
 	kb_service_method has a value which is a string
 	script_module has a value which is a string
 	script_name has a value which is a string
@@ -4211,6 +4256,7 @@ AppStepInputMapping is a reference to a hash where the following keys are define
 	to has a value which is a string
 MethodFullInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
+	namespace has a value which is a string
 	name has a value which is a string
 	ver has a value which is a string
 	authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
@@ -4239,6 +4285,7 @@ MethodSpec is a reference to a hash where the following keys are defined:
 	job_id_output_field has a value which is a string
 MethodBriefInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
+	namespace has a value which is a string
 	name has a value which is a string
 	ver has a value which is a string
 	subtitle has a value which is a string
@@ -4332,6 +4379,7 @@ MethodBehavior is a reference to a hash where the following keys are defined:
 	python_function has a value which is a string
 	kb_service_url has a value which is a string
 	kb_service_name has a value which is a string
+	kb_service_version has a value which is a string
 	kb_service_method has a value which is a string
 	script_module has a value which is a string
 	script_name has a value which is a string
@@ -4467,6 +4515,7 @@ AppStepInputMapping is a reference to a hash where the following keys are define
 	to has a value which is a string
 MethodFullInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
+	namespace has a value which is a string
 	name has a value which is a string
 	ver has a value which is a string
 	authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
@@ -4495,6 +4544,7 @@ MethodSpec is a reference to a hash where the following keys are defined:
 	job_id_output_field has a value which is a string
 MethodBriefInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
+	namespace has a value which is a string
 	name has a value which is a string
 	ver has a value which is a string
 	subtitle has a value which is a string
@@ -4588,6 +4638,7 @@ MethodBehavior is a reference to a hash where the following keys are defined:
 	python_function has a value which is a string
 	kb_service_url has a value which is a string
 	kb_service_name has a value which is a string
+	kb_service_version has a value which is a string
 	kb_service_method has a value which is a string
 	script_module has a value which is a string
 	script_name has a value which is a string
@@ -4706,6 +4757,263 @@ sub validate_type
 
 
 
+=head2 load_widget_java_script
+
+  $java_script = $obj->load_widget_java_script($params)
+
+=over 4
+
+=item Parameter and return types
+
+=begin html
+
+<pre>
+$params is a NarrativeMethodStore.LoadWidgetParams
+$java_script is a string
+LoadWidgetParams is a reference to a hash where the following keys are defined:
+	module_name has a value which is a string
+	version has a value which is an int
+	widget_id has a value which is a string
+
+</pre>
+
+=end html
+
+=begin text
+
+$params is a NarrativeMethodStore.LoadWidgetParams
+$java_script is a string
+LoadWidgetParams is a reference to a hash where the following keys are defined:
+	module_name has a value which is a string
+	version has a value which is an int
+	widget_id has a value which is a string
+
+
+=end text
+
+=item Description
+
+
+
+=back
+
+=cut
+
+sub load_widget_java_script
+{
+    my($self, @args) = @_;
+
+# Authentication: none
+
+    if ((my $n = @args) != 1)
+    {
+	Bio::KBase::Exceptions::ArgumentValidationError->throw(error =>
+							       "Invalid argument count for function load_widget_java_script (received $n, expecting 1)");
+    }
+    {
+	my($params) = @args;
+
+	my @_bad_arguments;
+        (ref($params) eq 'HASH') or push(@_bad_arguments, "Invalid type for argument 1 \"params\" (value was \"$params\")");
+        if (@_bad_arguments) {
+	    my $msg = "Invalid arguments passed to load_widget_java_script:\n" . join("", map { "\t$_\n" } @_bad_arguments);
+	    Bio::KBase::Exceptions::ArgumentValidationError->throw(error => $msg,
+								   method_name => 'load_widget_java_script');
+	}
+    }
+
+    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
+	method => "NarrativeMethodStore.load_widget_java_script",
+	params => \@args,
+    });
+    if ($result) {
+	if ($result->is_error) {
+	    Bio::KBase::Exceptions::JSONRPC->throw(error => $result->error_message,
+					       code => $result->content->{error}->{code},
+					       method_name => 'load_widget_java_script',
+					       data => $result->content->{error}->{error} # JSON::RPC::ReturnObject only supports JSONRPC 1.1 or 1.O
+					      );
+	} else {
+	    return wantarray ? @{$result->result} : $result->result->[0];
+	}
+    } else {
+        Bio::KBase::Exceptions::HTTP->throw(error => "Error invoking method load_widget_java_script",
+					    status_line => $self->{client}->status_line,
+					    method_name => 'load_widget_java_script',
+				       );
+    }
+}
+
+
+
+=head2 register_repo
+
+  $obj->register_repo($params)
+
+=over 4
+
+=item Parameter and return types
+
+=begin html
+
+<pre>
+$params is a NarrativeMethodStore.RegisterRepoParams
+RegisterRepoParams is a reference to a hash where the following keys are defined:
+	git_url has a value which is a string
+	git_commit_hash has a value which is a string
+
+</pre>
+
+=end html
+
+=begin text
+
+$params is a NarrativeMethodStore.RegisterRepoParams
+RegisterRepoParams is a reference to a hash where the following keys are defined:
+	git_url has a value which is a string
+	git_commit_hash has a value which is a string
+
+
+=end text
+
+=item Description
+
+
+
+=back
+
+=cut
+
+sub register_repo
+{
+    my($self, @args) = @_;
+
+# Authentication: required
+
+    if ((my $n = @args) != 1)
+    {
+	Bio::KBase::Exceptions::ArgumentValidationError->throw(error =>
+							       "Invalid argument count for function register_repo (received $n, expecting 1)");
+    }
+    {
+	my($params) = @args;
+
+	my @_bad_arguments;
+        (ref($params) eq 'HASH') or push(@_bad_arguments, "Invalid type for argument 1 \"params\" (value was \"$params\")");
+        if (@_bad_arguments) {
+	    my $msg = "Invalid arguments passed to register_repo:\n" . join("", map { "\t$_\n" } @_bad_arguments);
+	    Bio::KBase::Exceptions::ArgumentValidationError->throw(error => $msg,
+								   method_name => 'register_repo');
+	}
+    }
+
+    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
+	method => "NarrativeMethodStore.register_repo",
+	params => \@args,
+    });
+    if ($result) {
+	if ($result->is_error) {
+	    Bio::KBase::Exceptions::JSONRPC->throw(error => $result->error_message,
+					       code => $result->content->{error}->{code},
+					       method_name => 'register_repo',
+					       data => $result->content->{error}->{error} # JSON::RPC::ReturnObject only supports JSONRPC 1.1 or 1.O
+					      );
+	} else {
+	    return;
+	}
+    } else {
+        Bio::KBase::Exceptions::HTTP->throw(error => "Error invoking method register_repo",
+					    status_line => $self->{client}->status_line,
+					    method_name => 'register_repo',
+				       );
+    }
+}
+
+
+
+=head2 disable_repo
+
+  $obj->disable_repo($params)
+
+=over 4
+
+=item Parameter and return types
+
+=begin html
+
+<pre>
+$params is a NarrativeMethodStore.DisableRepoParams
+DisableRepoParams is a reference to a hash where the following keys are defined:
+	module_name has a value which is a string
+
+</pre>
+
+=end html
+
+=begin text
+
+$params is a NarrativeMethodStore.DisableRepoParams
+DisableRepoParams is a reference to a hash where the following keys are defined:
+	module_name has a value which is a string
+
+
+=end text
+
+=item Description
+
+
+
+=back
+
+=cut
+
+sub disable_repo
+{
+    my($self, @args) = @_;
+
+# Authentication: required
+
+    if ((my $n = @args) != 1)
+    {
+	Bio::KBase::Exceptions::ArgumentValidationError->throw(error =>
+							       "Invalid argument count for function disable_repo (received $n, expecting 1)");
+    }
+    {
+	my($params) = @args;
+
+	my @_bad_arguments;
+        (ref($params) eq 'HASH') or push(@_bad_arguments, "Invalid type for argument 1 \"params\" (value was \"$params\")");
+        if (@_bad_arguments) {
+	    my $msg = "Invalid arguments passed to disable_repo:\n" . join("", map { "\t$_\n" } @_bad_arguments);
+	    Bio::KBase::Exceptions::ArgumentValidationError->throw(error => $msg,
+								   method_name => 'disable_repo');
+	}
+    }
+
+    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
+	method => "NarrativeMethodStore.disable_repo",
+	params => \@args,
+    });
+    if ($result) {
+	if ($result->is_error) {
+	    Bio::KBase::Exceptions::JSONRPC->throw(error => $result->error_message,
+					       code => $result->content->{error}->{code},
+					       method_name => 'disable_repo',
+					       data => $result->content->{error}->{error} # JSON::RPC::ReturnObject only supports JSONRPC 1.1 or 1.O
+					      );
+	} else {
+	    return;
+	}
+    } else {
+        Bio::KBase::Exceptions::HTTP->throw(error => "Error invoking method disable_repo",
+					    status_line => $self->{client}->status_line,
+					    method_name => 'disable_repo',
+				       );
+    }
+}
+
+
+
 sub version {
     my ($self) = @_;
     my $result = $self->{client}->call($self->{url}, $self->{headers}, {
@@ -4717,16 +5025,16 @@ sub version {
             Bio::KBase::Exceptions::JSONRPC->throw(
                 error => $result->error_message,
                 code => $result->content->{code},
-                method_name => 'validate_type',
+                method_name => 'disable_repo',
             );
         } else {
             return wantarray ? @{$result->result} : $result->result->[0];
         }
     } else {
         Bio::KBase::Exceptions::HTTP->throw(
-            error => "Error invoking method validate_type",
+            error => "Error invoking method disable_repo",
             status_line => $self->{client}->status_line,
-            method_name => 'validate_type',
+            method_name => 'disable_repo',
         );
     }
 }
@@ -4998,6 +5306,7 @@ Minimal information about a method suitable for displaying the method in a menu 
 <pre>
 a reference to a hash where the following keys are defined:
 id has a value which is a string
+namespace has a value which is a string
 name has a value which is a string
 ver has a value which is a string
 subtitle has a value which is a string
@@ -5014,6 +5323,7 @@ loading_error has a value which is a string
 
 a reference to a hash where the following keys are defined:
 id has a value which is a string
+namespace has a value which is a string
 name has a value which is a string
 ver has a value which is a string
 subtitle has a value which is a string
@@ -5155,6 +5465,7 @@ Full information about a method suitable for displaying a method landing page.
 <pre>
 a reference to a hash where the following keys are defined:
 id has a value which is a string
+namespace has a value which is a string
 name has a value which is a string
 ver has a value which is a string
 authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
@@ -5178,6 +5489,7 @@ publications has a value which is a reference to a list where each element is a 
 
 a reference to a hash where the following keys are defined:
 id has a value which is a string
+namespace has a value which is a string
 name has a value which is a string
 ver has a value which is a string
 authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
@@ -6198,6 +6510,7 @@ target_type_transform has a value which is a string
 Determines how the method is handled when run.
 kb_service_name - name of service which will be part of fully qualified method name, optional field (in
     case it's not defined developer should enter fully qualified name with dot into 'kb_service_method'.
+kb_service_version - optional git commit hash defining version of repo registered dynamically.
 kb_service_input_mapping - mapping from input parameters to input service method arguments.
 kb_service_output_mapping - mapping from output of service method to final output of narrative method.
 output_mapping - mapping from input to final output of narrative method to support steps without back-end operations.
@@ -6216,6 +6529,7 @@ python_class has a value which is a string
 python_function has a value which is a string
 kb_service_url has a value which is a string
 kb_service_name has a value which is a string
+kb_service_version has a value which is a string
 kb_service_method has a value which is a string
 script_module has a value which is a string
 script_name has a value which is a string
@@ -6237,6 +6551,7 @@ python_class has a value which is a string
 python_function has a value which is a string
 kb_service_url has a value which is a string
 kb_service_name has a value which is a string
+kb_service_version has a value which is a string
 kb_service_method has a value which is a string
 script_module has a value which is a string
 script_name has a value which is a string
@@ -6934,6 +7249,115 @@ id has a value which is a string
 spec_json has a value which is a string
 display_yaml has a value which is a string
 extra_files has a value which is a reference to a hash where the key is a string and the value is a string
+
+
+=end text
+
+=back
+
+
+
+=head2 LoadWidgetParams
+
+=over 4
+
+
+
+=item Description
+
+Describes how to find repository widget JavaScript.
+module_name - name of module defined in kbase.yaml;
+version - optional parameter limiting search by certain version timestamp;
+widget_id - name of java-script file stored in repo's 'ui/widgets' folder.
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a reference to a hash where the following keys are defined:
+module_name has a value which is a string
+version has a value which is an int
+widget_id has a value which is a string
+
+</pre>
+
+=end html
+
+=begin text
+
+a reference to a hash where the following keys are defined:
+module_name has a value which is a string
+version has a value which is an int
+widget_id has a value which is a string
+
+
+=end text
+
+=back
+
+
+
+=head2 RegisterRepoParams
+
+=over 4
+
+
+
+=item Description
+
+***************************** Dynamic Repos API ******************************
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a reference to a hash where the following keys are defined:
+git_url has a value which is a string
+git_commit_hash has a value which is a string
+
+</pre>
+
+=end html
+
+=begin text
+
+a reference to a hash where the following keys are defined:
+git_url has a value which is a string
+git_commit_hash has a value which is a string
+
+
+=end text
+
+=back
+
+
+
+=head2 DisableRepoParams
+
+=over 4
+
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a reference to a hash where the following keys are defined:
+module_name has a value which is a string
+
+</pre>
+
+=end html
+
+=begin text
+
+a reference to a hash where the following keys are defined:
+module_name has a value which is a string
 
 
 =end text

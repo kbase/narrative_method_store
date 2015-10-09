@@ -67,6 +67,7 @@ public class MethodSpec {
      * Determines how the method is handled when run.
      * kb_service_name - name of service which will be part of fully qualified method name, optional field (in
      *     case it's not defined developer should enter fully qualified name with dot into 'kb_service_method'.
+     * kb_service_version - optional git commit hash defining version of repo registered dynamically.
      * kb_service_input_mapping - mapping from input parameters to input service method arguments.
      * kb_service_output_mapping - mapping from output of service method to final output of narrative method.
      * output_mapping - mapping from input to final output of narrative method to support steps without back-end operations.
@@ -191,6 +192,7 @@ public class MethodSpec {
      * Determines how the method is handled when run.
      * kb_service_name - name of service which will be part of fully qualified method name, optional field (in
      *     case it's not defined developer should enter fully qualified name with dot into 'kb_service_method'.
+     * kb_service_version - optional git commit hash defining version of repo registered dynamically.
      * kb_service_input_mapping - mapping from input parameters to input service method arguments.
      * kb_service_output_mapping - mapping from output of service method to final output of narrative method.
      * output_mapping - mapping from input to final output of narrative method to support steps without back-end operations.
@@ -211,6 +213,7 @@ public class MethodSpec {
      * Determines how the method is handled when run.
      * kb_service_name - name of service which will be part of fully qualified method name, optional field (in
      *     case it's not defined developer should enter fully qualified name with dot into 'kb_service_method'.
+     * kb_service_version - optional git commit hash defining version of repo registered dynamically.
      * kb_service_input_mapping - mapping from input parameters to input service method arguments.
      * kb_service_output_mapping - mapping from output of service method to final output of narrative method.
      * output_mapping - mapping from input to final output of narrative method to support steps without back-end operations.
