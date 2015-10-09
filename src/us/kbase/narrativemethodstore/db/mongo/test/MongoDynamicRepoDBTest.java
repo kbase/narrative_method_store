@@ -21,6 +21,7 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -53,6 +54,7 @@ import us.kbase.narrativemethodstore.util.TextUtils;
 import us.kbase.shock.client.BasicShockClient;
 import us.kbase.shock.client.ShockNodeId;
 
+@Ignore
 public class MongoDynamicRepoDBTest {
     private static final String dbName = "test_repo_registry_mongo";
     private static final MongoDBHelper dbHelper = new MongoDBHelper("registry");
