@@ -43,7 +43,12 @@ public class FileRepoProvider implements RepoProvider {
         this.rootDir = rootDir;
         this.url = url;
         String source = "kbase.yml";
-        String kbaseConfig = get(new File(rootDir, source));
+        File configFile = new File(rootDir, source);
+        if (!configFile.exists()) {
+            source = "kbase.yaml";
+            configFile = new File(rootDir, source);
+        }
+        String kbaseConfig = get(configFile);
         try {
             Map<String,Object> map = YamlUtils.getDocumentAsYamlMap(kbaseConfig);
             moduleName = YamlUtils.getPropertyNotNull(source, map, "module-name", String.class);

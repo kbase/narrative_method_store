@@ -280,46 +280,15 @@ class NarrativeMethodStore(object):
                           [params])
         return resp[0]
 
-    def is_repo_registered(self, params):
-        resp = self._call('NarrativeMethodStore.is_repo_registered',
-                          [params])
-        return resp[0]
-
-    def register_repo(self, params):
-        resp = self._call('NarrativeMethodStore.register_repo',
-                          [params])
-        return resp[0]
-
-    def get_repo_last_version(self, params):
-        resp = self._call('NarrativeMethodStore.get_repo_last_version',
-                          [params])
-        return resp[0]
-
-    def list_repo_module_names(self, params):
-        resp = self._call('NarrativeMethodStore.list_repo_module_names',
-                          [params])
-        return resp[0]
-
-    def get_repo_details(self, params):
-        resp = self._call('NarrativeMethodStore.get_repo_details',
-                          [params])
-        return resp[0]
-
-    def list_repo_versions(self, params):
-        resp = self._call('NarrativeMethodStore.list_repo_versions',
-                          [params])
-        return resp[0]
-
     def load_widget_java_script(self, params):
         resp = self._call('NarrativeMethodStore.load_widget_java_script',
                           [params])
         return resp[0]
 
-    def set_repo_state(self, params):
-        self._call('NarrativeMethodStore.set_repo_state',
+    def register_repo(self, params):
+        self._call('NarrativeMethodStore.register_repo',
                    [params])
 
-    def get_repo_state(self, params):
-        resp = self._call('NarrativeMethodStore.get_repo_state',
-                          [params])
-        return resp[0]
+    def disable_repo(self, params):
+        self._call('NarrativeMethodStore.disable_repo',
+                   [params])

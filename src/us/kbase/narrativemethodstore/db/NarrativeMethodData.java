@@ -48,11 +48,16 @@ public class NarrativeMethodData {
 	protected MethodBriefInfo briefInfo;
 	protected MethodFullInfo fullInfo;
 	protected MethodSpec methodSpec;
+
+	public NarrativeMethodData(String methodId, JsonNode spec, Map<String, Object> display,
+	        FileLookup lookup) throws NarrativeMethodStoreException {
+	    this(methodId, spec, display, lookup, null);
+	}
 	
 	public NarrativeMethodData(String methodId, JsonNode spec, Map<String, Object> display,
-			FileLookup lookup) throws NarrativeMethodStoreException {
+			FileLookup lookup, String namespace) throws NarrativeMethodStoreException {
 		try {
-			update(methodId, spec, display, lookup);
+			update(methodId, spec, display, lookup, namespace);
 		} catch (Throwable ex) {
 			if (briefInfo.getName() == null)
 				briefInfo.withName(briefInfo.getId());
@@ -78,11 +83,12 @@ public class NarrativeMethodData {
 	
 	
 	public void update(String methodId, JsonNode spec, Map<String, Object> display,
-			FileLookup lookup) throws NarrativeMethodStoreException {
+			FileLookup lookup, String namespace) throws NarrativeMethodStoreException {
 		this.methodId = methodId;
 
 		briefInfo = new MethodBriefInfo()
-							.withId(this.methodId);
+							.withId(this.methodId)
+							.withNamespace(namespace);
 
 		List <String> categories = new ArrayList<String>(1);
 		JsonNode cats = get(spec, "categories");
@@ -196,6 +202,7 @@ public class NarrativeMethodData {
 		
 		fullInfo = new MethodFullInfo()
 							.withId(this.methodId)
+							.withNamespace(namespace)
 							.withName(methodName)
 							.withVer(briefInfo.getVer())
 							.withSubtitle(methodSubtitle)

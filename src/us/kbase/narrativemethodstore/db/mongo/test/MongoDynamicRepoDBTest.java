@@ -91,7 +91,7 @@ public class MongoDynamicRepoDBTest {
                 Arrays.asList(globalAdmin), false, shockUrl, shockToken);
         Assert.assertEquals(0, db.listRepoModuleNames(false).size());
         RepoProvider pvd = localFiles ? new FileRepoProvider(new File(localPath)) :
-            new GitHubRepoProvider(new URL(gitUrl), dbHelper.getWorkDir());
+            new GitHubRepoProvider(new URL(gitUrl), null, dbHelper.getWorkDir());
         try {
             db.registerRepo(user1, pvd);
             Assert.assertEquals("[" + repoModuleName + "]", 

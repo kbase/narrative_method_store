@@ -22,12 +22,29 @@ public class GitUtils {
             throw new NarrativeMethodStoreInitializationException("Cannot clone "+gitRepoUrl+": " + e.getMessage(), e);
         }
     }
-    
+
+    /**
+     * Clones the configured git repo to the target local file location, returns standard output of the command
+     * if successful, otherwise throws an exception.
+     */
+    public static String gitClone(URL gitRepoUrl, File gitLocalPath) throws NarrativeMethodStoreInitializationException {
+        try {
+            return gitCommand("git clone "+gitRepoUrl+" "+gitLocalPath.getAbsolutePath(), 
+                    "clone", gitLocalPath.getCanonicalFile().getParentFile(), gitRepoUrl);
+        } catch (IOException e) {
+            throw new NarrativeMethodStoreInitializationException("Cannot clone "+gitRepoUrl+": " + e.getMessage(), e);
+        }
+    }
+
     /**
      * Runs a git pull on the local git spec repo.
      */
     public static String gitPull(File gitLocalPath, URL gitRepoUrl) throws NarrativeMethodStoreInitializationException {
         return gitCommand("git pull", "pull", gitLocalPath, gitRepoUrl);
+    }
+
+    public static String gitCheckout(File gitLocalPath, URL gitRepoUrl, String commitHash) throws NarrativeMethodStoreInitializationException {
+        return gitCommand("git checkout " + commitHash, "checkout", gitLocalPath, gitRepoUrl);
     }
 
     public static String getCommitInfo(File gitLocalPath, URL gitRepoUrl) throws NarrativeMethodStoreInitializationException {

@@ -137,7 +137,8 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
             throws NarrativeMethodStoreException {
         if (isReadOnly)
             throwChangeOperation();
-        checkRepoOwner(repoDetails, userId);
+        //checkRepoOwner(repoDetails, userId);
+        checkAdmin(userId);
         String repoModuleName = repoDetails.getModuleName();
         long newVersion = System.currentTimeMillis();
         boolean wasReg = isRepoRegistered(repoModuleName, true);
@@ -255,6 +256,13 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
         return listRepoOwners(repoModuleName).contains(userId);
     }
 
+    private void checkAdmin(String userId)
+            throws NarrativeMethodStoreException {
+        if (!globalAdmins.contains(userId))
+            throw new NarrativeMethodStoreException("User " + userId + 
+                    " is not global admin");
+    }
+
     private void checkRepoOwner(RepoProvider repo, String userId)
             throws NarrativeMethodStoreException {
         if (globalAdmins.contains(userId))
@@ -286,12 +294,13 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
             throws NarrativeMethodStoreException {
         if (isReadOnly)
             throwChangeOperation();
-        checkRepoOwner(repoModuleName, userId);
+        /*checkRepoOwner(repoModuleName, userId);
         if (state.isAdminOnly()) {
             if (!globalAdmins.contains(userId))
                 throw new NarrativeMethodStoreException("User " + userId + 
                         " is not global admin");
-        }
+        }*/
+        checkAdmin(userId);
         MongoCollection info = jdb.getCollection(TABLE_REPO_INFO);
         @SuppressWarnings("unchecked")
         Map<String, Object> obj = info.findOne(String.format("{%s:#}", 

@@ -23,6 +23,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @Generated("com.googlecode.jsonschema2pojo")
 @JsonPropertyOrder({
     "id",
+    "namespace",
     "name",
     "ver",
     "authors",
@@ -42,6 +43,8 @@ public class MethodFullInfo {
 
     @JsonProperty("id")
     private java.lang.String id;
+    @JsonProperty("namespace")
+    private java.lang.String namespace;
     @JsonProperty("name")
     private java.lang.String name;
     @JsonProperty("ver")
@@ -94,6 +97,21 @@ public class MethodFullInfo {
 
     public MethodFullInfo withId(java.lang.String id) {
         this.id = id;
+        return this;
+    }
+
+    @JsonProperty("namespace")
+    public java.lang.String getNamespace() {
+        return namespace;
+    }
+
+    @JsonProperty("namespace")
+    public void setNamespace(java.lang.String namespace) {
+        this.namespace = namespace;
+    }
+
+    public MethodFullInfo withNamespace(java.lang.String namespace) {
+        this.namespace = namespace;
         return this;
     }
 
@@ -339,7 +357,7 @@ public class MethodFullInfo {
 
     @Override
     public java.lang.String toString() {
-        return ((((((((((((((((((((((((((((((((("MethodFullInfo"+" [id=")+ id)+", name=")+ name)+", ver=")+ ver)+", authors=")+ authors)+", kbContributors=")+ kbContributors)+", contact=")+ contact)+", subtitle=")+ subtitle)+", tooltip=")+ tooltip)+", description=")+ description)+", technicalDescription=")+ technicalDescription)+", suggestions=")+ suggestions)+", icon=")+ icon)+", categories=")+ categories)+", screenshots=")+ screenshots)+", publications=")+ publications)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((((((((((((((((((((((((((((((("MethodFullInfo"+" [id=")+ id)+", namespace=")+ namespace)+", name=")+ name)+", ver=")+ ver)+", authors=")+ authors)+", kbContributors=")+ kbContributors)+", contact=")+ contact)+", subtitle=")+ subtitle)+", tooltip=")+ tooltip)+", description=")+ description)+", technicalDescription=")+ technicalDescription)+", suggestions=")+ suggestions)+", icon=")+ icon)+", categories=")+ categories)+", screenshots=")+ screenshots)+", publications=")+ publications)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }

@@ -12,32 +12,30 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeSet;
 
 import junit.framework.Assert;
 
 import org.apache.commons.io.FileUtils;
+import org.eclipse.jetty.util.log.Log;
+import org.eclipse.jetty.util.log.Logger;
 import org.ini4j.Ini;
 import org.ini4j.Profile.Section;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.mongodb.gridfs.CLI;
-
 import us.kbase.common.service.ServerException;
 import us.kbase.common.service.Tuple4;
 import us.kbase.narrativemethodstore.AppFullInfo;
 import us.kbase.narrativemethodstore.AppSpec;
 import us.kbase.narrativemethodstore.Category;
-import us.kbase.narrativemethodstore.CurrentRepoParams;
 import us.kbase.narrativemethodstore.GetAppParams;
 import us.kbase.narrativemethodstore.GetCategoryParams;
 import us.kbase.narrativemethodstore.GetMethodParams;
 import us.kbase.narrativemethodstore.GetTypeParams;
-import us.kbase.narrativemethodstore.HistoryRepoParams;
 import us.kbase.narrativemethodstore.ListCategoriesParams;
 import us.kbase.narrativemethodstore.ListParams;
-import us.kbase.narrativemethodstore.ListReposParams;
 import us.kbase.narrativemethodstore.LoadWidgetParams;
 import us.kbase.narrativemethodstore.MethodBriefInfo;
 import us.kbase.narrativemethodstore.MethodFullInfo;
@@ -56,7 +54,6 @@ import us.kbase.narrativemethodstore.ValidateMethodParams;
 import us.kbase.narrativemethodstore.ValidateTypeParams;
 import us.kbase.narrativemethodstore.ValidationResults;
 import us.kbase.narrativemethodstore.db.DynamicRepoDB;
-import us.kbase.narrativemethodstore.db.DynamicRepoDB.RepoState;
 import us.kbase.narrativemethodstore.db.mongo.test.MongoDBHelper;
 
 /*
@@ -82,6 +79,8 @@ public class FullServerTest {
 	private static MongoDBHelper dbHelper;
 	
     private static final String dbName = "method_store_full_server_test_temp_db";
+    private static final String admin1 = "admin1";
+    private static final String admin2 = "admin2";
 
 	private static class ServerThread extends Thread {
 		private NarrativeMethodStoreServer server;
@@ -1079,49 +1078,68 @@ public class FullServerTest {
 		assertTrue("Type validation results of test_method_1 type info is null", results.getTypeInfo()==null);
 	}
 	
-	@Test
+	@SuppressWarnings("static-access")
+    @Test
 	public void testDynamicRepos() throws Exception {
-	    Map<String,MethodBriefInfo> methods = CLIENT.listCategories(new ListCategoriesParams().withLoadMethods(1L)).getE2();
-	    String moduleName = "GenomeFeatureComparator";
-	    String methodId = moduleName + "/compare_genome_features";
+	    String moduleName = "onerepotest";
+	    String gitUrl = "https://github.com/kbaseIncubator/onerepotest";
+	    String methodId = moduleName + "/send_data";
+        Map<String,MethodBriefInfo> methods = CLIENT.listCategories(new ListCategoriesParams().withLoadMethods(1L)).getE2();
 	    MethodBriefInfo bi = methods.get(methodId);
+        Assert.assertNull(bi);
+        SERVER.getLocalGitDB().registerRepo(admin1, gitUrl, null);
+        methods = CLIENT.listCategories(new ListCategoriesParams().withLoadMethods(1L)).getE2();
+        bi = methods.get(methodId);
 	    Assert.assertNotNull(bi);
-	    Assert.assertEquals("Compare Genome Features", bi.getName());
-	    Assert.assertEquals("Compare the feature calls of two genomes.", bi.getTooltip().trim());
+	    Assert.assertEquals("Async Docker Test", bi.getName());
+	    Assert.assertEquals("Perform Async Docker Test.", bi.getTooltip().trim());
 	    Assert.assertEquals("[active]", bi.getCategories().toString());
+	    Assert.assertEquals(moduleName, bi.getNamespace());
 	    MethodFullInfo fi = CLIENT.getMethodFullInfo(new GetMethodParams().withIds(Arrays.asList(methodId))).get(0);
         Assert.assertNotNull(fi);
-        Assert.assertTrue("Description: " + fi.getDescription(), fi.getDescription().contains("by looking at the start/stop posistions"));
+        Assert.assertTrue("Description: " + fi.getDescription(), fi.getDescription().contains("Async Docker Test"));
+        Assert.assertEquals(moduleName, fi.getNamespace());
         MethodSpec ms = CLIENT.getMethodSpec(new GetMethodParams().withIds(Arrays.asList(methodId))).get(0);
         Assert.assertNotNull(ms);
         Assert.assertEquals(2, ms.getParameters().size());
-        Assert.assertEquals("genomeA", ms.getParameters().get(0).getId());
-        Assert.assertEquals("Genome A", ms.getParameters().get(0).getUiName().trim());
-        Assert.assertEquals("First genome to compare", ms.getParameters().get(0).getShortHint().trim());
+        Assert.assertEquals("param0", ms.getParameters().get(0).getId());
+        Assert.assertEquals("Genome1 ID", ms.getParameters().get(0).getUiName().trim());
+        Assert.assertEquals("Source genome 1", ms.getParameters().get(0).getShortHint().trim());
         Assert.assertEquals("text", ms.getParameters().get(0).getFieldType());
         Assert.assertEquals("[KBaseGenomes.Genome]", ms.getParameters().get(0).getTextOptions().getValidWsTypes().toString());
         DynamicRepoDB db = SERVER.getLocalGitDB().getDynamicRepos();
         Assert.assertEquals(1, db.listRepoVersions(moduleName).size());
-        long repoVer = db.getRepoLastVersion(moduleName);
         String commitHash = db.getRepoDetails(moduleName).getGitCommitHash();
-        SERVER.getLocalGitDB().reloadAll();
-        Assert.assertEquals(1, db.listRepoVersions(moduleName).size());
-        Assert.assertEquals(repoVer, db.getRepoLastVersion(moduleName));
-        Assert.assertEquals(commitHash, db.getRepoDetails(moduleName).getGitCommitHash());
-        Assert.assertEquals(1L, (long)CLIENT.isRepoRegistered(new CurrentRepoParams().withModuleName(moduleName)));
-        long ver1 = CLIENT.getRepoLastVersion(new CurrentRepoParams().withModuleName(moduleName));
-        Assert.assertEquals("[" + moduleName + "]", CLIENT.listRepoModuleNames(new ListReposParams()).toString());
-        RepoDetails rd = CLIENT.getRepoDetails(new HistoryRepoParams().withModuleName(moduleName));
+        Assert.assertEquals(40, commitHash.length());
+        RepoDetails rd = SERVER.getLocalGitDB().getRepoDetails(moduleName, null, null);
         Assert.assertEquals(moduleName, rd.getModuleName());
-        Assert.assertEquals("[FeatureComparisionResultView.js]", rd.getWidgetIds().toString());
-        Assert.assertEquals("[" + ver1 + "]", CLIENT.listRepoVersions(new CurrentRepoParams().withModuleName(moduleName)).toString());
-        Assert.assertNotNull(CLIENT.loadWidgetJavaScript(new LoadWidgetParams().withModuleName(moduleName).withWidgetId("FeatureComparisionResultView.js")));
-        SERVER.getLocalGitDB().setRepoState(rd.getOwners().get(0), moduleName, "disabled");
-        Assert.assertEquals("disabled", CLIENT.getRepoState(new CurrentRepoParams().withModuleName(moduleName)));
-        long ver2 = SERVER.getLocalGitDB().registerRepo(rd.getOwners().get(0), rd.getGitUrl());
-        Assert.assertEquals("ready", CLIENT.getRepoState(new CurrentRepoParams().withModuleName(moduleName)));
-        Assert.assertEquals(ver2, (long)CLIENT.getRepoLastVersion(new CurrentRepoParams().withModuleName(moduleName)));
-        Assert.assertEquals("[" + ver1 + ", " + ver2 + "]", CLIENT.listRepoVersions(new CurrentRepoParams().withModuleName(moduleName)).toString());
+        Assert.assertEquals("[ResultView.js]", rd.getWidgetIds().toString());
+        Assert.assertNotNull(CLIENT.loadWidgetJavaScript(new LoadWidgetParams().withModuleName(moduleName).withWidgetId("ResultView.js")));
+        String owner = "rsutormin";
+        try {
+            SERVER.getLocalGitDB().registerRepo(owner, gitUrl, null);
+            Assert.fail("Only admin can register dynamic repos");
+        } catch (Exception ex) {
+            Assert.assertEquals("User " + owner + " is not global admin", ex.getMessage());
+        }
+        commitHash = "00f008a265785ddfa70f21794738953bbf5895d0";
+        SERVER.getLocalGitDB().registerRepo(admin1, gitUrl, commitHash);
+        methods = CLIENT.listCategories(new ListCategoriesParams().withLoadMethods(1L)).getE2();
+        bi = methods.get(methodId);
+        ms = CLIENT.getMethodSpec(new GetMethodParams().withIds(Arrays.asList(methodId))).get(0);
+        Assert.assertEquals(2, ms.getParameters().size());
+        Assert.assertEquals("genomeA", ms.getParameters().get(0).getId());
+        Assert.assertEquals("Genome A", ms.getParameters().get(0).getUiName().trim());
+        try {
+            SERVER.getLocalGitDB().setRepoState(owner, moduleName, "disabled");
+            Assert.fail("Only admin can disable dynamic repos");
+        } catch (Exception ex) {
+            Assert.assertEquals("User " + owner + " is not global admin", ex.getMessage());
+        }
+        SERVER.getLocalGitDB().setRepoState(admin1, moduleName, "disabled");
+        methods = CLIENT.listCategories(new ListCategoriesParams().withLoadMethods(1L)).getE2();
+        bi = methods.get(methodId);
+        Assert.assertNull(bi);
 	}
 
 	private static String getTestFileFromSpecsRepo(String path) {
@@ -1143,7 +1161,39 @@ public class FullServerTest {
 	
 	@BeforeClass
 	public static void setUpClass() throws Exception {
-
+        Log.setLog(new Logger() {
+            @Override
+            public void warn(String arg0, Object arg1, Object arg2) {}
+            @Override
+            public void warn(String arg0, Throwable arg1) {}
+            @Override
+            public void warn(String arg0) {}
+            @Override
+            public void setDebugEnabled(boolean arg0) {}
+            @Override
+            public boolean isDebugEnabled() {
+                return false;
+            }
+            @Override
+            public void info(String arg0, Object arg1, Object arg2) {}
+            @Override
+            public void info(String arg0) {}
+            @Override
+            public String getName() {
+                return null;
+            }
+            @Override
+            public Logger getLogger(String arg0) {
+                return this;
+            }
+            @Override
+            public void debug(String arg0, Object arg1, Object arg2) {}
+            @Override
+            public void debug(String arg0, Throwable arg1) {}
+            @Override
+            public void debug(String arg0) {}
+        });
+        
 		// Parse the test config variables
 		tempDirName = System.getProperty("test.temp-dir");
 		
@@ -1195,7 +1245,7 @@ public class FullServerTest {
 		ws.add("method-spec-temp-dir", dbHelper.getWorkDir());
 		ws.add("method-spec-mongo-host", "localhost:" + dbHelper.getMongoPort());
 		ws.add("method-spec-mongo-dbname", dbName);
-		ws.add("method-spec-admin-users", "admin1,admin2");
+		ws.add("method-spec-admin-users", admin1 + "," + admin2);
 		
 		ini.store(iniFile);
 		iniFile.deleteOnExit();

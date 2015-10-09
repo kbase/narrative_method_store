@@ -23,6 +23,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @Generated("com.googlecode.jsonschema2pojo")
 @JsonPropertyOrder({
     "id",
+    "namespace",
     "name",
     "ver",
     "subtitle",
@@ -35,6 +36,8 @@ public class MethodBriefInfo {
 
     @JsonProperty("id")
     private java.lang.String id;
+    @JsonProperty("namespace")
+    private java.lang.String namespace;
     @JsonProperty("name")
     private java.lang.String name;
     @JsonProperty("ver")
@@ -68,6 +71,21 @@ public class MethodBriefInfo {
 
     public MethodBriefInfo withId(java.lang.String id) {
         this.id = id;
+        return this;
+    }
+
+    @JsonProperty("namespace")
+    public java.lang.String getNamespace() {
+        return namespace;
+    }
+
+    @JsonProperty("namespace")
+    public void setNamespace(java.lang.String namespace) {
+        this.namespace = namespace;
+    }
+
+    public MethodBriefInfo withNamespace(java.lang.String namespace) {
+        this.namespace = namespace;
         return this;
     }
 
@@ -198,7 +216,7 @@ public class MethodBriefInfo {
 
     @Override
     public java.lang.String toString() {
-        return ((((((((((((((((((("MethodBriefInfo"+" [id=")+ id)+", name=")+ name)+", ver=")+ ver)+", subtitle=")+ subtitle)+", tooltip=")+ tooltip)+", icon=")+ icon)+", categories=")+ categories)+", loadingError=")+ loadingError)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((((((((((((((((("MethodBriefInfo"+" [id=")+ id)+", namespace=")+ namespace)+", name=")+ name)+", ver=")+ ver)+", subtitle=")+ subtitle)+", tooltip=")+ tooltip)+", icon=")+ icon)+", categories=")+ categories)+", loadingError=")+ loadingError)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }

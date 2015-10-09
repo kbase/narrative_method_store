@@ -560,108 +560,6 @@ public class NarrativeMethodStoreClient {
     }
 
     /**
-     * <p>Original spec-file function name: is_repo_registered</p>
-     * <pre>
-     * </pre>
-     * @param   params   instance of type {@link us.kbase.narrativemethodstore.CurrentRepoParams CurrentRepoParams}
-     * @return   instance of original type "boolean" (@range [0,1])
-     * @throws IOException if an IO exception occurs
-     * @throws JsonClientException if a JSON RPC exception occurs
-     */
-    public Long isRepoRegistered(CurrentRepoParams params) throws IOException, JsonClientException {
-        List<Object> args = new ArrayList<Object>();
-        args.add(params);
-        TypeReference<List<Long>> retType = new TypeReference<List<Long>>() {};
-        List<Long> res = caller.jsonrpcCall("NarrativeMethodStore.is_repo_registered", args, retType, true, false);
-        return res.get(0);
-    }
-
-    /**
-     * <p>Original spec-file function name: register_repo</p>
-     * <pre>
-     * </pre>
-     * @param   params   instance of type {@link us.kbase.narrativemethodstore.RegisterRepoParams RegisterRepoParams}
-     * @return   parameter "version" of Long
-     * @throws IOException if an IO exception occurs
-     * @throws JsonClientException if a JSON RPC exception occurs
-     */
-    public Long registerRepo(RegisterRepoParams params) throws IOException, JsonClientException {
-        List<Object> args = new ArrayList<Object>();
-        args.add(params);
-        TypeReference<List<Long>> retType = new TypeReference<List<Long>>() {};
-        List<Long> res = caller.jsonrpcCall("NarrativeMethodStore.register_repo", args, retType, true, true);
-        return res.get(0);
-    }
-
-    /**
-     * <p>Original spec-file function name: get_repo_last_version</p>
-     * <pre>
-     * </pre>
-     * @param   params   instance of type {@link us.kbase.narrativemethodstore.CurrentRepoParams CurrentRepoParams}
-     * @return   parameter "version" of Long
-     * @throws IOException if an IO exception occurs
-     * @throws JsonClientException if a JSON RPC exception occurs
-     */
-    public Long getRepoLastVersion(CurrentRepoParams params) throws IOException, JsonClientException {
-        List<Object> args = new ArrayList<Object>();
-        args.add(params);
-        TypeReference<List<Long>> retType = new TypeReference<List<Long>>() {};
-        List<Long> res = caller.jsonrpcCall("NarrativeMethodStore.get_repo_last_version", args, retType, true, false);
-        return res.get(0);
-    }
-
-    /**
-     * <p>Original spec-file function name: list_repo_module_names</p>
-     * <pre>
-     * </pre>
-     * @param   params   instance of type {@link us.kbase.narrativemethodstore.ListReposParams ListReposParams}
-     * @return   instance of list of String
-     * @throws IOException if an IO exception occurs
-     * @throws JsonClientException if a JSON RPC exception occurs
-     */
-    public List<String> listRepoModuleNames(ListReposParams params) throws IOException, JsonClientException {
-        List<Object> args = new ArrayList<Object>();
-        args.add(params);
-        TypeReference<List<List<String>>> retType = new TypeReference<List<List<String>>>() {};
-        List<List<String>> res = caller.jsonrpcCall("NarrativeMethodStore.list_repo_module_names", args, retType, true, false);
-        return res.get(0);
-    }
-
-    /**
-     * <p>Original spec-file function name: get_repo_details</p>
-     * <pre>
-     * </pre>
-     * @param   params   instance of type {@link us.kbase.narrativemethodstore.HistoryRepoParams HistoryRepoParams}
-     * @return   instance of type {@link us.kbase.narrativemethodstore.RepoDetails RepoDetails}
-     * @throws IOException if an IO exception occurs
-     * @throws JsonClientException if a JSON RPC exception occurs
-     */
-    public RepoDetails getRepoDetails(HistoryRepoParams params) throws IOException, JsonClientException {
-        List<Object> args = new ArrayList<Object>();
-        args.add(params);
-        TypeReference<List<RepoDetails>> retType = new TypeReference<List<RepoDetails>>() {};
-        List<RepoDetails> res = caller.jsonrpcCall("NarrativeMethodStore.get_repo_details", args, retType, true, false);
-        return res.get(0);
-    }
-
-    /**
-     * <p>Original spec-file function name: list_repo_versions</p>
-     * <pre>
-     * </pre>
-     * @param   params   instance of type {@link us.kbase.narrativemethodstore.CurrentRepoParams CurrentRepoParams}
-     * @return   parameter "versions" of list of Long
-     * @throws IOException if an IO exception occurs
-     * @throws JsonClientException if a JSON RPC exception occurs
-     */
-    public List<Long> listRepoVersions(CurrentRepoParams params) throws IOException, JsonClientException {
-        List<Object> args = new ArrayList<Object>();
-        args.add(params);
-        TypeReference<List<List<Long>>> retType = new TypeReference<List<List<Long>>>() {};
-        List<List<Long>> res = caller.jsonrpcCall("NarrativeMethodStore.list_repo_versions", args, retType, true, false);
-        return res.get(0);
-    }
-
-    /**
      * <p>Original spec-file function name: load_widget_java_script</p>
      * <pre>
      * </pre>
@@ -679,35 +577,32 @@ public class NarrativeMethodStoreClient {
     }
 
     /**
-     * <p>Original spec-file function name: set_repo_state</p>
+     * <p>Original spec-file function name: register_repo</p>
      * <pre>
      * </pre>
-     * @param   params   instance of type {@link us.kbase.narrativemethodstore.SetRepoStateParams SetRepoStateParams}
+     * @param   params   instance of type {@link us.kbase.narrativemethodstore.RegisterRepoParams RegisterRepoParams}
      * @throws IOException if an IO exception occurs
      * @throws JsonClientException if a JSON RPC exception occurs
      */
-    public void setRepoState(SetRepoStateParams params) throws IOException, JsonClientException {
+    public void registerRepo(RegisterRepoParams params) throws IOException, JsonClientException {
         List<Object> args = new ArrayList<Object>();
         args.add(params);
         TypeReference<Object> retType = new TypeReference<Object>() {};
-        caller.jsonrpcCall("NarrativeMethodStore.set_repo_state", args, retType, false, true);
+        caller.jsonrpcCall("NarrativeMethodStore.register_repo", args, retType, false, true);
     }
 
     /**
-     * <p>Original spec-file function name: get_repo_state</p>
+     * <p>Original spec-file function name: disable_repo</p>
      * <pre>
-     * Get repo state (one of 'ready', 'building', 'testing', 'disabled').
      * </pre>
-     * @param   params   instance of type {@link us.kbase.narrativemethodstore.CurrentRepoParams CurrentRepoParams}
-     * @return   parameter "state" of String
+     * @param   params   instance of type {@link us.kbase.narrativemethodstore.DisableRepoParams DisableRepoParams}
      * @throws IOException if an IO exception occurs
      * @throws JsonClientException if a JSON RPC exception occurs
      */
-    public String getRepoState(CurrentRepoParams params) throws IOException, JsonClientException {
+    public void disableRepo(DisableRepoParams params) throws IOException, JsonClientException {
         List<Object> args = new ArrayList<Object>();
         args.add(params);
-        TypeReference<List<String>> retType = new TypeReference<List<String>>() {};
-        List<String> res = caller.jsonrpcCall("NarrativeMethodStore.get_repo_state", args, retType, true, false);
-        return res.get(0);
+        TypeReference<Object> retType = new TypeReference<Object>() {};
+        caller.jsonrpcCall("NarrativeMethodStore.disable_repo", args, retType, false, true);
     }
 }

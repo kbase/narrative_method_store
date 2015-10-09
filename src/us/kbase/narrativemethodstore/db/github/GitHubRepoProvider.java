@@ -11,27 +11,23 @@ import us.kbase.narrativemethodstore.exceptions.NarrativeMethodStoreException;
 import us.kbase.narrativemethodstore.exceptions.NarrativeMethodStoreInitializationException;
 
 public class GitHubRepoProvider extends FileRepoProvider {
-    protected String branch;
     protected String commitHash;
 
-    public GitHubRepoProvider(URL url, File parentTempDir) throws NarrativeMethodStoreException {
-        this(url, "master", parentTempDir);
-    }
-
-    public GitHubRepoProvider(URL url, String branch, File parentTempDir) throws NarrativeMethodStoreException {
-        super(prepareGitClone(url, branch, generateTempDir(parentTempDir)), url);
-        this.branch = branch;
+    public GitHubRepoProvider(URL url, String commitHash, File parentTempDir) throws NarrativeMethodStoreException {
+        super(prepareGitClone(url, generateTempDir(parentTempDir)), url);
         try {
+            if (commitHash != null)
+                GitUtils.gitCheckout(rootDir, url, commitHash);
             this.commitHash = GitUtils.getCommitHash(rootDir, url);
         } catch (NarrativeMethodStoreException ex) {
             dispose(rootDir);
             throw ex;
         }
     }
-    
-    private static File prepareGitClone(URL url, String branch, File rootDir) throws NarrativeMethodStoreException {
+
+    private static File prepareGitClone(URL url, File rootDir) throws NarrativeMethodStoreException {
         try {
-            GitUtils.gitClone(url, branch, rootDir);
+            GitUtils.gitClone(url, rootDir);
             return rootDir;
         } catch (NarrativeMethodStoreException ex) {
             dispose(rootDir);

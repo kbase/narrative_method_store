@@ -3,7 +3,6 @@ package us.kbase.narrativemethodstore.db.github;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -301,6 +300,10 @@ public class LocalGitDB implements MethodSpecDB {
 		}
 	}
 
+	public synchronized void hardRefresh() throws NarrativeMethodStoreException {
+	    reloadAll();
+	}
+	
     public void reloadAll() throws NarrativeMethodStoreException {
         System.out.println("[" + new Date() + "] NarrativeMethodStore.LocalGitDB: refreshing caches");
         // recreate the categories index
@@ -327,9 +330,9 @@ public class LocalGitDB implements MethodSpecDB {
 		return new File(gitLocalPath, "types");
 	}
 
-	protected File getRepositoriesFile() {
+	/*protected File getRepositoriesFile() {
 	    return new File(gitLocalPath, "repositories");
-	}
+	}*/
 
 	protected List<String> listMethodIdsUncached(NarrativeCategoriesIndex narCatIndex) {
 		List <String> methodList = new ArrayList<String>();
@@ -404,9 +407,11 @@ public class LocalGitDB implements MethodSpecDB {
 			// Fetch the resources needed
 			JsonNode spec = null;
 			Map<String,Object> display = null;
+			String namespace = null;
 			if (narCatIndex.getDynamicRepoMethods().contains(methodId)) {
 			    String[] moduleNameAndMethodId = methodId.split("/");
-			    RepoProvider repo = dynamicRepos.getRepoDetails(moduleNameAndMethodId[0]);
+			    namespace = moduleNameAndMethodId[0];
+			    RepoProvider repo = dynamicRepos.getRepoDetails(namespace);
 			    
 			    spec = mapper.readTree(asText(repo.getUINarrativeMethodSpec(moduleNameAndMethodId[1])));
 			    display = YamlUtils.getDocumentAsYamlMap(asText(repo.getUINarrativeMethodDisplay(moduleNameAndMethodId[1])));
@@ -417,7 +422,7 @@ public class LocalGitDB implements MethodSpecDB {
 
 			// Initialize the actual data
 			NarrativeMethodData data = new NarrativeMethodData(methodId, spec, display,
-					createFileLookup(new File(getMethodsDir(), methodId)));
+					createFileLookup(new File(getMethodsDir(), methodId)), namespace);
 			return data;
 		} catch (NarrativeMethodStoreException ex) {
 			throw ex;
@@ -582,48 +587,6 @@ public class LocalGitDB implements MethodSpecDB {
 	    Set<String> dynamicRepoMethods = new TreeSet<String>();
 	    Map<String, Exception> dynamicRepoModuleNameToLoadingError = new TreeMap<String, Exception>();
         if (dynamicRepos != null) {
-            File f = getRepositoriesFile();
-            if (f.exists()) {
-                try {
-                    BufferedReader br = new BufferedReader(new FileReader(f));
-                    try {
-                        while (true) {
-                            String l = br.readLine();
-                            if (l == null)
-                                break;
-                            String[] parts = TextUtils.splitByWhiteSpaces(l);
-                            if (parts.length < 1)
-                                continue;
-                            String url = parts[0];
-                            RepoProvider pvd = null;
-                            try {
-                                pvd = new GitHubRepoProvider(new URL(url), getTempDir());
-                                String repoModuleName = pvd.getModuleName();
-                                boolean newReg = !dynamicRepos.isRepoRegistered(repoModuleName, true);
-                                List<String> owners = pvd.listOwners();
-                                if (owners.isEmpty())
-                                    throw new NarrativeMethodStoreException("Lists of owners is empty for " +
-                                            "repository " + repoModuleName);
-                                String owner = owners.get(0);
-                                if (newReg) {
-                                    dynamicRepos.registerRepo(owner, pvd);
-                                } else {
-                                    String oldCommitHash = dynamicRepos.getRepoDetails(repoModuleName).getGitCommitHash();
-                                    if (!oldCommitHash.equals(pvd.getGitCommitHash()))
-                                        dynamicRepos.registerRepo(owner, pvd);
-                                }
-                            } finally {
-                                if (pvd != null)
-                                    pvd.dispose();
-                            }
-                        }
-                    } finally {
-                        br.close();
-                    }
-                } catch (IOException ex) {
-                    throw new NarrativeMethodStoreException(ex);
-                }
-            }
             for (String repoMN : dynamicRepos.listRepoModuleNames(false)) {
                 try {
                     RepoProvider repo = dynamicRepos.getRepoDetails(repoMN);
@@ -731,14 +694,14 @@ public class LocalGitDB implements MethodSpecDB {
         return found ? 1L : 0L;
 	}
 
-	public long registerRepo(String userId, String url) throws NarrativeMethodStoreException {
+	public long registerRepo(String userId, String url, String commitHash) throws NarrativeMethodStoreException {
 	    RepoProvider pvd = null;
 	    try {
-	        pvd = new GitHubRepoProvider(new URL(url), getTempDir());
+	        pvd = new GitHubRepoProvider(new URL(url), commitHash, getTempDir());
 	        dynamicRepos.registerRepo(userId, pvd);
 	        // TODO: Index invalidation is temp solution, we need to substitute it by small 
 	        // corrections related to this particular repo.
-	        narCatIndex.invalidate();
+	        hardRefresh();
 	        return dynamicRepos.getRepoLastVersion(pvd.getModuleName());
 	    } catch (MalformedURLException ex) {
 	        throw new NarrativeMethodStoreException("Error parsing repository url: " + 
@@ -812,6 +775,7 @@ public class LocalGitDB implements MethodSpecDB {
 	public void setRepoState(String userId, String moduleName, String repoState)
 	        throws NarrativeMethodStoreException {
 	    dynamicRepos.setRepoState(userId, moduleName, RepoState.valueOf(repoState));
+	    hardRefresh();
 	}
 	
 	public String getRepoState(String moduleName) throws NarrativeMethodStoreException {
@@ -824,7 +788,7 @@ public class LocalGitDB implements MethodSpecDB {
 	            screenshotId).saveToStream(os);
 	}
 	
-	public long registerRepo(String userId, String moduleName, MethodSpec methodSpec, 
+	/*public long registerRepo(String userId, String moduleName, MethodSpec methodSpec, 
 	        String pyhtonCode, String dockerCommands) throws NarrativeMethodStoreException {
 	    File repoDir = null;
 	    try {
@@ -841,5 +805,5 @@ public class LocalGitDB implements MethodSpecDB {
 	        } catch (Exception ignore) {}
 	    }
 	    return -1;
-	}
+	}*/
 }
