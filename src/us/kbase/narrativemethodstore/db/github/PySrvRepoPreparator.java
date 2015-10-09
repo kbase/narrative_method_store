@@ -4,33 +4,19 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.io.StringReader;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
 
-import us.kbase.common.service.UObject;
-import us.kbase.jkidl.IncludeProvider;
-import us.kbase.kidl.KbModule;
-import us.kbase.kidl.KidlParseException;
-import us.kbase.mobu.compiler.RunCompileCommand;
-import us.kbase.mobu.util.DiskFileSaver;
-import us.kbase.narrativemethodstore.MethodParameter;
 import us.kbase.narrativemethodstore.MethodSpec;
 import us.kbase.narrativemethodstore.exceptions.NarrativeMethodStoreException;
-import us.kbase.narrativemethodstore.util.TextUtils;
 
 public class PySrvRepoPreparator {
     public static void prepare(String userId, String moduleName, MethodSpec methodSpec, 
             String pyhtonCode, String dockerCommands, File repoDir) throws NarrativeMethodStoreException {
-        try {
+        /*try {
             String methodId = methodSpec.getInfo().getId();
             StringBuilder specFile = new StringBuilder();
             specFile.append("module ").append(moduleName).append(" {\n");
@@ -173,7 +159,7 @@ public class PySrvRepoPreparator {
             throw ex;
         } catch (Exception ex) {
             throw new NarrativeMethodStoreException(ex);
-        }
+        }*/
     }
 
     private static Object notNull(Object value, Object defaultValue) {
