@@ -22,7 +22,7 @@
 
 
   <property environment="env"/>
-  <condition property="jardir" value="../jars/lib/jars/">
+  <condition property="jardir" value="../jars/lib/jars">
     <or>
       <equals arg1="${env.JENKINS_JARS_MODULE_PATH}" arg2=""/>
       <not>
@@ -33,16 +33,7 @@
   <!-- Properties in ant are immutable, so the following assignment will only take place if jardir was not set above. -->
   <property name="jardir" location="${env.JENKINS_JARS_MODULE_PATH}/lib/jars"/>
 
-  <condition property="commonjar" value="${jardir}/kbase/common/kbase-common-0.0.9.jar">
-    <or>
-      <equals arg1="${env.JENKINS_JAVA_COMMON_JARFILE}" arg2=""/>
-      <not>
-        <isset property="env.JENKINS_JAVA_COMMON_JARFILE"/>
-      </not>
-    </or>
-  </condition>
-  <!-- Properties in ant are immutable, so the following assignment will only take place if jardir was not set above. -->
-  <property name="commonjar" value="${jardir}/${env.JENKINS_JAVA_COMMON_JARFILE}"/>
+  <property name="commonjar" location="${jardir}/kbase/common/kbase-common-0.0.9.jar"/>
 
   <fileset dir="${jardir}" id="sourceslib">
     <include name="kbase/kbase-common-temp.jar"/>
@@ -120,10 +111,7 @@
     <fileset refid="serverlib"/>
     <fileset refid="clientserverlib"/>
     <fileset refid="applicationlib"/>
-    <fileset dir=".">
-      <include name="${commonjar}"/>
-      <include name="${modulebuilderjar}"/>
-    </fileset>
+    <fileset file="${commonjar}"/>
   </union>
 
   <fileset id="client-jdoc-files" dir="${src}/us/kbase" defaultexcludes="yes">
