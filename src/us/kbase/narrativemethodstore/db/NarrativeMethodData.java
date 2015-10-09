@@ -51,13 +51,13 @@ public class NarrativeMethodData {
 
 	public NarrativeMethodData(String methodId, JsonNode spec, Map<String, Object> display,
 	        FileLookup lookup) throws NarrativeMethodStoreException {
-	    this(methodId, spec, display, lookup, null);
+	    this(methodId, spec, display, lookup, null, null);
 	}
 	
 	public NarrativeMethodData(String methodId, JsonNode spec, Map<String, Object> display,
-			FileLookup lookup, String namespace) throws NarrativeMethodStoreException {
+			FileLookup lookup, String namespace, String serviceVersion) throws NarrativeMethodStoreException {
 		try {
-			update(methodId, spec, display, lookup, namespace);
+			update(methodId, spec, display, lookup, namespace, serviceVersion);
 		} catch (Throwable ex) {
 			if (briefInfo.getName() == null)
 				briefInfo.withName(briefInfo.getId());
@@ -83,7 +83,7 @@ public class NarrativeMethodData {
 	
 	
 	public void update(String methodId, JsonNode spec, Map<String, Object> display,
-			FileLookup lookup, String namespace) throws NarrativeMethodStoreException {
+			FileLookup lookup, String namespace, String serviceVersion) throws NarrativeMethodStoreException {
 		this.methodId = methodId;
 
 		briefInfo = new MethodBriefInfo()
@@ -307,6 +307,7 @@ public class NarrativeMethodData {
 			behavior
 				.withKbServiceUrl(getTextOrNull(get("behavior/service-mapping", serviceMappingNode, "url")))
 				.withKbServiceName(getTextOrNull(serviceMappingNode.get("name")))
+				.withKbServiceVersion(serviceVersion)
 				.withKbServiceMethod(getTextOrNull(get("behavior/service-mapping", serviceMappingNode, "method")))
 				.withKbServiceInputMapping(paramsMapping)
 				.withKbServiceOutputMapping(outputMapping);

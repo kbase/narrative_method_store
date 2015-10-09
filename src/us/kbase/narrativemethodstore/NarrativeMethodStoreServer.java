@@ -55,7 +55,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
     public static final String   CFG_PROP_SHOCK_PASSWORD = "method-spec-shock-password";
     public static final String  CFG_PROP_DOCKER_REGISTRY = "method-spec-docker-registry";
     
-    public static final String VERSION = "0.3.0-alpha";
+    public static final String VERSION = "0.3.0";
     
     private static Throwable configError = null;
     private static Map<String, String> config = null;

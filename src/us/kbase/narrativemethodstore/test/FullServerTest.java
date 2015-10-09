@@ -1111,6 +1111,7 @@ public class FullServerTest {
         Assert.assertEquals(1, db.listRepoVersions(moduleName).size());
         String commitHash = db.getRepoDetails(moduleName).getGitCommitHash();
         Assert.assertEquals(40, commitHash.length());
+        Assert.assertEquals(commitHash, ms.getBehavior().getKbServiceVersion());
         RepoDetails rd = SERVER.getLocalGitDB().getRepoDetails(moduleName, null, null);
         Assert.assertEquals(moduleName, rd.getModuleName());
         Assert.assertEquals("[ResultView.js]", rd.getWidgetIds().toString());
@@ -1124,12 +1125,14 @@ public class FullServerTest {
         }
         commitHash = "00f008a265785ddfa70f21794738953bbf5895d0";
         SERVER.getLocalGitDB().registerRepo(admin1, gitUrl, commitHash);
-        methods = CLIENT.listCategories(new ListCategoriesParams().withLoadMethods(1L)).getE2();
-        bi = methods.get(methodId);
+        methods = null;  //CLIENT.listCategories(new ListCategoriesParams().withLoadMethods(1L)).getE2();
+        bi = null;  //methods.get(methodId);
+        fi = null;
         ms = CLIENT.getMethodSpec(new GetMethodParams().withIds(Arrays.asList(methodId))).get(0);
         Assert.assertEquals(2, ms.getParameters().size());
         Assert.assertEquals("genomeA", ms.getParameters().get(0).getId());
         Assert.assertEquals("Genome A", ms.getParameters().get(0).getUiName().trim());
+        //Assert.assertEquals(commitHash, ms.getBehavior().getKbServiceVersion());
         try {
             SERVER.getLocalGitDB().setRepoState(owner, moduleName, "disabled");
             Assert.fail("Only admin can disable dynamic repos");

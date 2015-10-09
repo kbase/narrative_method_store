@@ -408,11 +408,12 @@ public class LocalGitDB implements MethodSpecDB {
 			JsonNode spec = null;
 			Map<String,Object> display = null;
 			String namespace = null;
+			String serviceVersion = null;
 			if (narCatIndex.getDynamicRepoMethods().contains(methodId)) {
 			    String[] moduleNameAndMethodId = methodId.split("/");
 			    namespace = moduleNameAndMethodId[0];
 			    RepoProvider repo = dynamicRepos.getRepoDetails(namespace);
-			    
+			    serviceVersion = repo.getGitCommitHash();
 			    spec = mapper.readTree(asText(repo.getUINarrativeMethodSpec(moduleNameAndMethodId[1])));
 			    display = YamlUtils.getDocumentAsYamlMap(asText(repo.getUINarrativeMethodDisplay(moduleNameAndMethodId[1])));
 			} else {
@@ -422,7 +423,7 @@ public class LocalGitDB implements MethodSpecDB {
 
 			// Initialize the actual data
 			NarrativeMethodData data = new NarrativeMethodData(methodId, spec, display,
-					createFileLookup(new File(getMethodsDir(), methodId)), namespace);
+					createFileLookup(new File(getMethodsDir(), methodId)), namespace, serviceVersion);
 			return data;
 		} catch (NarrativeMethodStoreException ex) {
 			throw ex;
