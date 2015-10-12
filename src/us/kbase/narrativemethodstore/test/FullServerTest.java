@@ -45,6 +45,7 @@ import us.kbase.narrativemethodstore.NarrativeMethodStoreClient;
 import us.kbase.narrativemethodstore.NarrativeMethodStoreServer;
 import us.kbase.narrativemethodstore.Publication;
 import us.kbase.narrativemethodstore.RegexMatcher;
+import us.kbase.narrativemethodstore.RegisterRepoParams;
 import us.kbase.narrativemethodstore.RepoDetails;
 import us.kbase.narrativemethodstore.Status;
 import us.kbase.narrativemethodstore.TextSubdataOptions;
@@ -1145,6 +1146,8 @@ public class FullServerTest {
         methods = CLIENT.listCategories(new ListCategoriesParams().withLoadMethods(1L)).getE2();
         bi = methods.get(methodId);
         Assert.assertNull(bi);
+        String gitUrl2 = "https://github.com/kbaseIncubator/contigcount";
+        SERVER.getLocalGitDB().registerRepo(admin1, gitUrl2, null);
 	}
 
 	private static String getTestFileFromSpecsRepo(String path) {

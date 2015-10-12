@@ -88,7 +88,7 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
     private void ensureIndeces() {
         MongoCollection repoData = jdb.getCollection(TABLE_REPO_INFO);
         repoData.ensureIndex(String.format("{%s:1}", FIELD_RI_MODULE_NAME), "{unique:true}");
-        repoData.ensureIndex(String.format("{%s:1}", FIELD_RI_DOCKER_IMAGE), "{unique:true}");
+        repoData.ensureIndex(String.format("{%s:1}", FIELD_RI_DOCKER_IMAGE), "{unique:false}");
         MongoCollection repoHist = jdb.getCollection(TABLE_REPO_HISTORY);
         repoHist.ensureIndex(String.format("{%s:1,%s:1}", FIELD_RH_MODULE_NAME, 
                 FIELD_RH_VERSION), "{unique:true}");
