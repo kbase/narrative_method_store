@@ -892,7 +892,9 @@ public class FullServerTest {
 		}
 		MethodFullInfo err6 = CLIENT.getMethodFullInfo(new GetMethodParams().withIds(Arrays.asList("test_error_6"))).get(0);
 		String text = err6.getPublications().get(0).getDisplayText();
-		Assert.assertTrue(text.contains("977 982"));
+		int pos1 = text.indexOf("977");
+		int pos2 = text.indexOf("982");
+		Assert.assertTrue(pos1 > 0 && pos2 > 0);
 	}
 	
 	@Test
@@ -1286,4 +1288,15 @@ public class FullServerTest {
 		}
 	}
 	
+	public static void main(String[] args) throws Exception {
+	    setUpClass();
+        int port = SERVER.getServerPort();
+        System.out.println("NarrativeMethodStore was started up on port: " + port);
+        String moduleName = "onerepotest";
+        String gitUrl = "https://github.com/kbaseIncubator/onerepotest";
+        SERVER.getLocalGitDB().registerRepo(admin1, gitUrl, null);
+        DynamicRepoDB db = SERVER.getLocalGitDB().getDynamicRepos();
+        String commitHash = db.getRepoDetails(moduleName).getGitCommitHash();
+        System.out.println("Repo " + moduleName + " was registered with version: " + commitHash);
+    }
 }
