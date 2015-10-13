@@ -51,13 +51,14 @@ public class NarrativeMethodData {
 
 	public NarrativeMethodData(String methodId, JsonNode spec, Map<String, Object> display,
 	        FileLookup lookup) throws NarrativeMethodStoreException {
-	    this(methodId, spec, display, lookup, null, null);
+	    this(methodId, spec, display, lookup, null, null, null);
 	}
 	
 	public NarrativeMethodData(String methodId, JsonNode spec, Map<String, Object> display,
-			FileLookup lookup, String namespace, String serviceVersion) throws NarrativeMethodStoreException {
+			FileLookup lookup, String namespace, String serviceVersion,
+			ServiceUrlTemplateEvaluater srvUrlTemplEval) throws NarrativeMethodStoreException {
 		try {
-			update(methodId, spec, display, lookup, namespace, serviceVersion);
+			update(methodId, spec, display, lookup, namespace, serviceVersion, srvUrlTemplEval);
 		} catch (Throwable ex) {
 			if (briefInfo.getName() == null)
 				briefInfo.withName(briefInfo.getId());
@@ -83,7 +84,8 @@ public class NarrativeMethodData {
 	
 	
 	public void update(String methodId, JsonNode spec, Map<String, Object> display,
-			FileLookup lookup, String namespace, String serviceVersion) throws NarrativeMethodStoreException {
+			FileLookup lookup, String namespace, String serviceVersion,
+			ServiceUrlTemplateEvaluater srvUrlTemplEval) throws NarrativeMethodStoreException {
 		this.methodId = methodId;
 
 		briefInfo = new MethodBriefInfo()
@@ -304,8 +306,11 @@ public class NarrativeMethodData {
 				}
 				outputMapping.add(paramMapping);
 			}
+			String serviceUrl = getTextOrNull(get("behavior/service-mapping", serviceMappingNode, "url"));
+			if (serviceUrl != null && serviceUrl.length() > 0)
+			    serviceUrl = srvUrlTemplEval.evaluate(serviceUrl, serviceVersion);
 			behavior
-				.withKbServiceUrl(getTextOrNull(get("behavior/service-mapping", serviceMappingNode, "url")))
+				.withKbServiceUrl(serviceUrl)
 				.withKbServiceName(getTextOrNull(serviceMappingNode.get("name")))
 				.withKbServiceVersion(serviceVersion)
 				.withKbServiceMethod(getTextOrNull(get("behavior/service-mapping", serviceMappingNode, "method")))

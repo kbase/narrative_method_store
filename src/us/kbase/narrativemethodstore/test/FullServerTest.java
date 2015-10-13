@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeSet;
 
 import junit.framework.Assert;
 
@@ -45,7 +44,6 @@ import us.kbase.narrativemethodstore.NarrativeMethodStoreClient;
 import us.kbase.narrativemethodstore.NarrativeMethodStoreServer;
 import us.kbase.narrativemethodstore.Publication;
 import us.kbase.narrativemethodstore.RegexMatcher;
-import us.kbase.narrativemethodstore.RegisterRepoParams;
 import us.kbase.narrativemethodstore.RepoDetails;
 import us.kbase.narrativemethodstore.Status;
 import us.kbase.narrativemethodstore.TextSubdataOptions;
@@ -55,6 +53,7 @@ import us.kbase.narrativemethodstore.ValidateMethodParams;
 import us.kbase.narrativemethodstore.ValidateTypeParams;
 import us.kbase.narrativemethodstore.ValidationResults;
 import us.kbase.narrativemethodstore.db.DynamicRepoDB;
+import us.kbase.narrativemethodstore.db.ServiceUrlTemplateEvaluater;
 import us.kbase.narrativemethodstore.db.mongo.test.MongoDBHelper;
 
 /*
@@ -917,7 +916,7 @@ public class FullServerTest {
 	@Test
 	public void testServiceParamMapping() throws Exception {
 		MethodSpec spec = CLIENT.getMethodSpec(new GetMethodParams().withIds(Arrays.asList("test_method_2"))).get(0);
-		assertNotNull(spec.getBehavior().getKbServiceUrl());
+		assertEquals("https://ci.kbase.us:555/services/neverservice", spec.getBehavior().getKbServiceUrl());
 		assertNotNull(spec.getBehavior().getKbServiceName());
 		assertNotNull(spec.getBehavior().getKbServiceMethod());
 		assertEquals("genome", spec.getBehavior().getKbServiceInputMapping().get(0).getInputParameter());
@@ -1254,6 +1253,8 @@ public class FullServerTest {
 		ws.add("method-spec-mongo-host", "localhost:" + dbHelper.getMongoPort());
 		ws.add("method-spec-mongo-dbname", dbName);
 		ws.add("method-spec-admin-users", admin1 + "," + admin2);
+        ws.add("endpoint-host", "https://ci.kbase.us");
+        ws.add("endpoint-base", "/services");
 		
 		ini.store(iniFile);
 		iniFile.deleteOnExit();

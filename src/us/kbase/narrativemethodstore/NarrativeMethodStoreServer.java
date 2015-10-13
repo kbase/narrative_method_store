@@ -21,6 +21,7 @@ import org.ini4j.Ini;
 
 import us.kbase.auth.AuthService;
 import us.kbase.narrativemethodstore.db.NarrativeCategoriesIndex;
+import us.kbase.narrativemethodstore.db.ServiceUrlTemplateEvaluater;
 import us.kbase.narrativemethodstore.db.Validator;
 import us.kbase.narrativemethodstore.db.github.LocalGitDB;
 import us.kbase.narrativemethodstore.db.mongo.MongoDynamicRepoDB;
@@ -54,6 +55,8 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
     public static final String       CFG_PROP_SHOCK_USER = "method-spec-shock-user";
     public static final String   CFG_PROP_SHOCK_PASSWORD = "method-spec-shock-password";
     public static final String  CFG_PROP_DOCKER_REGISTRY = "method-spec-docker-registry";
+    public static final String         CFG_ENDPOINT_BASE = "endpoint-base";
+    public static final String         CFG_ENDPOINT_HOST = "endpoint-host";
     
     public static final String VERSION = "0.3.0";
     
@@ -188,9 +191,14 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
             System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_SHOCK_PASSWORD +" = " + (shockPwd == null ? "<not-set>" : "[*****]"));
             List<String> adminUsers = Arrays.asList(getAdminUsers().trim().split(Pattern.quote(",")));
             AuthToken shockToken = shockUser == null && shockPwd == null ? null : AuthService.login(shockUser, shockPwd).getToken();
+            String endpointHost = config().get(CFG_ENDPOINT_HOST);
+            System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_ENDPOINT_HOST +" = " + (endpointHost == null ? "<not-set>" : endpointHost));
+            String endpointBase = config().get(CFG_ENDPOINT_BASE);
+            System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_ENDPOINT_BASE +" = " + (endpointBase == null ? "<not-set>" : endpointBase));
             localGitDB = new LocalGitDB(new URL(getGitRepo()), getGitBranch(), new File(getGitLocalDir()), getGitRefreshRate(), getCacheSize(), 
                     new MongoDynamicRepoDB(getMongoHost(), getMongoDbname(), dbUser, dbPwd, adminUsers, mongoRO, 
-                            shockUrl == null ? null : new URL(shockUrl), shockToken), new File(getTempDir()));
+                            shockUrl == null ? null : new URL(shockUrl), shockToken), new File(getTempDir()),
+                            new ServiceUrlTemplateEvaluater(endpointHost, endpointBase));
         }
         return localGitDB;
     }

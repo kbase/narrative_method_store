@@ -45,6 +45,7 @@ import us.kbase.narrativemethodstore.db.NarrativeCategoriesIndex;
 import us.kbase.narrativemethodstore.db.NarrativeMethodData;
 import us.kbase.narrativemethodstore.db.NarrativeTypeData;
 import us.kbase.narrativemethodstore.db.RepoProvider;
+import us.kbase.narrativemethodstore.db.ServiceUrlTemplateEvaluater;
 import us.kbase.narrativemethodstore.db.DynamicRepoDB.RepoState;
 import us.kbase.narrativemethodstore.exceptions.NarrativeMethodStoreException;
 import us.kbase.narrativemethodstore.exceptions.NarrativeMethodStoreInitializationException;
@@ -76,9 +77,11 @@ public class LocalGitDB implements MethodSpecDB {
 	
 	protected final File tempDir;
 	protected final DynamicRepoDB dynamicRepos;
+	protected final ServiceUrlTemplateEvaluater srvUrlTemplEval;
 	
 	public LocalGitDB(URL gitRepoUrl, String branch, File localPath, int refreshTimeInMinutes, 
-	        int cacheSize, DynamicRepoDB dynamicRepos, File tempDir) throws NarrativeMethodStoreInitializationException {
+	        int cacheSize, DynamicRepoDB dynamicRepos, File tempDir,
+	        ServiceUrlTemplateEvaluater srvUrlTemplEval) throws NarrativeMethodStoreInitializationException {
 		this.gitRepoUrl = gitRepoUrl;
 		this.gitBranch = branch;
 		this.gitLocalPath = localPath;
@@ -117,6 +120,7 @@ public class LocalGitDB implements MethodSpecDB {
 		initializeLocalRepo();
 		this.tempDir = tempDir;
         this.dynamicRepos = dynamicRepos;
+        this.srvUrlTemplEval = srvUrlTemplEval;
         try {
             loadCategoriesIndex();
         } catch (NarrativeMethodStoreInitializationException ex) {
@@ -423,7 +427,8 @@ public class LocalGitDB implements MethodSpecDB {
 
 			// Initialize the actual data
 			NarrativeMethodData data = new NarrativeMethodData(methodId, spec, display,
-					createFileLookup(new File(getMethodsDir(), methodId)), namespace, serviceVersion);
+					createFileLookup(new File(getMethodsDir(), methodId)), namespace, 
+					serviceVersion, srvUrlTemplEval);
 			return data;
 		} catch (NarrativeMethodStoreException ex) {
 			throw ex;
