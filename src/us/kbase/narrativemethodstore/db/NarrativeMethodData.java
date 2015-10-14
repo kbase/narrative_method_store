@@ -306,12 +306,13 @@ public class NarrativeMethodData {
 				}
 				outputMapping.add(paramMapping);
 			}
+			String moduleName = getTextOrNull(serviceMappingNode.get("name"));
 			String serviceUrl = getTextOrNull(get("behavior/service-mapping", serviceMappingNode, "url"));
 			if (serviceUrl != null && serviceUrl.length() > 0)
-			    serviceUrl = srvUrlTemplEval.evaluate(serviceUrl, serviceVersion);
+			    serviceUrl = srvUrlTemplEval.evaluate(serviceUrl, moduleName, serviceVersion);
 			behavior
 				.withKbServiceUrl(serviceUrl)
-				.withKbServiceName(getTextOrNull(serviceMappingNode.get("name")))
+				.withKbServiceName(moduleName)
 				.withKbServiceVersion(serviceVersion)
 				.withKbServiceMethod(getTextOrNull(get("behavior/service-mapping", serviceMappingNode, "method")))
 				.withKbServiceInputMapping(paramsMapping)

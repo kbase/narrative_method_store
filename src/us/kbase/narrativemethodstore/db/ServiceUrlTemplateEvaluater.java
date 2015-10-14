@@ -24,7 +24,7 @@ public class ServiceUrlTemplateEvaluater {
         }
     }
     
-    public String evaluate(String urlTemplate, String serviceVersion) 
+    public String evaluate(String urlTemplate, String moduleName, String serviceVersion) 
             throws NarrativeMethodStoreException {
         try {
             StringWriter sw = new StringWriter();
@@ -35,8 +35,18 @@ public class ServiceUrlTemplateEvaluater {
                 context.put("endpoint-host", endpointHost);
             if (endpoint != null)
                 context.put("endpoint", endpoint);
+            if (moduleName != null) {
+                context.put("module-name", moduleName);
+                context.put("module", moduleName.toLowerCase());
+            }
             if (serviceVersion != null)
-                context.put("service-version", serviceVersion);
+                context.put("version", serviceVersion);
+            if (endpoint != null && moduleName != null) {
+                String unversionedUrl = endpoint + "/" + moduleName.toLowerCase();
+                String url = unversionedUrl + (serviceVersion == null ? "" : (":" + serviceVersion));
+                context.put("unversioned-url", unversionedUrl);
+                context.put("url", url);
+            }
             VelocityContext cntx = new VelocityContext(context);
             Velocity.evaluate(cntx, sw, "ServiceUrlTemplate", urlTemplate);
             return sw.toString();
