@@ -34,6 +34,7 @@ import us.kbase.narrativemethodstore.GetCategoryParams;
 import us.kbase.narrativemethodstore.GetMethodParams;
 import us.kbase.narrativemethodstore.GetTypeParams;
 import us.kbase.narrativemethodstore.ListCategoriesParams;
+import us.kbase.narrativemethodstore.ListMethodIdsAndNamesParams;
 import us.kbase.narrativemethodstore.ListParams;
 import us.kbase.narrativemethodstore.LoadWidgetParams;
 import us.kbase.narrativemethodstore.MethodBriefInfo;
@@ -142,7 +143,7 @@ public class FullServerTest {
 	
 	@Test
 	public void testListMethodIds() throws Exception {
-		Map<String, String> methods = CLIENT.listMethodIdsAndNames();
+		Map<String, String> methods = CLIENT.listMethodIdsAndNames(new ListMethodIdsAndNamesParams());
 		assertTrue("Testing that test_method_1 returns from listMethodIdsAndNames()",
 				methods.get("test_method_1").equals("Test Method 1"));
 	}
@@ -1110,11 +1111,11 @@ public class FullServerTest {
         Assert.assertEquals("text", ms.getParameters().get(0).getFieldType());
         Assert.assertEquals("[KBaseGenomes.Genome]", ms.getParameters().get(0).getTextOptions().getValidWsTypes().toString());
         DynamicRepoDB db = SERVER.getLocalGitDB().getDynamicRepos();
-        Assert.assertEquals(1, db.listRepoVersions(moduleName).size());
-        String commitHash = db.getRepoDetails(moduleName).getGitCommitHash();
+        Assert.assertEquals(1, db.listRepoVersions(moduleName, null).size());
+        String commitHash = db.getRepoDetails(moduleName, null).getGitCommitHash();
         Assert.assertEquals(40, commitHash.length());
         Assert.assertEquals(commitHash, ms.getBehavior().getKbServiceVersion());
-        RepoDetails rd = SERVER.getLocalGitDB().getRepoDetails(moduleName, null, null);
+        RepoDetails rd = SERVER.getLocalGitDB().getRepoDetails(moduleName, null, null, null);
         Assert.assertEquals(moduleName, rd.getModuleName());
         Assert.assertEquals("[ResultView.js]", rd.getWidgetIds().toString());
         Assert.assertNotNull(CLIENT.loadWidgetJavaScript(new LoadWidgetParams().withModuleName(moduleName).withWidgetId("ResultView.js")));
@@ -1147,6 +1148,8 @@ public class FullServerTest {
         Assert.assertNull(bi);
         String gitUrl2 = "https://github.com/kbaseIncubator/contigcount";
         SERVER.getLocalGitDB().registerRepo(admin1, gitUrl2, null);
+        SERVER.getLocalGitDB().registerRepo(admin1, "https://github.com/rsutormin/singleRepoTestpsd", null);
+        System.out.println(CLIENT.listCategories(new ListCategoriesParams().withLoadMethods(1L)).getE2().get("singleRepoTestpsd/count_contigs_in_set"));
 	}
 
 	private static String getTestFileFromSpecsRepo(String path) {
@@ -1300,7 +1303,7 @@ public class FullServerTest {
         String gitUrl = "https://github.com/kbaseIncubator/onerepotest";
         SERVER.getLocalGitDB().registerRepo(admin1, gitUrl, null);
         DynamicRepoDB db = SERVER.getLocalGitDB().getDynamicRepos();
-        String commitHash = db.getRepoDetails(moduleName).getGitCommitHash();
+        String commitHash = db.getRepoDetails(moduleName, null).getGitCommitHash();
         System.out.println("Repo " + moduleName + " was registered with version: " + commitHash);
     }
 }

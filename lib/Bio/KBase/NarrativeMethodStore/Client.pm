@@ -272,6 +272,7 @@ ListCategoriesParams is a reference to a hash where the following keys are defin
 	load_methods has a value which is a NarrativeMethodStore.boolean
 	load_apps has a value which is a NarrativeMethodStore.boolean
 	load_types has a value which is a NarrativeMethodStore.boolean
+	tag has a value which is a string
 boolean is an int
 Category is a reference to a hash where the following keys are defined:
 	id has a value which is a string
@@ -333,6 +334,7 @@ ListCategoriesParams is a reference to a hash where the following keys are defin
 	load_methods has a value which is a NarrativeMethodStore.boolean
 	load_apps has a value which is a NarrativeMethodStore.boolean
 	load_types has a value which is a NarrativeMethodStore.boolean
+	tag has a value which is a string
 boolean is an int
 Category is a reference to a hash where the following keys are defined:
 	id has a value which is a string
@@ -554,6 +556,7 @@ $return is a reference to a list where each element is a NarrativeMethodStore.Me
 ListParams is a reference to a hash where the following keys are defined:
 	limit has a value which is an int
 	offset has a value which is an int
+	tag has a value which is a string
 MethodBriefInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
 	namespace has a value which is a string
@@ -579,6 +582,7 @@ $return is a reference to a list where each element is a NarrativeMethodStore.Me
 ListParams is a reference to a hash where the following keys are defined:
 	limit has a value which is an int
 	offset has a value which is an int
+	tag has a value which is a string
 MethodBriefInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
 	namespace has a value which is a string
@@ -667,6 +671,7 @@ $return is a reference to a list where each element is a NarrativeMethodStore.Me
 ListParams is a reference to a hash where the following keys are defined:
 	limit has a value which is an int
 	offset has a value which is an int
+	tag has a value which is a string
 MethodFullInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
 	namespace has a value which is a string
@@ -712,6 +717,7 @@ $return is a reference to a list where each element is a NarrativeMethodStore.Me
 ListParams is a reference to a hash where the following keys are defined:
 	limit has a value which is an int
 	offset has a value which is an int
+	tag has a value which is a string
 MethodFullInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
 	namespace has a value which is a string
@@ -820,6 +826,7 @@ $return is a reference to a list where each element is a NarrativeMethodStore.Me
 ListParams is a reference to a hash where the following keys are defined:
 	limit has a value which is an int
 	offset has a value which is an int
+	tag has a value which is a string
 MethodSpec is a reference to a hash where the following keys are defined:
 	info has a value which is a NarrativeMethodStore.MethodBriefInfo
 	replacement_text has a value which is a string
@@ -989,6 +996,7 @@ $return is a reference to a list where each element is a NarrativeMethodStore.Me
 ListParams is a reference to a hash where the following keys are defined:
 	limit has a value which is an int
 	offset has a value which is an int
+	tag has a value which is a string
 MethodSpec is a reference to a hash where the following keys are defined:
 	info has a value which is a NarrativeMethodStore.MethodBriefInfo
 	replacement_text has a value which is a string
@@ -1207,7 +1215,7 @@ sub list_methods_spec
 
 =head2 list_method_ids_and_names
 
-  $return = $obj->list_method_ids_and_names()
+  $return = $obj->list_method_ids_and_names($params)
 
 =over 4
 
@@ -1216,7 +1224,10 @@ sub list_methods_spec
 =begin html
 
 <pre>
+$params is a NarrativeMethodStore.ListMethodIdsAndNamesParams
 $return is a reference to a hash where the key is a string and the value is a string
+ListMethodIdsAndNamesParams is a reference to a hash where the following keys are defined:
+	tag has a value which is a string
 
 </pre>
 
@@ -1224,7 +1235,10 @@ $return is a reference to a hash where the key is a string and the value is a st
 
 =begin text
 
+$params is a NarrativeMethodStore.ListMethodIdsAndNamesParams
 $return is a reference to a hash where the key is a string and the value is a string
+ListMethodIdsAndNamesParams is a reference to a hash where the following keys are defined:
+	tag has a value which is a string
 
 
 =end text
@@ -1243,10 +1257,21 @@ sub list_method_ids_and_names
 
 # Authentication: none
 
-    if ((my $n = @args) != 0)
+    if ((my $n = @args) != 1)
     {
 	Bio::KBase::Exceptions::ArgumentValidationError->throw(error =>
-							       "Invalid argument count for function list_method_ids_and_names (received $n, expecting 0)");
+							       "Invalid argument count for function list_method_ids_and_names (received $n, expecting 1)");
+    }
+    {
+	my($params) = @args;
+
+	my @_bad_arguments;
+        (ref($params) eq 'HASH') or push(@_bad_arguments, "Invalid type for argument 1 \"params\" (value was \"$params\")");
+        if (@_bad_arguments) {
+	    my $msg = "Invalid arguments passed to list_method_ids_and_names:\n" . join("", map { "\t$_\n" } @_bad_arguments);
+	    Bio::KBase::Exceptions::ArgumentValidationError->throw(error => $msg,
+								   method_name => 'list_method_ids_and_names');
+	}
     }
 
     my $result = $self->{client}->call($self->{url}, $self->{headers}, {
@@ -1289,6 +1314,7 @@ $return is a reference to a list where each element is a NarrativeMethodStore.Ap
 ListParams is a reference to a hash where the following keys are defined:
 	limit has a value which is an int
 	offset has a value which is an int
+	tag has a value which is a string
 AppBriefInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
 	name has a value which is a string
@@ -1314,6 +1340,7 @@ $return is a reference to a list where each element is a NarrativeMethodStore.Ap
 ListParams is a reference to a hash where the following keys are defined:
 	limit has a value which is an int
 	offset has a value which is an int
+	tag has a value which is a string
 AppBriefInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
 	name has a value which is a string
@@ -1402,6 +1429,7 @@ $return is a reference to a list where each element is a NarrativeMethodStore.Ap
 ListParams is a reference to a hash where the following keys are defined:
 	limit has a value which is an int
 	offset has a value which is an int
+	tag has a value which is a string
 AppFullInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
 	name has a value which is a string
@@ -1441,6 +1469,7 @@ $return is a reference to a list where each element is a NarrativeMethodStore.Ap
 ListParams is a reference to a hash where the following keys are defined:
 	limit has a value which is an int
 	offset has a value which is an int
+	tag has a value which is a string
 AppFullInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
 	name has a value which is a string
@@ -1543,6 +1572,7 @@ $return is a reference to a list where each element is a NarrativeMethodStore.Ap
 ListParams is a reference to a hash where the following keys are defined:
 	limit has a value which is an int
 	offset has a value which is an int
+	tag has a value which is a string
 AppSpec is a reference to a hash where the following keys are defined:
 	info has a value which is a NarrativeMethodStore.AppBriefInfo
 	steps has a value which is a reference to a list where each element is a NarrativeMethodStore.AppSteps
@@ -1582,6 +1612,7 @@ $return is a reference to a list where each element is a NarrativeMethodStore.Ap
 ListParams is a reference to a hash where the following keys are defined:
 	limit has a value which is an int
 	offset has a value which is an int
+	tag has a value which is a string
 AppSpec is a reference to a hash where the following keys are defined:
 	info has a value which is a NarrativeMethodStore.AppBriefInfo
 	steps has a value which is a reference to a list where each element is a NarrativeMethodStore.AppSteps
@@ -1752,6 +1783,7 @@ $return is a reference to a list where each element is a NarrativeMethodStore.Ty
 ListParams is a reference to a hash where the following keys are defined:
 	limit has a value which is an int
 	offset has a value which is an int
+	tag has a value which is a string
 TypeInfo is a reference to a hash where the following keys are defined:
 	type_name has a value which is a string
 	name has a value which is a string
@@ -1778,6 +1810,7 @@ $return is a reference to a list where each element is a NarrativeMethodStore.Ty
 ListParams is a reference to a hash where the following keys are defined:
 	limit has a value which is an int
 	offset has a value which is an int
+	tag has a value which is a string
 TypeInfo is a reference to a hash where the following keys are defined:
 	type_name has a value which is a string
 	name has a value which is a string
@@ -1866,6 +1899,7 @@ $params is a NarrativeMethodStore.GetMethodParams
 $return is a reference to a list where each element is a NarrativeMethodStore.MethodBriefInfo
 GetMethodParams is a reference to a hash where the following keys are defined:
 	ids has a value which is a reference to a list where each element is a string
+	tag has a value which is a string
 MethodBriefInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
 	namespace has a value which is a string
@@ -1890,6 +1924,7 @@ $params is a NarrativeMethodStore.GetMethodParams
 $return is a reference to a list where each element is a NarrativeMethodStore.MethodBriefInfo
 GetMethodParams is a reference to a hash where the following keys are defined:
 	ids has a value which is a reference to a list where each element is a string
+	tag has a value which is a string
 MethodBriefInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
 	namespace has a value which is a string
@@ -1977,6 +2012,7 @@ $params is a NarrativeMethodStore.GetMethodParams
 $return is a reference to a list where each element is a NarrativeMethodStore.MethodFullInfo
 GetMethodParams is a reference to a hash where the following keys are defined:
 	ids has a value which is a reference to a list where each element is a string
+	tag has a value which is a string
 MethodFullInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
 	namespace has a value which is a string
@@ -2021,6 +2057,7 @@ $params is a NarrativeMethodStore.GetMethodParams
 $return is a reference to a list where each element is a NarrativeMethodStore.MethodFullInfo
 GetMethodParams is a reference to a hash where the following keys are defined:
 	ids has a value which is a reference to a list where each element is a string
+	tag has a value which is a string
 MethodFullInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
 	namespace has a value which is a string
@@ -2128,6 +2165,7 @@ $params is a NarrativeMethodStore.GetMethodParams
 $return is a reference to a list where each element is a NarrativeMethodStore.MethodSpec
 GetMethodParams is a reference to a hash where the following keys are defined:
 	ids has a value which is a reference to a list where each element is a string
+	tag has a value which is a string
 MethodSpec is a reference to a hash where the following keys are defined:
 	info has a value which is a NarrativeMethodStore.MethodBriefInfo
 	replacement_text has a value which is a string
@@ -2296,6 +2334,7 @@ $params is a NarrativeMethodStore.GetMethodParams
 $return is a reference to a list where each element is a NarrativeMethodStore.MethodSpec
 GetMethodParams is a reference to a hash where the following keys are defined:
 	ids has a value which is a reference to a list where each element is a string
+	tag has a value which is a string
 MethodSpec is a reference to a hash where the following keys are defined:
 	info has a value which is a NarrativeMethodStore.MethodBriefInfo
 	replacement_text has a value which is a string
@@ -4774,6 +4813,7 @@ LoadWidgetParams is a reference to a hash where the following keys are defined:
 	module_name has a value which is a string
 	version has a value which is an int
 	widget_id has a value which is a string
+	tag has a value which is a string
 
 </pre>
 
@@ -4787,6 +4827,7 @@ LoadWidgetParams is a reference to a hash where the following keys are defined:
 	module_name has a value which is a string
 	version has a value which is an int
 	widget_id has a value which is a string
+	tag has a value which is a string
 
 
 =end text
@@ -6914,7 +6955,8 @@ loading_error has a value which is a string
 
 List all the categories.  Optionally, if load_methods or load_apps are set to 1,
 information about all the methods and apps is provided.  This is important
-load_methods - optional field (default value is 1)
+load_methods - optional field (default value is 1).
+tag - optional access level for dynamic repos (one of 'dev', 'beta' or 'release').
 
 
 =item Definition
@@ -6926,6 +6968,7 @@ a reference to a hash where the following keys are defined:
 load_methods has a value which is a NarrativeMethodStore.boolean
 load_apps has a value which is a NarrativeMethodStore.boolean
 load_types has a value which is a NarrativeMethodStore.boolean
+tag has a value which is a string
 
 </pre>
 
@@ -6937,6 +6980,7 @@ a reference to a hash where the following keys are defined:
 load_methods has a value which is a NarrativeMethodStore.boolean
 load_apps has a value which is a NarrativeMethodStore.boolean
 load_types has a value which is a NarrativeMethodStore.boolean
+tag has a value which is a string
 
 
 =end text
@@ -6987,6 +7031,7 @@ These parameters do nothing currently, but are a placeholder for future options
 on listing methods or apps
 limit - optional field (default value is 0)
 offset - optional field (default value is 0)
+tag - optional access level for dynamic repos (one of 'dev', 'beta' or 'release').
 
 
 =item Definition
@@ -6997,6 +7042,7 @@ offset - optional field (default value is 0)
 a reference to a hash where the following keys are defined:
 limit has a value which is an int
 offset has a value which is an int
+tag has a value which is a string
 
 </pre>
 
@@ -7007,6 +7053,42 @@ offset has a value which is an int
 a reference to a hash where the following keys are defined:
 limit has a value which is an int
 offset has a value which is an int
+tag has a value which is a string
+
+
+=end text
+
+=back
+
+
+
+=head2 ListMethodIdsAndNamesParams
+
+=over 4
+
+
+
+=item Description
+
+tag - optional access level for dynamic repos (one of 'dev', 'beta' or 'release').
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a reference to a hash where the following keys are defined:
+tag has a value which is a string
+
+</pre>
+
+=end html
+
+=begin text
+
+a reference to a hash where the following keys are defined:
+tag has a value which is a string
 
 
 =end text
@@ -7021,6 +7103,11 @@ offset has a value which is an int
 
 
 
+=item Description
+
+tag - optional access level for dynamic repos (one of 'dev', 'beta' or 'release').
+
+
 =item Definition
 
 =begin html
@@ -7028,6 +7115,7 @@ offset has a value which is an int
 <pre>
 a reference to a hash where the following keys are defined:
 ids has a value which is a reference to a list where each element is a string
+tag has a value which is a string
 
 </pre>
 
@@ -7037,6 +7125,7 @@ ids has a value which is a reference to a list where each element is a string
 
 a reference to a hash where the following keys are defined:
 ids has a value which is a reference to a list where each element is a string
+tag has a value which is a string
 
 
 =end text
@@ -7269,6 +7358,7 @@ Describes how to find repository widget JavaScript.
 module_name - name of module defined in kbase.yaml;
 version - optional parameter limiting search by certain version timestamp;
 widget_id - name of java-script file stored in repo's 'ui/widgets' folder.
+tag - optional access level for dynamic repos (one of 'dev', 'beta', 'release').
 
 
 =item Definition
@@ -7280,6 +7370,7 @@ a reference to a hash where the following keys are defined:
 module_name has a value which is a string
 version has a value which is an int
 widget_id has a value which is a string
+tag has a value which is a string
 
 </pre>
 
@@ -7291,6 +7382,7 @@ a reference to a hash where the following keys are defined:
 module_name has a value which is a string
 version has a value which is an int
 widget_id has a value which is a string
+tag has a value which is a string
 
 
 =end text

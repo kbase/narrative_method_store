@@ -17,6 +17,7 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 
 import us.kbase.narrativemethodstore.db.github.LocalGitDB;
+import us.kbase.narrativemethodstore.db.github.RepoTag;
 
 public class ImageServlet extends HttpServlet {
 	
@@ -57,6 +58,7 @@ public class ImageServlet extends HttpServlet {
 		String methodId = request.getParameter("method_id");
 		String appId = request.getParameter("app_id");
 		String typeName = request.getParameter("type_name");
+		String tag = request.getParameter("tag");
 		int defined = 0;
 		if (methodId != null)
 			defined++;
@@ -83,7 +85,7 @@ public class ImageServlet extends HttpServlet {
             OutputStream os = response.getOutputStream();
 		    try {
 		        LocalGitDB db = NarrativeMethodStoreServer.getLocalGitDB();
-		        db.saveScreenshotIntoStream(moduleNameAndMethodId[0], moduleNameAndMethodId[1], imageName, os);
+		        db.saveScreenshotIntoStream(moduleNameAndMethodId[0], moduleNameAndMethodId[1], imageName, tag, os);
 		    } catch (Exception ex) {
 		        throw new IllegalStateException(ex);
 		    }

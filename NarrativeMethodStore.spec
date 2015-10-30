@@ -588,12 +588,14 @@ module NarrativeMethodStore {
     /*
         List all the categories.  Optionally, if load_methods or load_apps are set to 1,
         information about all the methods and apps is provided.  This is important
-        load_methods - optional field (default value is 1)
+        load_methods - optional field (default value is 1).
+        tag - optional access level for dynamic repos (one of 'dev', 'beta' or 'release').
     */
     typedef structure {
         boolean load_methods;
         boolean load_apps;
         boolean load_types;
+        string tag;
     } ListCategoriesParams;
 
     funcdef list_categories(ListCategoriesParams params) 
@@ -613,10 +615,12 @@ module NarrativeMethodStore {
         on listing methods or apps
         limit - optional field (default value is 0)
         offset - optional field (default value is 0)
+        tag - optional access level for dynamic repos (one of 'dev', 'beta' or 'release').
     */
     typedef structure {
         int limit;
         int offset;
+        string tag;
     } ListParams;
     
     funcdef list_methods(ListParams params) returns (list<MethodBriefInfo>);
@@ -625,7 +629,14 @@ module NarrativeMethodStore {
     
     funcdef list_methods_spec(ListParams params) returns (list<MethodSpec>);
 
-    funcdef list_method_ids_and_names() returns (mapping<string,string>);
+    /*
+        tag - optional access level for dynamic repos (one of 'dev', 'beta' or 'release').
+    */
+    typedef structure {
+        string tag;
+    } ListMethodIdsAndNamesParams;
+
+    funcdef list_method_ids_and_names(ListMethodIdsAndNamesParams params) returns (mapping<string,string>);
     
     
     funcdef list_apps(ListParams params) returns (list<AppBriefInfo>);
@@ -638,9 +649,12 @@ module NarrativeMethodStore {
     
     funcdef list_types(ListParams params) returns (list<TypeInfo>);
     
-    
+    /*
+        tag - optional access level for dynamic repos (one of 'dev', 'beta' or 'release').
+    */
     typedef structure {
         list <string> ids;
+        string tag;
     } GetMethodParams;
 
     funcdef get_method_brief_info(GetMethodParams params) returns (list<MethodBriefInfo>);
@@ -716,11 +730,13 @@ module NarrativeMethodStore {
         module_name - name of module defined in kbase.yaml;
         version - optional parameter limiting search by certain version timestamp;
         widget_id - name of java-script file stored in repo's 'ui/widgets' folder.
+        tag - optional access level for dynamic repos (one of 'dev', 'beta', 'release').
     */
     typedef structure {
         string module_name;
         int version;
         string widget_id;
+        string tag;
     } LoadWidgetParams;
 
     funcdef load_widget_java_script(LoadWidgetParams params) returns (string 

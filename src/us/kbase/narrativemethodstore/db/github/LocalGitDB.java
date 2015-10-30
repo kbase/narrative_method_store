@@ -39,7 +39,6 @@ import us.kbase.narrativemethodstore.TypeInfo;
 import us.kbase.narrativemethodstore.db.DynamicRepoDB;
 import us.kbase.narrativemethodstore.db.FileLookup;
 import us.kbase.narrativemethodstore.db.FilePointer;
-import us.kbase.narrativemethodstore.db.MethodSpecDB;
 import us.kbase.narrativemethodstore.db.NarrativeAppData;
 import us.kbase.narrativemethodstore.db.NarrativeCategoriesIndex;
 import us.kbase.narrativemethodstore.db.NarrativeMethodData;
@@ -51,8 +50,7 @@ import us.kbase.narrativemethodstore.exceptions.NarrativeMethodStoreException;
 import us.kbase.narrativemethodstore.exceptions.NarrativeMethodStoreInitializationException;
 import us.kbase.narrativemethodstore.util.TextUtils;
 
-public class LocalGitDB implements MethodSpecDB {
-
+public class LocalGitDB {
 	
 	protected final URL gitRepoUrl;
 	protected final String gitBranch;
@@ -66,8 +64,8 @@ public class LocalGitDB implements MethodSpecDB {
 	protected String lastCommit = null;
 	
 	protected NarrativeCategoriesIndex narCatIndex;
-	protected final LoadingCache<String, MethodFullInfo> methodFullInfoCache;
-	protected final LoadingCache<String, MethodSpec> methodSpecCache;
+	protected final LoadingCache<MethodId, MethodFullInfo> methodFullInfoCache;
+	protected final LoadingCache<MethodId, MethodSpec> methodSpecCache;
 	protected final LoadingCache<String, AppFullInfo> appFullInfoCache;
 	protected final LoadingCache<String, AppSpec> appSpecCache;
 	protected static Thread refreshingThread = null;
@@ -78,26 +76,27 @@ public class LocalGitDB implements MethodSpecDB {
 	protected final File tempDir;
 	protected final DynamicRepoDB dynamicRepos;
 	protected final ServiceUrlTemplateEvaluater srvUrlTemplEval;
+	protected final RepoTag defaultTagForGetters;
 	
 	public LocalGitDB(URL gitRepoUrl, String branch, File localPath, int refreshTimeInMinutes, 
 	        int cacheSize, DynamicRepoDB dynamicRepos, File tempDir,
-	        ServiceUrlTemplateEvaluater srvUrlTemplEval) throws NarrativeMethodStoreInitializationException {
+	        ServiceUrlTemplateEvaluater srvUrlTemplEval, RepoTag defaultTagForGetters) throws NarrativeMethodStoreInitializationException {
 		this.gitRepoUrl = gitRepoUrl;
 		this.gitBranch = branch;
 		this.gitLocalPath = localPath;
 		this.refreshTimeInMinutes = refreshTimeInMinutes;
 		this.cacheSize = cacheSize;
 		this.methodFullInfoCache = CacheBuilder.newBuilder().maximumSize(cacheSize).build(
-				new CacheLoader<String, MethodFullInfo>() {
+				new CacheLoader<MethodId, MethodFullInfo>() {
 					@Override
-					public MethodFullInfo load(String methodId) throws NarrativeMethodStoreException {
+					public MethodFullInfo load(MethodId methodId) throws NarrativeMethodStoreException {
 						return loadMethodDataUncached(methodId, narCatIndex).getMethodFullInfo();
 					}
 				});
 		this.methodSpecCache = CacheBuilder.newBuilder().maximumSize(cacheSize).build(
-				new CacheLoader<String, MethodSpec>() {
+				new CacheLoader<MethodId, MethodSpec>() {
 					@Override
-					public MethodSpec load(String methodId) throws NarrativeMethodStoreException {
+					public MethodSpec load(MethodId methodId) throws NarrativeMethodStoreException {
 						return loadMethodDataUncached(methodId, narCatIndex).getMethodSpec();
 					}
 				});
@@ -121,6 +120,7 @@ public class LocalGitDB implements MethodSpecDB {
 		this.tempDir = tempDir;
         this.dynamicRepos = dynamicRepos;
         this.srvUrlTemplEval = srvUrlTemplEval;
+        this.defaultTagForGetters = defaultTagForGetters;
         try {
             loadCategoriesIndex();
         } catch (NarrativeMethodStoreInitializationException ex) {
@@ -338,14 +338,13 @@ public class LocalGitDB implements MethodSpecDB {
 	    return new File(gitLocalPath, "repositories");
 	}*/
 
-	protected List<String> listMethodIdsUncached(NarrativeCategoriesIndex narCatIndex) {
-		List <String> methodList = new ArrayList<String>();
-		if (!getMethodsDir().exists())
-			return methodList;
-		for (File sub : getMethodsDir().listFiles()) {
-			if (sub.isDirectory())
-				methodList.add(sub.getName());
-		}
+	protected List<MethodId> listMethodIdsUncached(NarrativeCategoriesIndex narCatIndex) {
+		List<MethodId> methodList = new ArrayList<MethodId>();
+		if (getMethodsDir().exists())
+		    for (File sub : getMethodsDir().listFiles()) {
+		        if (sub.isDirectory())
+		            methodList.add(new MethodId(sub.getName()));
+		    }
 		methodList.addAll(narCatIndex.getDynamicRepoMethods());
 		return methodList;
 	}
@@ -376,11 +375,10 @@ public class LocalGitDB implements MethodSpecDB {
 	    return GitUtils.getCommitInfo(gitLocalPath, gitRepoUrl);
 	}
 	
-	@Override
-	public List<String> listMethodIds(boolean withErrors) {
+	public List<String> listMethodIds(boolean withErrors, String tag) {
 		checkForChanges();
 		List<String> ret = new ArrayList<String>();
-		for (Map.Entry<String, MethodBriefInfo> entry : narCatIndex.getMethods().entrySet()) {
+		for (Map.Entry<String, MethodBriefInfo> entry : narCatIndex.getMethods(tag).entrySet()) {
 			if (entry.getValue().getLoadingError() != null && !withErrors)
 				continue;
 			ret.add(entry.getKey());
@@ -405,29 +403,26 @@ public class LocalGitDB implements MethodSpecDB {
 	    return new String(baos.toByteArray(), Charset.forName("utf-8"));
 	}
 	
-	protected NarrativeMethodData loadMethodDataUncached(final String methodId,
+	protected NarrativeMethodData loadMethodDataUncached(final MethodId methodId,
 	        NarrativeCategoriesIndex narCatIndex) throws NarrativeMethodStoreException {
 		try {
 			// Fetch the resources needed
 			JsonNode spec = null;
 			Map<String,Object> display = null;
-			String namespace = null;
 			String serviceVersion = null;
-			if (narCatIndex.getDynamicRepoMethods().contains(methodId)) {
-			    String[] moduleNameAndMethodId = methodId.split("/");
-			    namespace = moduleNameAndMethodId[0];
-			    RepoProvider repo = dynamicRepos.getRepoDetails(namespace);
+			if (methodId.isDynamic()) {
+			    RepoProvider repo = dynamicRepos.getRepoDetails(methodId.getRepoModuleName(), methodId.getTag());
 			    serviceVersion = repo.getGitCommitHash();
-			    spec = mapper.readTree(asText(repo.getUINarrativeMethodSpec(moduleNameAndMethodId[1])));
-			    display = YamlUtils.getDocumentAsYamlMap(asText(repo.getUINarrativeMethodDisplay(moduleNameAndMethodId[1])));
+			    spec = mapper.readTree(asText(repo.getUINarrativeMethodSpec(methodId.getMethodId())));
+			    display = YamlUtils.getDocumentAsYamlMap(asText(repo.getUINarrativeMethodDisplay(methodId.getMethodId())));
 			} else {
 			    spec = getResourceAsJson("methods/"+methodId+"/spec.json");
 			    display = getResourceAsYamlMap("methods/"+methodId+"/display.yaml");
 			}
 
 			// Initialize the actual data
-			NarrativeMethodData data = new NarrativeMethodData(methodId, spec, display,
-					createFileLookup(new File(getMethodsDir(), methodId)), namespace, 
+			NarrativeMethodData data = new NarrativeMethodData(methodId.getExternalId(), spec, display,
+					createFileLookup(new File(getMethodsDir(), methodId.getMethodId())), methodId.getRepoModuleName(), 
 					serviceVersion, srvUrlTemplEval);
 			return data;
 		} catch (NarrativeMethodStoreException ex) {
@@ -435,7 +430,7 @@ public class LocalGitDB implements MethodSpecDB {
 		} catch (Exception ex) {
 			NarrativeMethodStoreException ret = new NarrativeMethodStoreException(ex);
 			ret.setErrorMethod(new MethodBriefInfo().withCategories(Arrays.asList("error"))
-					.withId(methodId).withName(methodId));
+					.withId(methodId.getExternalId()).withName(methodId.getExternalId()));
 			throw ret;
 		}
 	}
@@ -493,11 +488,10 @@ public class LocalGitDB implements MethodSpecDB {
 		}
 	}
 
-	@Override
-	public MethodBriefInfo getMethodBriefInfo(String methodId)
+	public MethodBriefInfo getMethodBriefInfo(String methodId, String tag)
 			throws NarrativeMethodStoreException {
 		checkForChanges();
-		return narCatIndex.getMethods().get(methodId);
+		return narCatIndex.getAllMethods().get(new MethodId(methodId, notNull(tag)));
 	}
 
 	public AppBriefInfo getAppBriefInfo(String appId)
@@ -511,13 +505,12 @@ public class LocalGitDB implements MethodSpecDB {
 		checkForChanges();
 		return narCatIndex.getTypes().get(typeName);
 	}
-
-	@Override
-	public MethodFullInfo getMethodFullInfo(String methodId)
+	
+	public MethodFullInfo getMethodFullInfo(String methodId, String tag)
 			throws NarrativeMethodStoreException {
 		checkForChanges();
 		try {
-			return methodFullInfoCache.get(methodId);
+			return methodFullInfoCache.get(new MethodId(methodId, notNull(tag)));
 		} catch (ExecutionException e) {
 			if (e.getCause() != null && e.getCause() instanceof NarrativeMethodStoreException)
 				throw (NarrativeMethodStoreException)e.getCause();
@@ -537,12 +530,11 @@ public class LocalGitDB implements MethodSpecDB {
 		}
 	}
 
-	@Override
-	public MethodSpec getMethodSpec(String methodId)
+	public MethodSpec getMethodSpec(String methodId, String tag)
 			throws NarrativeMethodStoreException {
 		checkForChanges();
 		try {
-			return methodSpecCache.get(methodId);
+			return methodSpecCache.get(new MethodId(methodId, notNull(tag)));
 		} catch (ExecutionException e) {
 			if (e.getCause() != null && e.getCause() instanceof NarrativeMethodStoreException)
 				throw (NarrativeMethodStoreException)e.getCause();
@@ -590,22 +582,27 @@ public class LocalGitDB implements MethodSpecDB {
 	 * Reloads from files the entire categories index
 	 */
 	protected synchronized void loadCategoriesIndex() throws NarrativeMethodStoreException {
-	    Set<String> dynamicRepoMethods = new TreeSet<String>();
+	    Set<MethodId> dynamicRepoMethods = new TreeSet<MethodId>();
 	    Map<String, Exception> dynamicRepoModuleNameToLoadingError = new TreeMap<String, Exception>();
         if (dynamicRepos != null) {
-            for (String repoMN : dynamicRepos.listRepoModuleNames(false)) {
-                try {
-                    RepoProvider repo = dynamicRepos.getRepoDetails(repoMN);
-                    for (String methodId : repo.listUINarrativeMethodIDs()) {
-                        dynamicRepoMethods.add(getFullMethodName(repoMN, methodId));
+            for (String repoMN : dynamicRepos.listRepoModuleNames(false, null)) {
+                for (RepoTag tag : RepoTag.values()) {
+                    try {
+                        RepoProvider repo = dynamicRepos.getRepoDetails(repoMN, tag);
+                        if (repo == null)
+                            continue;
+                        for (String methodId : repo.listUINarrativeMethodIDs()) {
+                            dynamicRepoMethods.add(new MethodId(repoMN, methodId, tag));
+                        }
+                    } catch (Exception ex) {
+                        if (tag.equals(RepoTag.dev))
+                            dynamicRepoModuleNameToLoadingError.put(repoMN, ex);
                     }
-                } catch (Exception ex) {
-                    dynamicRepoModuleNameToLoadingError.put(repoMN, ex);
                 }
             }
         }
 
-        NarrativeCategoriesIndex narCatIndex = new NarrativeCategoriesIndex();  // create a new index
+        NarrativeCategoriesIndex narCatIndex = new NarrativeCategoriesIndex(defaultTagForGetters);  // create a new index
         narCatIndex.updateAllDynamicRepoMethods(dynamicRepoMethods, dynamicRepoModuleNameToLoadingError);
 		try {
 			List<String> catIds = listCategoryIdsUncached(); // iterate over each category
@@ -616,8 +613,8 @@ public class LocalGitDB implements MethodSpecDB {
 				narCatIndex.addOrUpdateCategory(catId, spec, display);
 			}
 			
-			List<String> methIds = listMethodIdsUncached(narCatIndex); // iterate over each category
-			for(String mId : methIds) {
+			List<MethodId> methIds = listMethodIdsUncached(narCatIndex); // iterate over each category
+			for(MethodId mId : methIds) {
 				// TODO: check cache for data instead of loading it all directly; Roman: I doubt it's a good 
 				// idea to check cache first cause narrative engine more likely loads list of all categories 
 				// before any full infos and specs.
@@ -708,7 +705,7 @@ public class LocalGitDB implements MethodSpecDB {
 	        // TODO: Index invalidation is temp solution, we need to substitute it by small 
 	        // corrections related to this particular repo.
 	        hardRefresh();
-	        return dynamicRepos.getRepoLastVersion(pvd.getModuleName());
+	        return dynamicRepos.getRepoLastVersion(pvd.getModuleName(), null);
 	    } catch (MalformedURLException ex) {
 	        throw new NarrativeMethodStoreException("Error parsing repository url: " + 
 	                url + " (" + ex.getMessage() + ")", ex);
@@ -726,30 +723,30 @@ public class LocalGitDB implements MethodSpecDB {
 	        throw new NarrativeMethodStoreException("Repository " + moduleName + " is disabled");
 	}
 	
-	public long getRepoLastVersion(String moduleName, Long withDisabled)
+	/*public long getRepoLastVersion(String moduleName, Long withDisabled)
 	        throws NarrativeMethodStoreException {
 	    checkIfRepoDisabled(moduleName, withDisabled);
 	    return dynamicRepos.getRepoLastVersion(moduleName);
-	}
+	}*/
 
-	public List<String> listRepoModuleNames(Long withDisabled) 
+	/*public List<String> listRepoModuleNames(Long withDisabled) 
 	        throws NarrativeMethodStoreException {
 	    return dynamicRepos.listRepoModuleNames(bool(withDisabled));
-	}
+	}*/
 
-	public RepoProvider getRepoProvider(String moduleName, Long version, Long withDisabled)
-	        throws NarrativeMethodStoreException {
+	public RepoProvider getRepoProvider(String moduleName, Long version, 
+	        Long withDisabled, RepoTag tag) throws NarrativeMethodStoreException {
         checkIfRepoDisabled(moduleName, withDisabled);
         if (version == null) {
-            return dynamicRepos.getRepoDetails(moduleName);
+            return dynamicRepos.getRepoDetails(moduleName, tag);
         } else {
             return dynamicRepos.getRepoDetailsHistory(moduleName, version);
         }
 	}
 
-	public RepoDetails getRepoDetails(String moduleName, Long version, Long withDisabled)
-	        throws NarrativeMethodStoreException {
-	    RepoProvider repo = getRepoProvider(moduleName, version, withDisabled);
+	public RepoDetails getRepoDetails(String moduleName, Long version, 
+	        Long withDisabled, RepoTag tag) throws NarrativeMethodStoreException {
+	    RepoProvider repo = getRepoProvider(moduleName, version, withDisabled, tag);
         String repoModuleName = repo.getModuleName();
         List<String> methodIds = new ArrayList<String>();
         for (String shortId : repo.listUINarrativeMethodIDs())
@@ -766,15 +763,15 @@ public class LocalGitDB implements MethodSpecDB {
 
 	}
 	
-	public List<Long> listRepoVersions(String moduleName, Long withDisabled) 
+	/*public List<Long> listRepoVersions(String moduleName, Long withDisabled) 
 	        throws NarrativeMethodStoreException {
 	    checkIfRepoDisabled(moduleName, withDisabled);
 	    return dynamicRepos.listRepoVersions(moduleName);
-	}
+	}*/
 	
-	public String loadWidgetJavaScript(String moduleName, Long version, String widgetId)
-	        throws NarrativeMethodStoreException {
-	    RepoProvider repo = getRepoProvider(moduleName, version, null);
+	public String loadWidgetJavaScript(String moduleName, Long version, 
+	        String widgetId, String tag) throws NarrativeMethodStoreException {
+	    RepoProvider repo = getRepoProvider(moduleName, version, null, notNull(tag));
 	    return asText(repo.getUIWidgetJS(widgetId));
 	}
 	
@@ -788,9 +785,13 @@ public class LocalGitDB implements MethodSpecDB {
 	    return dynamicRepos.getRepoState(moduleName).name();
 	}
 	
+	private RepoTag notNull(String tagName) {
+	    return tagName == null ? defaultTagForGetters : RepoTag.valueOf(tagName);
+	}
+	
 	public void saveScreenshotIntoStream(String moduleName, String methodId, 
-	        String screenshotId, OutputStream os) throws NarrativeMethodStoreException {
-	    dynamicRepos.getRepoDetails(moduleName).getScreenshot(methodId, 
+	        String screenshotId, String tag, OutputStream os) throws NarrativeMethodStoreException {
+	    dynamicRepos.getRepoDetails(moduleName, notNull(tag)).getScreenshot(methodId, 
 	            screenshotId).saveToStream(os);
 	}
 	

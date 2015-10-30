@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Set;
 
+import us.kbase.narrativemethodstore.db.github.RepoTag;
 import us.kbase.narrativemethodstore.exceptions.NarrativeMethodStoreException;
 
 public interface DynamicRepoDB {
@@ -13,16 +14,18 @@ public interface DynamicRepoDB {
     
     public void registerRepo(String userId, RepoProvider repoDetails) throws NarrativeMethodStoreException;
 
-    public long getRepoLastVersion(String repoModuleName) throws NarrativeMethodStoreException;
+    public Long getRepoLastVersion(String repoModuleName, RepoTag tag) throws NarrativeMethodStoreException;
     
-    public List<String> listRepoModuleNames(boolean withDisabled) throws NarrativeMethodStoreException;
+    public List<String> listRepoModuleNames(boolean withDisabled, RepoTag tag) throws NarrativeMethodStoreException;
     
-    public RepoProvider getRepoDetails(String repoModuleName) throws NarrativeMethodStoreException;
+    public RepoProvider getRepoDetails(String repoModuleName, RepoTag tag) throws NarrativeMethodStoreException;
     
-    public List<Long> listRepoVersions(String repoModuleName) throws NarrativeMethodStoreException;
+    public List<Long> listRepoVersions(String repoModuleName, RepoTag tag) throws NarrativeMethodStoreException;
     
     public RepoProvider getRepoDetailsHistory(String repoModuleName, long version) throws NarrativeMethodStoreException;
     
+    public void pushRepoToTag(String repoModuleName, RepoTag tag, String userId) throws NarrativeMethodStoreException;
+
     public Set<String> listRepoOwners(String repoModuleName) throws NarrativeMethodStoreException;
     
     public boolean isRepoOwner(String repoModuleName, String userId) throws NarrativeMethodStoreException;

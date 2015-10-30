@@ -12,12 +12,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 
 /**
- * <p>Original spec-file type: ListParams</p>
+ * <p>Original spec-file type: ListMethodIdsAndNamesParams</p>
  * <pre>
- * These parameters do nothing currently, but are a placeholder for future options
- * on listing methods or apps
- * limit - optional field (default value is 0)
- * offset - optional field (default value is 0)
  * tag - optional access level for dynamic repos (one of 'dev', 'beta' or 'release').
  * </pre>
  * 
@@ -25,49 +21,13 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Generated("com.googlecode.jsonschema2pojo")
 @JsonPropertyOrder({
-    "limit",
-    "offset",
     "tag"
 })
-public class ListParams {
+public class ListMethodIdsAndNamesParams {
 
-    @JsonProperty("limit")
-    private Long limit;
-    @JsonProperty("offset")
-    private Long offset;
     @JsonProperty("tag")
     private String tag;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
-
-    @JsonProperty("limit")
-    public Long getLimit() {
-        return limit;
-    }
-
-    @JsonProperty("limit")
-    public void setLimit(Long limit) {
-        this.limit = limit;
-    }
-
-    public ListParams withLimit(Long limit) {
-        this.limit = limit;
-        return this;
-    }
-
-    @JsonProperty("offset")
-    public Long getOffset() {
-        return offset;
-    }
-
-    @JsonProperty("offset")
-    public void setOffset(Long offset) {
-        this.offset = offset;
-    }
-
-    public ListParams withOffset(Long offset) {
-        this.offset = offset;
-        return this;
-    }
 
     @JsonProperty("tag")
     public String getTag() {
@@ -79,7 +39,7 @@ public class ListParams {
         this.tag = tag;
     }
 
-    public ListParams withTag(String tag) {
+    public ListMethodIdsAndNamesParams withTag(String tag) {
         this.tag = tag;
         return this;
     }
@@ -96,7 +56,7 @@ public class ListParams {
 
     @Override
     public String toString() {
-        return ((((((((("ListParams"+" [limit=")+ limit)+", offset=")+ offset)+", tag=")+ tag)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((("ListMethodIdsAndNamesParams"+" [tag=")+ tag)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }

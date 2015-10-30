@@ -200,9 +200,9 @@ class NarrativeMethodStore(object):
                           [params])
         return resp[0]
 
-    def list_method_ids_and_names(self):
+    def list_method_ids_and_names(self, params):
         resp = self._call('NarrativeMethodStore.list_method_ids_and_names',
-                          [])
+                          [params])
         return resp[0]
 
     def list_apps(self, params):
