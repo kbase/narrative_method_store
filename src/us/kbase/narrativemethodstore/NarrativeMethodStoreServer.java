@@ -742,6 +742,19 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
         //END disable_repo
     }
 
+    /**
+     * <p>Original spec-file function name: push_repo_to_tag</p>
+     * <pre>
+     * </pre>
+     * @param   params   instance of type {@link us.kbase.narrativemethodstore.PushRepoToTagParams PushRepoToTagParams}
+     */
+    @JsonServerMethod(rpc = "NarrativeMethodStore.push_repo_to_tag")
+    public void pushRepoToTag(PushRepoToTagParams params, AuthToken authPart) throws Exception {
+        //BEGIN push_repo_to_tag
+        getLocalGitDB().pushRepoToTag(params.getModuleName(), params.getTag(), authPart.getClientId());
+        //END push_repo_to_tag
+    }
+
     public static void main(String[] args) throws Exception {
         if (args.length != 1) {
             System.out.println("Usage: <program> <server_port>");

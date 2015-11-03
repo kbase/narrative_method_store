@@ -292,3 +292,7 @@ class NarrativeMethodStore(object):
     def disable_repo(self, params):
         self._call('NarrativeMethodStore.disable_repo',
                    [params])
+
+    def push_repo_to_tag(self, params):
+        self._call('NarrativeMethodStore.push_repo_to_tag',
+                   [params])
