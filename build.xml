@@ -203,6 +203,16 @@
     </jar>
   </target>
 
+  <target name="build_classpath_list" description="create a file with the complete classpath string">
+    <!-- Define absolute path to main jar file-->
+    <property name="jar.absolute.path" location="${dist}/${jar.file}"/>
+    <!-- Define classpath string with : delimiter from list of lib-jar files-->
+    <pathconvert targetos="unix" property="lib.classpath" refid="compile.classpath"/>
+    <echo file="${dist}/jar.classpath.txt">${lib.classpath}:${jar.absolute.path}</echo>
+    <chmod file="${dist}/run_test_nms_endpoint.sh" perm="a+x"/>
+    <echo>Recorded classpath: ${dist}/jar.classpath.txt</echo>
+  </target>
+
   <target name="buildwar" description="build the WAR file. Assumes compile has been run">
     <!-- make the war file for the server-->
     <mkdir dir="${war.dir}/lib"/>
