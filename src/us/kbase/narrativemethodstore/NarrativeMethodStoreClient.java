@@ -607,4 +607,19 @@ public class NarrativeMethodStoreClient {
         TypeReference<Object> retType = new TypeReference<Object>() {};
         caller.jsonrpcCall("NarrativeMethodStore.disable_repo", args, retType, false, true);
     }
+
+    /**
+     * <p>Original spec-file function name: push_repo_to_tag</p>
+     * <pre>
+     * </pre>
+     * @param   params   instance of type {@link us.kbase.narrativemethodstore.PushRepoToTagParams PushRepoToTagParams}
+     * @throws IOException if an IO exception occurs
+     * @throws JsonClientException if a JSON RPC exception occurs
+     */
+    public void pushRepoToTag(PushRepoToTagParams params) throws IOException, JsonClientException {
+        List<Object> args = new ArrayList<Object>();
+        args.add(params);
+        TypeReference<Object> retType = new TypeReference<Object>() {};
+        caller.jsonrpcCall("NarrativeMethodStore.push_repo_to_tag", args, retType, false, true);
+    }
 }

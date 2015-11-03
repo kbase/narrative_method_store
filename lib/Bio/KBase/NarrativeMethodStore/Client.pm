@@ -5113,6 +5113,91 @@ sub disable_repo
 
 
 
+=head2 push_repo_to_tag
+
+  $obj->push_repo_to_tag($params)
+
+=over 4
+
+=item Parameter and return types
+
+=begin html
+
+<pre>
+$params is a NarrativeMethodStore.PushRepoToTagParams
+PushRepoToTagParams is a reference to a hash where the following keys are defined:
+	module_name has a value which is a string
+	tag has a value which is a string
+
+</pre>
+
+=end html
+
+=begin text
+
+$params is a NarrativeMethodStore.PushRepoToTagParams
+PushRepoToTagParams is a reference to a hash where the following keys are defined:
+	module_name has a value which is a string
+	tag has a value which is a string
+
+
+=end text
+
+=item Description
+
+
+
+=back
+
+=cut
+
+sub push_repo_to_tag
+{
+    my($self, @args) = @_;
+
+# Authentication: required
+
+    if ((my $n = @args) != 1)
+    {
+	Bio::KBase::Exceptions::ArgumentValidationError->throw(error =>
+							       "Invalid argument count for function push_repo_to_tag (received $n, expecting 1)");
+    }
+    {
+	my($params) = @args;
+
+	my @_bad_arguments;
+        (ref($params) eq 'HASH') or push(@_bad_arguments, "Invalid type for argument 1 \"params\" (value was \"$params\")");
+        if (@_bad_arguments) {
+	    my $msg = "Invalid arguments passed to push_repo_to_tag:\n" . join("", map { "\t$_\n" } @_bad_arguments);
+	    Bio::KBase::Exceptions::ArgumentValidationError->throw(error => $msg,
+								   method_name => 'push_repo_to_tag');
+	}
+    }
+
+    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
+	method => "NarrativeMethodStore.push_repo_to_tag",
+	params => \@args,
+    });
+    if ($result) {
+	if ($result->is_error) {
+	    Bio::KBase::Exceptions::JSONRPC->throw(error => $result->error_message,
+					       code => $result->content->{error}->{code},
+					       method_name => 'push_repo_to_tag',
+					       data => $result->content->{error}->{error} # JSON::RPC::ReturnObject only supports JSONRPC 1.1 or 1.O
+					      );
+	} else {
+	    return;
+	}
+    } else {
+        Bio::KBase::Exceptions::HTTP->throw(error => "Error invoking method push_repo_to_tag",
+					    status_line => $self->{client}->status_line,
+					    method_name => 'push_repo_to_tag',
+				       );
+    }
+}
+
+
+
 sub version {
     my ($self) = @_;
     my $result = $self->{client}->call($self->{url}, $self->{headers}, {
@@ -5124,16 +5209,16 @@ sub version {
             Bio::KBase::Exceptions::JSONRPC->throw(
                 error => $result->error_message,
                 code => $result->content->{code},
-                method_name => 'disable_repo',
+                method_name => 'push_repo_to_tag',
             );
         } else {
             return wantarray ? @{$result->result} : $result->result->[0];
         }
     } else {
         Bio::KBase::Exceptions::HTTP->throw(
-            error => "Error invoking method disable_repo",
+            error => "Error invoking method push_repo_to_tag",
             status_line => $self->{client}->status_line,
-            method_name => 'disable_repo',
+            method_name => 'push_repo_to_tag',
         );
     }
 }
@@ -7515,6 +7600,43 @@ module_name has a value which is a string
 
 a reference to a hash where the following keys are defined:
 module_name has a value which is a string
+
+
+=end text
+
+=back
+
+
+
+=head2 PushRepoToTagParams
+
+=over 4
+
+
+
+=item Description
+
+tag - one of two values: 'beta' or 'release'.
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a reference to a hash where the following keys are defined:
+module_name has a value which is a string
+tag has a value which is a string
+
+</pre>
+
+=end html
+
+=begin text
+
+a reference to a hash where the following keys are defined:
+module_name has a value which is a string
+tag has a value which is a string
 
 
 =end text
