@@ -154,10 +154,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
         return ret;
     }
     private static String getDefaultTag() {
-        String ret = config().get(CFG_PROP_DEFAULT_TAG);
-        if (ret == null)
-            ret = "dev";
-        return ret;
+        return config().get(CFG_PROP_DEFAULT_TAG);
     }
     
     private static <T> List<T> trim(List<T> data, ListParams params) {
@@ -202,10 +199,15 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
             System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_ENDPOINT_HOST +" = " + (endpointHost == null ? "<not-set>" : endpointHost));
             String endpointBase = config().get(CFG_ENDPOINT_BASE);
             System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_ENDPOINT_BASE +" = " + (endpointBase == null ? "<not-set>" : endpointBase));
+            System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_ENDPOINT_BASE +" = " + (endpointBase == null ? "<not-set>" : endpointBase));
+            String defaultTag = getDefaultTag();
+            System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_DEFAULT_TAG +" = " + (defaultTag == null ? "<not-set> ('dev' will be used)" : defaultTag));
+            if (defaultTag == null)
+                defaultTag = "dev";
             localGitDB = new LocalGitDB(new URL(getGitRepo()), getGitBranch(), new File(getGitLocalDir()), getGitRefreshRate(), getCacheSize(), 
                     new MongoDynamicRepoDB(getMongoHost(), getMongoDbname(), dbUser, dbPwd, adminUsers, mongoRO, 
                             shockUrl == null ? null : new URL(shockUrl), shockToken), new File(getTempDir()),
-                            new ServiceUrlTemplateEvaluater(endpointHost, endpointBase), RepoTag.valueOf(getDefaultTag()));
+                            new ServiceUrlTemplateEvaluater(endpointHost, endpointBase), RepoTag.valueOf(defaultTag));
         }
         return localGitDB;
     }

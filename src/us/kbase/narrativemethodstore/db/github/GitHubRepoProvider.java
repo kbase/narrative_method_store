@@ -14,10 +14,8 @@ public class GitHubRepoProvider extends FileRepoProvider {
     protected String commitHash;
 
     public GitHubRepoProvider(URL url, String commitHash, File parentTempDir) throws NarrativeMethodStoreException {
-        super(prepareGitClone(url, generateTempDir(parentTempDir)), url);
+        super(prepareGitClone(url, generateTempDir(parentTempDir), commitHash), url);
         try {
-            if (commitHash != null)
-                GitUtils.gitCheckout(rootDir, url, commitHash);
             this.commitHash = GitUtils.getCommitHash(rootDir, url);
         } catch (NarrativeMethodStoreException ex) {
             dispose(rootDir);
@@ -25,9 +23,11 @@ public class GitHubRepoProvider extends FileRepoProvider {
         }
     }
 
-    private static File prepareGitClone(URL url, File rootDir) throws NarrativeMethodStoreException {
+    private static File prepareGitClone(URL url, File rootDir, String commitHash) throws NarrativeMethodStoreException {
         try {
             GitUtils.gitClone(url, rootDir);
+            if (commitHash != null)
+                GitUtils.gitCheckout(rootDir, url, commitHash);
             return rootDir;
         } catch (NarrativeMethodStoreException ex) {
             dispose(rootDir);

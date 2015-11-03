@@ -39,10 +39,12 @@ module NarrativeMethodStore {
         url url;
     } Icon;
     
-    /* Minimal information about a method suitable for displaying the method in a menu or navigator. */
+    /* Minimal information about a method suitable for displaying the method in a menu or navigator. 
+         input_types and output_types - sets of valid_ws_types occured in input/output parameters.
+    */
     typedef structure {
         string id;
-        string namespace;
+        string module_name;
         string name;
         string ver;
         string subtitle;
@@ -50,6 +52,9 @@ module NarrativeMethodStore {
         Icon icon;
         list<string> categories;
         string loading_error;
+        list <username> authors;
+        list <string> input_types;
+        list <string> output_types;
     } MethodBriefInfo;
     
     typedef structure {
@@ -78,7 +83,7 @@ module NarrativeMethodStore {
     /* Full information about a method suitable for displaying a method landing page. */
     typedef structure {
         string id;
-        string namespace;
+        string module_name;
         string name;
         string ver;
         list <username> authors;

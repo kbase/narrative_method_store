@@ -284,7 +284,7 @@ Category is a reference to a hash where the following keys are defined:
 	loading_error has a value which is a string
 MethodBriefInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
-	namespace has a value which is a string
+	module_name has a value which is a string
 	name has a value which is a string
 	ver has a value which is a string
 	subtitle has a value which is a string
@@ -292,9 +292,13 @@ MethodBriefInfo is a reference to a hash where the following keys are defined:
 	icon has a value which is a NarrativeMethodStore.Icon
 	categories has a value which is a reference to a list where each element is a string
 	loading_error has a value which is a string
+	authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
+	input_types has a value which is a reference to a list where each element is a string
+	output_types has a value which is a reference to a list where each element is a string
 Icon is a reference to a hash where the following keys are defined:
 	url has a value which is a NarrativeMethodStore.url
 url is a string
+username is a string
 AppBriefInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
 	name has a value which is a string
@@ -346,7 +350,7 @@ Category is a reference to a hash where the following keys are defined:
 	loading_error has a value which is a string
 MethodBriefInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
-	namespace has a value which is a string
+	module_name has a value which is a string
 	name has a value which is a string
 	ver has a value which is a string
 	subtitle has a value which is a string
@@ -354,9 +358,13 @@ MethodBriefInfo is a reference to a hash where the following keys are defined:
 	icon has a value which is a NarrativeMethodStore.Icon
 	categories has a value which is a reference to a list where each element is a string
 	loading_error has a value which is a string
+	authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
+	input_types has a value which is a reference to a list where each element is a string
+	output_types has a value which is a reference to a list where each element is a string
 Icon is a reference to a hash where the following keys are defined:
 	url has a value which is a NarrativeMethodStore.url
 url is a string
+username is a string
 AppBriefInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
 	name has a value which is a string
@@ -559,7 +567,7 @@ ListParams is a reference to a hash where the following keys are defined:
 	tag has a value which is a string
 MethodBriefInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
-	namespace has a value which is a string
+	module_name has a value which is a string
 	name has a value which is a string
 	ver has a value which is a string
 	subtitle has a value which is a string
@@ -567,9 +575,13 @@ MethodBriefInfo is a reference to a hash where the following keys are defined:
 	icon has a value which is a NarrativeMethodStore.Icon
 	categories has a value which is a reference to a list where each element is a string
 	loading_error has a value which is a string
+	authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
+	input_types has a value which is a reference to a list where each element is a string
+	output_types has a value which is a reference to a list where each element is a string
 Icon is a reference to a hash where the following keys are defined:
 	url has a value which is a NarrativeMethodStore.url
 url is a string
+username is a string
 
 </pre>
 
@@ -585,7 +597,7 @@ ListParams is a reference to a hash where the following keys are defined:
 	tag has a value which is a string
 MethodBriefInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
-	namespace has a value which is a string
+	module_name has a value which is a string
 	name has a value which is a string
 	ver has a value which is a string
 	subtitle has a value which is a string
@@ -593,9 +605,13 @@ MethodBriefInfo is a reference to a hash where the following keys are defined:
 	icon has a value which is a NarrativeMethodStore.Icon
 	categories has a value which is a reference to a list where each element is a string
 	loading_error has a value which is a string
+	authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
+	input_types has a value which is a reference to a list where each element is a string
+	output_types has a value which is a reference to a list where each element is a string
 Icon is a reference to a hash where the following keys are defined:
 	url has a value which is a NarrativeMethodStore.url
 url is a string
+username is a string
 
 
 =end text
@@ -674,7 +690,7 @@ ListParams is a reference to a hash where the following keys are defined:
 	tag has a value which is a string
 MethodFullInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
-	namespace has a value which is a string
+	module_name has a value which is a string
 	name has a value which is a string
 	ver has a value which is a string
 	authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
@@ -720,7 +736,7 @@ ListParams is a reference to a hash where the following keys are defined:
 	tag has a value which is a string
 MethodFullInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
-	namespace has a value which is a string
+	module_name has a value which is a string
 	name has a value which is a string
 	ver has a value which is a string
 	authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
@@ -837,7 +853,7 @@ MethodSpec is a reference to a hash where the following keys are defined:
 	job_id_output_field has a value which is a string
 MethodBriefInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
-	namespace has a value which is a string
+	module_name has a value which is a string
 	name has a value which is a string
 	ver has a value which is a string
 	subtitle has a value which is a string
@@ -845,9 +861,13 @@ MethodBriefInfo is a reference to a hash where the following keys are defined:
 	icon has a value which is a NarrativeMethodStore.Icon
 	categories has a value which is a reference to a list where each element is a string
 	loading_error has a value which is a string
+	authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
+	input_types has a value which is a reference to a list where each element is a string
+	output_types has a value which is a reference to a list where each element is a string
 Icon is a reference to a hash where the following keys are defined:
 	url has a value which is a NarrativeMethodStore.url
 url is a string
+username is a string
 WidgetSpec is a reference to a hash where the following keys are defined:
 	input has a value which is a string
 	output has a value which is a string
@@ -1007,7 +1027,7 @@ MethodSpec is a reference to a hash where the following keys are defined:
 	job_id_output_field has a value which is a string
 MethodBriefInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
-	namespace has a value which is a string
+	module_name has a value which is a string
 	name has a value which is a string
 	ver has a value which is a string
 	subtitle has a value which is a string
@@ -1015,9 +1035,13 @@ MethodBriefInfo is a reference to a hash where the following keys are defined:
 	icon has a value which is a NarrativeMethodStore.Icon
 	categories has a value which is a reference to a list where each element is a string
 	loading_error has a value which is a string
+	authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
+	input_types has a value which is a reference to a list where each element is a string
+	output_types has a value which is a reference to a list where each element is a string
 Icon is a reference to a hash where the following keys are defined:
 	url has a value which is a NarrativeMethodStore.url
 url is a string
+username is a string
 WidgetSpec is a reference to a hash where the following keys are defined:
 	input has a value which is a string
 	output has a value which is a string
@@ -1902,7 +1926,7 @@ GetMethodParams is a reference to a hash where the following keys are defined:
 	tag has a value which is a string
 MethodBriefInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
-	namespace has a value which is a string
+	module_name has a value which is a string
 	name has a value which is a string
 	ver has a value which is a string
 	subtitle has a value which is a string
@@ -1910,9 +1934,13 @@ MethodBriefInfo is a reference to a hash where the following keys are defined:
 	icon has a value which is a NarrativeMethodStore.Icon
 	categories has a value which is a reference to a list where each element is a string
 	loading_error has a value which is a string
+	authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
+	input_types has a value which is a reference to a list where each element is a string
+	output_types has a value which is a reference to a list where each element is a string
 Icon is a reference to a hash where the following keys are defined:
 	url has a value which is a NarrativeMethodStore.url
 url is a string
+username is a string
 
 </pre>
 
@@ -1927,7 +1955,7 @@ GetMethodParams is a reference to a hash where the following keys are defined:
 	tag has a value which is a string
 MethodBriefInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
-	namespace has a value which is a string
+	module_name has a value which is a string
 	name has a value which is a string
 	ver has a value which is a string
 	subtitle has a value which is a string
@@ -1935,9 +1963,13 @@ MethodBriefInfo is a reference to a hash where the following keys are defined:
 	icon has a value which is a NarrativeMethodStore.Icon
 	categories has a value which is a reference to a list where each element is a string
 	loading_error has a value which is a string
+	authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
+	input_types has a value which is a reference to a list where each element is a string
+	output_types has a value which is a reference to a list where each element is a string
 Icon is a reference to a hash where the following keys are defined:
 	url has a value which is a NarrativeMethodStore.url
 url is a string
+username is a string
 
 
 =end text
@@ -2015,7 +2047,7 @@ GetMethodParams is a reference to a hash where the following keys are defined:
 	tag has a value which is a string
 MethodFullInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
-	namespace has a value which is a string
+	module_name has a value which is a string
 	name has a value which is a string
 	ver has a value which is a string
 	authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
@@ -2060,7 +2092,7 @@ GetMethodParams is a reference to a hash where the following keys are defined:
 	tag has a value which is a string
 MethodFullInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
-	namespace has a value which is a string
+	module_name has a value which is a string
 	name has a value which is a string
 	ver has a value which is a string
 	authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
@@ -2176,7 +2208,7 @@ MethodSpec is a reference to a hash where the following keys are defined:
 	job_id_output_field has a value which is a string
 MethodBriefInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
-	namespace has a value which is a string
+	module_name has a value which is a string
 	name has a value which is a string
 	ver has a value which is a string
 	subtitle has a value which is a string
@@ -2184,9 +2216,13 @@ MethodBriefInfo is a reference to a hash where the following keys are defined:
 	icon has a value which is a NarrativeMethodStore.Icon
 	categories has a value which is a reference to a list where each element is a string
 	loading_error has a value which is a string
+	authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
+	input_types has a value which is a reference to a list where each element is a string
+	output_types has a value which is a reference to a list where each element is a string
 Icon is a reference to a hash where the following keys are defined:
 	url has a value which is a NarrativeMethodStore.url
 url is a string
+username is a string
 WidgetSpec is a reference to a hash where the following keys are defined:
 	input has a value which is a string
 	output has a value which is a string
@@ -2345,7 +2381,7 @@ MethodSpec is a reference to a hash where the following keys are defined:
 	job_id_output_field has a value which is a string
 MethodBriefInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
-	namespace has a value which is a string
+	module_name has a value which is a string
 	name has a value which is a string
 	ver has a value which is a string
 	subtitle has a value which is a string
@@ -2353,9 +2389,13 @@ MethodBriefInfo is a reference to a hash where the following keys are defined:
 	icon has a value which is a NarrativeMethodStore.Icon
 	categories has a value which is a reference to a list where each element is a string
 	loading_error has a value which is a string
+	authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
+	input_types has a value which is a reference to a list where each element is a string
+	output_types has a value which is a reference to a list where each element is a string
 Icon is a reference to a hash where the following keys are defined:
 	url has a value which is a NarrativeMethodStore.url
 url is a string
+username is a string
 WidgetSpec is a reference to a hash where the following keys are defined:
 	input has a value which is a string
 	output has a value which is a string
@@ -3133,7 +3173,7 @@ AppStepInputMapping is a reference to a hash where the following keys are define
 	to has a value which is a string
 MethodFullInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
-	namespace has a value which is a string
+	module_name has a value which is a string
 	name has a value which is a string
 	ver has a value which is a string
 	authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
@@ -3162,7 +3202,7 @@ MethodSpec is a reference to a hash where the following keys are defined:
 	job_id_output_field has a value which is a string
 MethodBriefInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
-	namespace has a value which is a string
+	module_name has a value which is a string
 	name has a value which is a string
 	ver has a value which is a string
 	subtitle has a value which is a string
@@ -3170,6 +3210,9 @@ MethodBriefInfo is a reference to a hash where the following keys are defined:
 	icon has a value which is a NarrativeMethodStore.Icon
 	categories has a value which is a reference to a list where each element is a string
 	loading_error has a value which is a string
+	authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
+	input_types has a value which is a reference to a list where each element is a string
+	output_types has a value which is a reference to a list where each element is a string
 WidgetSpec is a reference to a hash where the following keys are defined:
 	input has a value which is a string
 	output has a value which is a string
@@ -3392,7 +3435,7 @@ AppStepInputMapping is a reference to a hash where the following keys are define
 	to has a value which is a string
 MethodFullInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
-	namespace has a value which is a string
+	module_name has a value which is a string
 	name has a value which is a string
 	ver has a value which is a string
 	authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
@@ -3421,7 +3464,7 @@ MethodSpec is a reference to a hash where the following keys are defined:
 	job_id_output_field has a value which is a string
 MethodBriefInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
-	namespace has a value which is a string
+	module_name has a value which is a string
 	name has a value which is a string
 	ver has a value which is a string
 	subtitle has a value which is a string
@@ -3429,6 +3472,9 @@ MethodBriefInfo is a reference to a hash where the following keys are defined:
 	icon has a value which is a NarrativeMethodStore.Icon
 	categories has a value which is a reference to a list where each element is a string
 	loading_error has a value which is a string
+	authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
+	input_types has a value which is a reference to a list where each element is a string
+	output_types has a value which is a reference to a list where each element is a string
 WidgetSpec is a reference to a hash where the following keys are defined:
 	input has a value which is a string
 	output has a value which is a string
@@ -3714,7 +3760,7 @@ AppStepInputMapping is a reference to a hash where the following keys are define
 	to has a value which is a string
 MethodFullInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
-	namespace has a value which is a string
+	module_name has a value which is a string
 	name has a value which is a string
 	ver has a value which is a string
 	authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
@@ -3743,7 +3789,7 @@ MethodSpec is a reference to a hash where the following keys are defined:
 	job_id_output_field has a value which is a string
 MethodBriefInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
-	namespace has a value which is a string
+	module_name has a value which is a string
 	name has a value which is a string
 	ver has a value which is a string
 	subtitle has a value which is a string
@@ -3751,6 +3797,9 @@ MethodBriefInfo is a reference to a hash where the following keys are defined:
 	icon has a value which is a NarrativeMethodStore.Icon
 	categories has a value which is a reference to a list where each element is a string
 	loading_error has a value which is a string
+	authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
+	input_types has a value which is a reference to a list where each element is a string
+	output_types has a value which is a reference to a list where each element is a string
 WidgetSpec is a reference to a hash where the following keys are defined:
 	input has a value which is a string
 	output has a value which is a string
@@ -3973,7 +4022,7 @@ AppStepInputMapping is a reference to a hash where the following keys are define
 	to has a value which is a string
 MethodFullInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
-	namespace has a value which is a string
+	module_name has a value which is a string
 	name has a value which is a string
 	ver has a value which is a string
 	authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
@@ -4002,7 +4051,7 @@ MethodSpec is a reference to a hash where the following keys are defined:
 	job_id_output_field has a value which is a string
 MethodBriefInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
-	namespace has a value which is a string
+	module_name has a value which is a string
 	name has a value which is a string
 	ver has a value which is a string
 	subtitle has a value which is a string
@@ -4010,6 +4059,9 @@ MethodBriefInfo is a reference to a hash where the following keys are defined:
 	icon has a value which is a NarrativeMethodStore.Icon
 	categories has a value which is a reference to a list where each element is a string
 	loading_error has a value which is a string
+	authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
+	input_types has a value which is a reference to a list where each element is a string
+	output_types has a value which is a reference to a list where each element is a string
 WidgetSpec is a reference to a hash where the following keys are defined:
 	input has a value which is a string
 	output has a value which is a string
@@ -4295,7 +4347,7 @@ AppStepInputMapping is a reference to a hash where the following keys are define
 	to has a value which is a string
 MethodFullInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
-	namespace has a value which is a string
+	module_name has a value which is a string
 	name has a value which is a string
 	ver has a value which is a string
 	authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
@@ -4324,7 +4376,7 @@ MethodSpec is a reference to a hash where the following keys are defined:
 	job_id_output_field has a value which is a string
 MethodBriefInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
-	namespace has a value which is a string
+	module_name has a value which is a string
 	name has a value which is a string
 	ver has a value which is a string
 	subtitle has a value which is a string
@@ -4332,6 +4384,9 @@ MethodBriefInfo is a reference to a hash where the following keys are defined:
 	icon has a value which is a NarrativeMethodStore.Icon
 	categories has a value which is a reference to a list where each element is a string
 	loading_error has a value which is a string
+	authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
+	input_types has a value which is a reference to a list where each element is a string
+	output_types has a value which is a reference to a list where each element is a string
 WidgetSpec is a reference to a hash where the following keys are defined:
 	input has a value which is a string
 	output has a value which is a string
@@ -4554,7 +4609,7 @@ AppStepInputMapping is a reference to a hash where the following keys are define
 	to has a value which is a string
 MethodFullInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
-	namespace has a value which is a string
+	module_name has a value which is a string
 	name has a value which is a string
 	ver has a value which is a string
 	authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
@@ -4583,7 +4638,7 @@ MethodSpec is a reference to a hash where the following keys are defined:
 	job_id_output_field has a value which is a string
 MethodBriefInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
-	namespace has a value which is a string
+	module_name has a value which is a string
 	name has a value which is a string
 	ver has a value which is a string
 	subtitle has a value which is a string
@@ -4591,6 +4646,9 @@ MethodBriefInfo is a reference to a hash where the following keys are defined:
 	icon has a value which is a NarrativeMethodStore.Icon
 	categories has a value which is a reference to a list where each element is a string
 	loading_error has a value which is a string
+	authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
+	input_types has a value which is a reference to a list where each element is a string
+	output_types has a value which is a reference to a list where each element is a string
 WidgetSpec is a reference to a hash where the following keys are defined:
 	input has a value which is a string
 	output has a value which is a string
@@ -5337,7 +5395,8 @@ url has a value which is a NarrativeMethodStore.url
 
 =item Description
 
-Minimal information about a method suitable for displaying the method in a menu or navigator.
+Minimal information about a method suitable for displaying the method in a menu or navigator. 
+input_types and output_types - sets of valid_ws_types occured in input/output parameters.
 
 
 =item Definition
@@ -5347,7 +5406,7 @@ Minimal information about a method suitable for displaying the method in a menu 
 <pre>
 a reference to a hash where the following keys are defined:
 id has a value which is a string
-namespace has a value which is a string
+module_name has a value which is a string
 name has a value which is a string
 ver has a value which is a string
 subtitle has a value which is a string
@@ -5355,6 +5414,9 @@ tooltip has a value which is a string
 icon has a value which is a NarrativeMethodStore.Icon
 categories has a value which is a reference to a list where each element is a string
 loading_error has a value which is a string
+authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
+input_types has a value which is a reference to a list where each element is a string
+output_types has a value which is a reference to a list where each element is a string
 
 </pre>
 
@@ -5364,7 +5426,7 @@ loading_error has a value which is a string
 
 a reference to a hash where the following keys are defined:
 id has a value which is a string
-namespace has a value which is a string
+module_name has a value which is a string
 name has a value which is a string
 ver has a value which is a string
 subtitle has a value which is a string
@@ -5372,6 +5434,9 @@ tooltip has a value which is a string
 icon has a value which is a NarrativeMethodStore.Icon
 categories has a value which is a reference to a list where each element is a string
 loading_error has a value which is a string
+authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
+input_types has a value which is a reference to a list where each element is a string
+output_types has a value which is a reference to a list where each element is a string
 
 
 =end text
@@ -5506,7 +5571,7 @@ Full information about a method suitable for displaying a method landing page.
 <pre>
 a reference to a hash where the following keys are defined:
 id has a value which is a string
-namespace has a value which is a string
+module_name has a value which is a string
 name has a value which is a string
 ver has a value which is a string
 authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
@@ -5530,7 +5595,7 @@ publications has a value which is a reference to a list where each element is a 
 
 a reference to a hash where the following keys are defined:
 id has a value which is a string
-namespace has a value which is a string
+module_name has a value which is a string
 name has a value which is a string
 ver has a value which is a string
 authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username

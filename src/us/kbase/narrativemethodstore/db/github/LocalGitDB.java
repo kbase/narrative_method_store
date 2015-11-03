@@ -412,6 +412,9 @@ public class LocalGitDB {
 			String serviceVersion = null;
 			if (methodId.isDynamic()) {
 			    RepoProvider repo = dynamicRepos.getRepoDetails(methodId.getRepoModuleName(), methodId.getTag());
+			    if (repo == null)
+			        throw new NarrativeMethodStoreException("Repository " + methodId.getRepoModuleName() + 
+			                " wasn't tagged with " + methodId.getTag() + " tag");
 			    serviceVersion = repo.getGitCommitHash();
 			    spec = mapper.readTree(asText(repo.getUINarrativeMethodSpec(methodId.getMethodId())));
 			    display = YamlUtils.getDocumentAsYamlMap(asText(repo.getUINarrativeMethodDisplay(methodId.getMethodId())));
@@ -813,4 +816,10 @@ public class LocalGitDB {
 	    }
 	    return -1;
 	}*/
+	
+    public void pushRepoToTag(String repoModuleName, String tagName, String userId) 
+            throws NarrativeMethodStoreException {
+        dynamicRepos.pushRepoToTag(repoModuleName, RepoTag.valueOf(tagName), userId);
+        hardRefresh();
+    }
 }

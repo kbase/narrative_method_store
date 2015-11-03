@@ -29,10 +29,7 @@ public class MongoUtils {
         List<T> ret = new ArrayList<T>();
         for (Map<?,?> item : data) {
             Object value = item.get(selectField);
-            if (value == null)
-                throw new NullPointerException("Value is not defined for selected " +
-                		"field: " + selectField);
-            if (!type.isInstance(value))
+            if (value != null && !type.isInstance(value))
                 value = UObject.transformObjectToObject(value, type);
             ret.add((T)value);
         }

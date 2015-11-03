@@ -179,10 +179,13 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
                 newVersion, repoData);
         MongoCollection data = jdb.getCollection(TABLE_REPO_INFO);
         if (wasReg) {
+            @SuppressWarnings("unchecked")
+            Map<String, Object> info = data.findOne(String.format("{%s:#}", 
+                    FIELD_RI_MODULE_NAME), repoModuleName).as(Map.class);
+            info.put(FIELD_RI_LAST_VERSION, newVersion);
+            info.put(FIELD_RI_STATE, RepoState.ready);
             data.update(String.format("{%s:#}", FIELD_RI_MODULE_NAME), 
-                    repoModuleName).with(String.format("{%s:#,%s:#,%s:#}", 
-                            FIELD_RI_MODULE_NAME, FIELD_RI_LAST_VERSION, 
-                            FIELD_RI_STATE), repoModuleName, newVersion, RepoState.ready);
+                    repoModuleName).with("#", info);
         } else {
             data.insert(String.format("{%s:#,%s:#,%s:#}", FIELD_RI_MODULE_NAME,
                     FIELD_RI_LAST_VERSION, FIELD_RI_STATE), 
@@ -300,8 +303,8 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
             return;
         MongoCollection data = jdb.getCollection(TABLE_REPO_INFO);
         @SuppressWarnings("unchecked")
-        Map<String, Object> info = data.find(String.format("{%s:#}", FIELD_RI_MODULE_NAME), 
-                repoModuleName).as(Map.class).iterator().next();
+        Map<String, Object> info = data.findOne(String.format("{%s:#}", 
+                FIELD_RI_MODULE_NAME), repoModuleName).as(Map.class);
         long version = (Long)info.get(FIELD_RI_LAST_VERSION);
         Long betaVer = (Long)info.get(FIELD_RI_LAST_BETA_VERSION);
         Long releaseVer = (Long)info.get(FIELD_RI_LAST_RELEASE_VERSION);
@@ -322,12 +325,13 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
         }
         data.update(String.format("{%s:#}", FIELD_RI_MODULE_NAME), 
                 repoModuleName).with("#", info);
+        MongoCollection data2 = jdb.getCollection(TABLE_REPO_HISTORY);
         @SuppressWarnings("unchecked")
-        Map<String, Object> hist = data.find(String.format("{%s:#,%s:#}", 
+        Map<String, Object> hist = data2.findOne(String.format("{%s:#,%s:#}", 
                 FIELD_RH_MODULE_NAME, FIELD_RH_VERSION), repoModuleName, changedVer)
-                .as(Map.class).iterator().next();
+                .as(Map.class);
         hist.put(tag.equals(RepoTag.beta) ? FIELD_RH_IS_BETA : FIELD_RH_IS_RELEASE, 1);
-        data.update(String.format("{%s:#,%s:#}", FIELD_RH_MODULE_NAME, FIELD_RH_VERSION), 
+        data2.update(String.format("{%s:#,%s:#}", FIELD_RH_MODULE_NAME, FIELD_RH_VERSION), 
                 repoModuleName, changedVer).with("#", hist);
     }
     
@@ -395,11 +399,9 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
         @SuppressWarnings("unchecked")
         Map<String, Object> obj = info.findOne(String.format("{%s:#}", 
                 FIELD_RI_MODULE_NAME), repoModuleName).as(Map.class);
+        obj.put(FIELD_RI_STATE, state);
         info.update(String.format("{%s:#}", FIELD_RI_MODULE_NAME), 
-                repoModuleName).with(String.format("{%s:#,%s:#,%s:#}", 
-                        FIELD_RI_MODULE_NAME, FIELD_RI_LAST_VERSION, 
-                        FIELD_RI_STATE), repoModuleName, 
-                        obj.get(FIELD_RI_LAST_VERSION), state.name());
+                repoModuleName).with("#", obj);
     }
     
     @Override
