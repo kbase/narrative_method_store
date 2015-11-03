@@ -2,7 +2,6 @@ package us.kbase.narrativemethodstore;
 
 import java.util.List;
 import java.util.Map;
-
 import us.kbase.auth.AuthToken;
 import us.kbase.common.service.JsonServerMethod;
 import us.kbase.common.service.JsonServerServlet;
@@ -24,6 +23,7 @@ import us.kbase.narrativemethodstore.db.NarrativeCategoriesIndex;
 import us.kbase.narrativemethodstore.db.ServiceUrlTemplateEvaluater;
 import us.kbase.narrativemethodstore.db.Validator;
 import us.kbase.narrativemethodstore.db.github.LocalGitDB;
+import us.kbase.narrativemethodstore.db.github.RepoTag;
 import us.kbase.narrativemethodstore.db.mongo.MongoDynamicRepoDB;
 //END_HEADER
 
@@ -57,6 +57,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
     public static final String  CFG_PROP_DOCKER_REGISTRY = "method-spec-docker-registry";
     public static final String         CFG_ENDPOINT_BASE = "endpoint-base";
     public static final String         CFG_ENDPOINT_HOST = "endpoint-host";
+    public static final String      CFG_PROP_DEFAULT_TAG = "method-spec-default-tag";
     
     public static final String VERSION = "0.3.1";
     
@@ -152,6 +153,9 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
             throw new IllegalStateException("Parameter " + CFG_PROP_ADMIN_USERS + " is not defined in configuration");
         return ret;
     }
+    private static String getDefaultTag() {
+        return config().get(CFG_PROP_DEFAULT_TAG);
+    }
     
     private static <T> List<T> trim(List<T> data, ListParams params) {
     	if (params.getOffset() == null && params.getLimit() == null)
@@ -195,10 +199,15 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
             System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_ENDPOINT_HOST +" = " + (endpointHost == null ? "<not-set>" : endpointHost));
             String endpointBase = config().get(CFG_ENDPOINT_BASE);
             System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_ENDPOINT_BASE +" = " + (endpointBase == null ? "<not-set>" : endpointBase));
+            System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_ENDPOINT_BASE +" = " + (endpointBase == null ? "<not-set>" : endpointBase));
+            String defaultTag = getDefaultTag();
+            System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_DEFAULT_TAG +" = " + (defaultTag == null ? "<not-set> ('dev' will be used)" : defaultTag));
+            if (defaultTag == null)
+                defaultTag = "dev";
             localGitDB = new LocalGitDB(new URL(getGitRepo()), getGitBranch(), new File(getGitLocalDir()), getGitRefreshRate(), getCacheSize(), 
                     new MongoDynamicRepoDB(getMongoHost(), getMongoDbname(), dbUser, dbPwd, adminUsers, mongoRO, 
                             shockUrl == null ? null : new URL(shockUrl), shockToken), new File(getTempDir()),
-                            new ServiceUrlTemplateEvaluater(endpointHost, endpointBase));
+                            new ServiceUrlTemplateEvaluater(endpointHost, endpointBase), RepoTag.valueOf(defaultTag));
         }
         return localGitDB;
     }
@@ -286,7 +295,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
         NarrativeCategoriesIndex narCatIndex = getLocalGitDB().getCategoriesIndex();
         return1 = narCatIndex.getCategories();
         if(returnLoadedMethods) {
-        	return2 = narCatIndex.getMethods();
+        	return2 = narCatIndex.getMethods(params.getTag());
         } else {
         	return2 = new HashMap<String,MethodBriefInfo>();
         }
@@ -344,7 +353,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
         List<MethodBriefInfo> returnVal = null;
         //BEGIN list_methods
         config();
-        returnVal = new ArrayList<MethodBriefInfo>(getLocalGitDB().getCategoriesIndex().getMethods().values());
+        returnVal = new ArrayList<MethodBriefInfo>(getLocalGitDB().getCategoriesIndex().getMethods(params.getTag()).values());
         returnVal = trim(returnVal, params);
         //END list_methods
         return returnVal;
@@ -362,7 +371,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
         List<MethodFullInfo> returnVal = null;
         //BEGIN list_methods_full_info
         config();
-        List<String> methodIds = new ArrayList<String>(getLocalGitDB().listMethodIds(false));
+        List<String> methodIds = new ArrayList<String>(getLocalGitDB().listMethodIds(false, params.getTag()));
         methodIds = trim(methodIds, params);
         returnVal = getMethodFullInfo(new GetMethodParams().withIds(methodIds));
         //END list_methods_full_info
@@ -381,7 +390,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
         List<MethodSpec> returnVal = null;
         //BEGIN list_methods_spec
         config();
-        List<String> methodIds = new ArrayList<String>(getLocalGitDB().listMethodIds(false));
+        List<String> methodIds = new ArrayList<String>(getLocalGitDB().listMethodIds(false, params.getTag()));
         methodIds = trim(methodIds, params);
         returnVal = getMethodSpec(new GetMethodParams().withIds(methodIds));
         //END list_methods_spec
@@ -392,15 +401,16 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
      * <p>Original spec-file function name: list_method_ids_and_names</p>
      * <pre>
      * </pre>
+     * @param   params   instance of type {@link us.kbase.narrativemethodstore.ListMethodIdsAndNamesParams ListMethodIdsAndNamesParams}
      * @return   instance of mapping from String to String
      */
     @JsonServerMethod(rpc = "NarrativeMethodStore.list_method_ids_and_names")
-    public Map<String,String> listMethodIdsAndNames() throws Exception {
+    public Map<String,String> listMethodIdsAndNames(ListMethodIdsAndNamesParams params) throws Exception {
         Map<String,String> returnVal = null;
         //BEGIN list_method_ids_and_names
         config();
         returnVal = new TreeMap<String, String>();
-        for (Map.Entry<String, MethodBriefInfo> entry : getLocalGitDB().getCategoriesIndex().getMethods().entrySet())
+        for (Map.Entry<String, MethodBriefInfo> entry : getLocalGitDB().getCategoriesIndex().getMethods(params.getTag()).entrySet())
         	returnVal.put(entry.getKey(), entry.getValue().getName());
         //END list_method_ids_and_names
         return returnVal;
@@ -513,7 +523,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
         List <String> methodIds = params.getIds();
         returnVal = new ArrayList<MethodBriefInfo>(methodIds.size());
         for(String id: methodIds) {
-        	returnVal.add(getLocalGitDB().getMethodBriefInfo(id));
+        	returnVal.add(getLocalGitDB().getMethodBriefInfo(id, params.getTag()));
         }
         //END get_method_brief_info
         return returnVal;
@@ -534,7 +544,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
         List <String> methodIds = params.getIds();
         returnVal = new ArrayList<MethodFullInfo>(methodIds.size());
         for(String id: methodIds) {
-        	returnVal.add(getLocalGitDB().getMethodFullInfo(id));
+        	returnVal.add(getLocalGitDB().getMethodFullInfo(id, params.getTag()));
         }
         //END get_method_full_info
         return returnVal;
@@ -555,7 +565,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
         List<String> methodIds = params.getIds();
         returnVal = new ArrayList<MethodSpec>(methodIds.size());
         for (String id : methodIds)
-        	returnVal.add(getLocalGitDB().getMethodSpec(id));
+        	returnVal.add(getLocalGitDB().getMethodSpec(id, params.getTag()));
         //END get_method_spec
         return returnVal;
     }
@@ -701,7 +711,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
         String returnVal = null;
         //BEGIN load_widget_java_script
         returnVal = getLocalGitDB().loadWidgetJavaScript(params.getModuleName(), 
-                params.getVersion(), params.getWidgetId());
+                params.getVersion(), params.getWidgetId(), params.getTag());
         //END load_widget_java_script
         return returnVal;
     }

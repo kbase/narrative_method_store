@@ -295,12 +295,14 @@ public class NarrativeMethodStoreClient {
      * <p>Original spec-file function name: list_method_ids_and_names</p>
      * <pre>
      * </pre>
+     * @param   params   instance of type {@link us.kbase.narrativemethodstore.ListMethodIdsAndNamesParams ListMethodIdsAndNamesParams}
      * @return   instance of mapping from String to String
      * @throws IOException if an IO exception occurs
      * @throws JsonClientException if a JSON RPC exception occurs
      */
-    public Map<String,String> listMethodIdsAndNames() throws IOException, JsonClientException {
+    public Map<String,String> listMethodIdsAndNames(ListMethodIdsAndNamesParams params) throws IOException, JsonClientException {
         List<Object> args = new ArrayList<Object>();
+        args.add(params);
         TypeReference<List<Map<String,String>>> retType = new TypeReference<List<Map<String,String>>>() {};
         List<Map<String,String>> res = caller.jsonrpcCall("NarrativeMethodStore.list_method_ids_and_names", args, retType, true, false);
         return res.get(0);
