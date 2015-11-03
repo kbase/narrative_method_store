@@ -203,20 +203,14 @@
     </jar>
   </target>
 
-  <target name="build_run_test_nms_endpoint" description="create a binary">
+  <target name="build_classpath_list" description="create a file with the complete classpath string">
     <!-- Define absolute path to main jar file-->
     <property name="jar.absolute.path" location="${dist}/${jar.file}"/>
     <!-- Define classpath string with : delimiter from list of lib-jar files-->
     <pathconvert targetos="unix" property="lib.classpath" refid="compile.classpath"/>
-
-    <!-- Create main shell script-->
-    <echo file="${dist}/run_test_nms_endpoint.sh">#!/bin/sh
-export JAVA_HOME=${env.JAVA_HOME}
-export PATH=$JAVA_HOME/bin:$PATH
-$JAVA_HOME/bin/java -cp ${lib.classpath}:${jar.absolute.path} us.kbase.narrativemethodstore.NarrativeMethodStoreServer $@
-    </echo>
+    <echo file="${dist}/jar.classpath.txt">${lib.classpath}:${jar.absolute.path}</echo>
     <chmod file="${dist}/run_test_nms_endpoint.sh" perm="a+x"/>
-    <echo>Successfully built: ${dist}/run_test_nms_endpoint.sh</echo>
+    <echo>Recorded classpath: ${dist}/jar.classpath.txt</echo>
   </target>
 
   <target name="buildwar" description="build the WAR file. Assumes compile has been run">

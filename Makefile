@@ -119,8 +119,8 @@ compile-typespec:
 	rm -f lib/*Server.p* #should be no perl/py server files in our lib dir
 	rm -f lib/*Impl.p*   #should be no perl/py impl files in our lib dir
 
-build-test-nms-endpoint-runner:
-	$(ANT) build_run_test_nms_endpoint $(ANT_OPTIONS)
+build-classpath-list:
+	$(ANT) build_classpath_list $(ANT_OPTIONS)
 
 
 test: test-client test-service test-scripts
