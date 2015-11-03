@@ -18,6 +18,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
  * module_name - name of module defined in kbase.yaml;
  * version - optional parameter limiting search by certain version timestamp;
  * widget_id - name of java-script file stored in repo's 'ui/widgets' folder.
+ * tag - optional access level for dynamic repos (one of 'dev', 'beta', 'release').
  * </pre>
  * 
  */
@@ -26,7 +27,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @JsonPropertyOrder({
     "module_name",
     "version",
-    "widget_id"
+    "widget_id",
+    "tag"
 })
 public class LoadWidgetParams {
 
@@ -36,6 +38,8 @@ public class LoadWidgetParams {
     private Long version;
     @JsonProperty("widget_id")
     private String widgetId;
+    @JsonProperty("tag")
+    private String tag;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
     @JsonProperty("module_name")
@@ -83,6 +87,21 @@ public class LoadWidgetParams {
         return this;
     }
 
+    @JsonProperty("tag")
+    public String getTag() {
+        return tag;
+    }
+
+    @JsonProperty("tag")
+    public void setTag(String tag) {
+        this.tag = tag;
+    }
+
+    public LoadWidgetParams withTag(String tag) {
+        this.tag = tag;
+        return this;
+    }
+
     @JsonAnyGetter
     public Map<String, Object> getAdditionalProperties() {
         return this.additionalProperties;
@@ -95,7 +114,7 @@ public class LoadWidgetParams {
 
     @Override
     public String toString() {
-        return ((((((((("LoadWidgetParams"+" [moduleName=")+ moduleName)+", version=")+ version)+", widgetId=")+ widgetId)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((((((("LoadWidgetParams"+" [moduleName=")+ moduleName)+", version=")+ version)+", widgetId=")+ widgetId)+", tag=")+ tag)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }

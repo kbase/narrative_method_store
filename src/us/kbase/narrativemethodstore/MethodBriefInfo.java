@@ -15,7 +15,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 /**
  * <p>Original spec-file type: MethodBriefInfo</p>
  * <pre>
- * Minimal information about a method suitable for displaying the method in a menu or navigator.
+ * Minimal information about a method suitable for displaying the method in a menu or navigator. 
+ * input_types and output_types - sets of valid_ws_types occured in input/output parameters.
  * </pre>
  * 
  */
@@ -23,21 +24,24 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @Generated("com.googlecode.jsonschema2pojo")
 @JsonPropertyOrder({
     "id",
-    "namespace",
+    "module_name",
     "name",
     "ver",
     "subtitle",
     "tooltip",
     "icon",
     "categories",
-    "loading_error"
+    "loading_error",
+    "authors",
+    "input_types",
+    "output_types"
 })
 public class MethodBriefInfo {
 
     @JsonProperty("id")
     private java.lang.String id;
-    @JsonProperty("namespace")
-    private java.lang.String namespace;
+    @JsonProperty("module_name")
+    private java.lang.String moduleName;
     @JsonProperty("name")
     private java.lang.String name;
     @JsonProperty("ver")
@@ -57,6 +61,12 @@ public class MethodBriefInfo {
     private List<String> categories;
     @JsonProperty("loading_error")
     private java.lang.String loadingError;
+    @JsonProperty("authors")
+    private List<String> authors;
+    @JsonProperty("input_types")
+    private List<String> inputTypes;
+    @JsonProperty("output_types")
+    private List<String> outputTypes;
     private Map<java.lang.String, Object> additionalProperties = new HashMap<java.lang.String, Object>();
 
     @JsonProperty("id")
@@ -74,18 +84,18 @@ public class MethodBriefInfo {
         return this;
     }
 
-    @JsonProperty("namespace")
-    public java.lang.String getNamespace() {
-        return namespace;
+    @JsonProperty("module_name")
+    public java.lang.String getModuleName() {
+        return moduleName;
     }
 
-    @JsonProperty("namespace")
-    public void setNamespace(java.lang.String namespace) {
-        this.namespace = namespace;
+    @JsonProperty("module_name")
+    public void setModuleName(java.lang.String moduleName) {
+        this.moduleName = moduleName;
     }
 
-    public MethodBriefInfo withNamespace(java.lang.String namespace) {
-        this.namespace = namespace;
+    public MethodBriefInfo withModuleName(java.lang.String moduleName) {
+        this.moduleName = moduleName;
         return this;
     }
 
@@ -204,6 +214,51 @@ public class MethodBriefInfo {
         return this;
     }
 
+    @JsonProperty("authors")
+    public List<String> getAuthors() {
+        return authors;
+    }
+
+    @JsonProperty("authors")
+    public void setAuthors(List<String> authors) {
+        this.authors = authors;
+    }
+
+    public MethodBriefInfo withAuthors(List<String> authors) {
+        this.authors = authors;
+        return this;
+    }
+
+    @JsonProperty("input_types")
+    public List<String> getInputTypes() {
+        return inputTypes;
+    }
+
+    @JsonProperty("input_types")
+    public void setInputTypes(List<String> inputTypes) {
+        this.inputTypes = inputTypes;
+    }
+
+    public MethodBriefInfo withInputTypes(List<String> inputTypes) {
+        this.inputTypes = inputTypes;
+        return this;
+    }
+
+    @JsonProperty("output_types")
+    public List<String> getOutputTypes() {
+        return outputTypes;
+    }
+
+    @JsonProperty("output_types")
+    public void setOutputTypes(List<String> outputTypes) {
+        this.outputTypes = outputTypes;
+    }
+
+    public MethodBriefInfo withOutputTypes(List<String> outputTypes) {
+        this.outputTypes = outputTypes;
+        return this;
+    }
+
     @JsonAnyGetter
     public Map<java.lang.String, Object> getAdditionalProperties() {
         return this.additionalProperties;
@@ -216,7 +271,7 @@ public class MethodBriefInfo {
 
     @Override
     public java.lang.String toString() {
-        return ((((((((((((((((((((("MethodBriefInfo"+" [id=")+ id)+", namespace=")+ namespace)+", name=")+ name)+", ver=")+ ver)+", subtitle=")+ subtitle)+", tooltip=")+ tooltip)+", icon=")+ icon)+", categories=")+ categories)+", loadingError=")+ loadingError)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((((((((((((((((((((((("MethodBriefInfo"+" [id=")+ id)+", moduleName=")+ moduleName)+", name=")+ name)+", ver=")+ ver)+", subtitle=")+ subtitle)+", tooltip=")+ tooltip)+", icon=")+ icon)+", categories=")+ categories)+", loadingError=")+ loadingError)+", authors=")+ authors)+", inputTypes=")+ inputTypes)+", outputTypes=")+ outputTypes)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }

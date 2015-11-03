@@ -40,7 +40,8 @@ public class MethodSpec {
     /**
      * <p>Original spec-file type: MethodBriefInfo</p>
      * <pre>
-     * Minimal information about a method suitable for displaying the method in a menu or navigator.
+     * Minimal information about a method suitable for displaying the method in a menu or navigator. 
+     * input_types and output_types - sets of valid_ws_types occured in input/output parameters.
      * </pre>
      * 
      */
@@ -86,7 +87,8 @@ public class MethodSpec {
     /**
      * <p>Original spec-file type: MethodBriefInfo</p>
      * <pre>
-     * Minimal information about a method suitable for displaying the method in a menu or navigator.
+     * Minimal information about a method suitable for displaying the method in a menu or navigator. 
+     * input_types and output_types - sets of valid_ws_types occured in input/output parameters.
      * </pre>
      * 
      */
@@ -98,7 +100,8 @@ public class MethodSpec {
     /**
      * <p>Original spec-file type: MethodBriefInfo</p>
      * <pre>
-     * Minimal information about a method suitable for displaying the method in a menu or navigator.
+     * Minimal information about a method suitable for displaying the method in a menu or navigator. 
+     * input_types and output_types - sets of valid_ws_types occured in input/output parameters.
      * </pre>
      * 
      */
