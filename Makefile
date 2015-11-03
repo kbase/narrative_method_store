@@ -171,6 +171,8 @@ deploy-service-libs:
 	$(ANT) buildwar $(ANT_OPTIONS)
 	mkdir -p $(SERVICE_DIR)
 	cp dist/$(WAR) $(SERVICE_DIR)
+	mkdir $(SERVICE_DIR)/webapps
+	cp dist/$(WAR) $(SERVICE_DIR)/webapps/root.war
 	echo $(GITCOMMIT) > $(SERVICE_DIR)/$(SERVICE).serverdist
 	echo $(TAGS) >> $(SERVICE_DIR)/$(SERVICE).serverdist
 
@@ -186,6 +188,7 @@ deploy-service-scripts:
 	  	exit 1; \
 	fi;
 	cp server_scripts/glassfish_administer_service.py $(SERVICE_DIR)
+	cp server_scripts/jetty.xml $(SERVICE_DIR)
 	server_scripts/build_server_control_scripts.py $(SERVICE_DIR) $(WAR)\
 		$(TARGET) $(JAVA_HOME) deploy.cfg $(ASADMIN) $(SERVICE_CAPS)\
 		$(SERVICE_PORT)
