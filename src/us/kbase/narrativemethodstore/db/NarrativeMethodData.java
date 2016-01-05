@@ -48,11 +48,17 @@ public class NarrativeMethodData {
 	protected MethodBriefInfo briefInfo;
 	protected MethodFullInfo fullInfo;
 	protected MethodSpec methodSpec;
+
+	public NarrativeMethodData(String methodId, JsonNode spec, Map<String, Object> display,
+	        FileLookup lookup) throws NarrativeMethodStoreException {
+	    this(methodId, spec, display, lookup, null, null, null);
+	}
 	
 	public NarrativeMethodData(String methodId, JsonNode spec, Map<String, Object> display,
-			FileLookup lookup) throws NarrativeMethodStoreException {
+			FileLookup lookup, String namespace, String serviceVersion,
+			ServiceUrlTemplateEvaluater srvUrlTemplEval) throws NarrativeMethodStoreException {
 		try {
-			update(methodId, spec, display, lookup);
+			update(methodId, spec, display, lookup, namespace, serviceVersion, srvUrlTemplEval);
 		} catch (Throwable ex) {
 			if (briefInfo.getName() == null)
 				briefInfo.withName(briefInfo.getId());
@@ -78,11 +84,14 @@ public class NarrativeMethodData {
 	
 	
 	public void update(String methodId, JsonNode spec, Map<String, Object> display,
-			FileLookup lookup) throws NarrativeMethodStoreException {
+			FileLookup lookup, String namespace, String serviceVersion,
+			ServiceUrlTemplateEvaluater srvUrlTemplEval) throws NarrativeMethodStoreException {
 		this.methodId = methodId;
 
 		briefInfo = new MethodBriefInfo()
-							.withId(this.methodId);
+							.withId(this.methodId)
+							.withModuleName(namespace);
+		briefInfo.getAdditionalProperties().put("namespace", namespace);
 
 		List <String> categories = new ArrayList<String>(1);
 		JsonNode cats = get(spec, "categories");
@@ -115,6 +124,7 @@ public class NarrativeMethodData {
 		briefInfo.withVer(get(spec, "ver").asText());
 		
 		List <String> authors = jsonListToStringList(spec.get("authors"));
+		briefInfo.withAuthors(authors);
 
 		List <String> kbContributors = jsonListToStringList(spec.get("kb_contributors"));
 		
@@ -126,7 +136,6 @@ public class NarrativeMethodData {
 				screenshots.add(new ScreenShot().withUrl("img?method_id=" + this.methodId + "&image_name=" + imageName));
 		}
 		
-		@SuppressWarnings("unchecked")
 		Icon icon = null;
 		try {
 			String iconName = getDisplayProp(display,"icon",lookup);
@@ -197,6 +206,7 @@ public class NarrativeMethodData {
 		
 		fullInfo = new MethodFullInfo()
 							.withId(this.methodId)
+							.withModuleName(namespace)
 							.withName(methodName)
 							.withVer(briefInfo.getVer())
 							.withSubtitle(methodSubtitle)
@@ -215,6 +225,8 @@ public class NarrativeMethodData {
 							.withSuggestions(suggestions)
 							
 							.withPublications(publications);
+		
+		fullInfo.getAdditionalProperties().put("namespace", namespace);
 		
 		JsonNode widgetsNode = get(spec, "widgets");
 		WidgetSpec widgets = new WidgetSpec()
@@ -298,9 +310,14 @@ public class NarrativeMethodData {
 				}
 				outputMapping.add(paramMapping);
 			}
+			String moduleName = getTextOrNull(serviceMappingNode.get("name"));
+			String serviceUrl = getTextOrNull(get("behavior/service-mapping", serviceMappingNode, "url"));
+			if (srvUrlTemplEval != null && serviceUrl != null && serviceUrl.length() > 0)
+			    serviceUrl = srvUrlTemplEval.evaluate(serviceUrl, moduleName, serviceVersion);
 			behavior
-				.withKbServiceUrl(getTextOrNull(get("behavior/service-mapping", serviceMappingNode, "url")))
-				.withKbServiceName(getTextOrNull(serviceMappingNode.get("name")))
+				.withKbServiceUrl(serviceUrl)
+				.withKbServiceName(moduleName)
+				.withKbServiceVersion(serviceVersion)
 				.withKbServiceMethod(getTextOrNull(get("behavior/service-mapping", serviceMappingNode, "method")))
 				.withKbServiceInputMapping(paramsMapping)
 				.withKbServiceOutputMapping(outputMapping);
@@ -417,6 +434,8 @@ public class NarrativeMethodData {
 		@SuppressWarnings("unchecked")
 		Map<String, Object> paramsDisplays = (Map<String, Object>)getDisplayProp("/", display, "parameters");
 		Set<String> paramIds = new TreeSet<String>();
+		Set<String> inputTypes = new TreeSet<String>();
+        Set<String> outputTypes = new TreeSet<String>();
 		for (int i = 0; i < parametersNode.size(); i++) {
 			JsonNode paramNode = parametersNode.get(i);
 			String paramPath = "parameters/" + i;
@@ -441,18 +460,20 @@ public class NarrativeMethodData {
 					placeholder = (String) getDisplayProp("parameters/" + paramId, paramDisplay, "placeholder");
 				} catch (IllegalStateException e) { }
 				
+				List<String> types = jsonListToStringList(optNode.get("valid_ws_types")); 
 				textOpt = new TextOptions()
-							.withValidWsTypes(jsonListToStringList(optNode.get("valid_ws_types")))
+							.withValidWsTypes(types)
 							.withValidateAs(getTextOrNull(optNode.get("validate_as")))
 							.withIsOutputName(isOutputNameFlag)
 							.withPlaceholder(placeholder);
-				if(textOpt.getValidWsTypes() != null) {
-					if(textOpt.getValidWsTypes().size()>0) {
-						uiClass = "input";
-						if(isOutputNameFlag == 1L) {
-							uiClass = "output";
-						}
-					}
+				if(types != null && types.size() > 0) {
+				    if (isOutputNameFlag == 1L) {
+				        uiClass = "output";
+                        outputTypes.addAll(types);
+				    } else {
+	                    uiClass = "input";
+                        inputTypes.addAll(types);
+				    }
 				}
 				
 				// todo: add better checks of min/max numbers, like if it is numeric
@@ -673,6 +694,8 @@ public class NarrativeMethodData {
 			parameters.add(param);
 		}
 		
+		briefInfo.withInputTypes(new ArrayList<String>(inputTypes)).withOutputTypes(new ArrayList<String>(outputTypes));
+		
 		List<FixedMethodParameter> fixedParameters = new ArrayList<FixedMethodParameter>();
 		try {
 			@SuppressWarnings("unchecked")
@@ -810,7 +833,7 @@ public class NarrativeMethodData {
 		return ret;
 	}
 
-	private static Map<String, String> jsonMapToStringMap(JsonNode node) {
+	protected static Map<String, String> jsonMapToStringMap(JsonNode node) {
 		if (node == null)
 			return null;
 		Map<String, String> ret = new LinkedHashMap<String, String>();

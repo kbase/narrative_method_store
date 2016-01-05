@@ -18,6 +18,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
  * on listing methods or apps
  * limit - optional field (default value is 0)
  * offset - optional field (default value is 0)
+ * tag - optional access level for dynamic repos (one of 'dev', 'beta' or 'release').
  * </pre>
  * 
  */
@@ -25,7 +26,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @Generated("com.googlecode.jsonschema2pojo")
 @JsonPropertyOrder({
     "limit",
-    "offset"
+    "offset",
+    "tag"
 })
 public class ListParams {
 
@@ -33,6 +35,8 @@ public class ListParams {
     private Long limit;
     @JsonProperty("offset")
     private Long offset;
+    @JsonProperty("tag")
+    private String tag;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
     @JsonProperty("limit")
@@ -65,6 +69,21 @@ public class ListParams {
         return this;
     }
 
+    @JsonProperty("tag")
+    public String getTag() {
+        return tag;
+    }
+
+    @JsonProperty("tag")
+    public void setTag(String tag) {
+        this.tag = tag;
+    }
+
+    public ListParams withTag(String tag) {
+        this.tag = tag;
+        return this;
+    }
+
     @JsonAnyGetter
     public Map<String, Object> getAdditionalProperties() {
         return this.additionalProperties;
@@ -77,7 +96,7 @@ public class ListParams {
 
     @Override
     public String toString() {
-        return ((((((("ListParams"+" [limit=")+ limit)+", offset=")+ offset)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((((("ListParams"+" [limit=")+ limit)+", offset=")+ offset)+", tag=")+ tag)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }

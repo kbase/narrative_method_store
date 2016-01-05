@@ -29,6 +29,7 @@ TESTCFG ?= test.cfg
 
 default: build-libs build-docs build-bin
 
+
 ifeq ($(TOP_DIR_NAME), dev_container)
 
 ##############################
@@ -74,6 +75,7 @@ endif
 submodule-init:
 	git submodule init
 	git submodule update
+	#$(MAKE) -C submodules/module_builder
 
 build-docs:
 	mkdir -p docs
@@ -117,7 +119,8 @@ compile-typespec:
 	rm -f lib/*Server.p* #should be no perl/py server files in our lib dir
 	rm -f lib/*Impl.p*   #should be no perl/py impl files in our lib dir
 
-
+build-classpath-list:
+	$(ANT) build_classpath_list $(ANT_OPTIONS)
 
 
 test: test-client test-service test-scripts
@@ -169,6 +172,8 @@ deploy-service-libs:
 	$(ANT) buildwar $(ANT_OPTIONS)
 	mkdir -p $(SERVICE_DIR)
 	cp dist/$(WAR) $(SERVICE_DIR)
+	mkdir $(SERVICE_DIR)/webapps
+	cp dist/$(WAR) $(SERVICE_DIR)/webapps/root.war
 	echo $(GITCOMMIT) > $(SERVICE_DIR)/$(SERVICE).serverdist
 	echo $(TAGS) >> $(SERVICE_DIR)/$(SERVICE).serverdist
 
@@ -184,6 +189,7 @@ deploy-service-scripts:
 	  	exit 1; \
 	fi;
 	cp server_scripts/glassfish_administer_service.py $(SERVICE_DIR)
+	cp server_scripts/jetty.xml $(SERVICE_DIR)
 	server_scripts/build_server_control_scripts.py $(SERVICE_DIR) $(WAR)\
 		$(TARGET) $(JAVA_HOME) deploy.cfg $(ASADMIN) $(SERVICE_CAPS)\
 		$(SERVICE_PORT)
