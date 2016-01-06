@@ -12,10 +12,6 @@ public class AppEventListener implements ServletContextListener {
     
     @Override
     public void contextDestroyed(ServletContextEvent arg0) {
-        try {
-            NarrativeMethodStoreServer.getLocalGitDB().stopRefreshingThread();
-        } catch (Exception ex) {
-            throw new IllegalStateException(ex);
-        }
+        NarrativeMethodStoreServer.getLocalGitDB().stopRefreshingThread();
     }
 }

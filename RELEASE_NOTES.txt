@@ -4,19 +4,6 @@ The Narrative Method Store provides an API to dynamically access the available
 narrative method/app/type specifications and documentation.
 
 
-VERSION: 0.3.1 (Released 10/21/15)
---------------------------------------
-UPDATED FEATURES / MAJOR BUG FIXES:
-- Support for templated service URLs in method-specs.
-
-
-VERSION: 0.3.0 (Released 10/9/15)
---------------------------------------
-UPDATED FEATURES / MAJOR BUG FIXES:
-- Dynamic repos and namespaces in methods related to it are now supported.
-- Git commit hash versions are propagated in method-specs for dynamic repos.
-
-
 VERSION: 0.2.8 (Released 8/25/15)
 --------------------------------------
 UPDATED FEATURES / MAJOR BUG FIXES:

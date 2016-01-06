@@ -23,7 +23,6 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @Generated("com.googlecode.jsonschema2pojo")
 @JsonPropertyOrder({
     "id",
-    "module_name",
     "name",
     "ver",
     "authors",
@@ -43,8 +42,6 @@ public class MethodFullInfo {
 
     @JsonProperty("id")
     private java.lang.String id;
-    @JsonProperty("module_name")
-    private java.lang.String moduleName;
     @JsonProperty("name")
     private java.lang.String name;
     @JsonProperty("ver")
@@ -97,21 +94,6 @@ public class MethodFullInfo {
 
     public MethodFullInfo withId(java.lang.String id) {
         this.id = id;
-        return this;
-    }
-
-    @JsonProperty("module_name")
-    public java.lang.String getModuleName() {
-        return moduleName;
-    }
-
-    @JsonProperty("module_name")
-    public void setModuleName(java.lang.String moduleName) {
-        this.moduleName = moduleName;
-    }
-
-    public MethodFullInfo withModuleName(java.lang.String moduleName) {
-        this.moduleName = moduleName;
         return this;
     }
 
@@ -357,7 +339,7 @@ public class MethodFullInfo {
 
     @Override
     public java.lang.String toString() {
-        return ((((((((((((((((((((((((((((((((((("MethodFullInfo"+" [id=")+ id)+", moduleName=")+ moduleName)+", name=")+ name)+", ver=")+ ver)+", authors=")+ authors)+", kbContributors=")+ kbContributors)+", contact=")+ contact)+", subtitle=")+ subtitle)+", tooltip=")+ tooltip)+", description=")+ description)+", technicalDescription=")+ technicalDescription)+", suggestions=")+ suggestions)+", icon=")+ icon)+", categories=")+ categories)+", screenshots=")+ screenshots)+", publications=")+ publications)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((((((((((((((((((((((((((((("MethodFullInfo"+" [id=")+ id)+", name=")+ name)+", ver=")+ ver)+", authors=")+ authors)+", kbContributors=")+ kbContributors)+", contact=")+ contact)+", subtitle=")+ subtitle)+", tooltip=")+ tooltip)+", description=")+ description)+", technicalDescription=")+ technicalDescription)+", suggestions=")+ suggestions)+", icon=")+ icon)+", categories=")+ categories)+", screenshots=")+ screenshots)+", publications=")+ publications)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }

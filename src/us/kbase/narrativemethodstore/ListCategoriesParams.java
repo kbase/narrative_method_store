@@ -16,8 +16,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
  * <pre>
  * List all the categories.  Optionally, if load_methods or load_apps are set to 1,
  * information about all the methods and apps is provided.  This is important
- * load_methods - optional field (default value is 1).
- * tag - optional access level for dynamic repos (one of 'dev', 'beta' or 'release').
+ * load_methods - optional field (default value is 1)
  * </pre>
  * 
  */
@@ -26,8 +25,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @JsonPropertyOrder({
     "load_methods",
     "load_apps",
-    "load_types",
-    "tag"
+    "load_types"
 })
 public class ListCategoriesParams {
 
@@ -37,8 +35,6 @@ public class ListCategoriesParams {
     private Long loadApps;
     @JsonProperty("load_types")
     private Long loadTypes;
-    @JsonProperty("tag")
-    private String tag;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
     @JsonProperty("load_methods")
@@ -86,21 +82,6 @@ public class ListCategoriesParams {
         return this;
     }
 
-    @JsonProperty("tag")
-    public String getTag() {
-        return tag;
-    }
-
-    @JsonProperty("tag")
-    public void setTag(String tag) {
-        this.tag = tag;
-    }
-
-    public ListCategoriesParams withTag(String tag) {
-        this.tag = tag;
-        return this;
-    }
-
     @JsonAnyGetter
     public Map<String, Object> getAdditionalProperties() {
         return this.additionalProperties;
@@ -113,7 +94,7 @@ public class ListCategoriesParams {
 
     @Override
     public String toString() {
-        return ((((((((((("ListCategoriesParams"+" [loadMethods=")+ loadMethods)+", loadApps=")+ loadApps)+", loadTypes=")+ loadTypes)+", tag=")+ tag)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((((("ListCategoriesParams"+" [loadMethods=")+ loadMethods)+", loadApps=")+ loadApps)+", loadTypes=")+ loadTypes)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }

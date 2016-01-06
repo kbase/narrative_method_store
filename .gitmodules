@@ -1,6 +1,3 @@
 [submodule "submodules/jars"]
 	path = submodules/jars
 	url = https://github.com/kbase/jars
-[submodule "submodules/module_builder"]
-	path = submodules/module_builder
-	url = https://github.com/kbaseIncubator/module_builder/

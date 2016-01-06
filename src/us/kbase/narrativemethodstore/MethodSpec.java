@@ -40,8 +40,7 @@ public class MethodSpec {
     /**
      * <p>Original spec-file type: MethodBriefInfo</p>
      * <pre>
-     * Minimal information about a method suitable for displaying the method in a menu or navigator. 
-     * input_types and output_types - sets of valid_ws_types occured in input/output parameters.
+     * Minimal information about a method suitable for displaying the method in a menu or navigator.
      * </pre>
      * 
      */
@@ -68,7 +67,6 @@ public class MethodSpec {
      * Determines how the method is handled when run.
      * kb_service_name - name of service which will be part of fully qualified method name, optional field (in
      *     case it's not defined developer should enter fully qualified name with dot into 'kb_service_method'.
-     * kb_service_version - optional git commit hash defining version of repo registered dynamically.
      * kb_service_input_mapping - mapping from input parameters to input service method arguments.
      * kb_service_output_mapping - mapping from output of service method to final output of narrative method.
      * output_mapping - mapping from input to final output of narrative method to support steps without back-end operations.
@@ -87,8 +85,7 @@ public class MethodSpec {
     /**
      * <p>Original spec-file type: MethodBriefInfo</p>
      * <pre>
-     * Minimal information about a method suitable for displaying the method in a menu or navigator. 
-     * input_types and output_types - sets of valid_ws_types occured in input/output parameters.
+     * Minimal information about a method suitable for displaying the method in a menu or navigator.
      * </pre>
      * 
      */
@@ -100,8 +97,7 @@ public class MethodSpec {
     /**
      * <p>Original spec-file type: MethodBriefInfo</p>
      * <pre>
-     * Minimal information about a method suitable for displaying the method in a menu or navigator. 
-     * input_types and output_types - sets of valid_ws_types occured in input/output parameters.
+     * Minimal information about a method suitable for displaying the method in a menu or navigator.
      * </pre>
      * 
      */
@@ -195,7 +191,6 @@ public class MethodSpec {
      * Determines how the method is handled when run.
      * kb_service_name - name of service which will be part of fully qualified method name, optional field (in
      *     case it's not defined developer should enter fully qualified name with dot into 'kb_service_method'.
-     * kb_service_version - optional git commit hash defining version of repo registered dynamically.
      * kb_service_input_mapping - mapping from input parameters to input service method arguments.
      * kb_service_output_mapping - mapping from output of service method to final output of narrative method.
      * output_mapping - mapping from input to final output of narrative method to support steps without back-end operations.
@@ -216,7 +211,6 @@ public class MethodSpec {
      * Determines how the method is handled when run.
      * kb_service_name - name of service which will be part of fully qualified method name, optional field (in
      *     case it's not defined developer should enter fully qualified name with dot into 'kb_service_method'.
-     * kb_service_version - optional git commit hash defining version of repo registered dynamically.
      * kb_service_input_mapping - mapping from input parameters to input service method arguments.
      * kb_service_output_mapping - mapping from output of service method to final output of narrative method.
      * output_mapping - mapping from input to final output of narrative method to support steps without back-end operations.

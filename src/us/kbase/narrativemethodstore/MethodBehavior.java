@@ -18,7 +18,6 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
  * Determines how the method is handled when run.
  * kb_service_name - name of service which will be part of fully qualified method name, optional field (in
  *     case it's not defined developer should enter fully qualified name with dot into 'kb_service_method'.
- * kb_service_version - optional git commit hash defining version of repo registered dynamically.
  * kb_service_input_mapping - mapping from input parameters to input service method arguments.
  * kb_service_output_mapping - mapping from output of service method to final output of narrative method.
  * output_mapping - mapping from input to final output of narrative method to support steps without back-end operations.
@@ -35,7 +34,6 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
     "python_function",
     "kb_service_url",
     "kb_service_name",
-    "kb_service_version",
     "kb_service_method",
     "script_module",
     "script_name",
@@ -56,8 +54,6 @@ public class MethodBehavior {
     private String kbServiceUrl;
     @JsonProperty("kb_service_name")
     private String kbServiceName;
-    @JsonProperty("kb_service_version")
-    private String kbServiceVersion;
     @JsonProperty("kb_service_method")
     private String kbServiceMethod;
     @JsonProperty("script_module")
@@ -135,21 +131,6 @@ public class MethodBehavior {
 
     public MethodBehavior withKbServiceName(String kbServiceName) {
         this.kbServiceName = kbServiceName;
-        return this;
-    }
-
-    @JsonProperty("kb_service_version")
-    public String getKbServiceVersion() {
-        return kbServiceVersion;
-    }
-
-    @JsonProperty("kb_service_version")
-    public void setKbServiceVersion(String kbServiceVersion) {
-        this.kbServiceVersion = kbServiceVersion;
-    }
-
-    public MethodBehavior withKbServiceVersion(String kbServiceVersion) {
-        this.kbServiceVersion = kbServiceVersion;
         return this;
     }
 
@@ -300,7 +281,7 @@ public class MethodBehavior {
 
     @Override
     public String toString() {
-        return ((((((((((((((((((((((((((((((("MethodBehavior"+" [pythonClass=")+ pythonClass)+", pythonFunction=")+ pythonFunction)+", kbServiceUrl=")+ kbServiceUrl)+", kbServiceName=")+ kbServiceName)+", kbServiceVersion=")+ kbServiceVersion)+", kbServiceMethod=")+ kbServiceMethod)+", scriptModule=")+ scriptModule)+", scriptName=")+ scriptName)+", scriptHasFiles=")+ scriptHasFiles)+", kbServiceInputMapping=")+ kbServiceInputMapping)+", kbServiceOutputMapping=")+ kbServiceOutputMapping)+", outputMapping=")+ outputMapping)+", scriptInputMapping=")+ scriptInputMapping)+", scriptOutputMapping=")+ scriptOutputMapping)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((((((((((((((((((((((((("MethodBehavior"+" [pythonClass=")+ pythonClass)+", pythonFunction=")+ pythonFunction)+", kbServiceUrl=")+ kbServiceUrl)+", kbServiceName=")+ kbServiceName)+", kbServiceMethod=")+ kbServiceMethod)+", scriptModule=")+ scriptModule)+", scriptName=")+ scriptName)+", scriptHasFiles=")+ scriptHasFiles)+", kbServiceInputMapping=")+ kbServiceInputMapping)+", kbServiceOutputMapping=")+ kbServiceOutputMapping)+", outputMapping=")+ outputMapping)+", scriptInputMapping=")+ scriptInputMapping)+", scriptOutputMapping=")+ scriptOutputMapping)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }

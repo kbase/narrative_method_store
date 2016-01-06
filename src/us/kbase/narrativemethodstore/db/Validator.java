@@ -77,8 +77,6 @@ public class Validator {
 			errors.add("display.yaml could not be parsed as a structure. It was mapped to:"+parsedDisplayObject.getClass().getName() +
 					"\n Make sure the top level of the YAML file are 'fields:values', not a list, string, or other construct.");
 		} catch (Exception e) {
-            System.err.println("Error validating " + params.getId());
-		    e.printStackTrace();
 			if(e.getMessage()!=null) {
 				errors.add(e.getMessage());
 			} else {
@@ -98,14 +96,10 @@ public class Validator {
 				results.setMethodSpec(nmd.getMethodSpec());
 				// it all seemed to parse fine, but we can add additional checks or warnings here if desired
 				isValid = 1L;
+			} catch (NarrativeMethodStoreException e) {
+				errors.add(e.getMessage());
 			} catch (Exception e) {
-			    System.err.println("Error validating " + params.getId());
-			    e.printStackTrace();
-	            if(e.getMessage()!=null) {
-	                errors.add(e.getMessage());
-	            } else {
-	                errors.add("An unknown error occured while parsing the spec.json file");
-	            }
+				errors.add(e.getMessage());
 			}
 		}
 		

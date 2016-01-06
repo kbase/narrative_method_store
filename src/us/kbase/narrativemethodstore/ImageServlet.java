@@ -16,9 +16,6 @@ import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 
-import us.kbase.narrativemethodstore.db.github.LocalGitDB;
-import us.kbase.narrativemethodstore.db.github.RepoTag;
-
 public class ImageServlet extends HttpServlet {
 	
 	private static final long serialVersionUID = 1L;
@@ -58,7 +55,6 @@ public class ImageServlet extends HttpServlet {
 		String methodId = request.getParameter("method_id");
 		String appId = request.getParameter("app_id");
 		String typeName = request.getParameter("type_name");
-		String tag = request.getParameter("tag");
 		int defined = 0;
 		if (methodId != null)
 			defined++;
@@ -80,38 +76,27 @@ public class ImageServlet extends HttpServlet {
 		if (imageName == null || imageName.contains("../") || imageName.trim().isEmpty())
 			throw new IllegalStateException("Parameter image_name is wrong");
 		String imageExt = imageName.contains(".") ? imageName.substring(imageName.indexOf('.') + 1).toLowerCase() : "png";
-		if (methodId != null && methodId.contains("/")) {
-            String[] moduleNameAndMethodId = methodId.split("/");
-            OutputStream os = response.getOutputStream();
-		    try {
-		        LocalGitDB db = NarrativeMethodStoreServer.getLocalGitDB();
-		        db.saveScreenshotIntoStream(moduleNameAndMethodId[0], moduleNameAndMethodId[1], imageName, tag, os);
-		    } catch (Exception ex) {
-		        throw new IllegalStateException(ex);
-		    }
-		} else {
-		    String path = null;
-		    try {
-		        path = NarrativeMethodStoreServer.config().get(NarrativeMethodStoreServer.CFG_PROP_GIT_LOCAL_DIR);
-		    } catch (Exception ex) {
-		        System.err.println(ex.getMessage());
-		    }
-		    if (path == null)
-		        path = "../narrative_method_specs";
-		    File innerDir;
-		    if (methodId != null) {
-		        innerDir = new File(new File(path, "methods"), methodId);
-		    } else if (appId != null) {
-		        innerDir = new File(new File(path, "apps"), appId);
-		    } else {
-		        innerDir = new File(new File(path, "types"), typeName);
-		    }
-		    File imageFile = new File(new File(innerDir, "img"), imageName);
-		    setupResponseHeaders(request, response);
-		    response.setContentType("image/" + imageExt);
-		    OutputStream os = response.getOutputStream();
-		    InputStream is = new FileInputStream(imageFile);
-		    IOUtils.copy(is, os);
+		String path = null;
+		try {
+			path = NarrativeMethodStoreServer.config().get(NarrativeMethodStoreServer.CFG_PROP_GIT_LOCAL_DIR);
+		} catch (Exception ex) {
+			System.err.println(ex.getMessage());
 		}
+		if (path == null)
+    		path = "../narrative_method_specs";
+		File innerDir;
+		if (methodId != null) {
+			innerDir = new File(new File(path, "methods"), methodId);
+		} else if (appId != null) {
+			innerDir = new File(new File(path, "apps"), appId);
+		} else {
+			innerDir = new File(new File(path, "types"), typeName);
+		}
+    	File imageFile = new File(new File(innerDir, "img"), imageName);
+		setupResponseHeaders(request, response);
+		response.setContentType("image/" + imageExt);
+		OutputStream os = response.getOutputStream();
+		InputStream is = new FileInputStream(imageFile);
+		IOUtils.copy(is, os);
 	}
 }

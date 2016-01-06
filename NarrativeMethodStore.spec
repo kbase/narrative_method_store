@@ -39,12 +39,9 @@ module NarrativeMethodStore {
         url url;
     } Icon;
     
-    /* Minimal information about a method suitable for displaying the method in a menu or navigator. 
-         input_types and output_types - sets of valid_ws_types occured in input/output parameters.
-    */
+    /* Minimal information about a method suitable for displaying the method in a menu or navigator. */
     typedef structure {
         string id;
-        string module_name;
         string name;
         string ver;
         string subtitle;
@@ -52,9 +49,6 @@ module NarrativeMethodStore {
         Icon icon;
         list<string> categories;
         string loading_error;
-        list <username> authors;
-        list <string> input_types;
-        list <string> output_types;
     } MethodBriefInfo;
     
     typedef structure {
@@ -83,7 +77,6 @@ module NarrativeMethodStore {
     /* Full information about a method suitable for displaying a method landing page. */
     typedef structure {
         string id;
-        string module_name;
         string name;
         string ver;
         list <username> authors;
@@ -447,7 +440,6 @@ module NarrativeMethodStore {
         Determines how the method is handled when run.
         kb_service_name - name of service which will be part of fully qualified method name, optional field (in
             case it's not defined developer should enter fully qualified name with dot into 'kb_service_method'.
-        kb_service_version - optional git commit hash defining version of repo registered dynamically.
         kb_service_input_mapping - mapping from input parameters to input service method arguments.
         kb_service_output_mapping - mapping from output of service method to final output of narrative method.
         output_mapping - mapping from input to final output of narrative method to support steps without back-end operations.
@@ -460,7 +452,6 @@ module NarrativeMethodStore {
         string python_function;
         string kb_service_url;
         string kb_service_name;
-        string kb_service_version;
         string kb_service_method;
         string script_module;
         string script_name;
@@ -593,14 +584,12 @@ module NarrativeMethodStore {
     /*
         List all the categories.  Optionally, if load_methods or load_apps are set to 1,
         information about all the methods and apps is provided.  This is important
-        load_methods - optional field (default value is 1).
-        tag - optional access level for dynamic repos (one of 'dev', 'beta' or 'release').
+        load_methods - optional field (default value is 1)
     */
     typedef structure {
         boolean load_methods;
         boolean load_apps;
         boolean load_types;
-        string tag;
     } ListCategoriesParams;
 
     funcdef list_categories(ListCategoriesParams params) 
@@ -620,12 +609,10 @@ module NarrativeMethodStore {
         on listing methods or apps
         limit - optional field (default value is 0)
         offset - optional field (default value is 0)
-        tag - optional access level for dynamic repos (one of 'dev', 'beta' or 'release').
     */
     typedef structure {
         int limit;
         int offset;
-        string tag;
     } ListParams;
     
     funcdef list_methods(ListParams params) returns (list<MethodBriefInfo>);
@@ -634,14 +621,7 @@ module NarrativeMethodStore {
     
     funcdef list_methods_spec(ListParams params) returns (list<MethodSpec>);
 
-    /*
-        tag - optional access level for dynamic repos (one of 'dev', 'beta' or 'release').
-    */
-    typedef structure {
-        string tag;
-    } ListMethodIdsAndNamesParams;
-
-    funcdef list_method_ids_and_names(ListMethodIdsAndNamesParams params) returns (mapping<string,string>);
+    funcdef list_method_ids_and_names() returns (mapping<string,string>);
     
     
     funcdef list_apps(ListParams params) returns (list<AppBriefInfo>);
@@ -654,12 +634,9 @@ module NarrativeMethodStore {
     
     funcdef list_types(ListParams params) returns (list<TypeInfo>);
     
-    /*
-        tag - optional access level for dynamic repos (one of 'dev', 'beta' or 'release').
-    */
+    
     typedef structure {
         list <string> ids;
-        string tag;
     } GetMethodParams;
 
     funcdef get_method_brief_info(GetMethodParams params) returns (list<MethodBriefInfo>);
@@ -729,50 +706,5 @@ module NarrativeMethodStore {
     funcdef validate_type(ValidateTypeParams params) returns (ValidationResults);
 
     /* need to add category validation as well */
-
-    /*
-        Describes how to find repository widget JavaScript.
-        module_name - name of module defined in kbase.yaml;
-        version - optional parameter limiting search by certain version timestamp;
-        widget_id - name of java-script file stored in repo's 'ui/widgets' folder.
-        tag - optional access level for dynamic repos (one of 'dev', 'beta', 'release').
-    */
-    typedef structure {
-        string module_name;
-        int version;
-        string widget_id;
-        string tag;
-    } LoadWidgetParams;
-
-    funcdef load_widget_java_script(LoadWidgetParams params) returns (string 
-        java_script);
-
-    /****************************** Dynamic Repos API *******************************/
-
-    typedef structure {
-        string git_url;
-        string git_commit_hash;
-    } RegisterRepoParams;
-
-    funcdef register_repo(RegisterRepoParams params) returns () authentication
-        required;
-
-    typedef structure {
-        string module_name;
-    } DisableRepoParams;
-
-    funcdef disable_repo(DisableRepoParams params) returns () authentication 
-        required;
-
-    /*
-        tag - one of two values: 'beta' or 'release'.
-    */
-    typedef structure {
-        string module_name;
-        string tag;
-    } PushRepoToTagParams;
-
-    funcdef push_repo_to_tag(PushRepoToTagParams params) returns () 
-        authentication required;
 
 };
