@@ -1104,6 +1104,14 @@ public class FullServerTest {
 	        MethodBriefInfo bi = methods.get(methodId);
 	        Assert.assertNull(bi);
 	        SERVER.getLocalGitDB().registerRepo(admin1, gitUrl, null);  // e1954abb4ac98efcc11fe6cf73a246bfb20fb274
+            Assert.assertEquals(2, CLIENT.listMethods(new ListParams().withTag("dev")).size() -
+                    CLIENT.listMethods(new ListParams().withTag("release")).size());
+            Assert.assertEquals(2, CLIENT.listMethodsSpec(new ListParams().withTag("dev")).size() -
+                    CLIENT.listMethodsSpec(new ListParams().withTag("release")).size());
+            Assert.assertEquals(2, CLIENT.listMethodsFullInfo(new ListParams().withTag("dev")).size() -
+                    CLIENT.listMethodsFullInfo(new ListParams().withTag("release")).size());
+            Assert.assertEquals(2, CLIENT.listMethodIdsAndNames(new ListMethodIdsAndNamesParams().withTag("dev")).size() -
+                    CLIENT.listMethodIdsAndNames(new ListMethodIdsAndNamesParams().withTag("release")).size());
 	        Assert.assertNull(CLIENT.listCategories(new ListCategoriesParams().withLoadMethods(1L).withTag("beta")).getE2().get(methodId));
             SERVER.getLocalGitDB().pushRepoToTag(moduleName, "beta", admin1);
             Assert.assertNotNull(CLIENT.listCategories(new ListCategoriesParams().withLoadMethods(1L).withTag("beta")).getE2().get(methodId));

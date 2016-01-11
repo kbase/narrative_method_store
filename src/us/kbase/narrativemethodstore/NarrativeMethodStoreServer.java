@@ -373,7 +373,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
         config();
         List<String> methodIds = new ArrayList<String>(getLocalGitDB().listMethodIds(false, params.getTag()));
         methodIds = trim(methodIds, params);
-        returnVal = getMethodFullInfo(new GetMethodParams().withIds(methodIds));
+        returnVal = getMethodFullInfo(new GetMethodParams().withIds(methodIds).withTag(params.getTag()));
         //END list_methods_full_info
         return returnVal;
     }
@@ -392,7 +392,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
         config();
         List<String> methodIds = new ArrayList<String>(getLocalGitDB().listMethodIds(false, params.getTag()));
         methodIds = trim(methodIds, params);
-        returnVal = getMethodSpec(new GetMethodParams().withIds(methodIds));
+        returnVal = getMethodSpec(new GetMethodParams().withIds(methodIds).withTag(params.getTag()));
         //END list_methods_spec
         return returnVal;
     }
