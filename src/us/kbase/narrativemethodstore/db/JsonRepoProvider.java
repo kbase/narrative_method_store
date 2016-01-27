@@ -253,6 +253,7 @@ public class JsonRepoProvider implements RepoProvider {
         public String readmeFile;
         public List<String> uiNarrativeMethodIds;
         public Map<String, MethodData> uiNarrativeMethods;
+        public Map<String, String> uiWidgetIdToFile;  // compatibility with older versions (not used)
         public List<FileRef> uiWidgetFileRefs;
         public String repoZip;
         
