@@ -244,7 +244,11 @@ public class MongoDynamicRepoDBTest {
             public String loadFileContent(String fileName) {
                 return null;
             }
-        });
+            @Override
+            public boolean fileExists(String fileName) {
+                return false;
+            }
+        }, null);
         Assert.assertEquals(methodId, parser.getMethodBriefInfo().getId());
         Assert.assertEquals(methodId, parser.getMethodFullInfo().getId());
         Assert.assertEquals(methodId, parser.getMethodSpec().getInfo().getId());

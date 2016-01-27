@@ -148,7 +148,14 @@ public class GitHubDB implements MethodSpecDB {
 							return null;
 						}
 					}
-				});
+					@Override
+					public boolean fileExists(String fileName) {
+					    try {
+					        return loadFileContent(fileName) != null;
+					    } catch (Exception ignore) {}
+					    return false;
+					}
+				}, null);
 		return data;
 	}
 	

@@ -410,23 +410,42 @@ public class LocalGitDB {
 			JsonNode spec = null;
 			Map<String,Object> display = null;
 			String serviceVersion = null;
+			RepoTag tag = null;
+			FileLookup fl = null;
 			if (methodId.isDynamic()) {
-			    RepoProvider repo = dynamicRepos.getRepoDetails(methodId.getRepoModuleName(), methodId.getTag());
+			    final RepoProvider repo = dynamicRepos.getRepoDetails(methodId.getRepoModuleName(), methodId.getTag());
 			    if (repo == null)
 			        throw new NarrativeMethodStoreException("Repository " + methodId.getRepoModuleName() + 
 			                " wasn't tagged with " + methodId.getTag() + " tag");
 			    serviceVersion = repo.getGitCommitHash();
 			    spec = mapper.readTree(asText(repo.getUINarrativeMethodSpec(methodId.getMethodId())));
 			    display = YamlUtils.getDocumentAsYamlMap(asText(repo.getUINarrativeMethodDisplay(methodId.getMethodId())));
+			    tag = methodId.getTag();
+			    fl = new FileLookup() {
+                    @Override
+                    public String loadFileContent(String fileName) {
+                        return null;
+                    }
+                    @Override
+                    public boolean fileExists(String fileName) {
+                        if (fileName.startsWith("img/")) {
+                            fileName = fileName.split("/")[1];
+                            try {
+                                return repo.getScreenshot(methodId.getMethodId(), fileName) != null;
+                            } catch (Exception ignore) {}
+                        }
+                        return false;
+                    }
+                };
 			} else {
 			    spec = getResourceAsJson("methods/"+methodId+"/spec.json");
 			    display = getResourceAsYamlMap("methods/"+methodId+"/display.yaml");
+			    fl = createFileLookup(new File(getMethodsDir(), methodId.getMethodId()));
 			}
 
 			// Initialize the actual data
 			NarrativeMethodData data = new NarrativeMethodData(methodId.getExternalId(), spec, display,
-					createFileLookup(new File(getMethodsDir(), methodId.getMethodId())), methodId.getRepoModuleName(), 
-					serviceVersion, srvUrlTemplEval);
+					fl, methodId.getRepoModuleName(), serviceVersion, srvUrlTemplEval, tag);
 			return data;
 		} catch (NarrativeMethodStoreException ex) {
 			throw ex;
@@ -448,6 +467,10 @@ public class LocalGitDB {
 						return TextUtils.text(f);
 					} catch (IOException ignore) {}
 				return null;
+			}
+			@Override
+			public boolean fileExists(String fileName) {
+			    return new File(dir, fileName).exists();
 			}
 		};
 	}
@@ -704,6 +727,25 @@ public class LocalGitDB {
 	    RepoProvider pvd = null;
 	    try {
 	        pvd = new GitHubRepoProvider(new URL(url), commitHash, getTempDir());
+            String serviceVersion = pvd.getGitCommitHash();
+            StringBuilder errors = new StringBuilder();
+            for (String methodId : pvd.listUINarrativeMethodIDs()) {
+                try {
+                    JsonNode spec = mapper.readTree(asText(pvd.getUINarrativeMethodSpec(methodId)));
+                    Map<String, Object> display = YamlUtils.getDocumentAsYamlMap(asText(
+                            pvd.getUINarrativeMethodDisplay(methodId)));
+                    // Initialize the actual data
+                    new NarrativeMethodData(pvd.getModuleName() + "/" + methodId, 
+                            spec, display, createFileLookup(new File(getMethodsDir(), methodId)), 
+                            pvd.getModuleName(), serviceVersion, srvUrlTemplEval, RepoTag.dev);
+                } catch (Exception ex) {
+                    if (errors.length() > 0)
+                        errors.append("; ");
+                    errors.append("Error parsing method [" + methodId + "]: " + ex.getMessage());
+                }
+            }
+            if (errors.length() > 0)
+                throw new NarrativeMethodStoreException(errors.toString());
 	        dynamicRepos.registerRepo(userId, pvd);
 	        // TODO: Index invalidation is temp solution, we need to substitute it by small 
 	        // corrections related to this particular repo.

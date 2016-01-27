@@ -93,7 +93,8 @@ public class Validator {
 		ValidationResults results = new ValidationResults();
 		if(parsedSpec!= null && parsedDisplay!=null) {
 			try {
-				NarrativeMethodData nmd = new NarrativeMethodData(params.getId(), parsedSpec, parsedDisplay, createFileLookup(params.getExtraFiles()));
+				NarrativeMethodData nmd = new NarrativeMethodData(params.getId(), parsedSpec, parsedDisplay, 
+				        createFileLookup(params.getExtraFiles()), null);
 				results.setMethodFullInfo(nmd.getMethodFullInfo());
 				results.setMethodSpec(nmd.getMethodSpec());
 				// it all seemed to parse fine, but we can add additional checks or warnings here if desired
@@ -244,6 +245,10 @@ public class Validator {
 					}
 				}
 				return null;
+			}
+			@Override
+			public boolean fileExists(String fileName) {
+			    return extraFiles != null && extraFiles.containsKey(fileName);
 			}
 		};
 	}
