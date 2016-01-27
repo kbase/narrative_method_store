@@ -3,6 +3,7 @@ package us.kbase.narrativemethodstore.test;
 import static org.junit.Assert.*;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -1144,9 +1145,9 @@ public class FullServerTest {
 	        Assert.assertEquals("[KBaseGenomes.Genome]", ms.getParameters().get(0).getTextOptions().getValidWsTypes().toString());
 	        DynamicRepoDB db = SERVER.getLocalGitDB().getDynamicRepos();
 	        Assert.assertEquals(1, db.listRepoVersions(moduleName, null).size());
-	        String commitHash = db.getRepoDetails(moduleName, null).getGitCommitHash();
-	        Assert.assertEquals(40, commitHash.length());
-	        Assert.assertEquals(commitHash, ms.getBehavior().getKbServiceVersion());
+	        String commitHash1 = db.getRepoDetails(moduleName, null).getGitCommitHash();
+	        Assert.assertEquals(40, commitHash1.length());
+	        Assert.assertEquals(commitHash1, ms.getBehavior().getKbServiceVersion());
 	        RepoDetails rd = SERVER.getLocalGitDB().getRepoDetails(moduleName, null, null, null);
 	        Assert.assertEquals(moduleName, rd.getModuleName());
 	        Assert.assertEquals("[ResultView.js]", rd.getWidgetIds().toString());
@@ -1160,8 +1161,8 @@ public class FullServerTest {
 	        } catch (Exception ex) {
 	            Assert.assertEquals("User " + owner + " is not global admin", ex.getMessage());
 	        }
-	        commitHash = "00f008a265785ddfa70f21794738953bbf5895d0";
-	        SERVER.getLocalGitDB().registerRepo(admin1, gitUrl, commitHash);
+	        String commitHash2 = "00f008a265785ddfa70f21794738953bbf5895d0";
+	        SERVER.getLocalGitDB().registerRepo(admin1, gitUrl, commitHash2);
             Assert.assertNull(CLIENT.listCategories(new ListCategoriesParams().withLoadMethods(1L)).getE2().get(methodId));
             checkMethod(methodId, 2, "genomeA", "Genome A", "dev");
             checkMethod(methodId, 2, "param0", "Genome1 ID", "beta");
@@ -1172,8 +1173,19 @@ public class FullServerTest {
             checkMethod(methodId, 2, "param0", "Genome1 ID", null);
             SERVER.getLocalGitDB().pushRepoToTag(moduleName, "release", admin1);
             checkMethod(methodId, 2, "genomeA", "Genome A", null);
-	        methods = null;  //CLIENT.listCategories(new ListCategoriesParams().withLoadMethods(1L)).getE2();
-	        bi = null;  //methods.get(methodId);
+            checkMethod(methodId, 2, "param0", "Genome1 ID", commitHash1);
+            checkMethod(methodId, 2, "genomeA", "Genome A", commitHash2);
+            try {
+                checkMethod(methodId, 2, "genomeA", "Genome A", "unknown_version");       
+                Assert.fail("Unexpected tags shouldn't be supported");
+            } catch (Exception ex) {
+                Assert.assertEquals("Repo-tag [unknown_version] is not supported", ex.getMessage());
+            }
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            SERVER.getLocalGitDB().saveScreenshotIntoStream(moduleName, "send_data", "icon.png", commitHash1, baos);
+            Assert.assertEquals(62124, baos.toByteArray().length);
+	        methods = null;
+	        bi = null;
 	        fi = null;
 	        try {
 	            SERVER.getLocalGitDB().setRepoState(owner, moduleName, "disabled");

@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -17,7 +18,6 @@ import java.util.TreeSet;
 import org.jongo.Jongo;
 import org.jongo.MongoCollection;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.DB;
 import com.mongodb.MongoException.DuplicateKey;
 
@@ -98,6 +98,8 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
         MongoCollection repoHist = jdb.getCollection(TABLE_REPO_HISTORY);
         repoHist.ensureIndex(String.format("{%s:1,%s:1}", FIELD_RH_MODULE_NAME, 
                 FIELD_RH_VERSION), "{unique:true}");
+        repoHist.ensureIndex(String.format("{%s:1,%s:1}", FIELD_RH_MODULE_NAME, 
+                FIELD_RH_REPO_DATA + ".gitCommitHash"), "{unique:false}");
         MongoCollection repoFiles = jdb.getCollection(TABLE_REPO_FILES);
         repoFiles.ensureIndex(String.format("{%s:1}", FIELD_RF_FILE_ID), "{unique:true}");
         repoFiles.ensureIndex(String.format("{%s:1,%s:1,%s:1,%s:1}", FIELD_RF_MODULE_NAME, 
@@ -216,19 +218,24 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
             throws NarrativeMethodStoreException {
         if (tag == null || tag.equals(RepoTag.dev))
             return getRepoLastVersion(repoModuleName);
-        String versionField = null;
-        if (tag.equals(RepoTag.beta)) {
-            versionField = FIELD_RI_LAST_BETA_VERSION;
-        } else if (tag.equals(RepoTag.release)) {
-            versionField = FIELD_RI_LAST_RELEASE_VERSION;
+        List<Long> vers;
+        if (tag != null && tag.isGitCommitHash()) {
+            vers = listRepoVersions(repoModuleName, tag);
         } else {
-            throw new NarrativeMethodStoreException("Unsupported tag: " + tag);
+            String versionField = null;
+            if (tag.equals(RepoTag.beta)) {
+                versionField = FIELD_RI_LAST_BETA_VERSION;
+            } else if (tag.equals(RepoTag.release)) {
+                versionField = FIELD_RI_LAST_RELEASE_VERSION;
+            } else {
+                throw new NarrativeMethodStoreException("Unsupported tag: " + tag);
+            }
+            vers = MongoUtils.getProjection(jdb.getCollection(TABLE_REPO_INFO),
+                    String.format("{%s:#}", FIELD_RI_MODULE_NAME), 
+                    versionField, Long.class, repoModuleName);
         }
-        List<Long> vers = MongoUtils.getProjection(jdb.getCollection(TABLE_REPO_INFO),
-                String.format("{%s:#}", FIELD_RI_MODULE_NAME), 
-                versionField, Long.class, repoModuleName);
         checkRepoRegistered(repoModuleName, vers);
-        return vers.size() == 0 ? null : vers.get(0);
+        return vers.size() == 0 ? null : Collections.max(vers);
     }
 
     @Override
@@ -271,17 +278,25 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
     public List<Long> listRepoVersions(String repoModuleName, RepoTag tag)
             throws NarrativeMethodStoreException {
         checkRepoRegistered(repoModuleName);
-        String whereCondition;
-        if (tag == null || tag.equals(RepoTag.dev)) {
-            whereCondition = String.format("{%s:#}", FIELD_RH_MODULE_NAME);
-        } else if (tag.equals(RepoTag.beta) || tag.equals(RepoTag.release)) {
-            whereCondition = String.format("{%s:#,%s:1}", FIELD_RH_MODULE_NAME, 
-                    tag.equals(RepoTag.beta) ? FIELD_RH_IS_BETA : FIELD_RH_IS_RELEASE);
+        List<Long> ret;
+        if (tag != null && tag.isGitCommitHash()) {
+            ret = MongoUtils.getProjection(jdb.getCollection(TABLE_REPO_HISTORY),
+                    String.format("{%s:#,%s:#}", FIELD_RI_MODULE_NAME, 
+                            FIELD_RH_REPO_DATA + ".gitCommitHash"), 
+                    FIELD_RH_VERSION, Long.class, repoModuleName, tag.toString());
         } else {
-            throw new NarrativeMethodStoreException("Unsupported tag: " + tag);
+            String whereCondition;
+            if (tag == null || tag.equals(RepoTag.dev)) {
+                whereCondition = String.format("{%s:#}", FIELD_RH_MODULE_NAME);
+            } else if (tag.equals(RepoTag.beta) || tag.equals(RepoTag.release)) {
+                whereCondition = String.format("{%s:#,%s:1}", FIELD_RH_MODULE_NAME, 
+                        tag.equals(RepoTag.beta) ? FIELD_RH_IS_BETA : FIELD_RH_IS_RELEASE);
+            } else {
+                throw new NarrativeMethodStoreException("Unsupported tag: " + tag);
+            }
+            ret = MongoUtils.getProjection(jdb.getCollection(TABLE_REPO_HISTORY),
+                    whereCondition, FIELD_RH_VERSION, Long.class, repoModuleName);
         }
-        List<Long> ret = MongoUtils.getProjection(jdb.getCollection(TABLE_REPO_HISTORY),
-                whereCondition, FIELD_RH_VERSION, Long.class, repoModuleName);
         return ret;
     }
     
