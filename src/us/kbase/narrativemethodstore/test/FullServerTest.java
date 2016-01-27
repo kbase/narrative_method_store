@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeSet;
 
 import junit.framework.Assert;
@@ -531,8 +532,8 @@ public class FullServerTest {
 				foundTestMethod8 = true;
 				assertTrue("Testing that test_method_8 technical description is empty",
 					m.getTechnicalDescription().trim().length()==0);
-				assertTrue("Testing that test_method_8 has an icon",
-					m.getIcon()!=null);
+				assertTrue("Testing that test_method_8 has no icon",
+					m.getIcon() == null);
 			}
 			
 		}
@@ -1093,6 +1094,13 @@ public class FullServerTest {
 		assertTrue("Type validation results of test_method_1 type info is null", results.getTypeInfo()==null);
 	}
 	
+	private static Set<String> getMethodIds(List<MethodBriefInfo> infos) {
+	    Set<String> ret = new TreeSet<String>();
+	    for (MethodBriefInfo mbi : infos)
+	        ret.add(mbi.getId());
+	    return ret;
+	}
+	
 	@SuppressWarnings("static-access")
     @Test
 	public void testDynamicRepos() throws Exception {
@@ -1103,7 +1111,7 @@ public class FullServerTest {
 	        Map<String,MethodBriefInfo> methods = CLIENT.listCategories(new ListCategoriesParams().withLoadMethods(1L)).getE2();
 	        MethodBriefInfo bi = methods.get(methodId);
 	        Assert.assertNull(bi);
-	        SERVER.getLocalGitDB().registerRepo(admin1, gitUrl, null);  // e1954abb4ac98efcc11fe6cf73a246bfb20fb274
+	        SERVER.getLocalGitDB().registerRepo(admin1, gitUrl, null);
             Assert.assertEquals(2, CLIENT.listMethods(new ListParams().withTag("dev")).size() -
                     CLIENT.listMethods(new ListParams().withTag("release")).size());
             Assert.assertEquals(2, CLIENT.listMethodsSpec(new ListParams().withTag("dev")).size() -
@@ -1144,6 +1152,7 @@ public class FullServerTest {
 	        Assert.assertEquals("[ResultView.js]", rd.getWidgetIds().toString());
 	        Assert.assertNotNull(CLIENT.loadWidgetJavaScript(new LoadWidgetParams().withModuleName(moduleName)
 	                .withWidgetId("ResultView.js").withTag("dev")));
+	        Assert.assertEquals("img?method_id=onerepotest/send_data&image_name=icon.png&tag=dev", fi.getIcon().getUrl());
 	        String owner = "rsutormin";
 	        try {
 	            SERVER.getLocalGitDB().registerRepo(owner, gitUrl, null);

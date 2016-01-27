@@ -17,6 +17,7 @@ import java.util.TreeSet;
 import org.jongo.Jongo;
 import org.jongo.MongoCollection;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.DB;
 import com.mongodb.MongoException.DuplicateKey;
 
@@ -326,11 +327,15 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
         data.update(String.format("{%s:#}", FIELD_RI_MODULE_NAME), 
                 repoModuleName).with("#", info);
         MongoCollection data2 = jdb.getCollection(TABLE_REPO_HISTORY);
-        @SuppressWarnings("unchecked")
-        Map<String, Object> hist = data2.findOne(String.format("{%s:#,%s:#}", 
+        RepoHistory hist = data2.findOne(String.format("{%s:#,%s:#}", 
                 FIELD_RH_MODULE_NAME, FIELD_RH_VERSION), repoModuleName, changedVer)
-                .as(Map.class);
-        hist.put(tag.equals(RepoTag.beta) ? FIELD_RH_IS_BETA : FIELD_RH_IS_RELEASE, 1);
+                .as(RepoHistory.class);
+        hist.repo_data.repackForMongoDB();
+        if (tag.equals(RepoTag.beta)) {
+            hist.is_beta = 1L;
+        } else {
+            hist.is_release = 1L;
+        }
         data2.update(String.format("{%s:#,%s:#}", FIELD_RH_MODULE_NAME, FIELD_RH_VERSION), 
                 repoModuleName, changedVer).with("#", hist);
     }
@@ -515,7 +520,7 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
                 FIELD_RF_FILE_ID), fileId.getId()).as(Map.class);
         if (obj == null)
             throw new NarrativeMethodStoreException("File with id=" + fileId.getId() + 
-                    "is not found");
+                    " is not found");
         return obj;
     }
     
@@ -593,5 +598,13 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
                 throws NarrativeMethodStoreException {
             loadFile(fileId, os);
         }
+    }
+    
+    public static class RepoHistory {
+        String module_name;
+        Long version;
+        RepoData repo_data;
+        Long is_beta;
+        Long is_release;
     }
 }
