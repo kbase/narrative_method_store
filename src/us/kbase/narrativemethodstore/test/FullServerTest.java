@@ -1212,6 +1212,16 @@ public class FullServerTest {
             checkMethod(methodId2, 1, "contigset_id", "Contig Set Id", "dev");
             checkMethod(methodId2, 1, "contigset_id", "Contig Set Id", "beta");
             checkMethod(methodId2, 1, "contigset_id", "Contig Set Id", "release");
+            // try to disable, method should be gone and enable again, method should exists
+            SERVER.getLocalGitDB().setRepoState(admin1, moduleName, "disabled");
+            methods = CLIENT.listCategories(new ListCategoriesParams().withLoadMethods(1L)).getE2();
+            bi = methods.get(methodId);
+            Assert.assertNull(bi);
+            SERVER.getLocalGitDB().setRepoState(admin1, moduleName, "ready");
+            methods = CLIENT.listCategories(new ListCategoriesParams().withLoadMethods(1L)).getE2();
+            checkMethod(methodId2, 1, "contigset_id", "Contig Set Id", "dev");
+            checkMethod(methodId2, 1, "contigset_id", "Contig Set Id", "beta");
+            checkMethod(methodId2, 1, "contigset_id", "Contig Set Id", "release");
 	    } catch (ServerException ex) {
 	        System.err.println(ex.getData());
 	        throw ex;
