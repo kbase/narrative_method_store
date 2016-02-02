@@ -743,6 +743,19 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
     }
 
     /**
+     * <p>Original spec-file function name: enable_repo</p>
+     * <pre>
+     * </pre>
+     * @param   params   instance of type {@link us.kbase.narrativemethodstore.EnableRepoParams EnableRepoParams}
+     */
+    @JsonServerMethod(rpc = "NarrativeMethodStore.enable_repo")
+    public void enableRepo(EnableRepoParams params, AuthToken authPart) throws Exception {
+        //BEGIN enable_repo
+        getLocalGitDB().setRepoState(authPart.getClientId(), params.getModuleName(), "ready");
+        //END enable_repo
+    }
+
+    /**
      * <p>Original spec-file function name: push_repo_to_tag</p>
      * <pre>
      * </pre>
