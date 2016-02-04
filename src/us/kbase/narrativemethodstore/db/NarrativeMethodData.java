@@ -65,7 +65,8 @@ public class NarrativeMethodData {
 				briefInfo.withName(briefInfo.getId());
 			if (briefInfo.getCategories() == null)
 				briefInfo.withCategories(Arrays.asList("error"));
-			NarrativeMethodStoreException ret = new NarrativeMethodStoreException(ex.getMessage(), ex);
+			NarrativeMethodStoreException ret = (ex instanceof NarrativeMethodStoreException) ?
+			        (NarrativeMethodStoreException)ex : new NarrativeMethodStoreException(ex.getMessage(), ex);
 			ret.setErrorMethod(briefInfo);
 			throw ret;
 		}
@@ -155,29 +156,33 @@ public class NarrativeMethodData {
 		} catch (IllegalStateException e) { /* icon is optional, do nothing */ }
 		
 		List<Publication> publications = new ArrayList<Publication>();
-		try {
-			@SuppressWarnings("unchecked")
-			List<Object> pubInfoList = (List<Object>)getDisplayProp("/", display, "publications");
-			if (pubInfoList != null) {
-				for (Object pubInfoObj : pubInfoList) {
-					@SuppressWarnings("unchecked")
-					Map<String,Object> pubInfoMap = (Map<String,Object>)pubInfoObj;
-					boolean shouldAdd = false;
-					Publication p = new Publication();
-					if(pubInfoMap.get("pmid")!=null) { p.setPmid(pubInfoMap.get("pmid").toString()); shouldAdd = true; }
-					if(pubInfoMap.get("link")!=null) { p.setLink(pubInfoMap.get("link").toString()); shouldAdd = true;}
-					
-					if(pubInfoMap.get("display-text")!=null) { p.setDisplayText(pubInfoMap.get("display-text").toString()); shouldAdd = true;}
-					else if(shouldAdd) { 
-						if(p.getLink()!=null) { p.setDisplayText(p.getLink()); }
-						else if(p.getPmid()!=null) { p.setDisplayText(p.getPmid()); }
-					}
-					if(shouldAdd) {
-						publications.add(p);
-					}
-				}
-			}
-		} catch(IllegalStateException e) {}
+		@SuppressWarnings("unchecked")
+		List<Object> pubInfoList = (List<Object>)display.get("publications");
+		if (pubInfoList != null) {
+		    for (Object pubInfoObj : pubInfoList) {
+		        if (pubInfoObj == null)
+		            continue;
+		        try {
+		            @SuppressWarnings("unchecked")
+		            Map<String,Object> pubInfoMap = (Map<String,Object>)pubInfoObj;
+		            boolean shouldAdd = false;
+		            Publication p = new Publication();
+		            if(pubInfoMap.get("pmid")!=null) { p.setPmid(pubInfoMap.get("pmid").toString()); shouldAdd = true; }
+		            if(pubInfoMap.get("link")!=null) { p.setLink(pubInfoMap.get("link").toString()); shouldAdd = true;}
+
+		            if(pubInfoMap.get("display-text")!=null) { p.setDisplayText(pubInfoMap.get("display-text").toString()); shouldAdd = true;}
+		            else if(shouldAdd) { 
+		                if(p.getLink()!=null) { p.setDisplayText(p.getLink()); }
+		                else if(p.getPmid()!=null) { p.setDisplayText(p.getPmid()); }
+		            }
+		            if(shouldAdd) {
+		                publications.add(p);
+		            }
+		        } catch (Exception ex) {
+		            throw new NarrativeMethodStoreException("Error parsing publication: " + pubInfoObj);
+		        }
+		    }
+		}
 		
 		List<String> relatedApps = new ArrayList<String>();
 		List<String> nextApps = new ArrayList<String>();
