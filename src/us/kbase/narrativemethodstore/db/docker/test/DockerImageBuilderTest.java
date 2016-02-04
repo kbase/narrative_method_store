@@ -2,12 +2,14 @@ package us.kbase.narrativemethodstore.db.docker.test;
 
 import java.io.File;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import us.kbase.narrativemethodstore.db.docker.DockerImageBuilder;
 
 public class DockerImageBuilderTest {
     
+    @Ignore
     @Test
     public void mainTest() throws Exception {
         String tempDirName = System.getProperty("test.temp-dir");

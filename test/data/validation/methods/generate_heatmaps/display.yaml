@@ -1,0 +1,80 @@
+#
+# Define basic display information
+#
+name     : Create heatmaps from cuffdiff out 
+tooltip  : |
+    This method allows to visualize heatmaps from Cuffdiff RNASeq differential expression analysis.  
+
+screenshots :
+    []
+
+replacement-text : Create heatmaps
+
+#
+# Define the set of other narrative methods that should be suggested to the user.
+#
+suggestions :
+    apps:
+        related :
+            []
+        next :
+            []
+    methods:
+        related :
+            []
+        next :
+            []
+
+
+#
+# Configure the display and description of the parameters
+#
+parameters :
+    ws_cuffdiff_id:
+        ui-name : |
+           Cuffdiff Output
+        short-hint : |
+            Specify the cuffdiff output as input
+
+    ws_cummerbund_output:
+        ui-name : |
+            CummeRbund Plots 
+        short-hint : |
+            Specify the name of the CummeRbund Heatmap plot
+    sample1:
+        ui-name : |
+            Condition 1
+        short-hint : |
+            First condition to identify differentially expressed genes
+    sample2:
+        ui-name : |
+            Condition 2
+        short-hint : |
+            Second condition to identify differentially expressed genes
+    q_value_cutoff:
+        ui-name : |
+            alpha(q_value_cutoff)
+        short-hint : |
+            Second condition to identify differentially expressed genes
+    log2_fold_change_cutoff:
+        ui-name : |
+            log2(fold change) cutoff
+        short-hint : |
+            log2(fold change) cutoff
+    num_genes:
+        ui-name : |
+            Maximum number of genes (should be less than 200)
+        short-hint : |
+            Maximum number of genes after filtering by fold change and q value cutoff that should be used for heatmap visualization
+            
+
+
+
+
+description : |
+   <p>This method helps in exploration, analysis and  visualization of Cufflinks high-throughput RNASeq data. It uses the data produced from Cuffdiff RNASeq differential expression analysis as input and allows to visualize the heatmap of differentially expressed genes</p> 
+    <p><strong>Team members who developed & deployed algorithm in KBase:</strong>
+    Priya Ranjan, Jim Thomason, Srividya Ramakrishnan, Sunita Kumari, Shinjae Yoo, Fei He, Vivek Kumar</p>
+    
+publications :
+   -

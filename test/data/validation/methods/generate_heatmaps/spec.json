@@ -1,0 +1,131 @@
+{
+  "name": "Generate Heatmap from Cufdiff output",
+  "ver": "1.0.1",
+  "authors" : [ ],
+  "contact" : "help@kbase.us",
+  "visible" : true,
+  "categories" : ["active"],
+  "widgets" : {
+    "input" : null,
+    "output" : "kbaseCummerbundPlot"
+  },
+  "parameters" : [ {
+    "id" : "ws_cuffdiff_id",
+    "optional" : false,
+    "advanced" : false,
+    "allow_multiple" : false,
+    "default_values" : [ "" ],
+    "field_type" : "text",
+    "text_options" : {
+      "valid_ws_types" : [ "KBaseRNASeq.RNASeqCuffdiffdifferentialExpression" ]
+    }
+  }, {
+    "id" : "ws_cummerbund_output",
+    "optional" : false,
+    "advanced" : false,
+    "allow_multiple" : false,
+    "default_values" : [ "" ],
+    "field_type" : "text"
+  } , {
+    "id" : "sample1",
+    "optional" : false,
+    "advanced" : false,
+    "allow_multiple" : false,
+    "default_values" : [ "" ],
+    "field_type" : "text"
+  },{
+    "id" : "sample2",
+    "optional" : false,
+    "advanced" : false,
+    "allow_multiple" : false,
+    "default_values" : [ "" ],
+    "field_type" : "text"
+  },{
+    "id" : "q_value_cutoff",
+    "optional" : false,
+    "advanced" : false,
+    "allow_multiple" : false,
+    "default_values" : [ "" ],
+    "field_type" : "text",
+    "text_options" : {
+  	"validate_as": "float"
+    }
+  },
+  {
+    "id" : "log2_fold_change_cutoff",
+    "optional" : false,
+    "advanced" : false,
+    "allow_multiple" : false,
+    "default_values" : [ "" ],
+    "field_type" : "text",
+    "text_options" : {
+  		"validate_as": "float"
+    }
+      	
+  },
+  {
+    "id" : "num_genes",
+    "optional" : false,
+    "advanced" : false,
+    "allow_multiple" : false,
+    "default_values" : [ "200" ],
+    "field_type" : "text",
+    "text_options" : {
+  		"validate_as": "int",  		
+  		"max_int": 200  		
+
+    }
+
+  }
+  
+  
+  
+  ],
+  "behavior" : {
+      "service-mapping" : {
+      	"url" : "",
+        "name" : "kb_cummerbund",
+        "method" : "create_heatmap_de_genes",
+        "input_mapping" : [
+        {
+          "narrative_system_variable": "workspace",
+          "target_property": "workspace_name"
+        },{
+          "input_parameter": "ws_cuffdiff_id",
+          "target_property": "ws_cuffdiff_id"
+        },{
+          "input_parameter": "ws_cummerbund_output",
+          "target_property": "ws_cummerbund_output"
+        }
+        ,{
+          "input_parameter": "sample1",
+          "target_property": "sample1"
+        }
+        ,{
+          "input_parameter": "sample2",
+          "target_property": "sample2"
+        }
+        ,{
+          "input_parameter": "q_value_cutoff",
+          "target_property": "q_value_cutoff"
+        }
+        ,{
+          "input_parameter": "log2_fold_change_cutoff",
+          "target_property": "log2_fold_change_cutoff"
+        }
+        ,{
+          "input_parameter": "num_genes",
+          "target_property": "num_genes"
+        }
+        ],
+     "output_mapping" : [
+        {
+         "service_method_output_path": [0],
+         "target_property": "create_heatmap_de_genes"
+        }
+      ]
+    }
+  },
+  "job_id_output_field" : "docker"
+}
+
