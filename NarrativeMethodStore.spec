@@ -764,6 +764,13 @@ module NarrativeMethodStore {
     funcdef disable_repo(DisableRepoParams params) returns () authentication 
         required;
 
+    typedef structure {
+        string module_name;
+    } EnableRepoParams;
+
+    funcdef enable_repo(EnableRepoParams params) returns () authentication
+        required;
+
     /*
         tag - one of two values: 'beta' or 'release'.
     */
