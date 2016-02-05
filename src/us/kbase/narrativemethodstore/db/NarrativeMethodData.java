@@ -92,7 +92,8 @@ public class NarrativeMethodData {
 
 		briefInfo = new MethodBriefInfo()
 							.withId(this.methodId)
-							.withModuleName(namespace);
+							.withModuleName(namespace)
+							.withGitCommitHash(serviceVersion);
 		briefInfo.getAdditionalProperties().put("namespace", namespace);
 
 		List <String> categories = new ArrayList<String>(1);
@@ -221,6 +222,7 @@ public class NarrativeMethodData {
 		fullInfo = new MethodFullInfo()
 							.withId(this.methodId)
 							.withModuleName(namespace)
+							.withGitCommitHash(serviceVersion)
 							.withName(methodName)
 							.withVer(briefInfo.getVer())
 							.withSubtitle(methodSubtitle)

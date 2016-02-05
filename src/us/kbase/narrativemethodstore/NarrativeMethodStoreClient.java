@@ -608,7 +608,7 @@ public class NarrativeMethodStoreClient {
         caller.jsonrpcCall("NarrativeMethodStore.disable_repo", args, retType, false, true);
     }
 
-     /**
+    /**
      * <p>Original spec-file function name: enable_repo</p>
      * <pre>
      * </pre>

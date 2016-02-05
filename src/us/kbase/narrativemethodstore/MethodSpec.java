@@ -42,6 +42,7 @@ public class MethodSpec {
      * <pre>
      * Minimal information about a method suitable for displaying the method in a menu or navigator. 
      * input_types and output_types - sets of valid_ws_types occured in input/output parameters.
+     * git_commit_hash - optional repo version defined for dynamically registered methods.
      * </pre>
      * 
      */
@@ -89,6 +90,7 @@ public class MethodSpec {
      * <pre>
      * Minimal information about a method suitable for displaying the method in a menu or navigator. 
      * input_types and output_types - sets of valid_ws_types occured in input/output parameters.
+     * git_commit_hash - optional repo version defined for dynamically registered methods.
      * </pre>
      * 
      */
@@ -102,6 +104,7 @@ public class MethodSpec {
      * <pre>
      * Minimal information about a method suitable for displaying the method in a menu or navigator. 
      * input_types and output_types - sets of valid_ws_types occured in input/output parameters.
+     * git_commit_hash - optional repo version defined for dynamically registered methods.
      * </pre>
      * 
      */

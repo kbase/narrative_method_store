@@ -17,6 +17,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
  * <pre>
  * Minimal information about a method suitable for displaying the method in a menu or navigator. 
  * input_types and output_types - sets of valid_ws_types occured in input/output parameters.
+ * git_commit_hash - optional repo version defined for dynamically registered methods.
  * </pre>
  * 
  */
@@ -25,6 +26,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @JsonPropertyOrder({
     "id",
     "module_name",
+    "git_commit_hash",
     "name",
     "ver",
     "subtitle",
@@ -42,6 +44,8 @@ public class MethodBriefInfo {
     private java.lang.String id;
     @JsonProperty("module_name")
     private java.lang.String moduleName;
+    @JsonProperty("git_commit_hash")
+    private java.lang.String gitCommitHash;
     @JsonProperty("name")
     private java.lang.String name;
     @JsonProperty("ver")
@@ -96,6 +100,21 @@ public class MethodBriefInfo {
 
     public MethodBriefInfo withModuleName(java.lang.String moduleName) {
         this.moduleName = moduleName;
+        return this;
+    }
+
+    @JsonProperty("git_commit_hash")
+    public java.lang.String getGitCommitHash() {
+        return gitCommitHash;
+    }
+
+    @JsonProperty("git_commit_hash")
+    public void setGitCommitHash(java.lang.String gitCommitHash) {
+        this.gitCommitHash = gitCommitHash;
+    }
+
+    public MethodBriefInfo withGitCommitHash(java.lang.String gitCommitHash) {
+        this.gitCommitHash = gitCommitHash;
         return this;
     }
 
@@ -271,7 +290,7 @@ public class MethodBriefInfo {
 
     @Override
     public java.lang.String toString() {
-        return ((((((((((((((((((((((((((("MethodBriefInfo"+" [id=")+ id)+", moduleName=")+ moduleName)+", name=")+ name)+", ver=")+ ver)+", subtitle=")+ subtitle)+", tooltip=")+ tooltip)+", icon=")+ icon)+", categories=")+ categories)+", loadingError=")+ loadingError)+", authors=")+ authors)+", inputTypes=")+ inputTypes)+", outputTypes=")+ outputTypes)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((((((((((((((((((((((((("MethodBriefInfo"+" [id=")+ id)+", moduleName=")+ moduleName)+", gitCommitHash=")+ gitCommitHash)+", name=")+ name)+", ver=")+ ver)+", subtitle=")+ subtitle)+", tooltip=")+ tooltip)+", icon=")+ icon)+", categories=")+ categories)+", loadingError=")+ loadingError)+", authors=")+ authors)+", inputTypes=")+ inputTypes)+", outputTypes=")+ outputTypes)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }

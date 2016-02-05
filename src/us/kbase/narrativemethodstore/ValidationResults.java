@@ -58,6 +58,7 @@ public class ValidationResults {
      * <p>Original spec-file type: MethodFullInfo</p>
      * <pre>
      * Full information about a method suitable for displaying a method landing page.
+     * git_commit_hash - optional repo version defined for dynamically registered methods.
      * </pre>
      * 
      */
@@ -193,6 +194,7 @@ public class ValidationResults {
      * <p>Original spec-file type: MethodFullInfo</p>
      * <pre>
      * Full information about a method suitable for displaying a method landing page.
+     * git_commit_hash - optional repo version defined for dynamically registered methods.
      * </pre>
      * 
      */
@@ -205,6 +207,7 @@ public class ValidationResults {
      * <p>Original spec-file type: MethodFullInfo</p>
      * <pre>
      * Full information about a method suitable for displaying a method landing page.
+     * git_commit_hash - optional repo version defined for dynamically registered methods.
      * </pre>
      * 
      */
