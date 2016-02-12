@@ -4,6 +4,23 @@ The Narrative Method Store provides an API to dynamically access the available
 narrative method/app/type specifications and documentation.
 
 
+VERSION: 0.3.2 (Released 02/11/16)
+--------------------------------------
+NEW FEATURES:
+- Support for tags (dev/beta/release) is introduced.
+- Support for tags defining git commit hash pointing to repo version.
+- Enable repo method is added
+- Support was added for SDK repo versions in Method Info/Spec objects.
+UPDATED FEATURES / MAJOR BUG FIXES:
+- Fix for bug with listing of method-specs when default tag is "release".
+- Fix for bug with push to tag for repo with images (dots are not allowed
+  in map keys in MongoDB ver>2.6).
+- Change in registration procedure (it fails now if method-specs are not valid). 
+- Urls for images now contain tag for dynamic repos. Many small fixes for cases 
+  of errors.
+- Fix for bug with null publication when parsing display.yaml file.
+
+
 VERSION: 0.3.1 (Released 10/21/15)
 --------------------------------------
 UPDATED FEATURES / MAJOR BUG FIXES:
