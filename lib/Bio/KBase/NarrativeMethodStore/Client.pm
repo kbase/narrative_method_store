@@ -285,6 +285,7 @@ Category is a reference to a hash where the following keys are defined:
 MethodBriefInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
 	module_name has a value which is a string
+	git_commit_hash has a value which is a string
 	name has a value which is a string
 	ver has a value which is a string
 	subtitle has a value which is a string
@@ -351,6 +352,7 @@ Category is a reference to a hash where the following keys are defined:
 MethodBriefInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
 	module_name has a value which is a string
+	git_commit_hash has a value which is a string
 	name has a value which is a string
 	ver has a value which is a string
 	subtitle has a value which is a string
@@ -568,6 +570,7 @@ ListParams is a reference to a hash where the following keys are defined:
 MethodBriefInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
 	module_name has a value which is a string
+	git_commit_hash has a value which is a string
 	name has a value which is a string
 	ver has a value which is a string
 	subtitle has a value which is a string
@@ -598,6 +601,7 @@ ListParams is a reference to a hash where the following keys are defined:
 MethodBriefInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
 	module_name has a value which is a string
+	git_commit_hash has a value which is a string
 	name has a value which is a string
 	ver has a value which is a string
 	subtitle has a value which is a string
@@ -691,6 +695,7 @@ ListParams is a reference to a hash where the following keys are defined:
 MethodFullInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
 	module_name has a value which is a string
+	git_commit_hash has a value which is a string
 	name has a value which is a string
 	ver has a value which is a string
 	authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
@@ -737,6 +742,7 @@ ListParams is a reference to a hash where the following keys are defined:
 MethodFullInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
 	module_name has a value which is a string
+	git_commit_hash has a value which is a string
 	name has a value which is a string
 	ver has a value which is a string
 	authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
@@ -854,6 +860,7 @@ MethodSpec is a reference to a hash where the following keys are defined:
 MethodBriefInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
 	module_name has a value which is a string
+	git_commit_hash has a value which is a string
 	name has a value which is a string
 	ver has a value which is a string
 	subtitle has a value which is a string
@@ -1028,6 +1035,7 @@ MethodSpec is a reference to a hash where the following keys are defined:
 MethodBriefInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
 	module_name has a value which is a string
+	git_commit_hash has a value which is a string
 	name has a value which is a string
 	ver has a value which is a string
 	subtitle has a value which is a string
@@ -1927,6 +1935,7 @@ GetMethodParams is a reference to a hash where the following keys are defined:
 MethodBriefInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
 	module_name has a value which is a string
+	git_commit_hash has a value which is a string
 	name has a value which is a string
 	ver has a value which is a string
 	subtitle has a value which is a string
@@ -1956,6 +1965,7 @@ GetMethodParams is a reference to a hash where the following keys are defined:
 MethodBriefInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
 	module_name has a value which is a string
+	git_commit_hash has a value which is a string
 	name has a value which is a string
 	ver has a value which is a string
 	subtitle has a value which is a string
@@ -2048,6 +2058,7 @@ GetMethodParams is a reference to a hash where the following keys are defined:
 MethodFullInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
 	module_name has a value which is a string
+	git_commit_hash has a value which is a string
 	name has a value which is a string
 	ver has a value which is a string
 	authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
@@ -2093,6 +2104,7 @@ GetMethodParams is a reference to a hash where the following keys are defined:
 MethodFullInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
 	module_name has a value which is a string
+	git_commit_hash has a value which is a string
 	name has a value which is a string
 	ver has a value which is a string
 	authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
@@ -2209,6 +2221,7 @@ MethodSpec is a reference to a hash where the following keys are defined:
 MethodBriefInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
 	module_name has a value which is a string
+	git_commit_hash has a value which is a string
 	name has a value which is a string
 	ver has a value which is a string
 	subtitle has a value which is a string
@@ -2382,6 +2395,7 @@ MethodSpec is a reference to a hash where the following keys are defined:
 MethodBriefInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
 	module_name has a value which is a string
+	git_commit_hash has a value which is a string
 	name has a value which is a string
 	ver has a value which is a string
 	subtitle has a value which is a string
@@ -3174,6 +3188,7 @@ AppStepInputMapping is a reference to a hash where the following keys are define
 MethodFullInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
 	module_name has a value which is a string
+	git_commit_hash has a value which is a string
 	name has a value which is a string
 	ver has a value which is a string
 	authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
@@ -3203,6 +3218,7 @@ MethodSpec is a reference to a hash where the following keys are defined:
 MethodBriefInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
 	module_name has a value which is a string
+	git_commit_hash has a value which is a string
 	name has a value which is a string
 	ver has a value which is a string
 	subtitle has a value which is a string
@@ -3436,6 +3452,7 @@ AppStepInputMapping is a reference to a hash where the following keys are define
 MethodFullInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
 	module_name has a value which is a string
+	git_commit_hash has a value which is a string
 	name has a value which is a string
 	ver has a value which is a string
 	authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
@@ -3465,6 +3482,7 @@ MethodSpec is a reference to a hash where the following keys are defined:
 MethodBriefInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
 	module_name has a value which is a string
+	git_commit_hash has a value which is a string
 	name has a value which is a string
 	ver has a value which is a string
 	subtitle has a value which is a string
@@ -3761,6 +3779,7 @@ AppStepInputMapping is a reference to a hash where the following keys are define
 MethodFullInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
 	module_name has a value which is a string
+	git_commit_hash has a value which is a string
 	name has a value which is a string
 	ver has a value which is a string
 	authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
@@ -3790,6 +3809,7 @@ MethodSpec is a reference to a hash where the following keys are defined:
 MethodBriefInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
 	module_name has a value which is a string
+	git_commit_hash has a value which is a string
 	name has a value which is a string
 	ver has a value which is a string
 	subtitle has a value which is a string
@@ -4023,6 +4043,7 @@ AppStepInputMapping is a reference to a hash where the following keys are define
 MethodFullInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
 	module_name has a value which is a string
+	git_commit_hash has a value which is a string
 	name has a value which is a string
 	ver has a value which is a string
 	authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
@@ -4052,6 +4073,7 @@ MethodSpec is a reference to a hash where the following keys are defined:
 MethodBriefInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
 	module_name has a value which is a string
+	git_commit_hash has a value which is a string
 	name has a value which is a string
 	ver has a value which is a string
 	subtitle has a value which is a string
@@ -4348,6 +4370,7 @@ AppStepInputMapping is a reference to a hash where the following keys are define
 MethodFullInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
 	module_name has a value which is a string
+	git_commit_hash has a value which is a string
 	name has a value which is a string
 	ver has a value which is a string
 	authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
@@ -4377,6 +4400,7 @@ MethodSpec is a reference to a hash where the following keys are defined:
 MethodBriefInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
 	module_name has a value which is a string
+	git_commit_hash has a value which is a string
 	name has a value which is a string
 	ver has a value which is a string
 	subtitle has a value which is a string
@@ -4610,6 +4634,7 @@ AppStepInputMapping is a reference to a hash where the following keys are define
 MethodFullInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
 	module_name has a value which is a string
+	git_commit_hash has a value which is a string
 	name has a value which is a string
 	ver has a value which is a string
 	authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
@@ -4639,6 +4664,7 @@ MethodSpec is a reference to a hash where the following keys are defined:
 MethodBriefInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
 	module_name has a value which is a string
+	git_commit_hash has a value which is a string
 	name has a value which is a string
 	ver has a value which is a string
 	subtitle has a value which is a string
@@ -5113,6 +5139,89 @@ sub disable_repo
 
 
 
+=head2 enable_repo
+
+  $obj->enable_repo($params)
+
+=over 4
+
+=item Parameter and return types
+
+=begin html
+
+<pre>
+$params is a NarrativeMethodStore.EnableRepoParams
+EnableRepoParams is a reference to a hash where the following keys are defined:
+	module_name has a value which is a string
+
+</pre>
+
+=end html
+
+=begin text
+
+$params is a NarrativeMethodStore.EnableRepoParams
+EnableRepoParams is a reference to a hash where the following keys are defined:
+	module_name has a value which is a string
+
+
+=end text
+
+=item Description
+
+
+
+=back
+
+=cut
+
+sub enable_repo
+{
+    my($self, @args) = @_;
+
+# Authentication: required
+
+    if ((my $n = @args) != 1)
+    {
+	Bio::KBase::Exceptions::ArgumentValidationError->throw(error =>
+							       "Invalid argument count for function enable_repo (received $n, expecting 1)");
+    }
+    {
+	my($params) = @args;
+
+	my @_bad_arguments;
+        (ref($params) eq 'HASH') or push(@_bad_arguments, "Invalid type for argument 1 \"params\" (value was \"$params\")");
+        if (@_bad_arguments) {
+	    my $msg = "Invalid arguments passed to enable_repo:\n" . join("", map { "\t$_\n" } @_bad_arguments);
+	    Bio::KBase::Exceptions::ArgumentValidationError->throw(error => $msg,
+								   method_name => 'enable_repo');
+	}
+    }
+
+    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
+	method => "NarrativeMethodStore.enable_repo",
+	params => \@args,
+    });
+    if ($result) {
+	if ($result->is_error) {
+	    Bio::KBase::Exceptions::JSONRPC->throw(error => $result->error_message,
+					       code => $result->content->{error}->{code},
+					       method_name => 'enable_repo',
+					       data => $result->content->{error}->{error} # JSON::RPC::ReturnObject only supports JSONRPC 1.1 or 1.O
+					      );
+	} else {
+	    return;
+	}
+    } else {
+        Bio::KBase::Exceptions::HTTP->throw(error => "Error invoking method enable_repo",
+					    status_line => $self->{client}->status_line,
+					    method_name => 'enable_repo',
+				       );
+    }
+}
+
+
+
 =head2 push_repo_to_tag
 
   $obj->push_repo_to_tag($params)
@@ -5482,6 +5591,7 @@ url has a value which is a NarrativeMethodStore.url
 
 Minimal information about a method suitable for displaying the method in a menu or navigator. 
 input_types and output_types - sets of valid_ws_types occured in input/output parameters.
+git_commit_hash - optional repo version defined for dynamically registered methods.
 
 
 =item Definition
@@ -5492,6 +5602,7 @@ input_types and output_types - sets of valid_ws_types occured in input/output pa
 a reference to a hash where the following keys are defined:
 id has a value which is a string
 module_name has a value which is a string
+git_commit_hash has a value which is a string
 name has a value which is a string
 ver has a value which is a string
 subtitle has a value which is a string
@@ -5512,6 +5623,7 @@ output_types has a value which is a reference to a list where each element is a 
 a reference to a hash where the following keys are defined:
 id has a value which is a string
 module_name has a value which is a string
+git_commit_hash has a value which is a string
 name has a value which is a string
 ver has a value which is a string
 subtitle has a value which is a string
@@ -5647,6 +5759,7 @@ next_apps has a value which is a reference to a list where each element is a str
 =item Description
 
 Full information about a method suitable for displaying a method landing page.
+git_commit_hash - optional repo version defined for dynamically registered methods.
 
 
 =item Definition
@@ -5657,6 +5770,7 @@ Full information about a method suitable for displaying a method landing page.
 a reference to a hash where the following keys are defined:
 id has a value which is a string
 module_name has a value which is a string
+git_commit_hash has a value which is a string
 name has a value which is a string
 ver has a value which is a string
 authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
@@ -5681,6 +5795,7 @@ publications has a value which is a reference to a list where each element is a 
 a reference to a hash where the following keys are defined:
 id has a value which is a string
 module_name has a value which is a string
+git_commit_hash has a value which is a string
 name has a value which is a string
 ver has a value which is a string
 authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
@@ -7579,6 +7694,36 @@ git_commit_hash has a value which is a string
 
 
 =head2 DisableRepoParams
+
+=over 4
+
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a reference to a hash where the following keys are defined:
+module_name has a value which is a string
+
+</pre>
+
+=end html
+
+=begin text
+
+a reference to a hash where the following keys are defined:
+module_name has a value which is a string
+
+
+=end text
+
+=back
+
+
+
+=head2 EnableRepoParams
 
 =over 4
 

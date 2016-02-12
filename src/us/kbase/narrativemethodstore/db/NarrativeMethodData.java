@@ -41,6 +41,7 @@ import us.kbase.narrativemethodstore.TextAreaOptions;
 import us.kbase.narrativemethodstore.TextOptions;
 import us.kbase.narrativemethodstore.TextSubdataOptions;
 import us.kbase.narrativemethodstore.WidgetSpec;
+import us.kbase.narrativemethodstore.db.github.RepoTag;
 import us.kbase.narrativemethodstore.exceptions.NarrativeMethodStoreException;
 
 public class NarrativeMethodData {
@@ -50,21 +51,22 @@ public class NarrativeMethodData {
 	protected MethodSpec methodSpec;
 
 	public NarrativeMethodData(String methodId, JsonNode spec, Map<String, Object> display,
-	        FileLookup lookup) throws NarrativeMethodStoreException {
-	    this(methodId, spec, display, lookup, null, null, null);
+	        FileLookup lookup, RepoTag tag) throws NarrativeMethodStoreException {
+	    this(methodId, spec, display, lookup, null, null, null, null);
 	}
 	
 	public NarrativeMethodData(String methodId, JsonNode spec, Map<String, Object> display,
 			FileLookup lookup, String namespace, String serviceVersion,
-			ServiceUrlTemplateEvaluater srvUrlTemplEval) throws NarrativeMethodStoreException {
+			ServiceUrlTemplateEvaluater srvUrlTemplEval, RepoTag tag) throws NarrativeMethodStoreException {
 		try {
-			update(methodId, spec, display, lookup, namespace, serviceVersion, srvUrlTemplEval);
+			update(methodId, spec, display, lookup, namespace, serviceVersion, srvUrlTemplEval, tag);
 		} catch (Throwable ex) {
 			if (briefInfo.getName() == null)
 				briefInfo.withName(briefInfo.getId());
 			if (briefInfo.getCategories() == null)
 				briefInfo.withCategories(Arrays.asList("error"));
-			NarrativeMethodStoreException ret = new NarrativeMethodStoreException(ex.getMessage(), ex);
+			NarrativeMethodStoreException ret = (ex instanceof NarrativeMethodStoreException) ?
+			        (NarrativeMethodStoreException)ex : new NarrativeMethodStoreException(ex.getMessage(), ex);
 			ret.setErrorMethod(briefInfo);
 			throw ret;
 		}
@@ -85,12 +87,13 @@ public class NarrativeMethodData {
 	
 	public void update(String methodId, JsonNode spec, Map<String, Object> display,
 			FileLookup lookup, String namespace, String serviceVersion,
-			ServiceUrlTemplateEvaluater srvUrlTemplEval) throws NarrativeMethodStoreException {
+			ServiceUrlTemplateEvaluater srvUrlTemplEval, RepoTag tag) throws NarrativeMethodStoreException {
 		this.methodId = methodId;
 
 		briefInfo = new MethodBriefInfo()
 							.withId(this.methodId)
-							.withModuleName(namespace);
+							.withModuleName(namespace)
+							.withGitCommitHash(serviceVersion);
 		briefInfo.getAdditionalProperties().put("namespace", namespace);
 
 		List <String> categories = new ArrayList<String>(1);
@@ -133,42 +136,54 @@ public class NarrativeMethodData {
 		List<String> imageNames = (List<String>)getDisplayProp("/", display, "screenshots");
 		if (imageNames != null) {
 			for (String imageName : imageNames)
-				screenshots.add(new ScreenShot().withUrl("img?method_id=" + this.methodId + "&image_name=" + imageName));
+			    if (imageName != null && lookup.fileExists("img/" + imageName)) {
+			        String url = "img?method_id=" + this.methodId + "&image_name=" + imageName;
+			        if (tag != null)
+			            url += "&tag=" + tag;
+			        screenshots.add(new ScreenShot().withUrl(url));
+			    }
 		}
 		
 		Icon icon = null;
 		try {
 			String iconName = getDisplayProp(display,"icon",lookup);
-			if(iconName.trim().length()>0) {
-				icon = new Icon().withUrl("img?method_id=" + this.methodId + "&image_name=" + iconName);
+			if (iconName.trim().length() > 0 && lookup.fileExists("img/" + iconName)) {
+			    String url = "img?method_id=" + this.methodId + "&image_name=" + iconName;
+                if (tag != null)
+                    url += "&tag=" + tag;
+				icon = new Icon().withUrl(url);
 			}
 			briefInfo.withIcon(icon);
 		} catch (IllegalStateException e) { /* icon is optional, do nothing */ }
 		
 		List<Publication> publications = new ArrayList<Publication>();
-		try {
-			@SuppressWarnings("unchecked")
-			List<Object> pubInfoList = (List<Object>)getDisplayProp("/", display, "publications");
-			if (pubInfoList != null) {
-				for (Object pubInfoObj : pubInfoList) {
-					@SuppressWarnings("unchecked")
-					Map<String,Object> pubInfoMap = (Map<String,Object>)pubInfoObj;
-					boolean shouldAdd = false;
-					Publication p = new Publication();
-					if(pubInfoMap.get("pmid")!=null) { p.setPmid(pubInfoMap.get("pmid").toString()); shouldAdd = true; }
-					if(pubInfoMap.get("link")!=null) { p.setLink(pubInfoMap.get("link").toString()); shouldAdd = true;}
-					
-					if(pubInfoMap.get("display-text")!=null) { p.setDisplayText(pubInfoMap.get("display-text").toString()); shouldAdd = true;}
-					else if(shouldAdd) { 
-						if(p.getLink()!=null) { p.setDisplayText(p.getLink()); }
-						else if(p.getPmid()!=null) { p.setDisplayText(p.getPmid()); }
-					}
-					if(shouldAdd) {
-						publications.add(p);
-					}
-				}
-			}
-		} catch(IllegalStateException e) {}
+		@SuppressWarnings("unchecked")
+		List<Object> pubInfoList = (List<Object>)display.get("publications");
+		if (pubInfoList != null) {
+		    for (Object pubInfoObj : pubInfoList) {
+		        if (pubInfoObj == null)
+		            continue;
+		        try {
+		            @SuppressWarnings("unchecked")
+		            Map<String,Object> pubInfoMap = (Map<String,Object>)pubInfoObj;
+		            boolean shouldAdd = false;
+		            Publication p = new Publication();
+		            if(pubInfoMap.get("pmid")!=null) { p.setPmid(pubInfoMap.get("pmid").toString()); shouldAdd = true; }
+		            if(pubInfoMap.get("link")!=null) { p.setLink(pubInfoMap.get("link").toString()); shouldAdd = true;}
+
+		            if(pubInfoMap.get("display-text")!=null) { p.setDisplayText(pubInfoMap.get("display-text").toString()); shouldAdd = true;}
+		            else if(shouldAdd) { 
+		                if(p.getLink()!=null) { p.setDisplayText(p.getLink()); }
+		                else if(p.getPmid()!=null) { p.setDisplayText(p.getPmid()); }
+		            }
+		            if(shouldAdd) {
+		                publications.add(p);
+		            }
+		        } catch (Exception ex) {
+		            throw new NarrativeMethodStoreException("Error parsing publication: " + pubInfoObj);
+		        }
+		    }
+		}
 		
 		List<String> relatedApps = new ArrayList<String>();
 		List<String> nextApps = new ArrayList<String>();
@@ -207,6 +222,7 @@ public class NarrativeMethodData {
 		fullInfo = new MethodFullInfo()
 							.withId(this.methodId)
 							.withModuleName(namespace)
+							.withGitCommitHash(serviceVersion)
 							.withName(methodName)
 							.withVer(briefInfo.getVer())
 							.withSubtitle(methodSubtitle)

@@ -77,34 +77,77 @@ public class JsonRepoProvider implements RepoProvider {
     
     @Override
     public FilePointer getUINarrativeMethodSpec(String methodId) throws NarrativeMethodStoreException {
-        return fp(data.uiNarrativeMethods.get(methodId).specFile);
+        MethodData md = data.uiNarrativeMethods.get(methodId);
+        checkMethod(methodId, md);
+        return fp(md.specFile);
     }
     
     @Override
     public FilePointer getUINarrativeMethodDisplay(String methodId) throws NarrativeMethodStoreException {
-        return fp(data.uiNarrativeMethods.get(methodId).displayFile);
+        MethodData md = data.uiNarrativeMethods.get(methodId);
+        checkMethod(methodId, md);
+        return fp(md.displayFile);
+    }
+
+    public void checkMethod(String methodId, MethodData md)
+            throws NarrativeMethodStoreException {
+        if (md == null)
+            throw new NarrativeMethodStoreException("Method is not found: " + getModuleName() + 
+                    "/" + methodId + " (version: " + getGitCommitHash() + ")");
     }
 
     @Override
     public List<String> listScreenshotIDs(String methodId)
             throws NarrativeMethodStoreException {
-        return new ArrayList<String>(data.uiNarrativeMethods.get(methodId).screenshotIdToFile.keySet());
+        MethodData md = data.uiNarrativeMethods.get(methodId);
+        checkMethod(methodId, md);
+        List<String> ret = new ArrayList<String>();
+        if (md.screenshotIdToFile != null) {
+            ret.addAll(md.screenshotIdToFile.keySet());
+        } else {
+            for (FileRef fr : md.imageFileRefs)
+                ret.add(fr.fileName);
+        }
+        return ret;
     }
     
     @Override
     public FilePointer getScreenshot(String methodId, String screenshotId)
             throws NarrativeMethodStoreException {
-        return fp(data.uiNarrativeMethods.get(methodId).screenshotIdToFile.get(screenshotId));
+        MethodData md = data.uiNarrativeMethods.get(methodId);
+        checkMethod(methodId, md);
+        String fileId = null;
+        if (md.screenshotIdToFile != null) {
+            md.screenshotIdToFile.get(screenshotId);
+        } else {
+            for (FileRef fr : md.imageFileRefs)
+                if (fr.fileName.equals(screenshotId))
+                    fileId = fr.innerRef;
+        }
+        if (fileId == null)
+            throw new NarrativeMethodStoreException("Image with id=" + screenshotId + " is not registered");
+        return fp(fileId);
     }
 
     @Override
     public List<String> listUIWidgetIds() throws NarrativeMethodStoreException {
-        return new ArrayList<String>(data.uiWidgetIdToFile.keySet());
+        List<String> ret = new ArrayList<String>();
+        if (data.uiWidgetFileRefs != null)
+            for (FileRef fr : data.uiWidgetFileRefs)
+                ret.add(fr.fileName);
+        return ret;
     }
     
     @Override
     public FilePointer getUIWidgetJS(String widgetId) throws NarrativeMethodStoreException {
-        return fp(data.uiWidgetIdToFile.get(widgetId));
+        String fileId = null;
+        if (data.uiWidgetFileRefs != null)
+            for (FileRef fr : data.uiWidgetFileRefs)
+                if (fr.fileName.equals(widgetId))
+                    fileId = fr.innerRef;
+        if (fileId == null)
+            throw new NarrativeMethodStoreException("WidgetJS with id=" + widgetId + " is not registered");
+        return fp(fileId);
     }
     /////////// [utils] ///////////
     
@@ -165,14 +208,21 @@ public class JsonRepoProvider implements RepoProvider {
             ret.uiNarrativeMethods.put(methodId, md);
             md.specFile = fId(db, mn, repo.getUINarrativeMethodSpec(methodId));
             md.displayFile = fId(db, mn, repo.getUINarrativeMethodDisplay(methodId));
-            md.screenshotIdToFile = new TreeMap<String, String>();
+            md.imageFileRefs = new ArrayList<FileRef>();
             for (String screenshotId : repo.listScreenshotIDs(methodId)) {
-                md.screenshotIdToFile.put(screenshotId, fId(db, mn, repo.getScreenshot(methodId, screenshotId)));
+                FileRef fr = new FileRef();
+                fr.fileName = screenshotId;
+                fr.innerRef = fId(db, mn, repo.getScreenshot(methodId, screenshotId));
+                md.imageFileRefs.add(fr);
             }
         }
-        ret.uiWidgetIdToFile = new TreeMap<String, String>();
-        for (String widgetId : repo.listUIWidgetIds())
-            ret.uiWidgetIdToFile.put(widgetId, fId(db, mn, repo.getUIWidgetJS(widgetId)));
+        ret.uiWidgetFileRefs = new ArrayList<FileRef>();
+        for (String widgetId : repo.listUIWidgetIds()) {
+            FileRef fr = new FileRef();
+            fr.fileName = widgetId;
+            fr.innerRef = fId(db, mn, repo.getUIWidgetJS(widgetId));
+            ret.uiWidgetFileRefs.add(fr);
+        }
         FilePointer zipFp = repo.getRepoZip();
         ret.repoZip = zipFp == null ? null : fId(db, mn, zipFp);
         return ret;
@@ -203,13 +253,43 @@ public class JsonRepoProvider implements RepoProvider {
         public String readmeFile;
         public List<String> uiNarrativeMethodIds;
         public Map<String, MethodData> uiNarrativeMethods;
-        public Map<String, String> uiWidgetIdToFile;
+        public Map<String, String> uiWidgetIdToFile;  // compatibility with older versions (not used)
+        public List<FileRef> uiWidgetFileRefs;
         public String repoZip;
+        
+        /**
+         * Should be solved every time before data structure is stored into MongoDB. 
+         */
+        public void repackForMongoDB() {
+            for (String methodId : uiNarrativeMethods.keySet()) {
+                uiNarrativeMethods.get(methodId).repackForMongoDB();
+            }
+        }
     }
     
     public static class MethodData {
         public String specFile;
         public String displayFile;
         public Map<String, String> screenshotIdToFile;
+        public List<FileRef> imageFileRefs;    // Alternative to screenshotIdToFile solving
+                                               // MongoDB problem with dots in map keys.
+        
+        public void repackForMongoDB() {
+            if (screenshotIdToFile != null) {
+                imageFileRefs = new ArrayList<FileRef>();
+                for (String imageName : screenshotIdToFile.keySet()) {
+                    FileRef fr = new FileRef();
+                    fr.fileName = imageName;
+                    fr.innerRef = screenshotIdToFile.get(imageName);
+                    imageFileRefs.add(fr);
+                }
+                screenshotIdToFile = null;
+            }
+        }
+    }
+    
+    public static class FileRef {
+        public String fileName;
+        public String innerRef;
     }
 }

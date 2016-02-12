@@ -41,10 +41,12 @@ module NarrativeMethodStore {
     
     /* Minimal information about a method suitable for displaying the method in a menu or navigator. 
          input_types and output_types - sets of valid_ws_types occured in input/output parameters.
+         git_commit_hash - optional repo version defined for dynamically registered methods.
     */
     typedef structure {
         string id;
         string module_name;
+        string git_commit_hash;
         string name;
         string ver;
         string subtitle;
@@ -80,10 +82,13 @@ module NarrativeMethodStore {
         list<string> next_apps;
     } Suggestions;
     
-    /* Full information about a method suitable for displaying a method landing page. */
+    /* Full information about a method suitable for displaying a method landing page.
+         git_commit_hash - optional repo version defined for dynamically registered methods.
+    */
     typedef structure {
         string id;
         string module_name;
+        string git_commit_hash;
         string name;
         string ver;
         list <username> authors;
@@ -762,6 +767,13 @@ module NarrativeMethodStore {
     } DisableRepoParams;
 
     funcdef disable_repo(DisableRepoParams params) returns () authentication 
+        required;
+
+    typedef structure {
+        string module_name;
+    } EnableRepoParams;
+
+    funcdef enable_repo(EnableRepoParams params) returns () authentication
         required;
 
     /*

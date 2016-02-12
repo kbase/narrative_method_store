@@ -3,6 +3,7 @@ package us.kbase.narrativemethodstore.test;
 import static org.junit.Assert.*;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -12,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeSet;
 
 import junit.framework.Assert;
@@ -531,8 +533,8 @@ public class FullServerTest {
 				foundTestMethod8 = true;
 				assertTrue("Testing that test_method_8 technical description is empty",
 					m.getTechnicalDescription().trim().length()==0);
-				assertTrue("Testing that test_method_8 has an icon",
-					m.getIcon()!=null);
+				assertTrue("Testing that test_method_8 has no icon",
+					m.getIcon() == null);
 			}
 			
 		}
@@ -1093,6 +1095,13 @@ public class FullServerTest {
 		assertTrue("Type validation results of test_method_1 type info is null", results.getTypeInfo()==null);
 	}
 	
+	private static Set<String> getMethodIds(List<MethodBriefInfo> infos) {
+	    Set<String> ret = new TreeSet<String>();
+	    for (MethodBriefInfo mbi : infos)
+	        ret.add(mbi.getId());
+	    return ret;
+	}
+	
 	@SuppressWarnings("static-access")
     @Test
 	public void testDynamicRepos() throws Exception {
@@ -1103,7 +1112,15 @@ public class FullServerTest {
 	        Map<String,MethodBriefInfo> methods = CLIENT.listCategories(new ListCategoriesParams().withLoadMethods(1L)).getE2();
 	        MethodBriefInfo bi = methods.get(methodId);
 	        Assert.assertNull(bi);
-	        SERVER.getLocalGitDB().registerRepo(admin1, gitUrl, null);  // e1954abb4ac98efcc11fe6cf73a246bfb20fb274
+	        SERVER.getLocalGitDB().registerRepo(admin1, gitUrl, null);
+            Assert.assertEquals(2, CLIENT.listMethods(new ListParams().withTag("dev")).size() -
+                    CLIENT.listMethods(new ListParams().withTag("release")).size());
+            Assert.assertEquals(2, CLIENT.listMethodsSpec(new ListParams().withTag("dev")).size() -
+                    CLIENT.listMethodsSpec(new ListParams().withTag("release")).size());
+            Assert.assertEquals(2, CLIENT.listMethodsFullInfo(new ListParams().withTag("dev")).size() -
+                    CLIENT.listMethodsFullInfo(new ListParams().withTag("release")).size());
+            Assert.assertEquals(2, CLIENT.listMethodIdsAndNames(new ListMethodIdsAndNamesParams().withTag("dev")).size() -
+                    CLIENT.listMethodIdsAndNames(new ListMethodIdsAndNamesParams().withTag("release")).size());
 	        Assert.assertNull(CLIENT.listCategories(new ListCategoriesParams().withLoadMethods(1L).withTag("beta")).getE2().get(methodId));
             SERVER.getLocalGitDB().pushRepoToTag(moduleName, "beta", admin1);
             Assert.assertNotNull(CLIENT.listCategories(new ListCategoriesParams().withLoadMethods(1L).withTag("beta")).getE2().get(methodId));
@@ -1128,14 +1145,15 @@ public class FullServerTest {
 	        Assert.assertEquals("[KBaseGenomes.Genome]", ms.getParameters().get(0).getTextOptions().getValidWsTypes().toString());
 	        DynamicRepoDB db = SERVER.getLocalGitDB().getDynamicRepos();
 	        Assert.assertEquals(1, db.listRepoVersions(moduleName, null).size());
-	        String commitHash = db.getRepoDetails(moduleName, null).getGitCommitHash();
-	        Assert.assertEquals(40, commitHash.length());
-	        Assert.assertEquals(commitHash, ms.getBehavior().getKbServiceVersion());
+	        String commitHash1 = db.getRepoDetails(moduleName, null).getGitCommitHash();
+	        Assert.assertEquals(40, commitHash1.length());
+	        Assert.assertEquals(commitHash1, ms.getBehavior().getKbServiceVersion());
 	        RepoDetails rd = SERVER.getLocalGitDB().getRepoDetails(moduleName, null, null, null);
 	        Assert.assertEquals(moduleName, rd.getModuleName());
 	        Assert.assertEquals("[ResultView.js]", rd.getWidgetIds().toString());
 	        Assert.assertNotNull(CLIENT.loadWidgetJavaScript(new LoadWidgetParams().withModuleName(moduleName)
 	                .withWidgetId("ResultView.js").withTag("dev")));
+	        Assert.assertEquals("img?method_id=onerepotest/send_data&image_name=icon.png&tag=dev", fi.getIcon().getUrl());
 	        String owner = "rsutormin";
 	        try {
 	            SERVER.getLocalGitDB().registerRepo(owner, gitUrl, null);
@@ -1143,10 +1161,16 @@ public class FullServerTest {
 	        } catch (Exception ex) {
 	            Assert.assertEquals("User " + owner + " is not global admin", ex.getMessage());
 	        }
-	        commitHash = "00f008a265785ddfa70f21794738953bbf5895d0";
-	        SERVER.getLocalGitDB().registerRepo(admin1, gitUrl, commitHash);
+	        String commitHash2 = "00f008a265785ddfa70f21794738953bbf5895d0";
+	        SERVER.getLocalGitDB().registerRepo(admin1, gitUrl, commitHash2);
             Assert.assertNull(CLIENT.listCategories(new ListCategoriesParams().withLoadMethods(1L)).getE2().get(methodId));
             checkMethod(methodId, 2, "genomeA", "Genome A", "dev");
+            MethodBriefInfo mbi2 = CLIENT.getMethodBriefInfo(new GetMethodParams().withIds(Arrays.asList(methodId)).withTag("dev")).get(0);
+            Assert.assertEquals(mbi2.getGitCommitHash(), commitHash2);            
+            MethodFullInfo mfi2 = CLIENT.getMethodFullInfo(new GetMethodParams().withIds(Arrays.asList(methodId)).withTag("dev")).get(0);
+            Assert.assertEquals(mfi2.getGitCommitHash(), commitHash2);            
+            MethodSpec ms2 = CLIENT.getMethodSpec(new GetMethodParams().withIds(Arrays.asList(methodId)).withTag("dev")).get(0);
+            Assert.assertEquals(ms2.getInfo().getGitCommitHash(), commitHash2);
             checkMethod(methodId, 2, "param0", "Genome1 ID", "beta");
             SERVER.getLocalGitDB().pushRepoToTag(moduleName, "release", admin1);
             SERVER.getLocalGitDB().pushRepoToTag(moduleName, "beta", admin1);
@@ -1155,8 +1179,19 @@ public class FullServerTest {
             checkMethod(methodId, 2, "param0", "Genome1 ID", null);
             SERVER.getLocalGitDB().pushRepoToTag(moduleName, "release", admin1);
             checkMethod(methodId, 2, "genomeA", "Genome A", null);
-	        methods = null;  //CLIENT.listCategories(new ListCategoriesParams().withLoadMethods(1L)).getE2();
-	        bi = null;  //methods.get(methodId);
+            checkMethod(methodId, 2, "param0", "Genome1 ID", commitHash1);
+            checkMethod(methodId, 2, "genomeA", "Genome A", commitHash2);
+            try {
+                checkMethod(methodId, 2, "genomeA", "Genome A", "unknown_version");       
+                Assert.fail("Unexpected tags shouldn't be supported");
+            } catch (Exception ex) {
+                Assert.assertEquals("Repo-tag [unknown_version] is not supported", ex.getMessage());
+            }
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            SERVER.getLocalGitDB().saveScreenshotIntoStream(moduleName, "send_data", "icon.png", commitHash1, baos);
+            Assert.assertEquals(62124, baos.toByteArray().length);
+	        methods = null;
+	        bi = null;
 	        fi = null;
 	        try {
 	            SERVER.getLocalGitDB().setRepoState(owner, moduleName, "disabled");
@@ -1180,6 +1215,16 @@ public class FullServerTest {
 	        }
             SERVER.getLocalGitDB().pushRepoToTag(moduleName2, "beta", admin1);
             SERVER.getLocalGitDB().pushRepoToTag(moduleName2, "release", admin1);
+            checkMethod(methodId2, 1, "contigset_id", "Contig Set Id", "dev");
+            checkMethod(methodId2, 1, "contigset_id", "Contig Set Id", "beta");
+            checkMethod(methodId2, 1, "contigset_id", "Contig Set Id", "release");
+            // try to disable, method should be gone and enable again, method should exists
+            SERVER.getLocalGitDB().setRepoState(admin1, moduleName, "disabled");
+            methods = CLIENT.listCategories(new ListCategoriesParams().withLoadMethods(1L)).getE2();
+            bi = methods.get(methodId);
+            Assert.assertNull(bi);
+            SERVER.getLocalGitDB().setRepoState(admin1, moduleName, "ready");
+            methods = CLIENT.listCategories(new ListCategoriesParams().withLoadMethods(1L)).getE2();
             checkMethod(methodId2, 1, "contigset_id", "Contig Set Id", "dev");
             checkMethod(methodId2, 1, "contigset_id", "Contig Set Id", "beta");
             checkMethod(methodId2, 1, "contigset_id", "Contig Set Id", "release");

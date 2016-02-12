@@ -59,7 +59,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
     public static final String         CFG_ENDPOINT_HOST = "endpoint-host";
     public static final String      CFG_PROP_DEFAULT_TAG = "method-spec-default-tag";
     
-    public static final String VERSION = "0.3.1";
+    public static final String VERSION = "0.3.2";
     
     private static Throwable configError = null;
     private static Map<String, String> config = null;
@@ -373,7 +373,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
         config();
         List<String> methodIds = new ArrayList<String>(getLocalGitDB().listMethodIds(false, params.getTag()));
         methodIds = trim(methodIds, params);
-        returnVal = getMethodFullInfo(new GetMethodParams().withIds(methodIds));
+        returnVal = getMethodFullInfo(new GetMethodParams().withIds(methodIds).withTag(params.getTag()));
         //END list_methods_full_info
         return returnVal;
     }
@@ -392,7 +392,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
         config();
         List<String> methodIds = new ArrayList<String>(getLocalGitDB().listMethodIds(false, params.getTag()));
         methodIds = trim(methodIds, params);
-        returnVal = getMethodSpec(new GetMethodParams().withIds(methodIds));
+        returnVal = getMethodSpec(new GetMethodParams().withIds(methodIds).withTag(params.getTag()));
         //END list_methods_spec
         return returnVal;
     }
@@ -740,6 +740,19 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
         //BEGIN disable_repo
         getLocalGitDB().setRepoState(authPart.getClientId(), params.getModuleName(), "disabled");
         //END disable_repo
+    }
+
+    /**
+     * <p>Original spec-file function name: enable_repo</p>
+     * <pre>
+     * </pre>
+     * @param   params   instance of type {@link us.kbase.narrativemethodstore.EnableRepoParams EnableRepoParams}
+     */
+    @JsonServerMethod(rpc = "NarrativeMethodStore.enable_repo")
+    public void enableRepo(EnableRepoParams params, AuthToken authPart) throws Exception {
+        //BEGIN enable_repo
+        getLocalGitDB().setRepoState(authPart.getClientId(), params.getModuleName(), "ready");
+        //END enable_repo
     }
 
     /**

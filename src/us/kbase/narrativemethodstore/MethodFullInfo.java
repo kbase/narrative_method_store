@@ -16,6 +16,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
  * <p>Original spec-file type: MethodFullInfo</p>
  * <pre>
  * Full information about a method suitable for displaying a method landing page.
+ * git_commit_hash - optional repo version defined for dynamically registered methods.
  * </pre>
  * 
  */
@@ -24,6 +25,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 @JsonPropertyOrder({
     "id",
     "module_name",
+    "git_commit_hash",
     "name",
     "ver",
     "authors",
@@ -45,6 +47,8 @@ public class MethodFullInfo {
     private java.lang.String id;
     @JsonProperty("module_name")
     private java.lang.String moduleName;
+    @JsonProperty("git_commit_hash")
+    private java.lang.String gitCommitHash;
     @JsonProperty("name")
     private java.lang.String name;
     @JsonProperty("ver")
@@ -85,6 +89,8 @@ public class MethodFullInfo {
     private List<Publication> publications;
     private Map<java.lang.String, Object> additionalProperties = new HashMap<java.lang.String, Object>();
 
+    public MethodFullInfo() {}
+    
     @JsonProperty("id")
     public java.lang.String getId() {
         return id;
@@ -112,6 +118,21 @@ public class MethodFullInfo {
 
     public MethodFullInfo withModuleName(java.lang.String moduleName) {
         this.moduleName = moduleName;
+        return this;
+    }
+
+    @JsonProperty("git_commit_hash")
+    public java.lang.String getGitCommitHash() {
+        return gitCommitHash;
+    }
+
+    @JsonProperty("git_commit_hash")
+    public void setGitCommitHash(java.lang.String gitCommitHash) {
+        this.gitCommitHash = gitCommitHash;
+    }
+
+    public MethodFullInfo withGitCommitHash(java.lang.String gitCommitHash) {
+        this.gitCommitHash = gitCommitHash;
         return this;
     }
 
@@ -357,7 +378,7 @@ public class MethodFullInfo {
 
     @Override
     public java.lang.String toString() {
-        return ((((((((((((((((((((((((((((((((((("MethodFullInfo"+" [id=")+ id)+", moduleName=")+ moduleName)+", name=")+ name)+", ver=")+ ver)+", authors=")+ authors)+", kbContributors=")+ kbContributors)+", contact=")+ contact)+", subtitle=")+ subtitle)+", tooltip=")+ tooltip)+", description=")+ description)+", technicalDescription=")+ technicalDescription)+", suggestions=")+ suggestions)+", icon=")+ icon)+", categories=")+ categories)+", screenshots=")+ screenshots)+", publications=")+ publications)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((((((((((((((((((((((((((((((((("MethodFullInfo"+" [id=")+ id)+", moduleName=")+ moduleName)+", gitCommitHash=")+ gitCommitHash)+", name=")+ name)+", ver=")+ ver)+", authors=")+ authors)+", kbContributors=")+ kbContributors)+", contact=")+ contact)+", subtitle=")+ subtitle)+", tooltip=")+ tooltip)+", description=")+ description)+", technicalDescription=")+ technicalDescription)+", suggestions=")+ suggestions)+", icon=")+ icon)+", categories=")+ categories)+", screenshots=")+ screenshots)+", publications=")+ publications)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }
