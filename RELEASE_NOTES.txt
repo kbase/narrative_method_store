@@ -4,6 +4,12 @@ The Narrative Method Store provides an API to dynamically access the available
 narrative method/app/type specifications and documentation.
 
 
+VERSION: 0.3.3 (Released 02/11/16)
+--------------------------------------
+UPDATED FEATURES / MAJOR BUG FIXES:
+- Fix for bug with fetching methods having a specific tag hash.
+
+
 VERSION: 0.3.2 (Released 02/11/16)
 --------------------------------------
 NEW FEATURES:

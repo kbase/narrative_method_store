@@ -1166,7 +1166,9 @@ public class FullServerTest {
             Assert.assertNull(CLIENT.listCategories(new ListCategoriesParams().withLoadMethods(1L)).getE2().get(methodId));
             checkMethod(methodId, 2, "genomeA", "Genome A", "dev");
             MethodBriefInfo mbi2 = CLIENT.getMethodBriefInfo(new GetMethodParams().withIds(Arrays.asList(methodId)).withTag("dev")).get(0);
-            Assert.assertEquals(mbi2.getGitCommitHash(), commitHash2);            
+            Assert.assertEquals(mbi2.getGitCommitHash(), commitHash2);      
+            mbi2 = CLIENT.getMethodBriefInfo(new GetMethodParams().withIds(Arrays.asList(methodId)).withTag(commitHash2)).get(0);
+            Assert.assertEquals(mbi2.getGitCommitHash(), commitHash2);      
             MethodFullInfo mfi2 = CLIENT.getMethodFullInfo(new GetMethodParams().withIds(Arrays.asList(methodId)).withTag("dev")).get(0);
             Assert.assertEquals(mfi2.getGitCommitHash(), commitHash2);            
             MethodSpec ms2 = CLIENT.getMethodSpec(new GetMethodParams().withIds(Arrays.asList(methodId)).withTag("dev")).get(0);
