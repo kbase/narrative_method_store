@@ -59,7 +59,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
     public static final String         CFG_ENDPOINT_HOST = "endpoint-host";
     public static final String      CFG_PROP_DEFAULT_TAG = "method-spec-default-tag";
     
-    public static final String VERSION = "0.3.2";
+    public static final String VERSION = "0.3.3";
     
     private static Throwable configError = null;
     private static Map<String, String> config = null;
