@@ -51,6 +51,11 @@ public class JsonRepoProvider implements RepoProvider {
     }
     
     @Override
+    public String getModuleVersion() {
+        return data.moduleVersion;
+    }
+    
+    @Override
     public List<String> listOwners() {
         return Collections.unmodifiableList(data.owners);
     }
@@ -199,6 +204,7 @@ public class JsonRepoProvider implements RepoProvider {
         ret.moduleName = mn;
         ret.moduleDescription = repo.getModuleDescription();
         ret.serviceLanguage = repo.getServiceLanguage();
+        ret.moduleVersion = repo.getModuleVersion();
         ret.owners = repo.listOwners();
         ret.readmeFile = fId(db, mn, repo.getReadmeFile());
         ret.uiNarrativeMethodIds = repo.listUINarrativeMethodIDs();
@@ -249,6 +255,7 @@ public class JsonRepoProvider implements RepoProvider {
         public String moduleName;
         public String moduleDescription;
         public String serviceLanguage;
+        public String moduleVersion;
         public List<String> owners;
         public String readmeFile;
         public List<String> uiNarrativeMethodIds;

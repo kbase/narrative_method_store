@@ -1131,6 +1131,7 @@ public class FullServerTest {
 	        Assert.assertEquals("Perform Async Docker Test.", bi.getTooltip().trim());
 	        Assert.assertEquals("[active]", bi.getCategories().toString());
 	        Assert.assertEquals(moduleName, bi.getModuleName());
+	        Assert.assertEquals("0.0.1", bi.getVer());
 	        MethodFullInfo fi = CLIENT.getMethodFullInfo(new GetMethodParams().withIds(Arrays.asList(methodId)).withTag("dev")).get(0);
 	        Assert.assertNotNull(fi);
 	        Assert.assertTrue("Description: " + fi.getDescription(), fi.getDescription().contains("Async Docker Test"));
