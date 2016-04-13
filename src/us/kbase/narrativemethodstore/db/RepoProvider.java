@@ -11,6 +11,7 @@ public interface RepoProvider {
     public String getModuleName();
     public String getModuleDescription();
     public String getServiceLanguage();
+    public String getModuleVersion();
     public List<String> listOwners();
     public FilePointer getReadmeFile() throws NarrativeMethodStoreException;
     /////////// data    ///////////

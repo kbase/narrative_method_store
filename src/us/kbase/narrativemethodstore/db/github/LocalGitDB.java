@@ -403,6 +403,7 @@ public class LocalGitDB {
 			String serviceVersion = null;
 			RepoTag tag = null;
 			FileLookup fl = null;
+			String version = null;
 			if (methodId.isDynamic()) {
 			    final RepoProvider repo = dynamicRepos.getRepoDetails(methodId.getRepoModuleName(), methodId.getTag());
 			    if (repo == null)
@@ -428,6 +429,7 @@ public class LocalGitDB {
                         return false;
                     }
                 };
+                version = repo.getModuleVersion();
 			} else {
 			    spec = getResourceAsJson("methods/"+methodId+"/spec.json");
 			    display = getResourceAsYamlMap("methods/"+methodId+"/display.yaml");
@@ -436,7 +438,7 @@ public class LocalGitDB {
 
 			// Initialize the actual data
 			NarrativeMethodData data = new NarrativeMethodData(methodId.getExternalId(), spec, display,
-					fl, methodId.getRepoModuleName(), serviceVersion, srvUrlTemplEval, tag);
+					fl, methodId.getRepoModuleName(), serviceVersion, srvUrlTemplEval, tag, version);
 			return data;
 		} catch (NarrativeMethodStoreException ex) {
 			throw ex;
@@ -740,7 +742,7 @@ public class LocalGitDB {
                     // Initialize the actual data
                     new NarrativeMethodData(pvd.getModuleName() + "/" + methodId, 
                             spec, display, createFileLookup(new File(getMethodsDir(), methodId)), 
-                            pvd.getModuleName(), serviceVersion, srvUrlTemplEval, RepoTag.dev);
+                            pvd.getModuleName(), serviceVersion, srvUrlTemplEval, RepoTag.dev, pvd.getModuleVersion());
                 } catch (Exception ex) {
                     if (errors.length() > 0)
                         errors.append("; ");
@@ -802,6 +804,7 @@ public class LocalGitDB {
         return new RepoDetails().withModuleName(repoModuleName)
                 .withModuleDescription(repo.getModuleDescription())
                 .withServiceLanguage(repo.getServiceLanguage())
+                .withModuleVersion(repo.getModuleVersion())
                 .withGitUrl(repo.getUrl())
                 .withGitCommitHash(repo.getGitCommitHash())
                 .withOwners(repo.listOwners())

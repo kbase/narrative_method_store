@@ -47,6 +47,8 @@ public class RepoDetails {
     private java.lang.String moduleDescription;
     @JsonProperty("service_language")
     private java.lang.String serviceLanguage;
+    @JsonProperty("module_version")
+    private java.lang.String moduleVersion;
     @JsonProperty("owners")
     private List<String> owners;
     @JsonProperty("readme")
@@ -129,6 +131,21 @@ public class RepoDetails {
 
     public RepoDetails withServiceLanguage(java.lang.String serviceLanguage) {
         this.serviceLanguage = serviceLanguage;
+        return this;
+    }
+
+    @JsonProperty("module_version")
+    public java.lang.String getModuleVersion() {
+        return moduleVersion;
+    }
+
+    @JsonProperty("module_description")
+    public void setModuleVersion(java.lang.String moduleVersion) {
+        this.moduleVersion = moduleVersion;
+    }
+
+    public RepoDetails withModuleVersion(java.lang.String moduleVersion) {
+        this.moduleVersion = moduleVersion;
         return this;
     }
 
