@@ -35,6 +35,25 @@
 
   <property name="commonjar" location="${jardir}/kbase/common/kbase-common-0.0.9.jar"/>
 
+  <condition property="java7andearlier" value="${ant.java.version}">
+    <or>
+      <equals arg1="${ant.java.version}" arg2="1.1"/>
+      <equals arg1="${ant.java.version}" arg2="1.2"/>
+      <equals arg1="${ant.java.version}" arg2="1.3"/>
+      <equals arg1="${ant.java.version}" arg2="1.4"/>
+      <equals arg1="${ant.java.version}" arg2="1.5"/>
+      <equals arg1="${ant.java.version}" arg2="1.6"/>
+      <equals arg1="${ant.java.version}" arg2="1.7"/>
+    </or>
+  </condition>
+
+  <condition property="java8andlater" value="${ant.java.version}">
+    <or>
+      <equals arg1="${ant.java.version}" arg2="1.8"/>
+      <equals arg1="${ant.java.version}" arg2="1.9"/>
+    </or>
+  </condition>
+
   <fileset dir="${jardir}" id="sourceslib">
     <include name="kbase/kbase-common-temp.jar"/>
   </fileset>
@@ -227,7 +246,7 @@
   </target>
 
 
-  <target name="javadoc" description="build javadocs">
+  <target name="javadoc7" description="build javadocs for java version 7 and earlier" if="java7andearlier">
     <unzip dest="${tempunpack}">
       <fileset refid="sourceslib"/>
     </unzip>
@@ -242,6 +261,28 @@
       <fileset refid="sources-jdoc-files"/>
     </javadoc>
     <delete dir="${tempunpack}"/>
+  </target>
+
+  <target name="javadoc8" description="build javadocs for java 8 and later" if="java8andlater">
+    <unzip dest="${tempunpack}">
+      <fileset refid="sourceslib"/>
+    </unzip>
+    <javadoc access="protected" author="false" classpathref="compile.classpath"
+      destdir="${doc}" nodeprecated="false" nodeprecatedlist="false"
+      noindex="false" nonavbar="false" notree="false"
+      source="1.7" splitindex="true" use="true" version="true">
+      <link href="http://download.oracle.com/javase/7/docs/api/"/>
+      <link href="http://fasterxml.github.io/jackson-core/javadoc/2.2.0/"/>
+      <link href="http://fasterxml.github.io/jackson-databind/javadoc/2.2.0/"/>
+      <fileset refid="client-jdoc-files"/>
+      <fileset refid="sources-jdoc-files"/>
+      <arg value="-Xdoclint:none"/>
+    </javadoc>
+    <delete dir="${tempunpack}"/>
+  </target>
+
+  <target name="javadoc" depends="javadoc7,javadoc8" description="build javadocs">
+    <echo>Javadoc is done for java version ${ant.java.version}</echo>
   </target>
 
   <target name="test" depends="compile" description="run tests">
