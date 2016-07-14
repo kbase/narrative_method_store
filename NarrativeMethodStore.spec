@@ -579,6 +579,7 @@ module NarrativeMethodStore {
     } AppSpec;
 
 	/*
+	    export_functions - optional mapping from UI label to exporter SDK local function.
 	    @optional icon landing_page_url_prefix loading_error
 	*/
     typedef structure {
@@ -590,7 +591,7 @@ module NarrativeMethodStore {
         ScreenShot icon;
         list<string> view_method_ids;
         list<string> import_method_ids;
-        list<string> export_functions;
+        mapping<string, string> export_functions;
         string landing_page_url_prefix;
         string loading_error;
     } TypeInfo;

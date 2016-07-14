@@ -969,7 +969,7 @@ public class FullServerTest {
 				assertTrue("Test.Type1 has name Genome", ti.getName().compareTo("Genome")==0);
 				assertEquals(1, ti.getExportFunctions().size());
                 assertTrue("Unexpected exporting function name", 
-                        ti.getExportFunctions().get(0).contains("/"));
+                        ti.getExportFunctions().get("TSV").contains("/"));
 			}
 		}
 		assertTrue("Type1 was returned successfully in list types.",foundTestType1);

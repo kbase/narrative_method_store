@@ -15,6 +15,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 /**
  * <p>Original spec-file type: TypeInfo</p>
  * <pre>
+ * export_functions - optional mapping from UI label to exporter SDK local function.
  * @optional icon landing_page_url_prefix loading_error
  * </pre>
  * 
@@ -58,7 +59,7 @@ public class TypeInfo {
     @JsonProperty("import_method_ids")
     private List<String> importMethodIds;
     @JsonProperty("export_functions")
-    private List<String> exportFunctions;
+    private Map<String, String> exportFunctions;
     @JsonProperty("landing_page_url_prefix")
     private java.lang.String landingPageUrlPrefix;
     @JsonProperty("loading_error")
@@ -196,16 +197,16 @@ public class TypeInfo {
     }
 
     @JsonProperty("export_functions")
-    public List<String> getExportFunctions() {
+    public Map<String, String> getExportFunctions() {
         return exportFunctions;
     }
 
     @JsonProperty("export_functions")
-    public void setExportFunctions(List<String> exportFunctions) {
+    public void setExportFunctions(Map<String, String> exportFunctions) {
         this.exportFunctions = exportFunctions;
     }
 
-    public TypeInfo withExportFunctions(List<String> exportFunctions) {
+    public TypeInfo withExportFunctions(Map<String, String> exportFunctions) {
         this.exportFunctions = exportFunctions;
         return this;
     }
