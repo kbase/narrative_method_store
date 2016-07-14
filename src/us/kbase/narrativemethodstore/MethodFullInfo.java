@@ -89,8 +89,6 @@ public class MethodFullInfo {
     private List<Publication> publications;
     private Map<java.lang.String, Object> additionalProperties = new HashMap<java.lang.String, Object>();
 
-    public MethodFullInfo() {}
-    
     @JsonProperty("id")
     public java.lang.String getId() {
         return id;

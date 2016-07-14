@@ -53,6 +53,7 @@ public class NarrativeTypeData {
 		
 		typeInfo.withViewMethodIds(jsonListToStringListOrEmpty(spec.get("view_method_ids")));
 		typeInfo.withImportMethodIds(jsonListToStringListOrEmpty(spec.get("import_method_ids")));
+        typeInfo.withExportFunctions(jsonListToStringListOrEmpty(spec.get("export_functions")));
 		typeInfo.withLandingPageUrlPrefix(getTextOrNull(spec.get("landing_page_url_prefix")));
 	}
 
