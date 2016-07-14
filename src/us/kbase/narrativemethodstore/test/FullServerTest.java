@@ -967,6 +967,9 @@ public class FullServerTest {
 			if(ti.getTypeName().compareTo("Test.Type1")==0) {
 				foundTestType1 = true;
 				assertTrue("Test.Type1 has name Genome", ti.getName().compareTo("Genome")==0);
+				assertEquals(1, ti.getExportFunctions().size());
+                assertTrue("Unexpected exporting function name", 
+                        ti.getExportFunctions().get(0).contains("/"));
 			}
 		}
 		assertTrue("Type1 was returned successfully in list types.",foundTestType1);
