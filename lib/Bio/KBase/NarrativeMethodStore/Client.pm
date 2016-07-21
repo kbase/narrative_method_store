@@ -956,6 +956,8 @@ SubdataSelection is a reference to a hash where the following keys are defined:
 	selection_id has a value which is a string
 	selection_description has a value which is a reference to a list where each element is a string
 	description_template has a value which is a string
+	service_function has a value which is a string
+	service_version has a value which is a string
 FixedMethodParameter is a reference to a hash where the following keys are defined:
 	ui_name has a value which is a string
 	description has a value which is a string
@@ -1131,6 +1133,8 @@ SubdataSelection is a reference to a hash where the following keys are defined:
 	selection_id has a value which is a string
 	selection_description has a value which is a reference to a list where each element is a string
 	description_template has a value which is a string
+	service_function has a value which is a string
+	service_version has a value which is a string
 FixedMethodParameter is a reference to a hash where the following keys are defined:
 	ui_name has a value which is a string
 	description has a value which is a string
@@ -2319,6 +2323,8 @@ SubdataSelection is a reference to a hash where the following keys are defined:
 	selection_id has a value which is a string
 	selection_description has a value which is a reference to a list where each element is a string
 	description_template has a value which is a string
+	service_function has a value which is a string
+	service_version has a value which is a string
 FixedMethodParameter is a reference to a hash where the following keys are defined:
 	ui_name has a value which is a string
 	description has a value which is a string
@@ -2493,6 +2499,8 @@ SubdataSelection is a reference to a hash where the following keys are defined:
 	selection_id has a value which is a string
 	selection_description has a value which is a reference to a list where each element is a string
 	description_template has a value which is a string
+	service_function has a value which is a string
+	service_version has a value which is a string
 FixedMethodParameter is a reference to a hash where the following keys are defined:
 	ui_name has a value which is a string
 	description has a value which is a string
@@ -3313,6 +3321,8 @@ SubdataSelection is a reference to a hash where the following keys are defined:
 	selection_id has a value which is a string
 	selection_description has a value which is a reference to a list where each element is a string
 	description_template has a value which is a string
+	service_function has a value which is a string
+	service_version has a value which is a string
 FixedMethodParameter is a reference to a hash where the following keys are defined:
 	ui_name has a value which is a string
 	description has a value which is a string
@@ -3578,6 +3588,8 @@ SubdataSelection is a reference to a hash where the following keys are defined:
 	selection_id has a value which is a string
 	selection_description has a value which is a reference to a list where each element is a string
 	description_template has a value which is a string
+	service_function has a value which is a string
+	service_version has a value which is a string
 FixedMethodParameter is a reference to a hash where the following keys are defined:
 	ui_name has a value which is a string
 	description has a value which is a string
@@ -3906,6 +3918,8 @@ SubdataSelection is a reference to a hash where the following keys are defined:
 	selection_id has a value which is a string
 	selection_description has a value which is a reference to a list where each element is a string
 	description_template has a value which is a string
+	service_function has a value which is a string
+	service_version has a value which is a string
 FixedMethodParameter is a reference to a hash where the following keys are defined:
 	ui_name has a value which is a string
 	description has a value which is a string
@@ -4171,6 +4185,8 @@ SubdataSelection is a reference to a hash where the following keys are defined:
 	selection_id has a value which is a string
 	selection_description has a value which is a reference to a list where each element is a string
 	description_template has a value which is a string
+	service_function has a value which is a string
+	service_version has a value which is a string
 FixedMethodParameter is a reference to a hash where the following keys are defined:
 	ui_name has a value which is a string
 	description has a value which is a string
@@ -4499,6 +4515,8 @@ SubdataSelection is a reference to a hash where the following keys are defined:
 	selection_id has a value which is a string
 	selection_description has a value which is a reference to a list where each element is a string
 	description_template has a value which is a string
+	service_function has a value which is a string
+	service_version has a value which is a string
 FixedMethodParameter is a reference to a hash where the following keys are defined:
 	ui_name has a value which is a string
 	description has a value which is a string
@@ -4764,6 +4782,8 @@ SubdataSelection is a reference to a hash where the following keys are defined:
 	selection_id has a value which is a string
 	selection_description has a value which is a reference to a list where each element is a string
 	description_template has a value which is a string
+	service_function has a value which is a string
+	service_version has a value which is a string
 FixedMethodParameter is a reference to a hash where the following keys are defined:
 	ui_name has a value which is a string
 	description has a value which is a string
@@ -6249,12 +6269,17 @@ Information about a subdata selection
                    specify which field of that object should be used as the
                    primary ID
     selection_description - Use this to specify (if the subdata is a list or map)
-                    which fields should be included as a short description of
-                    the selection.  For features, for instance, this may include
-                    the feature function, or feature aliases.
+                   which fields should be included as a short description of
+                   the selection.  For features, for instance, this may include
+                   the feature function, or feature aliases.
     description_template - Defines how the description of items is rendered using
-                    Handlebar templates (use the name of items in the 
-                    selection_description list as variable names)
+                   Handlebar templates (use the name of items in the 
+                   selection_description list as variable names)
+    service_function - optional name of SDK method including prefix with SDK
+                   module started up as dynamic service (it's fully qualified
+                   method name where module and method are separated by '.')
+    service_version - optional version of module used in service_function
+                   (default value is 'release').
 
 
 =item Definition
@@ -6270,6 +6295,8 @@ path_to_subdata has a value which is a reference to a list where each element is
 selection_id has a value which is a string
 selection_description has a value which is a reference to a list where each element is a string
 description_template has a value which is a string
+service_function has a value which is a string
+service_version has a value which is a string
 
 </pre>
 
@@ -6285,6 +6312,8 @@ path_to_subdata has a value which is a reference to a list where each element is
 selection_id has a value which is a string
 selection_description has a value which is a reference to a list where each element is a string
 description_template has a value which is a string
+service_function has a value which is a string
+service_version has a value which is a string
 
 
 =end text
