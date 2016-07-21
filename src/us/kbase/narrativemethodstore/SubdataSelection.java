@@ -28,12 +28,17 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
  *                    specify which field of that object should be used as the
  *                    primary ID
  *     selection_description - Use this to specify (if the subdata is a list or map)
- *                     which fields should be included as a short description of
- *                     the selection.  For features, for instance, this may include
- *                     the feature function, or feature aliases.
+ *                    which fields should be included as a short description of
+ *                    the selection.  For features, for instance, this may include
+ *                    the feature function, or feature aliases.
  *     description_template - Defines how the description of items is rendered using
- *                     Handlebar templates (use the name of items in the 
- *                     selection_description list as variable names)
+ *                    Handlebar templates (use the name of items in the 
+ *                    selection_description list as variable names)
+ *     service_function - optional name of SDK method including prefix with SDK
+ *                    module started up as dynamic service (it's fully qualified
+ *                    method name where module and method are separated by '.')
+ *     service_version - optional version of module used in service_function
+ *                    (default value is 'release').
  * </pre>
  * 
  */
@@ -46,7 +51,9 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
     "path_to_subdata",
     "selection_id",
     "selection_description",
-    "description_template"
+    "description_template",
+    "service_function",
+    "service_version"
 })
 public class SubdataSelection {
 
@@ -64,6 +71,10 @@ public class SubdataSelection {
     private List<String> selectionDescription;
     @JsonProperty("description_template")
     private java.lang.String descriptionTemplate;
+    @JsonProperty("service_function")
+    private java.lang.String serviceFunction;
+    @JsonProperty("service_version")
+    private java.lang.String serviceVersion;
     private Map<java.lang.String, Object> additionalProperties = new HashMap<java.lang.String, Object>();
 
     @JsonProperty("constant_ref")
@@ -171,6 +182,36 @@ public class SubdataSelection {
         return this;
     }
 
+    @JsonProperty("service_function")
+    public java.lang.String getServiceFunction() {
+        return serviceFunction;
+    }
+
+    @JsonProperty("service_function")
+    public void setServiceFunction(java.lang.String serviceFunction) {
+        this.serviceFunction = serviceFunction;
+    }
+
+    public SubdataSelection withServiceFunction(java.lang.String serviceFunction) {
+        this.serviceFunction = serviceFunction;
+        return this;
+    }
+
+    @JsonProperty("service_version")
+    public java.lang.String getServiceVersion() {
+        return serviceVersion;
+    }
+
+    @JsonProperty("service_version")
+    public void setServiceVersion(java.lang.String serviceVersion) {
+        this.serviceVersion = serviceVersion;
+    }
+
+    public SubdataSelection withServiceVersion(java.lang.String serviceVersion) {
+        this.serviceVersion = serviceVersion;
+        return this;
+    }
+
     @JsonAnyGetter
     public Map<java.lang.String, Object> getAdditionalProperties() {
         return this.additionalProperties;
@@ -183,7 +224,7 @@ public class SubdataSelection {
 
     @Override
     public java.lang.String toString() {
-        return ((((((((((((((((("SubdataSelection"+" [constantRef=")+ constantRef)+", parameterId=")+ parameterId)+", subdataIncluded=")+ subdataIncluded)+", pathToSubdata=")+ pathToSubdata)+", selectionId=")+ selectionId)+", selectionDescription=")+ selectionDescription)+", descriptionTemplate=")+ descriptionTemplate)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((((((((((((((((("SubdataSelection"+" [constantRef=")+ constantRef)+", parameterId=")+ parameterId)+", subdataIncluded=")+ subdataIncluded)+", pathToSubdata=")+ pathToSubdata)+", selectionId=")+ selectionId)+", selectionDescription=")+ selectionDescription)+", descriptionTemplate=")+ descriptionTemplate)+", serviceFunction=")+ serviceFunction)+", serviceVersion=")+ serviceVersion)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }

@@ -586,7 +586,9 @@ public class NarrativeMethodData {
 											.withPathToSubdata(pathToSubdata)
 											.withSelectionId(getTextOrNull(subdataSelection.get("selection_id")))
 											.withSelectionDescription(jsonListToStringList(subdataSelection.get("selection_description")))
-											.withDescriptionTemplate(getTextOrNull(subdataSelection.get("description_template")));
+											.withDescriptionTemplate(getTextOrNull(subdataSelection.get("description_template")))
+											.withServiceFunction(getTextOrNull(subdataSelection.get("service_function")))
+											.withServiceVersion(getTextOrNull(subdataSelection.get("service_version")));
 				
 				textSubdataOpt = new TextSubdataOptions()
 										.withPlaceholder(placeholder)
