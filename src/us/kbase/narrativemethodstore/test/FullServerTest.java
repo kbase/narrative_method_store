@@ -777,6 +777,12 @@ public class FullServerTest {
         assertEquals("KBaseGenomes.Genome", m.getOutputTypes().get(0));
 	}
 	
+    @Test
+    public void getAppType() throws Exception {
+        GetMethodParams params = new GetMethodParams().withIds(Arrays.asList("test_method_9"));
+        Assert.assertEquals("editor", CLIENT.getMethodBriefInfo(params).get(0).getAppType());
+        Assert.assertEquals("editor", CLIENT.getMethodFullInfo(params).get(0).getAppType());
+    }
 	
 	@Test
 	public void testGetMethodFullInfo() throws Exception {

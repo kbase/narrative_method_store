@@ -296,6 +296,7 @@ MethodBriefInfo is a reference to a hash where the following keys are defined:
 	authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
 	input_types has a value which is a reference to a list where each element is a string
 	output_types has a value which is a reference to a list where each element is a string
+	app_type has a value which is a string
 Icon is a reference to a hash where the following keys are defined:
 	url has a value which is a NarrativeMethodStore.url
 url is a string
@@ -364,6 +365,7 @@ MethodBriefInfo is a reference to a hash where the following keys are defined:
 	authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
 	input_types has a value which is a reference to a list where each element is a string
 	output_types has a value which is a reference to a list where each element is a string
+	app_type has a value which is a string
 Icon is a reference to a hash where the following keys are defined:
 	url has a value which is a NarrativeMethodStore.url
 url is a string
@@ -583,6 +585,7 @@ MethodBriefInfo is a reference to a hash where the following keys are defined:
 	authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
 	input_types has a value which is a reference to a list where each element is a string
 	output_types has a value which is a reference to a list where each element is a string
+	app_type has a value which is a string
 Icon is a reference to a hash where the following keys are defined:
 	url has a value which is a NarrativeMethodStore.url
 url is a string
@@ -614,6 +617,7 @@ MethodBriefInfo is a reference to a hash where the following keys are defined:
 	authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
 	input_types has a value which is a reference to a list where each element is a string
 	output_types has a value which is a reference to a list where each element is a string
+	app_type has a value which is a string
 Icon is a reference to a hash where the following keys are defined:
 	url has a value which is a NarrativeMethodStore.url
 url is a string
@@ -707,6 +711,7 @@ MethodFullInfo is a reference to a hash where the following keys are defined:
 	tooltip has a value which is a string
 	description has a value which is a string
 	technical_description has a value which is a string
+	app_type has a value which is a string
 	suggestions has a value which is a NarrativeMethodStore.Suggestions
 	icon has a value which is a NarrativeMethodStore.Icon
 	categories has a value which is a reference to a list where each element is a string
@@ -754,6 +759,7 @@ MethodFullInfo is a reference to a hash where the following keys are defined:
 	tooltip has a value which is a string
 	description has a value which is a string
 	technical_description has a value which is a string
+	app_type has a value which is a string
 	suggestions has a value which is a NarrativeMethodStore.Suggestions
 	icon has a value which is a NarrativeMethodStore.Icon
 	categories has a value which is a reference to a list where each element is a string
@@ -873,6 +879,7 @@ MethodBriefInfo is a reference to a hash where the following keys are defined:
 	authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
 	input_types has a value which is a reference to a list where each element is a string
 	output_types has a value which is a reference to a list where each element is a string
+	app_type has a value which is a string
 Icon is a reference to a hash where the following keys are defined:
 	url has a value which is a NarrativeMethodStore.url
 url is a string
@@ -1050,6 +1057,7 @@ MethodBriefInfo is a reference to a hash where the following keys are defined:
 	authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
 	input_types has a value which is a reference to a list where each element is a string
 	output_types has a value which is a reference to a list where each element is a string
+	app_type has a value which is a string
 Icon is a reference to a hash where the following keys are defined:
 	url has a value which is a NarrativeMethodStore.url
 url is a string
@@ -1954,6 +1962,7 @@ MethodBriefInfo is a reference to a hash where the following keys are defined:
 	authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
 	input_types has a value which is a reference to a list where each element is a string
 	output_types has a value which is a reference to a list where each element is a string
+	app_type has a value which is a string
 Icon is a reference to a hash where the following keys are defined:
 	url has a value which is a NarrativeMethodStore.url
 url is a string
@@ -1984,6 +1993,7 @@ MethodBriefInfo is a reference to a hash where the following keys are defined:
 	authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
 	input_types has a value which is a reference to a list where each element is a string
 	output_types has a value which is a reference to a list where each element is a string
+	app_type has a value which is a string
 Icon is a reference to a hash where the following keys are defined:
 	url has a value which is a NarrativeMethodStore.url
 url is a string
@@ -2076,6 +2086,7 @@ MethodFullInfo is a reference to a hash where the following keys are defined:
 	tooltip has a value which is a string
 	description has a value which is a string
 	technical_description has a value which is a string
+	app_type has a value which is a string
 	suggestions has a value which is a NarrativeMethodStore.Suggestions
 	icon has a value which is a NarrativeMethodStore.Icon
 	categories has a value which is a reference to a list where each element is a string
@@ -2122,6 +2133,7 @@ MethodFullInfo is a reference to a hash where the following keys are defined:
 	tooltip has a value which is a string
 	description has a value which is a string
 	technical_description has a value which is a string
+	app_type has a value which is a string
 	suggestions has a value which is a NarrativeMethodStore.Suggestions
 	icon has a value which is a NarrativeMethodStore.Icon
 	categories has a value which is a reference to a list where each element is a string
@@ -2240,6 +2252,7 @@ MethodBriefInfo is a reference to a hash where the following keys are defined:
 	authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
 	input_types has a value which is a reference to a list where each element is a string
 	output_types has a value which is a reference to a list where each element is a string
+	app_type has a value which is a string
 Icon is a reference to a hash where the following keys are defined:
 	url has a value which is a NarrativeMethodStore.url
 url is a string
@@ -2416,6 +2429,7 @@ MethodBriefInfo is a reference to a hash where the following keys are defined:
 	authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
 	input_types has a value which is a reference to a list where each element is a string
 	output_types has a value which is a reference to a list where each element is a string
+	app_type has a value which is a string
 Icon is a reference to a hash where the following keys are defined:
 	url has a value which is a NarrativeMethodStore.url
 url is a string
@@ -3212,6 +3226,7 @@ MethodFullInfo is a reference to a hash where the following keys are defined:
 	tooltip has a value which is a string
 	description has a value which is a string
 	technical_description has a value which is a string
+	app_type has a value which is a string
 	suggestions has a value which is a NarrativeMethodStore.Suggestions
 	icon has a value which is a NarrativeMethodStore.Icon
 	categories has a value which is a reference to a list where each element is a string
@@ -3243,6 +3258,7 @@ MethodBriefInfo is a reference to a hash where the following keys are defined:
 	authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
 	input_types has a value which is a reference to a list where each element is a string
 	output_types has a value which is a reference to a list where each element is a string
+	app_type has a value which is a string
 WidgetSpec is a reference to a hash where the following keys are defined:
 	input has a value which is a string
 	output has a value which is a string
@@ -3479,6 +3495,7 @@ MethodFullInfo is a reference to a hash where the following keys are defined:
 	tooltip has a value which is a string
 	description has a value which is a string
 	technical_description has a value which is a string
+	app_type has a value which is a string
 	suggestions has a value which is a NarrativeMethodStore.Suggestions
 	icon has a value which is a NarrativeMethodStore.Icon
 	categories has a value which is a reference to a list where each element is a string
@@ -3510,6 +3527,7 @@ MethodBriefInfo is a reference to a hash where the following keys are defined:
 	authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
 	input_types has a value which is a reference to a list where each element is a string
 	output_types has a value which is a reference to a list where each element is a string
+	app_type has a value which is a string
 WidgetSpec is a reference to a hash where the following keys are defined:
 	input has a value which is a string
 	output has a value which is a string
@@ -3809,6 +3827,7 @@ MethodFullInfo is a reference to a hash where the following keys are defined:
 	tooltip has a value which is a string
 	description has a value which is a string
 	technical_description has a value which is a string
+	app_type has a value which is a string
 	suggestions has a value which is a NarrativeMethodStore.Suggestions
 	icon has a value which is a NarrativeMethodStore.Icon
 	categories has a value which is a reference to a list where each element is a string
@@ -3840,6 +3859,7 @@ MethodBriefInfo is a reference to a hash where the following keys are defined:
 	authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
 	input_types has a value which is a reference to a list where each element is a string
 	output_types has a value which is a reference to a list where each element is a string
+	app_type has a value which is a string
 WidgetSpec is a reference to a hash where the following keys are defined:
 	input has a value which is a string
 	output has a value which is a string
@@ -4076,6 +4096,7 @@ MethodFullInfo is a reference to a hash where the following keys are defined:
 	tooltip has a value which is a string
 	description has a value which is a string
 	technical_description has a value which is a string
+	app_type has a value which is a string
 	suggestions has a value which is a NarrativeMethodStore.Suggestions
 	icon has a value which is a NarrativeMethodStore.Icon
 	categories has a value which is a reference to a list where each element is a string
@@ -4107,6 +4128,7 @@ MethodBriefInfo is a reference to a hash where the following keys are defined:
 	authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
 	input_types has a value which is a reference to a list where each element is a string
 	output_types has a value which is a reference to a list where each element is a string
+	app_type has a value which is a string
 WidgetSpec is a reference to a hash where the following keys are defined:
 	input has a value which is a string
 	output has a value which is a string
@@ -4406,6 +4428,7 @@ MethodFullInfo is a reference to a hash where the following keys are defined:
 	tooltip has a value which is a string
 	description has a value which is a string
 	technical_description has a value which is a string
+	app_type has a value which is a string
 	suggestions has a value which is a NarrativeMethodStore.Suggestions
 	icon has a value which is a NarrativeMethodStore.Icon
 	categories has a value which is a reference to a list where each element is a string
@@ -4437,6 +4460,7 @@ MethodBriefInfo is a reference to a hash where the following keys are defined:
 	authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
 	input_types has a value which is a reference to a list where each element is a string
 	output_types has a value which is a reference to a list where each element is a string
+	app_type has a value which is a string
 WidgetSpec is a reference to a hash where the following keys are defined:
 	input has a value which is a string
 	output has a value which is a string
@@ -4673,6 +4697,7 @@ MethodFullInfo is a reference to a hash where the following keys are defined:
 	tooltip has a value which is a string
 	description has a value which is a string
 	technical_description has a value which is a string
+	app_type has a value which is a string
 	suggestions has a value which is a NarrativeMethodStore.Suggestions
 	icon has a value which is a NarrativeMethodStore.Icon
 	categories has a value which is a reference to a list where each element is a string
@@ -4704,6 +4729,7 @@ MethodBriefInfo is a reference to a hash where the following keys are defined:
 	authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
 	input_types has a value which is a reference to a list where each element is a string
 	output_types has a value which is a reference to a list where each element is a string
+	app_type has a value which is a string
 WidgetSpec is a reference to a hash where the following keys are defined:
 	input has a value which is a string
 	output has a value which is a string
@@ -5624,6 +5650,7 @@ url has a value which is a NarrativeMethodStore.url
 Minimal information about a method suitable for displaying the method in a menu or navigator. 
 input_types and output_types - sets of valid_ws_types occured in input/output parameters.
 git_commit_hash - optional repo version defined for dynamically registered methods.
+app_type - is one of: "app", "viewer", "editor".
 
 
 =item Definition
@@ -5645,6 +5672,7 @@ loading_error has a value which is a string
 authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
 input_types has a value which is a reference to a list where each element is a string
 output_types has a value which is a reference to a list where each element is a string
+app_type has a value which is a string
 
 </pre>
 
@@ -5666,6 +5694,7 @@ loading_error has a value which is a string
 authors has a value which is a reference to a list where each element is a NarrativeMethodStore.username
 input_types has a value which is a reference to a list where each element is a string
 output_types has a value which is a reference to a list where each element is a string
+app_type has a value which is a string
 
 
 =end text
@@ -5792,6 +5821,7 @@ next_apps has a value which is a reference to a list where each element is a str
 
 Full information about a method suitable for displaying a method landing page.
 git_commit_hash - optional repo version defined for dynamically registered methods.
+app_type - is one of: "app", "viewer", "editor".
 
 
 =item Definition
@@ -5812,6 +5842,7 @@ subtitle has a value which is a string
 tooltip has a value which is a string
 description has a value which is a string
 technical_description has a value which is a string
+app_type has a value which is a string
 suggestions has a value which is a NarrativeMethodStore.Suggestions
 icon has a value which is a NarrativeMethodStore.Icon
 categories has a value which is a reference to a list where each element is a string
@@ -5837,6 +5868,7 @@ subtitle has a value which is a string
 tooltip has a value which is a string
 description has a value which is a string
 technical_description has a value which is a string
+app_type has a value which is a string
 suggestions has a value which is a NarrativeMethodStore.Suggestions
 icon has a value which is a NarrativeMethodStore.Icon
 categories has a value which is a reference to a list where each element is a string
