@@ -42,6 +42,7 @@ module NarrativeMethodStore {
     /* Minimal information about a method suitable for displaying the method in a menu or navigator. 
          input_types and output_types - sets of valid_ws_types occured in input/output parameters.
          git_commit_hash - optional repo version defined for dynamically registered methods.
+         app_type - is one of: "app", "viewer", "editor".
     */
     typedef structure {
         string id;
@@ -57,6 +58,7 @@ module NarrativeMethodStore {
         list <username> authors;
         list <string> input_types;
         list <string> output_types;
+        string app_type;
     } MethodBriefInfo;
     
     typedef structure {
@@ -84,6 +86,7 @@ module NarrativeMethodStore {
     
     /* Full information about a method suitable for displaying a method landing page.
          git_commit_hash - optional repo version defined for dynamically registered methods.
+         app_type - is one of: "app", "viewer", "editor".
     */
     typedef structure {
         string id;
@@ -99,6 +102,7 @@ module NarrativeMethodStore {
         string tooltip;
         string description;
         string technical_description;
+        string app_type;
         
         Suggestions suggestions;
         

@@ -163,6 +163,12 @@ public class NarrativeMethodData {
 			briefInfo.withIcon(icon);
 		} catch (IllegalStateException e) { /* icon is optional, do nothing */ }
 		
+		String appType = getTextOrNull(spec.get("app_type"));
+		if (appType == null) {
+		    appType = "app";
+		}
+		briefInfo.withAppType(appType);
+		
 		List<Publication> publications = new ArrayList<Publication>();
 		@SuppressWarnings("unchecked")
 		List<Object> pubInfoList = (List<Object>)display.get("publications");
@@ -235,6 +241,7 @@ public class NarrativeMethodData {
 							.withSubtitle(methodSubtitle)
 							.withTooltip(methodTooltip)
 							.withCategories(categories)
+							.withAppType(appType)
 							
 							.withAuthors(authors)
 							.withKbContributors(kbContributors)
