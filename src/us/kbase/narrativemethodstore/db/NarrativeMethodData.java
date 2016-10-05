@@ -1,6 +1,7 @@
 package us.kbase.narrativemethodstore.db;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -24,14 +25,13 @@ import us.kbase.narrativemethodstore.MethodBehavior;
 import us.kbase.narrativemethodstore.MethodBriefInfo;
 import us.kbase.narrativemethodstore.MethodFullInfo;
 import us.kbase.narrativemethodstore.MethodParameter;
+import us.kbase.narrativemethodstore.MethodParameterGroup;
 import us.kbase.narrativemethodstore.MethodSpec;
 import us.kbase.narrativemethodstore.OutputMapping;
 import us.kbase.narrativemethodstore.Publication;
 import us.kbase.narrativemethodstore.RadioOptions;
 import us.kbase.narrativemethodstore.RegexMatcher;
 import us.kbase.narrativemethodstore.ScreenShot;
-import us.kbase.narrativemethodstore.ScriptInputMapping;
-import us.kbase.narrativemethodstore.ScriptOutputMapping;
 import us.kbase.narrativemethodstore.ServiceMethodInputMapping;
 import us.kbase.narrativemethodstore.ServiceMethodOutputMapping;
 import us.kbase.narrativemethodstore.SubdataSelection;
@@ -52,7 +52,7 @@ public class NarrativeMethodData {
 
 	public NarrativeMethodData(String methodId, JsonNode spec, Map<String, Object> display,
 	        FileLookup lookup, RepoTag tag) throws NarrativeMethodStoreException {
-	    this(methodId, spec, display, lookup, null, null, null, null, null);
+	    this(methodId, spec, display, lookup, null, null, null, tag, null);
 	}
 	
 	public NarrativeMethodData(String methodId, JsonNode spec, Map<String, Object> display,
@@ -105,25 +105,25 @@ public class NarrativeMethodData {
 		}
 		briefInfo.withCategories(categories);
 		
-		String methodName = getDisplayProp(display, "name", lookup);
+		String methodName = getDisplayText(display, "name", lookup);
 		briefInfo.withName(methodName);
-		String methodTooltip = getDisplayProp(display, "tooltip", lookup);
+		String methodTooltip = getDisplayText(display, "tooltip", lookup);
 		briefInfo.withTooltip(methodTooltip);
 		
 		String methodSubtitle = methodTooltip;
 		try {
-			methodSubtitle = getDisplayProp(display, "subtitle", lookup);
+			methodSubtitle = getDisplayText(display, "subtitle", lookup);
 		} catch (IllegalStateException e) { }
 		briefInfo.withSubtitle(methodSubtitle);
 		
-		String methodDescription = getDisplayProp(display, "description", lookup);
+		String methodDescription = getDisplayText(display, "description", lookup);
 		String methodTechnicalDescr = "";
-		try { methodTechnicalDescr = getDisplayProp(display, "technical-description", lookup); }
+		try { methodTechnicalDescr = getDisplayText(display, "technical-description", lookup); }
 		catch (IllegalStateException e) { /*tech description is optional; do nothing*/ }
 		
 		// if replacement text is missing, do nothing, we just won't have any replacement text
 		String replacementText = null;
-		try { replacementText = getDisplayProp(display,"replacement-text",lookup); }
+		try { replacementText = getDisplayText(display,"replacement-text",lookup); }
 		catch (IllegalStateException e) { }
 		
 		if (version == null) {
@@ -140,7 +140,7 @@ public class NarrativeMethodData {
 		
 		List<ScreenShot> screenshots = new ArrayList<ScreenShot>();
 		@SuppressWarnings("unchecked")
-		List<String> imageNames = (List<String>)getDisplayProp("/", display, "screenshots");
+		List<String> imageNames = (List<String>)getDisplayItem("/", display, "screenshots");
 		if (imageNames != null) {
 			for (String imageName : imageNames)
 			    if (imageName != null && lookup.fileExists("img/" + imageName)) {
@@ -153,7 +153,7 @@ public class NarrativeMethodData {
 		
 		Icon icon = null;
 		try {
-			String iconName = getDisplayProp(display,"icon",lookup);
+			String iconName = getDisplayText(display,"icon",lookup);
 			if (iconName.trim().length() > 0 && lookup.fileExists("img/" + iconName)) {
 			    String url = "img?method_id=" + this.methodId + "&image_name=" + iconName;
                 if (tag != null)
@@ -204,7 +204,7 @@ public class NarrativeMethodData {
 		List<String> nextMethods = new ArrayList<String>();
 		try {
 			@SuppressWarnings("unchecked")
-			Map<String,Object> sugg = (Map<String,Object>)getDisplayProp("/", display, "suggestions");
+			Map<String,Object> sugg = (Map<String,Object>)getDisplayItem("/", display, "suggestions");
 			if(sugg.get("apps")!=null) {
 				@SuppressWarnings("unchecked")
 				Map<String,List<String>> suggApps = (Map<String, List<String>>) sugg.get("apps");
@@ -263,9 +263,7 @@ public class NarrativeMethodData {
 							.withInput(getTextOrNull(widgetsNode.get("input")))
 							.withOutput(getTextOrNull(widgetsNode.get("output")));
 		JsonNode behaviorNode = get(spec, "behavior");
-		MethodBehavior behavior = new MethodBehavior()
-							.withPythonClass(getTextOrNull(behaviorNode.get("python_class")))
-							.withPythonFunction(getTextOrNull(behaviorNode.get("python_function")));
+        MethodBehavior behavior = new MethodBehavior();
 		if (behaviorNode.get("service-mapping") != null) {
 			JsonNode serviceMappingNode = behaviorNode.get("service-mapping");
 			JsonNode paramsMappingNode = get("behavior/service-mapping", serviceMappingNode, "input_mapping");
@@ -306,12 +304,22 @@ public class NarrativeMethodData {
 							}
 							paramMapping.withGeneratedValue(agv);
 						}
+					} else if (field.equals("direct-mapping")) {
+					    List<String> items = jsonListToStringList(paramMappingNode.get(field));
+					    if (items != null) {
+					        paramMapping = null;
+					        for (String item : items) {
+					            paramsMapping.add(new ServiceMethodInputMapping().withInputParameter(item)
+					                    .withTargetProperty(item));
+					        }
+					    }
 					} else {
 						throw new IllegalStateException("Unknown field [" + field + "] in method parameter " +
 								"mapping structure within path " + path);
 					}
 				}
-				paramsMapping.add(paramMapping);
+				if (paramMapping != null)
+				    paramsMapping.add(paramMapping);
 			}
 			List<ServiceMethodOutputMapping> outputMapping = new ArrayList<ServiceMethodOutputMapping>();
 			JsonNode outputMappingNode = get("behavior/service-mapping", serviceMappingNode, "output_mapping");
@@ -341,7 +349,7 @@ public class NarrativeMethodData {
 				outputMapping.add(paramMapping);
 			}
 			String moduleName = getTextOrNull(serviceMappingNode.get("name"));
-			String serviceUrl = getTextOrNull(get("behavior/service-mapping", serviceMappingNode, "url"));
+			String serviceUrl = getTextOrNull(serviceMappingNode.get("url"));
 			if (srvUrlTemplEval != null && serviceUrl != null && serviceUrl.length() > 0)
 			    serviceUrl = srvUrlTemplEval.evaluate(serviceUrl, moduleName, serviceVersion);
 			behavior
@@ -379,90 +387,11 @@ public class NarrativeMethodData {
 				outputMapping.add(paramMapping);
 			}
 			behavior.withOutputMapping(outputMapping);
-		} else if (behaviorNode.get("script-mapping") != null) {
-			JsonNode scriptNode = behaviorNode.get("script-mapping");
-			JsonNode paramsMappingNode = get("behavior/script-mapping", scriptNode, "input_mapping");
-			List<ScriptInputMapping> paramsMapping = new ArrayList<ScriptInputMapping>();
-			for (int j = 0; j < paramsMappingNode.size(); j++) {
-				JsonNode paramMappingNode = paramsMappingNode.get(j);
-				String path = "behavior/script-mapping/input_mapping/" + j;
-				ScriptInputMapping paramMapping = new ScriptInputMapping();
-				for (Iterator<String> it2 = paramMappingNode.fieldNames(); it2.hasNext(); ) {
-					String field = it2.next();
-					if (field.equals("target_property")) {
-						paramMapping.withTargetProperty(getTextOrNull(paramMappingNode.get(field)));
-					} else if (field.equals("target_type_transform")) {
-						paramMapping.withTargetTypeTransform(getTextOrNull(paramMappingNode.get(field)));
-					} else if (field.equals("input_parameter")) {
-						paramMapping.withInputParameter(paramMappingNode.get(field).asText());
-					} else if (field.equals("narrative_system_variable")) {
-						paramMapping.withNarrativeSystemVariable(paramMappingNode.get(field).asText());
-					} else if (field.equals("constant_value")) {
-						paramMapping.withConstantValue(new UObject(paramMappingNode.get(field)));
-					} else if (field.equals("generated_value")) {
-						JsonNode generNode = paramMappingNode.get("generated_value");
-						AutoGeneratedValue agv = new AutoGeneratedValue();
-						for (Iterator<String> it3 = generNode.fieldNames(); it3.hasNext(); ) {
-							String field3 = it3.next();
-							if (field3.equals("prefix")) {
-								agv.withPrefix(generNode.get(field3).asText());
-							} else if (field3.equals("symbols")) {
-								agv.withSymbols(generNode.get(field3).asLong());
-							} else if (field3.equals("suffix")) {
-								agv.withSuffix(generNode.get(field3).asText());
-							} else {
-								throw new IllegalStateException("Unknown field [" + field + "] in generated " +
-										"value structure within path behavior/script-mapping/input_mapping/" + j + 
-										"/generated_value");
-							}
-							paramMapping.withGeneratedValue(agv);
-						}
-					} else {
-						throw new IllegalStateException("Unknown field [" + field + "] in method parameter " +
-								"mapping structure within path " + path);
-					}
-				}
-				paramsMapping.add(paramMapping);
-			}
-			List<ScriptOutputMapping> outputMapping = new ArrayList<ScriptOutputMapping>();
-			JsonNode outputMappingNode = get("behavior/script-mapping", scriptNode, "output_mapping");
-			for (int j = 0; j < outputMappingNode.size(); j++) {
-				JsonNode paramMappingNode = outputMappingNode.get(j);
-				String path = "behavior/script-mapping/output_mapping/" + j;
-				ScriptOutputMapping paramMapping = new ScriptOutputMapping();
-				for (Iterator<String> it2 = paramMappingNode.fieldNames(); it2.hasNext(); ) {
-					String field = it2.next();
-					if (field.equals("target_property")) {
-						paramMapping.withTargetProperty(getTextOrNull(paramMappingNode.get(field)));
-					} else if (field.equals("target_type_transform")) {
-						paramMapping.withTargetTypeTransform(getTextOrNull(paramMappingNode.get(field)));
-					} else if (field.equals("input_parameter")) {
-						paramMapping.withInputParameter(paramMappingNode.get(field).asText());
-					} else if (field.equals("narrative_system_variable")) {
-						paramMapping.withNarrativeSystemVariable(paramMappingNode.get(field).asText());
-					} else if (field.equals("constant_value")) {
-						paramMapping.withConstantValue(new UObject(paramMappingNode.get(field)));
-					} else if (field.equals("script_output_path")) {
-						paramMapping.withScriptOutputPath(jsonListToStringList(paramMappingNode.get(field)));
-					} else {
-						throw new IllegalStateException("Unknown field [" + field + "] in method output " +
-								"mapping structure within path " + path);
-					}
-				}
-				outputMapping.add(paramMapping);
-			}
-			JsonNode hasFiles = scriptNode.get("has_files");
-			behavior
-				.withScriptModule(getTextOrNull(get("behavior/script-mapping", scriptNode, "module")))
-				.withScriptName(getTextOrNull(get("behavior/script-mapping", scriptNode, "script")))
-				.withScriptHasFiles(hasFiles == null ? 0L : jsonBooleanToRPC(hasFiles))
-				.withScriptInputMapping(paramsMapping)
-				.withScriptOutputMapping(outputMapping);
 		}
 		List<MethodParameter> parameters = new ArrayList<MethodParameter>();
 		JsonNode parametersNode = get(spec, "parameters");
 		@SuppressWarnings("unchecked")
-		Map<String, Object> paramsDisplays = (Map<String, Object>)getDisplayProp("/", display, "parameters");
+		Map<String, Object> paramsDisplays = (Map<String, Object>)getDisplayItem("/", display, "parameters");
 		Set<String> paramIds = new TreeSet<String>();
 		Set<String> inputTypes = new TreeSet<String>();
         Set<String> outputTypes = new TreeSet<String>();
@@ -473,7 +402,7 @@ public class NarrativeMethodData {
 			String uiClass = "parameter";
 			paramIds.add(paramId);
 			@SuppressWarnings("unchecked")
-			Map<String, Object> paramDisplay = (Map<String, Object>)getDisplayProp("parameters", paramsDisplays, paramId);
+			Map<String, Object> paramDisplay = (Map<String, Object>)getDisplayItem("parameters", paramsDisplays, paramId);
 			TextOptions textOpt = null;
 			if (paramNode.has("text_options")) {
 				JsonNode optNode = get(paramPath, paramNode, "text_options");
@@ -487,7 +416,7 @@ public class NarrativeMethodData {
 				}
 				String placeholder = "";
 				try {
-					placeholder = (String) getDisplayProp("parameters/" + paramId, paramDisplay, "placeholder");
+					placeholder = getDisplayText("parameters/" + paramId, paramDisplay, "placeholder");
 				} catch (IllegalStateException e) { }
 				
 				List<String> types = jsonListToStringList(optNode.get("valid_ws_types")); 
@@ -574,7 +503,7 @@ public class NarrativeMethodData {
 				
 				String placeholder = "";
 				try {
-					placeholder = (String) getDisplayProp("parameters/" + paramId, paramDisplay, "placeholder");
+					placeholder = getDisplayText("parameters/" + paramId, paramDisplay, "placeholder");
 				} catch (IllegalStateException e) { }
 				
 				JsonNode subdataSelection = optNode.get("subdata_selection");
@@ -665,7 +594,7 @@ public class NarrativeMethodData {
 				long nRows = get(paramPath + "/textarea_options", optNode, "n_rows").asLong();
 				String placeholder = "";
 				try {
-					placeholder = (String) getDisplayProp("parameters/" + paramId, paramDisplay, "placeholder");
+					placeholder = getDisplayText("parameters/" + paramId, paramDisplay, "placeholder");
 				} catch (IllegalStateException e) { }
 				taOpt = new TextAreaOptions().withNRows(nRows).withPlaceholder(placeholder);
 			}
@@ -691,28 +620,28 @@ public class NarrativeMethodData {
 			
 			String paramDescription = "";
 			try {
-				paramDescription = (String) getDisplayProp("parameters/" + paramId, paramDisplay, "long-hint");
+				paramDescription = getDisplayText("parameters/" + paramId, paramDisplay, "long-hint");
 			} catch (IllegalStateException e) { }
 			try {
-				paramDescription = (String)getDisplayProp("parameters/" + paramId, paramDisplay, "description");
+				paramDescription = (String)getDisplayText("parameters/" + paramId, paramDisplay, "description");
 			} catch (IllegalStateException e) {}
 			Long disabled = 0L;
 			try {
 				disabled = jsonBooleanToRPC(get(paramPath, paramNode, "disabled"));
 			} catch (IllegalStateException e) {}
 			
-			
+			List<String> defDefVals = Arrays.asList("");
 			MethodParameter param = new MethodParameter()
 							.withId(paramId)
-							.withUiName((String)getDisplayProp("parameters/" + paramId, paramDisplay, "ui-name"))
-							.withShortHint((String)getDisplayProp("parameters/" + paramId, paramDisplay, "short-hint"))
+							.withUiName(getDisplayText("parameters/" + paramId, paramDisplay, "ui-name"))
+							.withShortHint(getDisplayText("parameters/" + paramId, paramDisplay, "short-hint"))
 							.withDescription(paramDescription)
 							.withOptional(jsonBooleanToRPC(get(paramPath, paramNode, "optional")))
-							.withAdvanced(jsonBooleanToRPC(get(paramPath, paramNode, "advanced")))
+							.withAdvanced(jsonBooleanToRPC(paramNode.get("advanced"), 0))
 							.withDisabled(disabled)
 							.withUiClass(uiClass)
-							.withAllowMultiple(jsonBooleanToRPC(get(paramPath, paramNode, "allow_multiple")))
-							.withDefaultValues(jsonListToStringList(get(paramPath, paramNode, "default_values")))
+							.withAllowMultiple(jsonBooleanToRPC(paramNode.get("allow_multiple"), 0))
+							.withDefaultValues(jsonListToStringList(paramNode.get("default_values"), defDefVals))
 							.withFieldType(get(paramPath, paramNode, "field_type").asText())
 							.withTextOptions(textOpt)
 							.withTextsubdataOptions(textSubdataOpt)
@@ -731,7 +660,7 @@ public class NarrativeMethodData {
 		List<FixedMethodParameter> fixedParameters = new ArrayList<FixedMethodParameter>();
 		try {
 			@SuppressWarnings("unchecked")
-			List<Object> fixedParams = (List<Object>)getDisplayProp("/", display, "fixed-parameters");
+			List<Object> fixedParams = (List<Object>)getDisplayItem("/", display, "fixed-parameters");
 			for (int i = 0; i < fixedParams.size(); i++) {
 				@SuppressWarnings("unchecked")
 				Map<String,String> fixedParam = (Map<String, String>) fixedParams.get(i);
@@ -750,23 +679,69 @@ public class NarrativeMethodData {
 			}
 		} catch (IllegalStateException e) { /* fixed parameters are optional; do nothing */ }
 		
+        Set<String> groupIds = new TreeSet<String>();
+        List<MethodParameterGroup> groups = null;
+		JsonNode groupsNode = spec.get("parameter-groups");
+		if (groupsNode != null) {
+		    groups = new ArrayList<MethodParameterGroup>();
+		    @SuppressWarnings("unchecked")
+		    Map<String, Object> groupsDisplays = (Map<String, Object>)display.get(
+		            "parameter-groups");
+		    for (int i = 0; i < groupsNode.size(); i++) {
+	            JsonNode groupNode = groupsNode.get(i);
+	            String groupPath = "parameter-groups/" + i;
+	            String groupId = get(groupPath, groupNode, "id").asText();
+	            if (paramIds.contains(groupId))
+	                throw new IllegalStateException("Group id=" + groupId + " must not match " +
+	                		"any parameter id");
+	            groupIds.add(groupId);
+	            @SuppressWarnings("unchecked")
+	            Map<String, Object> groupDisplay = groupsDisplays == null ? 
+	                    Collections.<String, Object>emptyMap() :
+	                        (Map<String, Object>)groupsDisplays.get(groupId);
+	            String groupDescription = getDisplayTextOptional(groupDisplay, "long-hint", null);
+	            if (groupDescription == null) {
+	                groupDescription = getDisplayTextOptional(groupDisplay, "description", null);
+	            }
+	            List<String> parameterIds = 
+	                    jsonListToStringList(get(groupPath, groupNode, "parameters"));
+	            for (String paramId : parameterIds) {
+	                if (!paramIds.contains(paramId)) {
+	                    throw new IllegalStateException("Undeclared parameter [" + paramId +
+	                            "] found within path [" + groupPath + "/parameters]");
+	                }
+	            }
+	            Map<String, String> idMapping = jsonMapToStringMap(groupNode.get("mapping"));
+	            if (idMapping != null) {
+	                for (String paramId : idMapping.keySet()) {
+	                    if (!paramIds.contains(paramId)) {
+	                        throw new IllegalStateException("Undeclared parameter [" + paramId + 
+	                                "] found within path [" + groupPath + "/mapping]");
+	                    }
+	                }
+	            }
+	            MethodParameterGroup group = new MethodParameterGroup().withId(groupId)
+	                    .withParameterIds(parameterIds)
+	                    .withUiName(getDisplayTextOptional(groupDisplay, "ui-name", null))
+	                    .withShortHint(getDisplayTextOptional(groupDisplay, "short-hint", null))
+	                    .withDescription(groupDescription)
+	                    .withOptional(jsonBooleanToRPC(groupNode.get("optional"), 0))
+	                    .withAllowMultiple(jsonBooleanToRPC(groupNode.get("allow_multiple"), 0))
+	                    .withIdMapping(idMapping)
+	                    .withWithBorder(jsonBooleanToRPC(groupNode.get("with_border"), 0))
+	                    .withParameterOptionalityMode(getTextOrNull(
+	                            groupNode.get("parameter_optionality_mode")));
+	            groups.add(group);
+	        }
+		}
+		
 		if (behavior.getKbServiceInputMapping() != null) {
 			for (int i = 0; i < behavior.getKbServiceInputMapping().size(); i++) {
 				ServiceMethodInputMapping mapping = behavior.getKbServiceInputMapping().get(i);
 				String paramId = mapping.getInputParameter();
-				if (paramId != null && !paramIds.contains(paramId)) {
+				if (paramId != null && !(paramIds.contains(paramId) || groupIds.contains(paramId))) {
 					throw new IllegalStateException("Undeclared parameter [" + paramId + "] found " +
 							"within path [behavior/service-mapping/input_mapping/" + i + "]");
-				}
-			}
-		}
-		if (behavior.getScriptInputMapping() != null) {
-			for (int i = 0; i < behavior.getScriptInputMapping().size(); i++) {
-				ScriptInputMapping mapping = behavior.getScriptInputMapping().get(i);
-				String paramId = mapping.getInputParameter();
-				if (paramId != null && !paramIds.contains(paramId)) {
-					throw new IllegalStateException("Undeclared parameter [" + paramId + "] found " +
-							"within path [behavior/script-mapping/input_mapping/" + i + "]");
 				}
 			}
 		}
@@ -790,16 +765,6 @@ public class NarrativeMethodData {
 				}
 			}
 		}
-		if (behavior.getScriptOutputMapping() != null) {
-			for (int i = 0; i < behavior.getScriptOutputMapping().size(); i++) {
-				ScriptOutputMapping mapping = behavior.getScriptOutputMapping().get(i);
-				String paramId = mapping.getInputParameter();
-				if (paramId != null && !paramIds.contains(paramId)) {
-					throw new IllegalStateException("Undeclared parameter [" + paramId + "] found " +
-							"within path [behavior/script-mapping/output_mapping/" + i + "]");
-				}
-			}
-		}
 		
 		methodSpec = new MethodSpec()
 							.withInfo(briefInfo)
@@ -808,7 +773,8 @@ public class NarrativeMethodData {
 							.withBehavior(behavior)
 							.withParameters(parameters)
 							.withFixedParameters(fixedParameters)
-							.withJobIdOutputField(getTextOrNull(spec.get("job_id_output_field")));
+							.withJobIdOutputField(getTextOrNull(spec.get("job_id_output_field")))
+							.withParameterGroups(groups);
 	}
 
 	private static JsonNode get(JsonNode node, String childName) {
@@ -823,25 +789,39 @@ public class NarrativeMethodData {
 		return ret;
 	}
 	
-	private static String getDisplayProp(Map<String, Object> display, String propName, 
+	private static String getDisplayText(Map<String, Object> display, String propName, 
 			FileLookup lookup) {
-		return getDisplayProp(display, propName, lookup, propName);
-	}
-
-	private static String getDisplayProp(Map<String, Object> display, String propName, 
-			FileLookup lookup, String lookupName) {
-		String ret = lookup.loadFileContent(lookupName + ".html");
-		if (ret == null)
-			ret = (String)getDisplayProp("/", display, propName);
+		String ret = lookup.loadFileContent(propName + ".html");
+		if (ret == null) {
+			ret = (String)getDisplayItem("/", display, propName);
+			ret = ret.trim();
+		}
 		return ret;
 	}
 	
-	private static Object getDisplayProp(String path, Map<String, Object> display, String propName) {
+	private static Object getDisplayItem(String path, Map<String, Object> display, String propName) {
 		Object ret = display.get(propName);
 		if (ret == null)
 			throw new IllegalStateException("Can't find property [" + propName + "] within path [" + 
 					path + "] in display.yaml");
 		return ret;
+	}
+
+	private static String getDisplayText(String path, Map<String, Object> display, String propName) {
+	    String ret = (String)getDisplayItem(path, display, propName);
+        ret = ret.trim();
+        return ret;
+	}
+
+	private static String getDisplayTextOptional(Map<String, Object> display, String propName, 
+	        String defaultValue) {
+	    String ret = (String)display.get(propName);
+	    if (ret == null) {
+	        ret = defaultValue;
+	    } else {
+	        ret = ret.trim();
+	    }
+	    return ret;
 	}
 
 	private static String getTextOrNull(JsonNode node) {
@@ -855,17 +835,25 @@ public class NarrativeMethodData {
 	private static Long jsonBooleanToRPC(JsonNode node) {
 		return node.asBoolean() ? 1L : 0L;
 	}
-	
+
+	private static Long jsonBooleanToRPC(JsonNode node, long defaultValue) {
+	    return node == null ? defaultValue : (node.asBoolean() ? 1L : 0L);
+	}
+
 	private static List<String> jsonListToStringList(JsonNode node) {
+	    return jsonListToStringList(node, null);
+	}
+
+	private static List<String> jsonListToStringList(JsonNode node, List<String> defaultValue) {
 		if (node == null)
-			return null;
+			return defaultValue;
 		List<String> ret = new ArrayList<String>();
 		for (int i = 0; i < node.size(); i++)
 			ret.add(node.get(i).asText());
 		return ret;
 	}
 
-	protected static Map<String, String> jsonMapToStringMap(JsonNode node) {
+	private static Map<String, String> jsonMapToStringMap(JsonNode node) {
 		if (node == null)
 			return null;
 		Map<String, String> ret = new LinkedHashMap<String, String>();

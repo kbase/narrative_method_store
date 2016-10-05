@@ -26,7 +26,7 @@ import us.kbase.common.service.UObject;
  *     finished with empty value (for example in case 'input_parameter' is defined but value of this
  *     parameter is left empty by user); so this mode has lower priority when used with another mode.
  * target_argument_position - position of argument in RPC-method call, optional field, default value is 0.
- * target_property - name of field inside structure that will be send as arguement. Optional field,
+ * target_property - name of field inside structure that will be send as argument. Optional field,
  *     in case this field is not defined (or null) whole object will be sent as method argument instead of
  *     wrapping it by structure with inner property defined by 'target_property'.
  * target_type_transform - none/string/int/float/ref, optional field, default is 'none' (it's in plans to

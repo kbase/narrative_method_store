@@ -32,6 +32,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
     "widgets",
     "parameters",
     "fixed_parameters",
+    "parameter_groups",
     "behavior",
     "job_id_output_field"
 })
@@ -64,6 +65,8 @@ public class MethodSpec {
     private List<MethodParameter> parameters;
     @JsonProperty("fixed_parameters")
     private List<FixedMethodParameter> fixedParameters;
+    @JsonProperty("parameter_groups")
+    private List<MethodParameterGroup> parameterGroups;
     /**
      * <p>Original spec-file type: MethodBehavior</p>
      * <pre>
@@ -74,9 +77,7 @@ public class MethodSpec {
      * kb_service_input_mapping - mapping from input parameters to input service method arguments.
      * kb_service_output_mapping - mapping from output of service method to final output of narrative method.
      * output_mapping - mapping from input to final output of narrative method to support steps without back-end operations.
-     * kb_service_input_mapping - mapping from input parameters to input service method arguments.
-     * kb_service_output_mapping - mapping from output of service method to final output of narrative method.
-     * @optional python_function kb_service_name kb_service_method kb_service_input_mapping kb_service_output_mapping
+     * @optional kb_service_name kb_service_method kb_service_input_mapping kb_service_output_mapping
      * </pre>
      * 
      */
@@ -195,6 +196,21 @@ public class MethodSpec {
         return this;
     }
 
+    @JsonProperty("parameter_groups")
+    public List<MethodParameterGroup> getParameterGroups() {
+        return parameterGroups;
+    }
+
+    @JsonProperty("parameter_groups")
+    public void setParameterGroups(List<MethodParameterGroup> parameterGroups) {
+        this.parameterGroups = parameterGroups;
+    }
+
+    public MethodSpec withParameterGroups(List<MethodParameterGroup> parameterGroups) {
+        this.parameterGroups = parameterGroups;
+        return this;
+    }
+
     /**
      * <p>Original spec-file type: MethodBehavior</p>
      * <pre>
@@ -205,9 +221,7 @@ public class MethodSpec {
      * kb_service_input_mapping - mapping from input parameters to input service method arguments.
      * kb_service_output_mapping - mapping from output of service method to final output of narrative method.
      * output_mapping - mapping from input to final output of narrative method to support steps without back-end operations.
-     * kb_service_input_mapping - mapping from input parameters to input service method arguments.
-     * kb_service_output_mapping - mapping from output of service method to final output of narrative method.
-     * @optional python_function kb_service_name kb_service_method kb_service_input_mapping kb_service_output_mapping
+     * @optional kb_service_name kb_service_method kb_service_input_mapping kb_service_output_mapping
      * </pre>
      * 
      */
@@ -226,9 +240,7 @@ public class MethodSpec {
      * kb_service_input_mapping - mapping from input parameters to input service method arguments.
      * kb_service_output_mapping - mapping from output of service method to final output of narrative method.
      * output_mapping - mapping from input to final output of narrative method to support steps without back-end operations.
-     * kb_service_input_mapping - mapping from input parameters to input service method arguments.
-     * kb_service_output_mapping - mapping from output of service method to final output of narrative method.
-     * @optional python_function kb_service_name kb_service_method kb_service_input_mapping kb_service_output_mapping
+     * @optional kb_service_name kb_service_method kb_service_input_mapping kb_service_output_mapping
      * </pre>
      * 
      */
@@ -269,7 +281,7 @@ public class MethodSpec {
 
     @Override
     public String toString() {
-        return ((((((((((((((((("MethodSpec"+" [info=")+ info)+", replacementText=")+ replacementText)+", widgets=")+ widgets)+", parameters=")+ parameters)+", fixedParameters=")+ fixedParameters)+", behavior=")+ behavior)+", jobIdOutputField=")+ jobIdOutputField)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((((((((((((((("MethodSpec"+" [info=")+ info)+", replacementText=")+ replacementText)+", widgets=")+ widgets)+", parameters=")+ parameters)+", fixedParameters=")+ fixedParameters)+", parameterGroups=")+ parameterGroups)+", behavior=")+ behavior)+", jobIdOutputField=")+ jobIdOutputField)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }
