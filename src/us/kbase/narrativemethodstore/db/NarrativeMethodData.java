@@ -1,7 +1,6 @@
 package us.kbase.narrativemethodstore.db;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -685,7 +684,7 @@ public class NarrativeMethodData {
 		if (groupsNode != null) {
 		    groups = new ArrayList<MethodParameterGroup>();
 		    @SuppressWarnings("unchecked")
-		    Map<String, Object> groupsDisplays = (Map<String, Object>)display.get(
+		    Map<String, Object> groupsDisplays = (Map<String, Object>)getDisplayItem("/", display,
 		            "parameter-groups");
 		    for (int i = 0; i < groupsNode.size(); i++) {
 	            JsonNode groupNode = groupsNode.get(i);
@@ -696,12 +695,11 @@ public class NarrativeMethodData {
 	                		"any parameter id");
 	            groupIds.add(groupId);
 	            @SuppressWarnings("unchecked")
-	            Map<String, Object> groupDisplay = groupsDisplays == null ? 
-	                    Collections.<String, Object>emptyMap() :
-	                        (Map<String, Object>)groupsDisplays.get(groupId);
+	            Map<String, Object> groupDisplay = (Map<String, Object>)getDisplayItem(
+	                    "parameter-groups", groupsDisplays, groupId);
 	            String groupDescription = getDisplayTextOptional(groupDisplay, "long-hint", null);
 	            if (groupDescription == null) {
-	                groupDescription = getDisplayTextOptional(groupDisplay, "description", null);
+	                groupDescription = getDisplayTextOptional(groupDisplay, "description", "");
 	            }
 	            List<String> parameterIds = 
 	                    jsonListToStringList(get(groupPath, groupNode, "parameters"));
@@ -720,17 +718,39 @@ public class NarrativeMethodData {
 	                    }
 	                }
 	            }
+	            String dysplayPath = "parameter-groups/" + groupId;
+	            long allowMultiple = jsonBooleanToRPC(groupNode.get("allow_multiple"), 0);
+	            if (allowMultiple == 0 && idMapping != null) {
+	                throw new IllegalStateException("Unsupported mapping found for one-copy " +
+	                		"parameter-group within path [" + groupPath + "]");
+	            }
+	            String withBorderText = getDisplayTextOptional(groupDisplay, "with-border", "false");
+                long withBorder;
+	            if (withBorderText.equals("true") || withBorderText.equals("1") || 
+	                    withBorderText.equals("yes")) {
+	                withBorder = 1;
+	                if (allowMultiple == 1L) {
+	                    throw new IllegalStateException("Unsupported dysplay property value " +
+	                            "(with-border:" + withBorderText + ") found within path " +
+	                                    "[" + dysplayPath + "]");
+	                }
+	            } else if (withBorderText.equals("false") || withBorderText.equals("0") ||
+	                    withBorderText.equals("no")) {
+	                withBorder = 0;
+	            } else {
+                    throw new IllegalStateException("Unsupported dysplay property value " +
+                            "(with-border:" + withBorderText + ") found within path " +
+                            		"[" + dysplayPath + "]");
+	            }
 	            MethodParameterGroup group = new MethodParameterGroup().withId(groupId)
 	                    .withParameterIds(parameterIds)
-	                    .withUiName(getDisplayTextOptional(groupDisplay, "ui-name", null))
-	                    .withShortHint(getDisplayTextOptional(groupDisplay, "short-hint", null))
+	                    .withUiName(getDisplayText(dysplayPath, groupDisplay, "ui-name"))
+	                    .withShortHint(getDisplayText(dysplayPath, groupDisplay, "short-hint"))
 	                    .withDescription(groupDescription)
 	                    .withOptional(jsonBooleanToRPC(groupNode.get("optional"), 0))
-	                    .withAllowMultiple(jsonBooleanToRPC(groupNode.get("allow_multiple"), 0))
+	                    .withAllowMultiple(allowMultiple)
 	                    .withIdMapping(idMapping)
-	                    .withWithBorder(jsonBooleanToRPC(groupNode.get("with_border"), 0))
-	                    .withParameterOptionalityMode(getTextOrNull(
-	                            groupNode.get("parameter_optionality_mode")));
+	                    .withWithBorder(withBorder);
 	            groups.add(group);
 	        }
 		}
@@ -815,7 +835,8 @@ public class NarrativeMethodData {
 
 	private static String getDisplayTextOptional(Map<String, Object> display, String propName, 
 	        String defaultValue) {
-	    String ret = (String)display.get(propName);
+	    Object obj = display.get(propName);
+	    String ret = (String)(obj == null ? null : obj.toString());
 	    if (ret == null) {
 	        ret = defaultValue;
 	    } else {
@@ -836,7 +857,7 @@ public class NarrativeMethodData {
 		return node.asBoolean() ? 1L : 0L;
 	}
 
-	private static Long jsonBooleanToRPC(JsonNode node, long defaultValue) {
+	private static long jsonBooleanToRPC(JsonNode node, long defaultValue) {
 	    return node == null ? defaultValue : (node.asBoolean() ? 1L : 0L);
 	}
 
