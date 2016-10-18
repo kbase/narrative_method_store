@@ -978,7 +978,6 @@ MethodParameterGroup is a reference to a hash where the following keys are defin
 	allow_multiple has a value which is a NarrativeMethodStore.boolean
 	optional has a value which is a NarrativeMethodStore.boolean
 	id_mapping has a value which is a reference to a hash where the key is a string and the value is a string
-	parameter_optionality_mode has a value which is a string
 	with_border has a value which is a NarrativeMethodStore.boolean
 MethodBehavior is a reference to a hash where the following keys are defined:
 	kb_service_url has a value which is a string
@@ -1147,7 +1146,6 @@ MethodParameterGroup is a reference to a hash where the following keys are defin
 	allow_multiple has a value which is a NarrativeMethodStore.boolean
 	optional has a value which is a NarrativeMethodStore.boolean
 	id_mapping has a value which is a reference to a hash where the key is a string and the value is a string
-	parameter_optionality_mode has a value which is a string
 	with_border has a value which is a NarrativeMethodStore.boolean
 MethodBehavior is a reference to a hash where the following keys are defined:
 	kb_service_url has a value which is a string
@@ -2333,7 +2331,6 @@ MethodParameterGroup is a reference to a hash where the following keys are defin
 	allow_multiple has a value which is a NarrativeMethodStore.boolean
 	optional has a value which is a NarrativeMethodStore.boolean
 	id_mapping has a value which is a reference to a hash where the key is a string and the value is a string
-	parameter_optionality_mode has a value which is a string
 	with_border has a value which is a NarrativeMethodStore.boolean
 MethodBehavior is a reference to a hash where the following keys are defined:
 	kb_service_url has a value which is a string
@@ -2501,7 +2498,6 @@ MethodParameterGroup is a reference to a hash where the following keys are defin
 	allow_multiple has a value which is a NarrativeMethodStore.boolean
 	optional has a value which is a NarrativeMethodStore.boolean
 	id_mapping has a value which is a reference to a hash where the key is a string and the value is a string
-	parameter_optionality_mode has a value which is a string
 	with_border has a value which is a NarrativeMethodStore.boolean
 MethodBehavior is a reference to a hash where the following keys are defined:
 	kb_service_url has a value which is a string
@@ -3316,7 +3312,6 @@ MethodParameterGroup is a reference to a hash where the following keys are defin
 	allow_multiple has a value which is a NarrativeMethodStore.boolean
 	optional has a value which is a NarrativeMethodStore.boolean
 	id_mapping has a value which is a reference to a hash where the key is a string and the value is a string
-	parameter_optionality_mode has a value which is a string
 	with_border has a value which is a NarrativeMethodStore.boolean
 MethodBehavior is a reference to a hash where the following keys are defined:
 	kb_service_url has a value which is a string
@@ -3576,7 +3571,6 @@ MethodParameterGroup is a reference to a hash where the following keys are defin
 	allow_multiple has a value which is a NarrativeMethodStore.boolean
 	optional has a value which is a NarrativeMethodStore.boolean
 	id_mapping has a value which is a reference to a hash where the key is a string and the value is a string
-	parameter_optionality_mode has a value which is a string
 	with_border has a value which is a NarrativeMethodStore.boolean
 MethodBehavior is a reference to a hash where the following keys are defined:
 	kb_service_url has a value which is a string
@@ -3899,7 +3893,6 @@ MethodParameterGroup is a reference to a hash where the following keys are defin
 	allow_multiple has a value which is a NarrativeMethodStore.boolean
 	optional has a value which is a NarrativeMethodStore.boolean
 	id_mapping has a value which is a reference to a hash where the key is a string and the value is a string
-	parameter_optionality_mode has a value which is a string
 	with_border has a value which is a NarrativeMethodStore.boolean
 MethodBehavior is a reference to a hash where the following keys are defined:
 	kb_service_url has a value which is a string
@@ -4159,7 +4152,6 @@ MethodParameterGroup is a reference to a hash where the following keys are defin
 	allow_multiple has a value which is a NarrativeMethodStore.boolean
 	optional has a value which is a NarrativeMethodStore.boolean
 	id_mapping has a value which is a reference to a hash where the key is a string and the value is a string
-	parameter_optionality_mode has a value which is a string
 	with_border has a value which is a NarrativeMethodStore.boolean
 MethodBehavior is a reference to a hash where the following keys are defined:
 	kb_service_url has a value which is a string
@@ -4482,7 +4474,6 @@ MethodParameterGroup is a reference to a hash where the following keys are defin
 	allow_multiple has a value which is a NarrativeMethodStore.boolean
 	optional has a value which is a NarrativeMethodStore.boolean
 	id_mapping has a value which is a reference to a hash where the key is a string and the value is a string
-	parameter_optionality_mode has a value which is a string
 	with_border has a value which is a NarrativeMethodStore.boolean
 MethodBehavior is a reference to a hash where the following keys are defined:
 	kb_service_url has a value which is a string
@@ -4742,7 +4733,6 @@ MethodParameterGroup is a reference to a hash where the following keys are defin
 	allow_multiple has a value which is a NarrativeMethodStore.boolean
 	optional has a value which is a NarrativeMethodStore.boolean
 	id_mapping has a value which is a reference to a hash where the key is a string and the value is a string
-	parameter_optionality_mode has a value which is a string
 	with_border has a value which is a NarrativeMethodStore.boolean
 MethodBehavior is a reference to a hash where the following keys are defined:
 	kb_service_url has a value which is a string
@@ -6736,19 +6726,18 @@ Description of a method parameter.
 id - id of the parameter group, must be unique within the method among all parameters 
            and groups
 parameter_ids - IDs of parameters included in this group
-ui_name - short name that is displayed to the user (optional)
-short_hint - short phrase or sentence describing the parameter group (optional)
-description - longer and more technical description of the parameter group (optional)
+ui_name - short name that is displayed to the user
+short_hint - short phrase or sentence describing the parameter group
+description - longer and more technical description of the parameter group (long-hint)
 allow_mutiple - allows entry of a list instead of a single structure, default is 0
                 if set, the number of starting boxes will be either 1 or the
                 number of elements in the default_values list
 optional - set to true to make the group optional, default is 0
 id_mapping - optional mapping for parameter IDs used to pack group into resulting
-                value structure
-parameter_optionality_mode - optional type of optionality mode for parameters in this
-                group, like "all-or-nothing", "only-one", "at-least-one".
+                value structure (not used for non-multiple groups)
+with_border - flag for one-copy groups saying to show these group with border
 
-@optional ui_name short_hint description id_mapping parameter_optionality_mode with_border
+@optional id_mapping
 
 
 =item Definition
@@ -6765,7 +6754,6 @@ description has a value which is a string
 allow_multiple has a value which is a NarrativeMethodStore.boolean
 optional has a value which is a NarrativeMethodStore.boolean
 id_mapping has a value which is a reference to a hash where the key is a string and the value is a string
-parameter_optionality_mode has a value which is a string
 with_border has a value which is a NarrativeMethodStore.boolean
 
 </pre>
@@ -6783,7 +6771,6 @@ description has a value which is a string
 allow_multiple has a value which is a NarrativeMethodStore.boolean
 optional has a value which is a NarrativeMethodStore.boolean
 id_mapping has a value which is a reference to a hash where the key is a string and the value is a string
-parameter_optionality_mode has a value which is a string
 with_border has a value which is a NarrativeMethodStore.boolean
 
 

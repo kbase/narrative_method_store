@@ -19,18 +19,17 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
  * id - id of the parameter group, must be unique within the method among all parameters 
  *            and groups
  * parameter_ids - IDs of parameters included in this group
- * ui_name - short name that is displayed to the user (optional)
- * short_hint - short phrase or sentence describing the parameter group (optional)
- * description - longer and more technical description of the parameter group (optional)
+ * ui_name - short name that is displayed to the user
+ * short_hint - short phrase or sentence describing the parameter group
+ * description - longer and more technical description of the parameter group (long-hint)
  * allow_mutiple - allows entry of a list instead of a single structure, default is 0
  *                 if set, the number of starting boxes will be either 1 or the
  *                 number of elements in the default_values list
  * optional - set to true to make the group optional, default is 0
  * id_mapping - optional mapping for parameter IDs used to pack group into resulting
- *                 value structure
- * parameter_optionality_mode - optional type of optionality mode for parameters in this
- *                 group, like "all-or-nothing", "only-one", "at-least-one".
- * @optional ui_name short_hint description id_mapping parameter_optionality_mode with_border
+ *                 value structure (not used for non-multiple groups)
+ * with_border - flag for one-copy groups saying to show these group with border
+ * @optional id_mapping
  * </pre>
  * 
  */
@@ -45,7 +44,6 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
     "allow_multiple",
     "optional",
     "id_mapping",
-    "parameter_optionality_mode",
     "with_border"
 })
 public class MethodParameterGroup {
@@ -66,8 +64,6 @@ public class MethodParameterGroup {
     private Long optional;
     @JsonProperty("id_mapping")
     private Map<String, String> idMapping;
-    @JsonProperty("parameter_optionality_mode")
-    private java.lang.String parameterOptionalityMode;
     @JsonProperty("with_border")
     private Long withBorder;
     private Map<java.lang.String, Object> additionalProperties = new HashMap<java.lang.String, Object>();
@@ -192,21 +188,6 @@ public class MethodParameterGroup {
         return this;
     }
 
-    @JsonProperty("parameter_optionality_mode")
-    public java.lang.String getParameterOptionalityMode() {
-        return parameterOptionalityMode;
-    }
-
-    @JsonProperty("parameter_optionality_mode")
-    public void setParameterOptionalityMode(java.lang.String parameterOptionalityMode) {
-        this.parameterOptionalityMode = parameterOptionalityMode;
-    }
-
-    public MethodParameterGroup withParameterOptionalityMode(java.lang.String parameterOptionalityMode) {
-        this.parameterOptionalityMode = parameterOptionalityMode;
-        return this;
-    }
-
     @JsonProperty("with_border")
     public Long getWithBorder() {
         return withBorder;
@@ -234,7 +215,7 @@ public class MethodParameterGroup {
 
     @Override
     public java.lang.String toString() {
-        return ((((((((((((((((((((((("MethodParameterGroup"+" [id=")+ id)+", parameterIds=")+ parameterIds)+", uiName=")+ uiName)+", shortHint=")+ shortHint)+", description=")+ description)+", allowMultiple=")+ allowMultiple)+", optional=")+ optional)+", idMapping=")+ idMapping)+", parameterOptionalityMode=")+ parameterOptionalityMode)+", withBorder=")+ withBorder)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((((((((((((((((("MethodParameterGroup"+" [id=")+ id)+", parameterIds=")+ parameterIds)+", uiName=")+ uiName)+", shortHint=")+ shortHint)+", description=")+ description)+", allowMultiple=")+ allowMultiple)+", optional=")+ optional)+", idMapping=")+ idMapping)+", withBorder=")+ withBorder)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }
