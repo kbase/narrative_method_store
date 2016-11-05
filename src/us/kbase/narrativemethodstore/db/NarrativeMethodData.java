@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import us.kbase.common.service.UObject;
@@ -169,8 +170,8 @@ public class NarrativeMethodData {
 		briefInfo.withAppType(appType);
 		
 		List<Publication> publications = new ArrayList<Publication>();
-		@SuppressWarnings("unchecked")
-		List<Object> pubInfoList = (List<Object>)display.get("publications");
+		List<Object> pubInfoList = castDisplayValue("publications", display.get("publications"),
+		        new TypeReference<List<Object>>() {}, "list of strings");
 		if (pubInfoList != null) {
 		    for (Object pubInfoObj : pubInfoList) {
 		        if (pubInfoObj == null)
@@ -883,5 +884,18 @@ public class NarrativeMethodData {
 			ret.put(key, node.get(key).asText());
 		}
 		return ret;
+	}
+	
+	private static <T> T castDisplayValue(String path, Object value, TypeReference<T> type, 
+	        String typeName) {
+	    if (value == null)
+	        return null;
+	    String json = UObject.transformObjectToString(value);
+	    try {
+	        return UObject.transformStringToObject(json, type);
+	    } catch (Exception ex) {
+	        throw new IllegalStateException("Cannot cast data within path [" + path + "] in " +
+	        		"display.yaml (" + json + ") to type \"" + typeName + "\"", ex);
+	    }
 	}
 }
