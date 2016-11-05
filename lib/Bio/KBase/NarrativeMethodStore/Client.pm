@@ -3113,6 +3113,8 @@ ValidateMethodParams is a reference to a hash where the following keys are defin
 	spec_json has a value which is a string
 	display_yaml has a value which is a string
 	extra_files has a value which is a reference to a hash where the key is a string and the value is a string
+	verbose has a value which is a NarrativeMethodStore.boolean
+boolean is an int
 ValidationResults is a reference to a hash where the following keys are defined:
 	is_valid has a value which is a NarrativeMethodStore.boolean
 	errors has a value which is a reference to a list where each element is a string
@@ -3122,7 +3124,6 @@ ValidationResults is a reference to a hash where the following keys are defined:
 	method_full_info has a value which is a NarrativeMethodStore.MethodFullInfo
 	method_spec has a value which is a NarrativeMethodStore.MethodSpec
 	type_info has a value which is a NarrativeMethodStore.TypeInfo
-boolean is an int
 AppFullInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
 	name has a value which is a string
@@ -3372,6 +3373,8 @@ ValidateMethodParams is a reference to a hash where the following keys are defin
 	spec_json has a value which is a string
 	display_yaml has a value which is a string
 	extra_files has a value which is a reference to a hash where the key is a string and the value is a string
+	verbose has a value which is a NarrativeMethodStore.boolean
+boolean is an int
 ValidationResults is a reference to a hash where the following keys are defined:
 	is_valid has a value which is a NarrativeMethodStore.boolean
 	errors has a value which is a reference to a list where each element is a string
@@ -3381,7 +3384,6 @@ ValidationResults is a reference to a hash where the following keys are defined:
 	method_full_info has a value which is a NarrativeMethodStore.MethodFullInfo
 	method_spec has a value which is a NarrativeMethodStore.MethodSpec
 	type_info has a value which is a NarrativeMethodStore.TypeInfo
-boolean is an int
 AppFullInfo is a reference to a hash where the following keys are defined:
 	id has a value which is a string
 	name has a value which is a string
@@ -7375,6 +7377,11 @@ type_names has a value which is a reference to a list where each element is a st
 
 
 
+=item Description
+
+verbose - flag for adding more details into error messages (like stack traces).
+
+
 =item Definition
 
 =begin html
@@ -7385,6 +7392,7 @@ id has a value which is a string
 spec_json has a value which is a string
 display_yaml has a value which is a string
 extra_files has a value which is a reference to a hash where the key is a string and the value is a string
+verbose has a value which is a NarrativeMethodStore.boolean
 
 </pre>
 
@@ -7397,6 +7405,7 @@ id has a value which is a string
 spec_json has a value which is a string
 display_yaml has a value which is a string
 extra_files has a value which is a reference to a hash where the key is a string and the value is a string
+verbose has a value which is a NarrativeMethodStore.boolean
 
 
 =end text

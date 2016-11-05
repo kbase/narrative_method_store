@@ -678,11 +678,15 @@ module NarrativeMethodStore {
 
 
 
+    /*
+        verbose - flag for adding more details into error messages (like stack traces).
+    */
     typedef structure {
     	string id;
     	string spec_json;
     	string display_yaml;
     	mapping <string,string> extra_files;
+    	boolean verbose;
     } ValidateMethodParams;
 
     typedef structure {
