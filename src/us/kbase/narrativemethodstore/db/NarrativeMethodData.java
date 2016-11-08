@@ -52,14 +52,15 @@ public class NarrativeMethodData {
 
 	public NarrativeMethodData(String methodId, JsonNode spec, Map<String, Object> display,
 	        FileLookup lookup, RepoTag tag) throws NarrativeMethodStoreException {
-	    this(methodId, spec, display, lookup, null, null, null, null);
+	    this(methodId, spec, display, lookup, null, null, null, null, null);
 	}
 	
 	public NarrativeMethodData(String methodId, JsonNode spec, Map<String, Object> display,
 			FileLookup lookup, String namespace, String serviceVersion,
-			ServiceUrlTemplateEvaluater srvUrlTemplEval, RepoTag tag) throws NarrativeMethodStoreException {
+			ServiceUrlTemplateEvaluater srvUrlTemplEval, RepoTag tag,
+			String version) throws NarrativeMethodStoreException {
 		try {
-			update(methodId, spec, display, lookup, namespace, serviceVersion, srvUrlTemplEval, tag);
+			update(methodId, spec, display, lookup, namespace, serviceVersion, srvUrlTemplEval, tag, version);
 		} catch (Throwable ex) {
 			if (briefInfo.getName() == null)
 				briefInfo.withName(briefInfo.getId());
@@ -87,7 +88,8 @@ public class NarrativeMethodData {
 	
 	public void update(String methodId, JsonNode spec, Map<String, Object> display,
 			FileLookup lookup, String namespace, String serviceVersion,
-			ServiceUrlTemplateEvaluater srvUrlTemplEval, RepoTag tag) throws NarrativeMethodStoreException {
+			ServiceUrlTemplateEvaluater srvUrlTemplEval, RepoTag tag,
+			String version) throws NarrativeMethodStoreException {
 		this.methodId = methodId;
 
 		briefInfo = new MethodBriefInfo()
@@ -124,7 +126,12 @@ public class NarrativeMethodData {
 		try { replacementText = getDisplayProp(display,"replacement-text",lookup); }
 		catch (IllegalStateException e) { }
 		
-		briefInfo.withVer(get(spec, "ver").asText());
+		if (version == null) {
+		    // "ver" property from spec.json is still used in case of non-dynamic method 
+		    // (it's mostly when method comes from narrative_method_specs).
+		    version = get(spec, "ver").asText();
+		}
+		briefInfo.withVer(version);
 		
 		List <String> authors = jsonListToStringList(spec.get("authors"));
 		briefInfo.withAuthors(authors);

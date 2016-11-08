@@ -319,6 +319,7 @@ TypeInfo is a reference to a hash where the following keys are defined:
 	icon has a value which is a NarrativeMethodStore.ScreenShot
 	view_method_ids has a value which is a reference to a list where each element is a string
 	import_method_ids has a value which is a reference to a list where each element is a string
+	export_functions has a value which is a reference to a hash where the key is a string and the value is a string
 	landing_page_url_prefix has a value which is a string
 	loading_error has a value which is a string
 ScreenShot is a reference to a hash where the following keys are defined:
@@ -386,6 +387,7 @@ TypeInfo is a reference to a hash where the following keys are defined:
 	icon has a value which is a NarrativeMethodStore.ScreenShot
 	view_method_ids has a value which is a reference to a list where each element is a string
 	import_method_ids has a value which is a reference to a list where each element is a string
+	export_functions has a value which is a reference to a hash where the key is a string and the value is a string
 	landing_page_url_prefix has a value which is a string
 	loading_error has a value which is a string
 ScreenShot is a reference to a hash where the following keys are defined:
@@ -1825,6 +1827,7 @@ TypeInfo is a reference to a hash where the following keys are defined:
 	icon has a value which is a NarrativeMethodStore.ScreenShot
 	view_method_ids has a value which is a reference to a list where each element is a string
 	import_method_ids has a value which is a reference to a list where each element is a string
+	export_functions has a value which is a reference to a hash where the key is a string and the value is a string
 	landing_page_url_prefix has a value which is a string
 	loading_error has a value which is a string
 ScreenShot is a reference to a hash where the following keys are defined:
@@ -1852,6 +1855,7 @@ TypeInfo is a reference to a hash where the following keys are defined:
 	icon has a value which is a NarrativeMethodStore.ScreenShot
 	view_method_ids has a value which is a reference to a list where each element is a string
 	import_method_ids has a value which is a reference to a list where each element is a string
+	export_functions has a value which is a reference to a hash where the key is a string and the value is a string
 	landing_page_url_prefix has a value which is a string
 	loading_error has a value which is a string
 ScreenShot is a reference to a hash where the following keys are defined:
@@ -3018,6 +3022,7 @@ TypeInfo is a reference to a hash where the following keys are defined:
 	icon has a value which is a NarrativeMethodStore.ScreenShot
 	view_method_ids has a value which is a reference to a list where each element is a string
 	import_method_ids has a value which is a reference to a list where each element is a string
+	export_functions has a value which is a reference to a hash where the key is a string and the value is a string
 	landing_page_url_prefix has a value which is a string
 	loading_error has a value which is a string
 ScreenShot is a reference to a hash where the following keys are defined:
@@ -3043,6 +3048,7 @@ TypeInfo is a reference to a hash where the following keys are defined:
 	icon has a value which is a NarrativeMethodStore.ScreenShot
 	view_method_ids has a value which is a reference to a list where each element is a string
 	import_method_ids has a value which is a reference to a list where each element is a string
+	export_functions has a value which is a reference to a hash where the key is a string and the value is a string
 	landing_page_url_prefix has a value which is a string
 	loading_error has a value which is a string
 ScreenShot is a reference to a hash where the following keys are defined:
@@ -3373,6 +3379,7 @@ TypeInfo is a reference to a hash where the following keys are defined:
 	icon has a value which is a NarrativeMethodStore.ScreenShot
 	view_method_ids has a value which is a reference to a list where each element is a string
 	import_method_ids has a value which is a reference to a list where each element is a string
+	export_functions has a value which is a reference to a hash where the key is a string and the value is a string
 	landing_page_url_prefix has a value which is a string
 	loading_error has a value which is a string
 
@@ -3637,6 +3644,7 @@ TypeInfo is a reference to a hash where the following keys are defined:
 	icon has a value which is a NarrativeMethodStore.ScreenShot
 	view_method_ids has a value which is a reference to a list where each element is a string
 	import_method_ids has a value which is a reference to a list where each element is a string
+	export_functions has a value which is a reference to a hash where the key is a string and the value is a string
 	landing_page_url_prefix has a value which is a string
 	loading_error has a value which is a string
 
@@ -3964,6 +3972,7 @@ TypeInfo is a reference to a hash where the following keys are defined:
 	icon has a value which is a NarrativeMethodStore.ScreenShot
 	view_method_ids has a value which is a reference to a list where each element is a string
 	import_method_ids has a value which is a reference to a list where each element is a string
+	export_functions has a value which is a reference to a hash where the key is a string and the value is a string
 	landing_page_url_prefix has a value which is a string
 	loading_error has a value which is a string
 
@@ -4228,6 +4237,7 @@ TypeInfo is a reference to a hash where the following keys are defined:
 	icon has a value which is a NarrativeMethodStore.ScreenShot
 	view_method_ids has a value which is a reference to a list where each element is a string
 	import_method_ids has a value which is a reference to a list where each element is a string
+	export_functions has a value which is a reference to a hash where the key is a string and the value is a string
 	landing_page_url_prefix has a value which is a string
 	loading_error has a value which is a string
 
@@ -4555,6 +4565,7 @@ TypeInfo is a reference to a hash where the following keys are defined:
 	icon has a value which is a NarrativeMethodStore.ScreenShot
 	view_method_ids has a value which is a reference to a list where each element is a string
 	import_method_ids has a value which is a reference to a list where each element is a string
+	export_functions has a value which is a reference to a hash where the key is a string and the value is a string
 	landing_page_url_prefix has a value which is a string
 	loading_error has a value which is a string
 
@@ -4819,6 +4830,7 @@ TypeInfo is a reference to a hash where the following keys are defined:
 	icon has a value which is a NarrativeMethodStore.ScreenShot
 	view_method_ids has a value which is a reference to a list where each element is a string
 	import_method_ids has a value which is a reference to a list where each element is a string
+	export_functions has a value which is a reference to a hash where the key is a string and the value is a string
 	landing_page_url_prefix has a value which is a string
 	loading_error has a value which is a string
 
@@ -7165,6 +7177,7 @@ steps has a value which is a reference to a list where each element is a Narrati
 
 =item Description
 
+export_functions - optional mapping from UI label to exporter SDK local function.
 @optional icon landing_page_url_prefix loading_error
 
 
@@ -7182,6 +7195,7 @@ description has a value which is a string
 icon has a value which is a NarrativeMethodStore.ScreenShot
 view_method_ids has a value which is a reference to a list where each element is a string
 import_method_ids has a value which is a reference to a list where each element is a string
+export_functions has a value which is a reference to a hash where the key is a string and the value is a string
 landing_page_url_prefix has a value which is a string
 loading_error has a value which is a string
 
@@ -7200,6 +7214,7 @@ description has a value which is a string
 icon has a value which is a NarrativeMethodStore.ScreenShot
 view_method_ids has a value which is a reference to a list where each element is a string
 import_method_ids has a value which is a reference to a list where each element is a string
+export_functions has a value which is a reference to a hash where the key is a string and the value is a string
 landing_page_url_prefix has a value which is a string
 loading_error has a value which is a string
 
