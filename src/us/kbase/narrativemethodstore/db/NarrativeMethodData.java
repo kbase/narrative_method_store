@@ -720,6 +720,7 @@ public class NarrativeMethodData {
 	                }
 	            }
 	            String dysplayPath = "parameter-groups/" + groupId;
+                long advanced = jsonBooleanToRPC(groupNode.get("advanced"), 0);
 	            long allowMultiple = jsonBooleanToRPC(groupNode.get("allow_multiple"), 0);
 	            if (allowMultiple == 0 && idMapping != null) {
 	                throw new IllegalStateException("Unsupported mapping found for one-copy " +
@@ -750,6 +751,7 @@ public class NarrativeMethodData {
 	                    .withDescription(groupDescription)
 	                    .withOptional(jsonBooleanToRPC(groupNode.get("optional"), 0))
 	                    .withAllowMultiple(allowMultiple)
+	                    .withAdvanced(advanced)
 	                    .withIdMapping(idMapping)
 	                    .withWithBorder(withBorder);
 	            groups.add(group);

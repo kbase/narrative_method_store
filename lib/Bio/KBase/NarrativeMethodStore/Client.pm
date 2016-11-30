@@ -977,6 +977,7 @@ MethodParameterGroup is a reference to a hash where the following keys are defin
 	description has a value which is a string
 	allow_multiple has a value which is a NarrativeMethodStore.boolean
 	optional has a value which is a NarrativeMethodStore.boolean
+	advanced has a value which is a NarrativeMethodStore.boolean
 	id_mapping has a value which is a reference to a hash where the key is a string and the value is a string
 	with_border has a value which is a NarrativeMethodStore.boolean
 MethodBehavior is a reference to a hash where the following keys are defined:
@@ -1145,6 +1146,7 @@ MethodParameterGroup is a reference to a hash where the following keys are defin
 	description has a value which is a string
 	allow_multiple has a value which is a NarrativeMethodStore.boolean
 	optional has a value which is a NarrativeMethodStore.boolean
+	advanced has a value which is a NarrativeMethodStore.boolean
 	id_mapping has a value which is a reference to a hash where the key is a string and the value is a string
 	with_border has a value which is a NarrativeMethodStore.boolean
 MethodBehavior is a reference to a hash where the following keys are defined:
@@ -2330,6 +2332,7 @@ MethodParameterGroup is a reference to a hash where the following keys are defin
 	description has a value which is a string
 	allow_multiple has a value which is a NarrativeMethodStore.boolean
 	optional has a value which is a NarrativeMethodStore.boolean
+	advanced has a value which is a NarrativeMethodStore.boolean
 	id_mapping has a value which is a reference to a hash where the key is a string and the value is a string
 	with_border has a value which is a NarrativeMethodStore.boolean
 MethodBehavior is a reference to a hash where the following keys are defined:
@@ -2497,6 +2500,7 @@ MethodParameterGroup is a reference to a hash where the following keys are defin
 	description has a value which is a string
 	allow_multiple has a value which is a NarrativeMethodStore.boolean
 	optional has a value which is a NarrativeMethodStore.boolean
+	advanced has a value which is a NarrativeMethodStore.boolean
 	id_mapping has a value which is a reference to a hash where the key is a string and the value is a string
 	with_border has a value which is a NarrativeMethodStore.boolean
 MethodBehavior is a reference to a hash where the following keys are defined:
@@ -3312,6 +3316,7 @@ MethodParameterGroup is a reference to a hash where the following keys are defin
 	description has a value which is a string
 	allow_multiple has a value which is a NarrativeMethodStore.boolean
 	optional has a value which is a NarrativeMethodStore.boolean
+	advanced has a value which is a NarrativeMethodStore.boolean
 	id_mapping has a value which is a reference to a hash where the key is a string and the value is a string
 	with_border has a value which is a NarrativeMethodStore.boolean
 MethodBehavior is a reference to a hash where the following keys are defined:
@@ -3572,6 +3577,7 @@ MethodParameterGroup is a reference to a hash where the following keys are defin
 	description has a value which is a string
 	allow_multiple has a value which is a NarrativeMethodStore.boolean
 	optional has a value which is a NarrativeMethodStore.boolean
+	advanced has a value which is a NarrativeMethodStore.boolean
 	id_mapping has a value which is a reference to a hash where the key is a string and the value is a string
 	with_border has a value which is a NarrativeMethodStore.boolean
 MethodBehavior is a reference to a hash where the following keys are defined:
@@ -3894,6 +3900,7 @@ MethodParameterGroup is a reference to a hash where the following keys are defin
 	description has a value which is a string
 	allow_multiple has a value which is a NarrativeMethodStore.boolean
 	optional has a value which is a NarrativeMethodStore.boolean
+	advanced has a value which is a NarrativeMethodStore.boolean
 	id_mapping has a value which is a reference to a hash where the key is a string and the value is a string
 	with_border has a value which is a NarrativeMethodStore.boolean
 MethodBehavior is a reference to a hash where the following keys are defined:
@@ -4153,6 +4160,7 @@ MethodParameterGroup is a reference to a hash where the following keys are defin
 	description has a value which is a string
 	allow_multiple has a value which is a NarrativeMethodStore.boolean
 	optional has a value which is a NarrativeMethodStore.boolean
+	advanced has a value which is a NarrativeMethodStore.boolean
 	id_mapping has a value which is a reference to a hash where the key is a string and the value is a string
 	with_border has a value which is a NarrativeMethodStore.boolean
 MethodBehavior is a reference to a hash where the following keys are defined:
@@ -4475,6 +4483,7 @@ MethodParameterGroup is a reference to a hash where the following keys are defin
 	description has a value which is a string
 	allow_multiple has a value which is a NarrativeMethodStore.boolean
 	optional has a value which is a NarrativeMethodStore.boolean
+	advanced has a value which is a NarrativeMethodStore.boolean
 	id_mapping has a value which is a reference to a hash where the key is a string and the value is a string
 	with_border has a value which is a NarrativeMethodStore.boolean
 MethodBehavior is a reference to a hash where the following keys are defined:
@@ -4734,6 +4743,7 @@ MethodParameterGroup is a reference to a hash where the following keys are defin
 	description has a value which is a string
 	allow_multiple has a value which is a NarrativeMethodStore.boolean
 	optional has a value which is a NarrativeMethodStore.boolean
+	advanced has a value which is a NarrativeMethodStore.boolean
 	id_mapping has a value which is a reference to a hash where the key is a string and the value is a string
 	with_border has a value which is a NarrativeMethodStore.boolean
 MethodBehavior is a reference to a hash where the following keys are defined:
@@ -6726,18 +6736,21 @@ output_mapping has a value which is a reference to a list where each element is 
 Description of a method parameter.
 
 id - id of the parameter group, must be unique within the method among all parameters 
-           and groups
-parameter_ids - IDs of parameters included in this group
-ui_name - short name that is displayed to the user
-short_hint - short phrase or sentence describing the parameter group
-description - longer and more technical description of the parameter group (long-hint)
+                and groups,
+parameter_ids - IDs of parameters included in this group,
+ui_name - short name that is displayed to the user,
+short_hint - short phrase or sentence describing the parameter group,
+description - longer and more technical description of the parameter group (long-hint),
 allow_mutiple - allows entry of a list instead of a single structure, default is 0
                 if set, the number of starting boxes will be either 1 or the
-                number of elements in the default_values list
-optional - set to true to make the group optional, default is 0
+                number of elements in the default_values list,
+optional - set to true to make the group optional, default is 0,
+advanced - set to true to make this an advanced option, default is 0
+                if an option is advanced, it should also be optional or have
+                a default value,
 id_mapping - optional mapping for parameter IDs used to pack group into resulting
-                value structure (not used for non-multiple groups)
-with_border - flag for one-copy groups saying to show these group with border
+                value structure (not used for non-multiple groups),
+with_border - flag for one-copy groups saying to show these group with border.
 
 @optional id_mapping
 
@@ -6755,6 +6768,7 @@ short_hint has a value which is a string
 description has a value which is a string
 allow_multiple has a value which is a NarrativeMethodStore.boolean
 optional has a value which is a NarrativeMethodStore.boolean
+advanced has a value which is a NarrativeMethodStore.boolean
 id_mapping has a value which is a reference to a hash where the key is a string and the value is a string
 with_border has a value which is a NarrativeMethodStore.boolean
 
@@ -6772,6 +6786,7 @@ short_hint has a value which is a string
 description has a value which is a string
 allow_multiple has a value which is a NarrativeMethodStore.boolean
 optional has a value which is a NarrativeMethodStore.boolean
+advanced has a value which is a NarrativeMethodStore.boolean
 id_mapping has a value which is a reference to a hash where the key is a string and the value is a string
 with_border has a value which is a NarrativeMethodStore.boolean
 
