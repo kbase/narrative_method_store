@@ -27,7 +27,6 @@ public class NarrativeMethodDataTest {
         NarrativeMethodData data = load(1);
         Assert.assertEquals(1, data.getMethodSpec().getParameterGroups().size());
         MethodParameterGroup group = data.getMethodSpec().getParameterGroups().get(0);
-        System.out.println(data.getMethodSpec());
         Assert.assertNotNull(group.getId());
         Assert.assertEquals(3, group.getParameterIds().size());
         Assert.assertEquals("", group.getDescription());
@@ -37,6 +36,7 @@ public class NarrativeMethodDataTest {
         Assert.assertNotNull(group.getUiName());
         Assert.assertNotNull(group.getShortHint());
         Assert.assertEquals(0L, (long)group.getWithBorder());
+        Assert.assertEquals(1L, (long)group.getAdvanced());
     }
 
     @Test
@@ -84,7 +84,6 @@ public class NarrativeMethodDataTest {
         NarrativeMethodData data = load(7);
         Assert.assertEquals(1, data.getMethodSpec().getParameterGroups().size());
         MethodParameterGroup group = data.getMethodSpec().getParameterGroups().get(0);
-        System.out.println(data.getMethodSpec());
         Assert.assertNotNull(group.getId());
         Assert.assertEquals(3, group.getParameterIds().size());
         Assert.assertEquals("", group.getDescription());
