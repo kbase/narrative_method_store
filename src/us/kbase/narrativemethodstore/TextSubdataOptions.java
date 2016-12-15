@@ -68,12 +68,17 @@ public class TextSubdataOptions {
      *                    specify which field of that object should be used as the
      *                    primary ID
      *     selection_description - Use this to specify (if the subdata is a list or map)
-     *                     which fields should be included as a short description of
-     *                     the selection.  For features, for instance, this may include
-     *                     the feature function, or feature aliases.
+     *                    which fields should be included as a short description of
+     *                    the selection.  For features, for instance, this may include
+     *                    the feature function, or feature aliases.
      *     description_template - Defines how the description of items is rendered using
-     *                     Handlebar templates (use the name of items in the 
-     *                     selection_description list as variable names)
+     *                    Handlebar templates (use the name of items in the 
+     *                    selection_description list as variable names)
+     *     service_function - optional name of SDK method including prefix with SDK
+     *                    module started up as dynamic service (it's fully qualified
+     *                    method name where module and method are separated by '.')
+     *     service_version - optional version of module used in service_function
+     *                    (default value is 'release').
      * </pre>
      * 
      */
@@ -157,12 +162,17 @@ public class TextSubdataOptions {
      *                    specify which field of that object should be used as the
      *                    primary ID
      *     selection_description - Use this to specify (if the subdata is a list or map)
-     *                     which fields should be included as a short description of
-     *                     the selection.  For features, for instance, this may include
-     *                     the feature function, or feature aliases.
+     *                    which fields should be included as a short description of
+     *                    the selection.  For features, for instance, this may include
+     *                    the feature function, or feature aliases.
      *     description_template - Defines how the description of items is rendered using
-     *                     Handlebar templates (use the name of items in the 
-     *                     selection_description list as variable names)
+     *                    Handlebar templates (use the name of items in the 
+     *                    selection_description list as variable names)
+     *     service_function - optional name of SDK method including prefix with SDK
+     *                    module started up as dynamic service (it's fully qualified
+     *                    method name where module and method are separated by '.')
+     *     service_version - optional version of module used in service_function
+     *                    (default value is 'release').
      * </pre>
      * 
      */
@@ -187,12 +197,17 @@ public class TextSubdataOptions {
      *                    specify which field of that object should be used as the
      *                    primary ID
      *     selection_description - Use this to specify (if the subdata is a list or map)
-     *                     which fields should be included as a short description of
-     *                     the selection.  For features, for instance, this may include
-     *                     the feature function, or feature aliases.
+     *                    which fields should be included as a short description of
+     *                    the selection.  For features, for instance, this may include
+     *                    the feature function, or feature aliases.
      *     description_template - Defines how the description of items is rendered using
-     *                     Handlebar templates (use the name of items in the 
-     *                     selection_description list as variable names)
+     *                    Handlebar templates (use the name of items in the 
+     *                    selection_description list as variable names)
+     *     service_function - optional name of SDK method including prefix with SDK
+     *                    module started up as dynamic service (it's fully qualified
+     *                    method name where module and method are separated by '.')
+     *     service_version - optional version of module used in service_function
+     *                    (default value is 'release').
      * </pre>
      * 
      */

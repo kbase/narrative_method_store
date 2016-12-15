@@ -59,6 +59,7 @@ public class ValidationResults {
      * <pre>
      * Full information about a method suitable for displaying a method landing page.
      * git_commit_hash - optional repo version defined for dynamically registered methods.
+     * app_type - is one of: "app", "viewer", "editor".
      * </pre>
      * 
      */
@@ -196,6 +197,7 @@ public class ValidationResults {
      * <pre>
      * Full information about a method suitable for displaying a method landing page.
      * git_commit_hash - optional repo version defined for dynamically registered methods.
+     * app_type - is one of: "app", "viewer", "editor".
      * </pre>
      * 
      */
@@ -209,6 +211,7 @@ public class ValidationResults {
      * <pre>
      * Full information about a method suitable for displaying a method landing page.
      * git_commit_hash - optional repo version defined for dynamically registered methods.
+     * app_type - is one of: "app", "viewer", "editor".
      * </pre>
      * 
      */

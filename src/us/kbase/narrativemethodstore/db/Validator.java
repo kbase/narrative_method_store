@@ -1,6 +1,8 @@
 package us.kbase.narrativemethodstore.db;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -54,6 +56,7 @@ public class Validator {
 		// grab the relevant input
 		String spec = params.getSpecJson();
 		String display = cleanYaml(params.getDisplayYaml());
+		boolean verbose = params.getVerbose() != null && params.getVerbose() == 1L;
 		
 		//setup results
 		long isValid = 0L;
@@ -64,8 +67,13 @@ public class Validator {
 		JsonNode parsedSpec = null;
 		try {
 			parsedSpec = mapper.readTree(spec);
-		} catch (IOException e1) {
-			errors.add(e1.getMessage());
+		} catch (IOException e) {
+            String message = (e.getMessage() != null) ? e.getMessage() :
+                "An unknown error occured while parsing the spec.json file";
+            if (verbose) {
+                message += "\nStack trace:\n" + getErrorStackTrace(e);
+            }
+			errors.add(message);
 		}
 		
 		Map<String,Object> parsedDisplay = null;
@@ -74,16 +82,20 @@ public class Validator {
 			parsedDisplayObject = yaml.load(display);
 			parsedDisplay = (Map<String,Object>) parsedDisplayObject;
 		} catch(ClassCastException e) {
-			errors.add("display.yaml could not be parsed as a structure. It was mapped to:"+parsedDisplayObject.getClass().getName() +
-					"\n Make sure the top level of the YAML file are 'fields:values', not a list, string, or other construct.");
+		    String message = "display.yaml could not be parsed as a structure. It was mapped to:" +
+		            parsedDisplayObject.getClass().getName() + "\n Make sure the top level of " +
+		            "the YAML file are 'fields:values', not a list, string, or other construct.";
+		    if (verbose) {
+		        message += "\nStack trace:\n" + getErrorStackTrace(e);
+		    }
+			errors.add(message);
 		} catch (Exception e) {
-            System.err.println("Error validating " + params.getId());
-		    e.printStackTrace();
-			if(e.getMessage()!=null) {
-				errors.add(e.getMessage());
-			} else {
-				errors.add("An unknown error occured while parsing the display.yaml file");
-			}
+		    String message = (e.getMessage() != null) ? e.getMessage() :
+		        "An unknown error occured while parsing the display.yaml file";
+            if (verbose) {
+                message += "\nStack trace:\n" + getErrorStackTrace(e);
+            }
+		    errors.add(message);
 		}
 
 		if(parsedDisplay==null) {
@@ -100,13 +112,12 @@ public class Validator {
 				// it all seemed to parse fine, but we can add additional checks or warnings here if desired
 				isValid = 1L;
 			} catch (Exception e) {
-			    System.err.println("Error validating " + params.getId());
-			    e.printStackTrace();
-	            if(e.getMessage()!=null) {
-	                errors.add(e.getMessage());
-	            } else {
-	                errors.add("An unknown error occured while parsing the spec.json file");
+			    String message = (e.getMessage() != null) ? e.getMessage() :
+			        "An unknown error occured while validating the spec.json/display.yaml files";
+	            if (verbose) {
+	                message += "\nStack trace:\n" + getErrorStackTrace(e);
 	            }
+	            errors.add(message);
 			}
 		}
 		
@@ -264,5 +275,11 @@ public class Validator {
 		return sb.toString();
 	}
 	
-	
+	private static String getErrorStackTrace(Throwable err) {
+	    StringWriter sw = new StringWriter();
+	    PrintWriter pw = new PrintWriter(sw);
+	    err.printStackTrace(pw);
+	    pw.close();
+	    return sw.toString();
+	}
 }

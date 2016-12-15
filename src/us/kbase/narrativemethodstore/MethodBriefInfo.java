@@ -18,6 +18,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
  * Minimal information about a method suitable for displaying the method in a menu or navigator. 
  * input_types and output_types - sets of valid_ws_types occured in input/output parameters.
  * git_commit_hash - optional repo version defined for dynamically registered methods.
+ * app_type - is one of: "app", "viewer", "editor".
  * </pre>
  * 
  */
@@ -36,7 +37,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
     "loading_error",
     "authors",
     "input_types",
-    "output_types"
+    "output_types",
+    "app_type"
 })
 public class MethodBriefInfo {
 
@@ -71,6 +73,8 @@ public class MethodBriefInfo {
     private List<String> inputTypes;
     @JsonProperty("output_types")
     private List<String> outputTypes;
+    @JsonProperty("app_type")
+    private java.lang.String appType;
     private Map<java.lang.String, Object> additionalProperties = new HashMap<java.lang.String, Object>();
 
     @JsonProperty("id")
@@ -278,6 +282,21 @@ public class MethodBriefInfo {
         return this;
     }
 
+    @JsonProperty("app_type")
+    public java.lang.String getAppType() {
+        return appType;
+    }
+
+    @JsonProperty("app_type")
+    public void setAppType(java.lang.String appType) {
+        this.appType = appType;
+    }
+
+    public MethodBriefInfo withAppType(java.lang.String appType) {
+        this.appType = appType;
+        return this;
+    }
+
     @JsonAnyGetter
     public Map<java.lang.String, Object> getAdditionalProperties() {
         return this.additionalProperties;
@@ -290,7 +309,7 @@ public class MethodBriefInfo {
 
     @Override
     public java.lang.String toString() {
-        return ((((((((((((((((((((((((((((("MethodBriefInfo"+" [id=")+ id)+", moduleName=")+ moduleName)+", gitCommitHash=")+ gitCommitHash)+", name=")+ name)+", ver=")+ ver)+", subtitle=")+ subtitle)+", tooltip=")+ tooltip)+", icon=")+ icon)+", categories=")+ categories)+", loadingError=")+ loadingError)+", authors=")+ authors)+", inputTypes=")+ inputTypes)+", outputTypes=")+ outputTypes)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((((((((((((((((((((((((((("MethodBriefInfo"+" [id=")+ id)+", moduleName=")+ moduleName)+", gitCommitHash=")+ gitCommitHash)+", name=")+ name)+", ver=")+ ver)+", subtitle=")+ subtitle)+", tooltip=")+ tooltip)+", icon=")+ icon)+", categories=")+ categories)+", loadingError=")+ loadingError)+", authors=")+ authors)+", inputTypes=")+ inputTypes)+", outputTypes=")+ outputTypes)+", appType=")+ appType)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }

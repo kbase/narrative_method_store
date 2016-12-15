@@ -17,6 +17,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
  * <pre>
  * Full information about a method suitable for displaying a method landing page.
  * git_commit_hash - optional repo version defined for dynamically registered methods.
+ * app_type - is one of: "app", "viewer", "editor".
  * </pre>
  * 
  */
@@ -35,6 +36,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
     "tooltip",
     "description",
     "technical_description",
+    "app_type",
     "suggestions",
     "icon",
     "categories",
@@ -67,6 +69,8 @@ public class MethodFullInfo {
     private java.lang.String description;
     @JsonProperty("technical_description")
     private java.lang.String technicalDescription;
+    @JsonProperty("app_type")
+    private java.lang.String appType;
     /**
      * <p>Original spec-file type: Suggestions</p>
      * 
@@ -269,6 +273,21 @@ public class MethodFullInfo {
         return this;
     }
 
+    @JsonProperty("app_type")
+    public java.lang.String getAppType() {
+        return appType;
+    }
+
+    @JsonProperty("app_type")
+    public void setAppType(java.lang.String appType) {
+        this.appType = appType;
+    }
+
+    public MethodFullInfo withAppType(java.lang.String appType) {
+        this.appType = appType;
+        return this;
+    }
+
     /**
      * <p>Original spec-file type: Suggestions</p>
      * 
@@ -376,7 +395,7 @@ public class MethodFullInfo {
 
     @Override
     public java.lang.String toString() {
-        return ((((((((((((((((((((((((((((((((((((("MethodFullInfo"+" [id=")+ id)+", moduleName=")+ moduleName)+", gitCommitHash=")+ gitCommitHash)+", name=")+ name)+", ver=")+ ver)+", authors=")+ authors)+", kbContributors=")+ kbContributors)+", contact=")+ contact)+", subtitle=")+ subtitle)+", tooltip=")+ tooltip)+", description=")+ description)+", technicalDescription=")+ technicalDescription)+", suggestions=")+ suggestions)+", icon=")+ icon)+", categories=")+ categories)+", screenshots=")+ screenshots)+", publications=")+ publications)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((((((((((((((((((((((((((((((((((("MethodFullInfo"+" [id=")+ id)+", moduleName=")+ moduleName)+", gitCommitHash=")+ gitCommitHash)+", name=")+ name)+", ver=")+ ver)+", authors=")+ authors)+", kbContributors=")+ kbContributors)+", contact=")+ contact)+", subtitle=")+ subtitle)+", tooltip=")+ tooltip)+", description=")+ description)+", technicalDescription=")+ technicalDescription)+", appType=")+ appType)+", suggestions=")+ suggestions)+", icon=")+ icon)+", categories=")+ categories)+", screenshots=")+ screenshots)+", publications=")+ publications)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }
