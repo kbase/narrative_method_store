@@ -64,8 +64,7 @@ public class LocalGitDB {
 	protected String lastCommit = null;
 	
 	protected NarrativeCategoriesIndex narCatIndex;
-	protected final LoadingCache<MethodId, MethodFullInfo> methodFullInfoCache;
-	protected final LoadingCache<MethodId, MethodSpec> methodSpecCache;
+	protected final LoadingCache<MethodId, NarrativeMethodData> methodDataCache;
 	protected final LoadingCache<String, AppFullInfo> appFullInfoCache;
 	protected final LoadingCache<String, AppSpec> appSpecCache;
 	protected static Thread refreshingThread = null;
@@ -86,20 +85,13 @@ public class LocalGitDB {
 		this.gitLocalPath = localPath;
 		this.refreshTimeInMinutes = refreshTimeInMinutes;
 		this.cacheSize = cacheSize;
-		this.methodFullInfoCache = CacheBuilder.newBuilder().maximumSize(cacheSize).build(
-				new CacheLoader<MethodId, MethodFullInfo>() {
-					@Override
-					public MethodFullInfo load(MethodId methodId) throws NarrativeMethodStoreException {
-						return loadMethodDataUncached(methodId, narCatIndex).getMethodFullInfo();
-					}
-				});
-		this.methodSpecCache = CacheBuilder.newBuilder().maximumSize(cacheSize).build(
-				new CacheLoader<MethodId, MethodSpec>() {
-					@Override
-					public MethodSpec load(MethodId methodId) throws NarrativeMethodStoreException {
-						return loadMethodDataUncached(methodId, narCatIndex).getMethodSpec();
-					}
-				});
+        this.methodDataCache = CacheBuilder.newBuilder().maximumSize(cacheSize).build(
+                new CacheLoader<MethodId, NarrativeMethodData>() {
+                    @Override
+                    public NarrativeMethodData load(MethodId methodId) throws NarrativeMethodStoreException {
+                        return loadMethodDataUncached(methodId, narCatIndex);
+                    }
+                });
 		this.appFullInfoCache = CacheBuilder.newBuilder().maximumSize(cacheSize).build(
 				new CacheLoader<String, AppFullInfo>() {
 					@Override
@@ -312,8 +304,7 @@ public class LocalGitDB {
         System.out.println("[" + new Date() + "] NarrativeMethodStore.LocalGitDB: refreshing caches");
         // recreate the categories index
         loadCategoriesIndex();
-        methodFullInfoCache.invalidateAll();
-        methodSpecCache.invalidateAll();
+        methodDataCache.invalidateAll();
         appFullInfoCache.invalidateAll();
         appSpecCache.invalidateAll();
     }	
@@ -412,6 +403,7 @@ public class LocalGitDB {
 			String serviceVersion = null;
 			RepoTag tag = null;
 			FileLookup fl = null;
+			String version = null;
 			if (methodId.isDynamic()) {
 			    final RepoProvider repo = dynamicRepos.getRepoDetails(methodId.getRepoModuleName(), methodId.getTag());
 			    if (repo == null)
@@ -437,6 +429,7 @@ public class LocalGitDB {
                         return false;
                     }
                 };
+                version = repo.getModuleVersion();
 			} else {
 			    spec = getResourceAsJson("methods/"+methodId+"/spec.json");
 			    display = getResourceAsYamlMap("methods/"+methodId+"/display.yaml");
@@ -445,7 +438,7 @@ public class LocalGitDB {
 
 			// Initialize the actual data
 			NarrativeMethodData data = new NarrativeMethodData(methodId.getExternalId(), spec, display,
-					fl, methodId.getRepoModuleName(), serviceVersion, srvUrlTemplEval, tag);
+					fl, methodId.getRepoModuleName(), serviceVersion, srvUrlTemplEval, tag, version);
 			return data;
 		} catch (NarrativeMethodStoreException ex) {
 			throw ex;
@@ -517,7 +510,18 @@ public class LocalGitDB {
 	public MethodBriefInfo getMethodBriefInfo(String methodId, String tag)
 			throws NarrativeMethodStoreException {
 		checkForChanges();
-		return narCatIndex.getAllMethods().get(new MethodId(methodId, notNull(tag)));
+		MethodId mId = new MethodId(methodId, notNull(tag));
+		MethodBriefInfo ret = narCatIndex.getAllMethods().get(mId);
+		if (ret == null && mId.isDynamic()) {
+	        try {
+	            ret = methodDataCache.get(mId).getMethodBriefInfo();
+	        } catch (ExecutionException e) {
+	            if (e.getCause() != null && e.getCause() instanceof NarrativeMethodStoreException)
+	                throw (NarrativeMethodStoreException)e.getCause();
+	            throw new NarrativeMethodStoreException("Error loading brief info for method id=" + mId + " (" + e.getMessage() + ")", e);
+	        }
+		}
+		return ret;
 	}
 
 	public AppBriefInfo getAppBriefInfo(String appId)
@@ -535,12 +539,13 @@ public class LocalGitDB {
 	public MethodFullInfo getMethodFullInfo(String methodId, String tag)
 			throws NarrativeMethodStoreException {
 		checkForChanges();
+        MethodId mId = new MethodId(methodId, notNull(tag));
 		try {
-			return methodFullInfoCache.get(new MethodId(methodId, notNull(tag)));
+			return methodDataCache.get(mId).getMethodFullInfo();
 		} catch (ExecutionException e) {
 			if (e.getCause() != null && e.getCause() instanceof NarrativeMethodStoreException)
 				throw (NarrativeMethodStoreException)e.getCause();
-			throw new NarrativeMethodStoreException("Error loading full info for method id=" + methodId + " (" + e.getMessage() + ")", e);
+			throw new NarrativeMethodStoreException("Error loading full info for method id=" + mId + " (" + e.getMessage() + ")", e);
 		}
 	}
 
@@ -560,7 +565,7 @@ public class LocalGitDB {
 			throws NarrativeMethodStoreException {
 		checkForChanges();
 		try {
-			return methodSpecCache.get(new MethodId(methodId, notNull(tag)));
+			return methodDataCache.get(new MethodId(methodId, notNull(tag))).getMethodSpec();
 		} catch (ExecutionException e) {
 			if (e.getCause() != null && e.getCause() instanceof NarrativeMethodStoreException)
 				throw (NarrativeMethodStoreException)e.getCause();
@@ -737,7 +742,7 @@ public class LocalGitDB {
                     // Initialize the actual data
                     new NarrativeMethodData(pvd.getModuleName() + "/" + methodId, 
                             spec, display, createFileLookup(new File(getMethodsDir(), methodId)), 
-                            pvd.getModuleName(), serviceVersion, srvUrlTemplEval, RepoTag.dev);
+                            pvd.getModuleName(), serviceVersion, srvUrlTemplEval, RepoTag.dev, pvd.getModuleVersion());
                 } catch (Exception ex) {
                     if (errors.length() > 0)
                         errors.append("; ");
@@ -799,6 +804,7 @@ public class LocalGitDB {
         return new RepoDetails().withModuleName(repoModuleName)
                 .withModuleDescription(repo.getModuleDescription())
                 .withServiceLanguage(repo.getServiceLanguage())
+                .withModuleVersion(repo.getModuleVersion())
                 .withGitUrl(repo.getUrl())
                 .withGitCommitHash(repo.getGitCommitHash())
                 .withOwners(repo.listOwners())

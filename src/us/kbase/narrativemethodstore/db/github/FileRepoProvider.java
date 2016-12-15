@@ -32,6 +32,7 @@ public class FileRepoProvider implements RepoProvider {
     protected final String moduleName;
     protected String moduleDescription = null;
     protected String serviceLanguage = null;
+    protected String moduleVersion = null;
     protected List<String> owners = null;
     private File repoZipFile = null;
 
@@ -54,6 +55,7 @@ public class FileRepoProvider implements RepoProvider {
             moduleName = YamlUtils.getPropertyNotNull(source, map, "module-name", String.class);
             moduleDescription = YamlUtils.getPropertyOrNull(source, map, "module-description", String.class);
             serviceLanguage = YamlUtils.getPropertyOrNull(source, map, "service-language", String.class);
+            moduleVersion = YamlUtils.getPropertyOrNull(source, map, "module-version", String.class);
             owners = Collections.unmodifiableList(YamlUtils.getPropertyNotNull(source, map, "owners", 
                     new TypeReference<List<String>>() {}));
         } catch (NarrativeMethodStoreException ex) {
@@ -90,6 +92,11 @@ public class FileRepoProvider implements RepoProvider {
     @Override
     public String getServiceLanguage() {
         return serviceLanguage;
+    }
+    
+    @Override
+    public String getModuleVersion() {
+        return moduleVersion;
     }
     
     @Override

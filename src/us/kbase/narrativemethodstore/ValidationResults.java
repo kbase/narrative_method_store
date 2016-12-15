@@ -81,6 +81,7 @@ public class ValidationResults {
     /**
      * <p>Original spec-file type: TypeInfo</p>
      * <pre>
+     * export_functions - optional mapping from UI label to exporter SDK local function.
      * @optional icon landing_page_url_prefix loading_error
      * </pre>
      * 
@@ -263,6 +264,7 @@ public class ValidationResults {
     /**
      * <p>Original spec-file type: TypeInfo</p>
      * <pre>
+     * export_functions - optional mapping from UI label to exporter SDK local function.
      * @optional icon landing_page_url_prefix loading_error
      * </pre>
      * 
@@ -275,6 +277,7 @@ public class ValidationResults {
     /**
      * <p>Original spec-file type: TypeInfo</p>
      * <pre>
+     * export_functions - optional mapping from UI label to exporter SDK local function.
      * @optional icon landing_page_url_prefix loading_error
      * </pre>
      * 

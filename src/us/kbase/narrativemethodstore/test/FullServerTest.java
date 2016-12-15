@@ -967,6 +967,9 @@ public class FullServerTest {
 			if(ti.getTypeName().compareTo("Test.Type1")==0) {
 				foundTestType1 = true;
 				assertTrue("Test.Type1 has name Genome", ti.getName().compareTo("Genome")==0);
+				assertEquals(1, ti.getExportFunctions().size());
+                assertTrue("Unexpected exporting function name", 
+                        ti.getExportFunctions().get("TSV").contains("/"));
 			}
 		}
 		assertTrue("Type1 was returned successfully in list types.",foundTestType1);
@@ -1131,6 +1134,7 @@ public class FullServerTest {
 	        Assert.assertEquals("Perform Async Docker Test.", bi.getTooltip().trim());
 	        Assert.assertEquals("[active]", bi.getCategories().toString());
 	        Assert.assertEquals(moduleName, bi.getModuleName());
+	        Assert.assertEquals("0.0.1", bi.getVer());
 	        MethodFullInfo fi = CLIENT.getMethodFullInfo(new GetMethodParams().withIds(Arrays.asList(methodId)).withTag("dev")).get(0);
 	        Assert.assertNotNull(fi);
 	        Assert.assertTrue("Description: " + fi.getDescription(), fi.getDescription().contains("Async Docker Test"));
@@ -1166,7 +1170,9 @@ public class FullServerTest {
             Assert.assertNull(CLIENT.listCategories(new ListCategoriesParams().withLoadMethods(1L)).getE2().get(methodId));
             checkMethod(methodId, 2, "genomeA", "Genome A", "dev");
             MethodBriefInfo mbi2 = CLIENT.getMethodBriefInfo(new GetMethodParams().withIds(Arrays.asList(methodId)).withTag("dev")).get(0);
-            Assert.assertEquals(mbi2.getGitCommitHash(), commitHash2);            
+            Assert.assertEquals(mbi2.getGitCommitHash(), commitHash2);      
+            mbi2 = CLIENT.getMethodBriefInfo(new GetMethodParams().withIds(Arrays.asList(methodId)).withTag(commitHash2)).get(0);
+            Assert.assertEquals(mbi2.getGitCommitHash(), commitHash2);      
             MethodFullInfo mfi2 = CLIENT.getMethodFullInfo(new GetMethodParams().withIds(Arrays.asList(methodId)).withTag("dev")).get(0);
             Assert.assertEquals(mfi2.getGitCommitHash(), commitHash2);            
             MethodSpec ms2 = CLIENT.getMethodSpec(new GetMethodParams().withIds(Arrays.asList(methodId)).withTag("dev")).get(0);

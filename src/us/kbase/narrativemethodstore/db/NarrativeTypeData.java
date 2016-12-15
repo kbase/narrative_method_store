@@ -1,6 +1,8 @@
 package us.kbase.narrativemethodstore.db;
 
 import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
@@ -53,6 +55,7 @@ public class NarrativeTypeData {
 		
 		typeInfo.withViewMethodIds(jsonListToStringListOrEmpty(spec.get("view_method_ids")));
 		typeInfo.withImportMethodIds(jsonListToStringListOrEmpty(spec.get("import_method_ids")));
+        typeInfo.withExportFunctions(jsonMapToStringMapOrEmpty(spec.get("export_functions")));
 		typeInfo.withLandingPageUrlPrefix(getTextOrNull(spec.get("landing_page_url_prefix")));
 	}
 
@@ -89,4 +92,15 @@ public class NarrativeTypeData {
 			ret.add(node.get(i).asText());
 		return ret;
 	}
+
+    private static Map<String, String> jsonMapToStringMapOrEmpty(JsonNode node) {
+        Map<String, String> ret = new LinkedHashMap<String, String>();
+        if (node == null)
+            return ret;
+        for (Iterator<String> it = node.fieldNames(); it.hasNext();) {
+            String key = it.next();
+            ret.put(key, node.get(key).asText());
+        }
+        return ret;
+    }
 }

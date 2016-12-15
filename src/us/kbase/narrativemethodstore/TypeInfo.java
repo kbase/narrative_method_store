@@ -15,6 +15,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 /**
  * <p>Original spec-file type: TypeInfo</p>
  * <pre>
+ * export_functions - optional mapping from UI label to exporter SDK local function.
  * @optional icon landing_page_url_prefix loading_error
  * </pre>
  * 
@@ -30,6 +31,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
     "icon",
     "view_method_ids",
     "import_method_ids",
+    "export_functions",
     "landing_page_url_prefix",
     "loading_error"
 })
@@ -56,6 +58,8 @@ public class TypeInfo {
     private List<String> viewMethodIds;
     @JsonProperty("import_method_ids")
     private List<String> importMethodIds;
+    @JsonProperty("export_functions")
+    private Map<String, String> exportFunctions;
     @JsonProperty("landing_page_url_prefix")
     private java.lang.String landingPageUrlPrefix;
     @JsonProperty("loading_error")
@@ -192,6 +196,21 @@ public class TypeInfo {
         return this;
     }
 
+    @JsonProperty("export_functions")
+    public Map<String, String> getExportFunctions() {
+        return exportFunctions;
+    }
+
+    @JsonProperty("export_functions")
+    public void setExportFunctions(Map<String, String> exportFunctions) {
+        this.exportFunctions = exportFunctions;
+    }
+
+    public TypeInfo withExportFunctions(Map<String, String> exportFunctions) {
+        this.exportFunctions = exportFunctions;
+        return this;
+    }
+
     @JsonProperty("landing_page_url_prefix")
     public java.lang.String getLandingPageUrlPrefix() {
         return landingPageUrlPrefix;
@@ -234,7 +253,7 @@ public class TypeInfo {
 
     @Override
     public java.lang.String toString() {
-        return ((((((((((((((((((((((("TypeInfo"+" [typeName=")+ typeName)+", name=")+ name)+", subtitle=")+ subtitle)+", tooltip=")+ tooltip)+", description=")+ description)+", icon=")+ icon)+", viewMethodIds=")+ viewMethodIds)+", importMethodIds=")+ importMethodIds)+", landingPageUrlPrefix=")+ landingPageUrlPrefix)+", loadingError=")+ loadingError)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((((((((((((((((((((("TypeInfo"+" [typeName=")+ typeName)+", name=")+ name)+", subtitle=")+ subtitle)+", tooltip=")+ tooltip)+", description=")+ description)+", icon=")+ icon)+", viewMethodIds=")+ viewMethodIds)+", importMethodIds=")+ importMethodIds)+", exportFunctions=")+ exportFunctions)+", landingPageUrlPrefix=")+ landingPageUrlPrefix)+", loadingError=")+ loadingError)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }
