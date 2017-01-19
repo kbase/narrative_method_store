@@ -42,6 +42,7 @@ module NarrativeMethodStore {
     /* Minimal information about a method suitable for displaying the method in a menu or navigator. 
          input_types and output_types - sets of valid_ws_types occured in input/output parameters.
          git_commit_hash - optional repo version defined for dynamically registered methods.
+         app_type - is one of: "app", "viewer", "editor".
     */
     typedef structure {
         string id;
@@ -57,6 +58,7 @@ module NarrativeMethodStore {
         list <username> authors;
         list <string> input_types;
         list <string> output_types;
+        string app_type;
     } MethodBriefInfo;
     
     typedef structure {
@@ -84,6 +86,7 @@ module NarrativeMethodStore {
     
     /* Full information about a method suitable for displaying a method landing page.
          git_commit_hash - optional repo version defined for dynamically registered methods.
+         app_type - is one of: "app", "viewer", "editor".
     */
     typedef structure {
         string id;
@@ -99,6 +102,7 @@ module NarrativeMethodStore {
         string tooltip;
         string description;
         string technical_description;
+        string app_type;
         
         Suggestions suggestions;
         
@@ -208,12 +212,17 @@ module NarrativeMethodStore {
                            specify which field of that object should be used as the
                            primary ID
             selection_description - Use this to specify (if the subdata is a list or map)
-                            which fields should be included as a short description of
-                            the selection.  For features, for instance, this may include
-                            the feature function, or feature aliases.
+                           which fields should be included as a short description of
+                           the selection.  For features, for instance, this may include
+                           the feature function, or feature aliases.
             description_template - Defines how the description of items is rendered using
-                            Handlebar templates (use the name of items in the 
-                            selection_description list as variable names)
+                           Handlebar templates (use the name of items in the 
+                           selection_description list as variable names)
+            service_function - optional name of SDK method including prefix with SDK
+                           module started up as dynamic service (it's fully qualified
+                           method name where module and method are separated by '.')
+            service_version - optional version of module used in service_function
+                           (default value is 'release').
     */
     typedef structure {
         list <string> constant_ref;
@@ -223,6 +232,8 @@ module NarrativeMethodStore {
         string selection_id;
         list <string> selection_description;
         string description_template;
+        string service_function;
+        string service_version;
     } SubdataSelection;
 
     /*
@@ -339,7 +350,7 @@ module NarrativeMethodStore {
             finished with empty value (for example in case 'input_parameter' is defined but value of this
             parameter is left empty by user); so this mode has lower priority when used with another mode.
         target_argument_position - position of argument in RPC-method call, optional field, default value is 0.
-        target_property - name of field inside structure that will be send as arguement. Optional field,
+        target_property - name of field inside structure that will be send as argument. Optional field,
             in case this field is not defined (or null) whole object will be sent as method argument instead of
             wrapping it by structure with inner property defined by 'target_property'.
         target_type_transform - none/string/int/float/ref, optional field, default is 'none' (it's in plans to
@@ -396,59 +407,6 @@ module NarrativeMethodStore {
     } OutputMapping;
 
     /*
-        input_parameter - parameter_id, if not specified then one of 'constant_value' or 
-            'narrative_system_variable' should be set.
-        constant_value - constant value, could be even map/array, if not specified then 'input_parameter' or
-            'narrative_system_variable' should be set.
-        narrative_system_variable - name of internal narrative framework property, currently only these names are
-            supported: 'workspace', 'token', 'user_id'; if not specified then one of 'input_parameter' or
-            'constant_value' should be set.
-        generated_value - automatically generated value; it could be used as independent mode or when another mode 
-            finished with empty value (for example in case 'input_parameter' is defined but value of this
-            parameter is left empty by user); so this mode has lower priority when used with another mode.
-        target_property - name of script parameter.
-        target_type_transform - none/string/int/float/ref, optional field, default is 'none' (it's in plans to
-            support list<type>, mapping<type> and tuple<t1,t2,...> transformations).
-        @optional input_parameter constant_value narrative_system_variable generated_value 
-        @optional target_property target_type_transform
-    */
-    typedef structure {
-        string input_parameter;
-        UnspecifiedObject constant_value;
-        string narrative_system_variable;
-        AutoGeneratedValue generated_value;
-        string target_property;
-        string target_type_transform;
-    } ScriptInputMapping;
-
-    /*
-        input_parameter - parameter_id, if not specified then one of 'constant_value' or 
-            'narrative_system_variable' should be set.
-        script_output_path - list of properties and array element positions defining JSON-path traversing
-            through which we can find necessary value. 
-        constant_value - constant value, could be even map/array, if not specified then 'input_parameter' or
-            'narrative_system_variable' should be set.
-        narrative_system_variable - name of internal narrative framework property, currently only these names are
-            supported: 'workspace', 'token', 'user_id'; if not specified then one of 'input_parameter' or
-            'constant_value' should be set.
-        target_property - name of field inside structure that will be send as arguement. Optional field,
-            in case this field is not defined (or null) whole object will be sent as method argument instead of
-            wrapping it by structure with inner property defined by 'target_property'.
-        target_type_transform - none/string/int/float/list<type>/mapping<type>/ref, optional field, default is 
-            no transformation.
-        @optional input_parameter script_output_path constant_value narrative_system_variable 
-        @optional target_property target_type_transform
-    */
-    typedef structure {
-        string input_parameter;
-        list<string> script_output_path;
-        UnspecifiedObject constant_value;
-        string narrative_system_variable;
-        string target_property;
-        string target_type_transform;
-    } ScriptOutputMapping;
-
-    /*
         Determines how the method is handled when run.
         kb_service_name - name of service which will be part of fully qualified method name, optional field (in
             case it's not defined developer should enter fully qualified name with dot into 'kb_service_method'.
@@ -456,26 +414,52 @@ module NarrativeMethodStore {
         kb_service_input_mapping - mapping from input parameters to input service method arguments.
         kb_service_output_mapping - mapping from output of service method to final output of narrative method.
         output_mapping - mapping from input to final output of narrative method to support steps without back-end operations.
-        kb_service_input_mapping - mapping from input parameters to input service method arguments.
-        kb_service_output_mapping - mapping from output of service method to final output of narrative method.
-        @optional python_function kb_service_name kb_service_method kb_service_input_mapping kb_service_output_mapping
+        @optional kb_service_name kb_service_method kb_service_input_mapping kb_service_output_mapping
     */
     typedef structure {
-        string python_class;
-        string python_function;
         string kb_service_url;
         string kb_service_name;
         string kb_service_version;
         string kb_service_method;
-        string script_module;
-        string script_name;
-        boolean script_has_files;
         list<ServiceMethodInputMapping> kb_service_input_mapping;
         list<ServiceMethodOutputMapping> kb_service_output_mapping;
         list<OutputMapping> output_mapping;
-        list<ScriptInputMapping> script_input_mapping;
-        list<ScriptOutputMapping> script_output_mapping;
     } MethodBehavior;
+
+    /*
+        Description of a method parameter.
+        
+        id - id of the parameter group, must be unique within the method among all parameters 
+                        and groups,
+        parameter_ids - IDs of parameters included in this group,
+        ui_name - short name that is displayed to the user,
+        short_hint - short phrase or sentence describing the parameter group,
+        description - longer and more technical description of the parameter group (long-hint),
+        allow_mutiple - allows entry of a list instead of a single structure, default is 0
+                        if set, the number of starting boxes will be either 1 or the
+                        number of elements in the default_values list,
+        optional - set to true to make the group optional, default is 0,
+        advanced - set to true to make this an advanced option, default is 0
+                        if an option is advanced, it should also be optional or have
+                        a default value,
+        id_mapping - optional mapping for parameter IDs used to pack group into resulting
+                        value structure (not used for non-multiple groups),
+        with_border - flag for one-copy groups saying to show these group with border.
+        
+        @optional id_mapping
+    */
+    typedef structure {
+        string id;
+        list<string> parameter_ids;
+        string ui_name;
+        string short_hint;
+        string description;
+        boolean allow_multiple;
+        boolean optional;
+        boolean advanced;
+        mapping<string, string> id_mapping;
+        boolean with_border;
+    } MethodParameterGroup;
 
     /*
         The method specification which should provide enough information to render a default
@@ -496,6 +480,8 @@ module NarrativeMethodStore {
         list<MethodParameter> parameters;
         
         list<FixedMethodParameter> fixed_parameters;
+        
+        list<MethodParameterGroup> parameter_groups;
         
         MethodBehavior behavior;
 
@@ -696,11 +682,15 @@ module NarrativeMethodStore {
 
 
 
+    /*
+        verbose - flag for adding more details into error messages (like stack traces).
+    */
     typedef structure {
     	string id;
     	string spec_json;
     	string display_yaml;
     	mapping <string,string> extra_files;
+    	boolean verbose;
     } ValidateMethodParams;
 
     typedef structure {

@@ -13,7 +13,9 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 /**
  * <p>Original spec-file type: ValidateMethodParams</p>
- * 
+ * <pre>
+ * verbose - flag for adding more details into error messages (like stack traces).
+ * </pre>
  * 
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -22,7 +24,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
     "id",
     "spec_json",
     "display_yaml",
-    "extra_files"
+    "extra_files",
+    "verbose"
 })
 public class ValidateMethodParams {
 
@@ -34,6 +37,8 @@ public class ValidateMethodParams {
     private java.lang.String displayYaml;
     @JsonProperty("extra_files")
     private Map<String, String> extraFiles;
+    @JsonProperty("verbose")
+    private Long verbose;
     private Map<java.lang.String, Object> additionalProperties = new HashMap<java.lang.String, Object>();
 
     @JsonProperty("id")
@@ -96,6 +101,21 @@ public class ValidateMethodParams {
         return this;
     }
 
+    @JsonProperty("verbose")
+    public Long getVerbose() {
+        return verbose;
+    }
+
+    @JsonProperty("verbose")
+    public void setVerbose(Long verbose) {
+        this.verbose = verbose;
+    }
+
+    public ValidateMethodParams withVerbose(Long verbose) {
+        this.verbose = verbose;
+        return this;
+    }
+
     @JsonAnyGetter
     public Map<java.lang.String, Object> getAdditionalProperties() {
         return this.additionalProperties;
@@ -108,7 +128,7 @@ public class ValidateMethodParams {
 
     @Override
     public java.lang.String toString() {
-        return ((((((((((("ValidateMethodParams"+" [id=")+ id)+", specJson=")+ specJson)+", displayYaml=")+ displayYaml)+", extraFiles=")+ extraFiles)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((((((((("ValidateMethodParams"+" [id=")+ id)+", specJson=")+ specJson)+", displayYaml=")+ displayYaml)+", extraFiles=")+ extraFiles)+", verbose=")+ verbose)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }

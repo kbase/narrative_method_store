@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeSet;
 
 import junit.framework.Assert;
@@ -59,9 +58,8 @@ import us.kbase.narrativemethodstore.ValidationResults;
 import us.kbase.narrativemethodstore.db.DynamicRepoDB;
 import us.kbase.narrativemethodstore.db.mongo.test.MongoDBHelper;
 
-/*
- * 
- * 
+/**
+ * Client-server JSON-RPC test for Narrative Method Store.
  */
 public class FullServerTest {
 	
@@ -633,7 +631,7 @@ public class FullServerTest {
 			} else if (m.getInfo().getId().equals("test_method_4")) {
 				foundTestMethod4 = true;
 				assertEquals(0, m.getFixedParameters().size());
-				assertEquals("Test Method 4 was run on {{genome}} to produce a new genome named {{output_genome}}.\n", m.getReplacementText());
+				assertEquals("Test Method 4 was run on {{genome}} to produce a new genome named {{output_genome}}.", m.getReplacementText());
 				assertEquals(new Long(1), m.getParameters().get(1).getTextOptions().getIsOutputName());
 				assertEquals("output",m.getParameters().get(1).getUiClass());
 				assertEquals("select a genome", m.getParameters().get(0).getTextOptions().getPlaceholder());
@@ -777,6 +775,12 @@ public class FullServerTest {
         assertEquals("KBaseGenomes.Genome", m.getOutputTypes().get(0));
 	}
 	
+    @Test
+    public void getAppType() throws Exception {
+        GetMethodParams params = new GetMethodParams().withIds(Arrays.asList("test_method_9"));
+        Assert.assertEquals("editor", CLIENT.getMethodBriefInfo(params).get(0).getAppType());
+        Assert.assertEquals("editor", CLIENT.getMethodFullInfo(params).get(0).getAppType());
+    }
 	
 	@Test
 	public void testGetMethodFullInfo() throws Exception {
@@ -943,20 +947,6 @@ public class FullServerTest {
 		assertEquals("re2", spec.getBehavior().getKbServiceOutputMapping().get(1).getTargetProperty());
 		assertEquals("re2", spec.getJobIdOutputField());
 	}
-	
-	@Test
-	public void testScriptParamMapping() throws Exception {
-		MethodSpec spec = CLIENT.getMethodSpec(new GetMethodParams().withIds(Arrays.asList("test_method_6"))).get(0);
-		assertNotNull(spec.getBehavior().getScriptModule());
-		assertNotNull(spec.getBehavior().getScriptName());
-		assertEquals(1L, (long)spec.getBehavior().getScriptHasFiles());
-		assertEquals(8, spec.getBehavior().getScriptInputMapping().size());
-		assertEquals("assembly_input", spec.getBehavior().getScriptInputMapping().get(0).getInputParameter());
-		assertNotNull(spec.getBehavior().getScriptInputMapping().get(0).getTargetProperty());
-		assertEquals(1, spec.getBehavior().getScriptOutputMapping().size());
-		assertEquals("output_contigset", spec.getBehavior().getScriptOutputMapping().get(0).getInputParameter());
-		assertNotNull(spec.getBehavior().getScriptOutputMapping().get(0).getTargetProperty());
-	}
 
 	@Test
 	public void testListTypes() throws Exception {
@@ -1096,13 +1086,6 @@ public class FullServerTest {
 		assertTrue("Type validation results of test_method_1 app spec is null", results.getAppSpec()==null);
 		assertTrue("Type validation results of test_method_1 app full info info is null", results.getAppFullInfo()==null);
 		assertTrue("Type validation results of test_method_1 type info is null", results.getTypeInfo()==null);
-	}
-	
-	private static Set<String> getMethodIds(List<MethodBriefInfo> infos) {
-	    Set<String> ret = new TreeSet<String>();
-	    for (MethodBriefInfo mbi : infos)
-	        ret.add(mbi.getId());
-	    return ret;
 	}
 	
 	@SuppressWarnings("static-access")
@@ -1399,8 +1382,8 @@ public class FullServerTest {
         System.out.println("NarrativeMethodStore was started up on port: " + port);
         String moduleName = "onerepotest";
         String gitUrl = "https://github.com/kbaseIncubator/onerepotest";
-        SERVER.getLocalGitDB().registerRepo(admin1, gitUrl, null);
-        DynamicRepoDB db = SERVER.getLocalGitDB().getDynamicRepos();
+        NarrativeMethodStoreServer.getLocalGitDB().registerRepo(admin1, gitUrl, null);
+        DynamicRepoDB db = NarrativeMethodStoreServer.getLocalGitDB().getDynamicRepos();
         String commitHash = db.getRepoDetails(moduleName, null).getGitCommitHash();
         System.out.println("Repo " + moduleName + " was registered with version: " + commitHash);
     }
