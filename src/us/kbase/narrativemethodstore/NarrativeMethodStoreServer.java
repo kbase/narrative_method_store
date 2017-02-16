@@ -63,7 +63,6 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
     public static final String       CFG_PROP_SHOCK_USER = "method-spec-shock-user";
     public static final String   CFG_PROP_SHOCK_PASSWORD = "method-spec-shock-password";
     public static final String      CFG_PROP_SHOCK_TOKEN = "method-spec-shock-token";
-    public static final String  CFG_PROP_DOCKER_REGISTRY = "method-spec-docker-registry";
     public static final String    CFG_PROP_ENDPOINT_BASE = "endpoint-base";
     public static final String    CFG_PROP_ENDPOINT_HOST = "endpoint-host";
     public static final String      CFG_PROP_DEFAULT_TAG = "method-spec-default-tag";
@@ -201,8 +200,14 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
             String shockUrl = config().get(CFG_PROP_SHOCK_URL);
             System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_SHOCK_URL +" = " + (shockUrl == null ? "<not-set>" : shockUrl));
             String shockUser = config().get(CFG_PROP_SHOCK_USER);
+            if (shockUser != null && shockUser.trim().isEmpty()) {
+                shockUser = null;
+            }
             String shockPwd = config().get(CFG_PROP_SHOCK_PASSWORD);
             String shockTokenText = config().get(CFG_PROP_SHOCK_TOKEN);
+            if (shockTokenText != null && shockTokenText.trim().isEmpty()) {
+                shockTokenText = null;
+            }
             System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_SHOCK_USER +" = " + (shockUser == null ? "<not-set>" : shockUser));
             System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_SHOCK_PASSWORD +" = " + (shockPwd == null ? "<not-set>" : "[*****]"));
             System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_SHOCK_TOKEN +" = " + (shockTokenText == null ? "<not-set>" : "[*****]"));
@@ -223,7 +228,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
             if (shockUser != null || shockTokenText != null) {
                 ConfigurableAuthService authService = new ConfigurableAuthService(new AuthConfig().withKBaseAuthServerURL(new URL(authServiceUrl)));
                 if (shockTokenText == null) {
-                    shockToken = authService.login(shockUser, shockPwd).getToken();
+                    shockToken = authService.login(shockUser, shockPwd == null ? "" : shockPwd).getToken();
                 } else {
                     shockToken = authService.validateToken(shockTokenText);
                 }
