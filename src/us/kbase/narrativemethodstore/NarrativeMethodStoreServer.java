@@ -1,14 +1,19 @@
 package us.kbase.narrativemethodstore;
 
+import java.io.File;
 import java.util.List;
 import java.util.Map;
+
+import us.kbase.auth.AuthConfig;
 import us.kbase.auth.AuthToken;
+import us.kbase.auth.ConfigurableAuthService;
 import us.kbase.common.service.JsonServerMethod;
 import us.kbase.common.service.JsonServerServlet;
+import us.kbase.common.service.JsonServerSyslog;
+import us.kbase.common.service.RpcContext;
 import us.kbase.common.service.Tuple4;
 
 //BEGIN_HEADER
-import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,6 +39,9 @@ import us.kbase.narrativemethodstore.db.mongo.MongoDynamicRepoDB;
  */
 public class NarrativeMethodStoreServer extends JsonServerServlet {
     private static final long serialVersionUID = 1L;
+    private static final String version = "0.0.1";
+    private static final String gitUrl = "https://github.com/rsutormin/narrative_method_store";
+    private static final String gitCommitHash = "127432bbbf6f7591c359a6ff26958c7d23eb7bc8";
 
     //BEGIN_CLASS_HEADER
     public static final String SYS_PROP_KB_DEPLOYMENT_CONFIG = "KB_DEPLOYMENT_CONFIG";
@@ -54,12 +62,14 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
     public static final String        CFG_PROP_SHOCK_URL = "method-spec-shock-url";
     public static final String       CFG_PROP_SHOCK_USER = "method-spec-shock-user";
     public static final String   CFG_PROP_SHOCK_PASSWORD = "method-spec-shock-password";
+    public static final String      CFG_PROP_SHOCK_TOKEN = "method-spec-shock-token";
     public static final String  CFG_PROP_DOCKER_REGISTRY = "method-spec-docker-registry";
-    public static final String         CFG_ENDPOINT_BASE = "endpoint-base";
-    public static final String         CFG_ENDPOINT_HOST = "endpoint-host";
+    public static final String    CFG_PROP_ENDPOINT_BASE = "endpoint-base";
+    public static final String    CFG_PROP_ENDPOINT_HOST = "endpoint-host";
     public static final String      CFG_PROP_DEFAULT_TAG = "method-spec-default-tag";
+    public static final String CFG_PROP_AUTH_SERVICE_URL = "auth-service-url";
     
-    public static final String VERSION = "0.3.5";
+    public static final String VERSION = "0.3.6";
     
     private static Throwable configError = null;
     private static Map<String, String> config = null;
@@ -187,23 +197,37 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
                     mongoReadOnlyText.equals("y") || mongoReadOnlyText.equals("yes"));
             System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_MONGO_READONLY +" = " + mongoRO);
             System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_ADMIN_USERS +" = " + getAdminUsers());
+            List<String> adminUsers = Arrays.asList(getAdminUsers().trim().split(Pattern.quote(",")));
             String shockUrl = config().get(CFG_PROP_SHOCK_URL);
             System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_SHOCK_URL +" = " + (shockUrl == null ? "<not-set>" : shockUrl));
             String shockUser = config().get(CFG_PROP_SHOCK_USER);
             String shockPwd = config().get(CFG_PROP_SHOCK_PASSWORD);
+            String shockTokenText = config().get(CFG_PROP_SHOCK_TOKEN);
             System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_SHOCK_USER +" = " + (shockUser == null ? "<not-set>" : shockUser));
             System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_SHOCK_PASSWORD +" = " + (shockPwd == null ? "<not-set>" : "[*****]"));
-            List<String> adminUsers = Arrays.asList(getAdminUsers().trim().split(Pattern.quote(",")));
-            AuthToken shockToken = shockUser == null && shockPwd == null ? null : AuthService.login(shockUser, shockPwd).getToken();
-            String endpointHost = config().get(CFG_ENDPOINT_HOST);
-            System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_ENDPOINT_HOST +" = " + (endpointHost == null ? "<not-set>" : endpointHost));
-            String endpointBase = config().get(CFG_ENDPOINT_BASE);
-            System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_ENDPOINT_BASE +" = " + (endpointBase == null ? "<not-set>" : endpointBase));
-            System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_ENDPOINT_BASE +" = " + (endpointBase == null ? "<not-set>" : endpointBase));
+            System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_SHOCK_TOKEN +" = " + (shockTokenText == null ? "<not-set>" : "[*****]"));
+            String endpointHost = config().get(CFG_PROP_ENDPOINT_HOST);
+            System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_ENDPOINT_HOST +" = " + (endpointHost == null ? "<not-set>" : endpointHost));
+            String endpointBase = config().get(CFG_PROP_ENDPOINT_BASE);
+            System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_ENDPOINT_BASE +" = " + (endpointBase == null ? "<not-set>" : endpointBase));
             String defaultTag = getDefaultTag();
             System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_DEFAULT_TAG +" = " + (defaultTag == null ? "<not-set> ('dev' will be used)" : defaultTag));
             if (defaultTag == null)
                 defaultTag = "dev";
+            String authServiceUrl = config().get(CFG_PROP_AUTH_SERVICE_URL);
+            if (authServiceUrl == null) {
+                throw new IllegalStateException("Parameter " + CFG_PROP_AUTH_SERVICE_URL + " is not defined in configuration");
+            }
+            System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_AUTH_SERVICE_URL +" = " + authServiceUrl);
+            AuthToken shockToken = null;
+            if (shockUser != null || shockTokenText != null) {
+                ConfigurableAuthService authService = new ConfigurableAuthService(new AuthConfig().withKBaseAuthServerURL(new URL(authServiceUrl)));
+                if (shockTokenText == null) {
+                    shockToken = authService.login(shockUser, shockPwd).getToken();
+                } else {
+                    shockToken = authService.validateToken(shockTokenText);
+                }
+            }
             localGitDB = new LocalGitDB(new URL(getGitRepo()), getGitBranch(), new File(getGitLocalDir()), getGitRefreshRate(), getCacheSize(), 
                     new MongoDynamicRepoDB(getMongoHost(), getMongoDbname(), dbUser, dbPwd, adminUsers, mongoRO, 
                             shockUrl == null ? null : new URL(shockUrl), shockToken), new File(getTempDir()),
@@ -227,8 +251,8 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
      * </pre>
      * @return   instance of String
      */
-    @JsonServerMethod(rpc = "NarrativeMethodStore.ver")
-    public String ver() throws Exception {
+    @JsonServerMethod(rpc = "NarrativeMethodStore.ver", async=true)
+    public String ver(RpcContext jsonRpcContext) throws Exception {
         String returnVal = null;
         //BEGIN ver
         config();
@@ -245,8 +269,8 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
      * </pre>
      * @return   instance of type {@link us.kbase.narrativemethodstore.Status Status}
      */
-    @JsonServerMethod(rpc = "NarrativeMethodStore.status")
-    public Status status() throws Exception {
+    @JsonServerMethod(rpc = "NarrativeMethodStore.status", async=true)
+    public Status status(RpcContext jsonRpcContext) throws Exception {
         Status returnVal = null;
         //BEGIN status
         config();
@@ -266,8 +290,8 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
      * @param   params   instance of type {@link us.kbase.narrativemethodstore.ListCategoriesParams ListCategoriesParams}
      * @return   multiple set: (1) parameter "categories" of mapping from String to type {@link us.kbase.narrativemethodstore.Category Category}, (2) parameter "methods" of mapping from String to type {@link us.kbase.narrativemethodstore.MethodBriefInfo MethodBriefInfo}, (3) parameter "apps" of mapping from String to type {@link us.kbase.narrativemethodstore.AppBriefInfo AppBriefInfo}, (4) parameter "types" of mapping from String to type {@link us.kbase.narrativemethodstore.TypeInfo TypeInfo}
      */
-    @JsonServerMethod(rpc = "NarrativeMethodStore.list_categories", tuple = true)
-    public Tuple4<Map<String,Category>, Map<String,MethodBriefInfo>, Map<String,AppBriefInfo>, Map<String,TypeInfo>> listCategories(ListCategoriesParams params) throws Exception {
+    @JsonServerMethod(rpc = "NarrativeMethodStore.list_categories", tuple = true, async=true)
+    public Tuple4<Map<String,Category>, Map<String,MethodBriefInfo>, Map<String,AppBriefInfo>, Map<String,TypeInfo>> listCategories(ListCategoriesParams params, RpcContext jsonRpcContext) throws Exception {
         Map<String,Category> return1 = null;
         Map<String,MethodBriefInfo> return2 = null;
         Map<String,AppBriefInfo> return3 = null;
@@ -325,8 +349,8 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
      * @param   params   instance of type {@link us.kbase.narrativemethodstore.GetCategoryParams GetCategoryParams}
      * @return   instance of list of type {@link us.kbase.narrativemethodstore.Category Category}
      */
-    @JsonServerMethod(rpc = "NarrativeMethodStore.get_category")
-    public List<Category> getCategory(GetCategoryParams params) throws Exception {
+    @JsonServerMethod(rpc = "NarrativeMethodStore.get_category", async=true)
+    public List<Category> getCategory(GetCategoryParams params, RpcContext jsonRpcContext) throws Exception {
         List<Category> returnVal = null;
         //BEGIN get_category
         config();
@@ -348,8 +372,8 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
      * @param   params   instance of type {@link us.kbase.narrativemethodstore.ListParams ListParams}
      * @return   instance of list of type {@link us.kbase.narrativemethodstore.MethodBriefInfo MethodBriefInfo}
      */
-    @JsonServerMethod(rpc = "NarrativeMethodStore.list_methods")
-    public List<MethodBriefInfo> listMethods(ListParams params) throws Exception {
+    @JsonServerMethod(rpc = "NarrativeMethodStore.list_methods", async=true)
+    public List<MethodBriefInfo> listMethods(ListParams params, RpcContext jsonRpcContext) throws Exception {
         List<MethodBriefInfo> returnVal = null;
         //BEGIN list_methods
         config();
@@ -366,14 +390,14 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
      * @param   params   instance of type {@link us.kbase.narrativemethodstore.ListParams ListParams}
      * @return   instance of list of type {@link us.kbase.narrativemethodstore.MethodFullInfo MethodFullInfo}
      */
-    @JsonServerMethod(rpc = "NarrativeMethodStore.list_methods_full_info")
-    public List<MethodFullInfo> listMethodsFullInfo(ListParams params) throws Exception {
+    @JsonServerMethod(rpc = "NarrativeMethodStore.list_methods_full_info", async=true)
+    public List<MethodFullInfo> listMethodsFullInfo(ListParams params, RpcContext jsonRpcContext) throws Exception {
         List<MethodFullInfo> returnVal = null;
         //BEGIN list_methods_full_info
         config();
         List<String> methodIds = new ArrayList<String>(getLocalGitDB().listMethodIds(false, params.getTag()));
         methodIds = trim(methodIds, params);
-        returnVal = getMethodFullInfo(new GetMethodParams().withIds(methodIds).withTag(params.getTag()));
+        returnVal = getMethodFullInfo(new GetMethodParams().withIds(methodIds).withTag(params.getTag()), jsonRpcContext);
         //END list_methods_full_info
         return returnVal;
     }
@@ -385,14 +409,14 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
      * @param   params   instance of type {@link us.kbase.narrativemethodstore.ListParams ListParams}
      * @return   instance of list of type {@link us.kbase.narrativemethodstore.MethodSpec MethodSpec}
      */
-    @JsonServerMethod(rpc = "NarrativeMethodStore.list_methods_spec")
-    public List<MethodSpec> listMethodsSpec(ListParams params) throws Exception {
+    @JsonServerMethod(rpc = "NarrativeMethodStore.list_methods_spec", async=true)
+    public List<MethodSpec> listMethodsSpec(ListParams params, RpcContext jsonRpcContext) throws Exception {
         List<MethodSpec> returnVal = null;
         //BEGIN list_methods_spec
         config();
         List<String> methodIds = new ArrayList<String>(getLocalGitDB().listMethodIds(false, params.getTag()));
         methodIds = trim(methodIds, params);
-        returnVal = getMethodSpec(new GetMethodParams().withIds(methodIds).withTag(params.getTag()));
+        returnVal = getMethodSpec(new GetMethodParams().withIds(methodIds).withTag(params.getTag()), jsonRpcContext);
         //END list_methods_spec
         return returnVal;
     }
@@ -404,8 +428,8 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
      * @param   params   instance of type {@link us.kbase.narrativemethodstore.ListMethodIdsAndNamesParams ListMethodIdsAndNamesParams}
      * @return   instance of mapping from String to String
      */
-    @JsonServerMethod(rpc = "NarrativeMethodStore.list_method_ids_and_names")
-    public Map<String,String> listMethodIdsAndNames(ListMethodIdsAndNamesParams params) throws Exception {
+    @JsonServerMethod(rpc = "NarrativeMethodStore.list_method_ids_and_names", async=true)
+    public Map<String,String> listMethodIdsAndNames(ListMethodIdsAndNamesParams params, RpcContext jsonRpcContext) throws Exception {
         Map<String,String> returnVal = null;
         //BEGIN list_method_ids_and_names
         config();
@@ -423,8 +447,8 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
      * @param   params   instance of type {@link us.kbase.narrativemethodstore.ListParams ListParams}
      * @return   instance of list of type {@link us.kbase.narrativemethodstore.AppBriefInfo AppBriefInfo}
      */
-    @JsonServerMethod(rpc = "NarrativeMethodStore.list_apps")
-    public List<AppBriefInfo> listApps(ListParams params) throws Exception {
+    @JsonServerMethod(rpc = "NarrativeMethodStore.list_apps", async=true)
+    public List<AppBriefInfo> listApps(ListParams params, RpcContext jsonRpcContext) throws Exception {
         List<AppBriefInfo> returnVal = null;
         //BEGIN list_apps
         config();
@@ -441,14 +465,14 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
      * @param   params   instance of type {@link us.kbase.narrativemethodstore.ListParams ListParams}
      * @return   instance of list of type {@link us.kbase.narrativemethodstore.AppFullInfo AppFullInfo}
      */
-    @JsonServerMethod(rpc = "NarrativeMethodStore.list_apps_full_info")
-    public List<AppFullInfo> listAppsFullInfo(ListParams params) throws Exception {
+    @JsonServerMethod(rpc = "NarrativeMethodStore.list_apps_full_info", async=true)
+    public List<AppFullInfo> listAppsFullInfo(ListParams params, RpcContext jsonRpcContext) throws Exception {
         List<AppFullInfo> returnVal = null;
         //BEGIN list_apps_full_info
         config();
         List<String> appIds = new ArrayList<String>(getLocalGitDB().listAppIds(false));
         appIds = trim(appIds, params);
-        returnVal = getAppFullInfo(new GetAppParams().withIds(appIds));
+        returnVal = getAppFullInfo(new GetAppParams().withIds(appIds), jsonRpcContext);
         //END list_apps_full_info
         return returnVal;
     }
@@ -460,14 +484,14 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
      * @param   params   instance of type {@link us.kbase.narrativemethodstore.ListParams ListParams}
      * @return   instance of list of type {@link us.kbase.narrativemethodstore.AppSpec AppSpec}
      */
-    @JsonServerMethod(rpc = "NarrativeMethodStore.list_apps_spec")
-    public List<AppSpec> listAppsSpec(ListParams params) throws Exception {
+    @JsonServerMethod(rpc = "NarrativeMethodStore.list_apps_spec", async=true)
+    public List<AppSpec> listAppsSpec(ListParams params, RpcContext jsonRpcContext) throws Exception {
         List<AppSpec> returnVal = null;
         //BEGIN list_apps_spec
         config();
         List<String> appIds = new ArrayList<String>(getLocalGitDB().listAppIds(false));
         appIds = trim(appIds, params);
-        returnVal = getAppSpec(new GetAppParams().withIds(appIds));
+        returnVal = getAppSpec(new GetAppParams().withIds(appIds), jsonRpcContext);
         //END list_apps_spec
         return returnVal;
     }
@@ -478,8 +502,8 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
      * </pre>
      * @return   instance of mapping from String to String
      */
-    @JsonServerMethod(rpc = "NarrativeMethodStore.list_app_ids_and_names")
-    public Map<String,String> listAppIdsAndNames() throws Exception {
+    @JsonServerMethod(rpc = "NarrativeMethodStore.list_app_ids_and_names", async=true)
+    public Map<String,String> listAppIdsAndNames(RpcContext jsonRpcContext) throws Exception {
         Map<String,String> returnVal = null;
         //BEGIN list_app_ids_and_names
         config();
@@ -497,8 +521,8 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
      * @param   params   instance of type {@link us.kbase.narrativemethodstore.ListParams ListParams}
      * @return   instance of list of type {@link us.kbase.narrativemethodstore.TypeInfo TypeInfo}
      */
-    @JsonServerMethod(rpc = "NarrativeMethodStore.list_types")
-    public List<TypeInfo> listTypes(ListParams params) throws Exception {
+    @JsonServerMethod(rpc = "NarrativeMethodStore.list_types", async=true)
+    public List<TypeInfo> listTypes(ListParams params, RpcContext jsonRpcContext) throws Exception {
         List<TypeInfo> returnVal = null;
         //BEGIN list_types
         config();
@@ -515,8 +539,8 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
      * @param   params   instance of type {@link us.kbase.narrativemethodstore.GetMethodParams GetMethodParams}
      * @return   instance of list of type {@link us.kbase.narrativemethodstore.MethodBriefInfo MethodBriefInfo}
      */
-    @JsonServerMethod(rpc = "NarrativeMethodStore.get_method_brief_info")
-    public List<MethodBriefInfo> getMethodBriefInfo(GetMethodParams params) throws Exception {
+    @JsonServerMethod(rpc = "NarrativeMethodStore.get_method_brief_info", async=true)
+    public List<MethodBriefInfo> getMethodBriefInfo(GetMethodParams params, RpcContext jsonRpcContext) throws Exception {
         List<MethodBriefInfo> returnVal = null;
         //BEGIN get_method_brief_info
         config();
@@ -536,8 +560,8 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
      * @param   params   instance of type {@link us.kbase.narrativemethodstore.GetMethodParams GetMethodParams}
      * @return   instance of list of type {@link us.kbase.narrativemethodstore.MethodFullInfo MethodFullInfo}
      */
-    @JsonServerMethod(rpc = "NarrativeMethodStore.get_method_full_info")
-    public List<MethodFullInfo> getMethodFullInfo(GetMethodParams params) throws Exception {
+    @JsonServerMethod(rpc = "NarrativeMethodStore.get_method_full_info", async=true)
+    public List<MethodFullInfo> getMethodFullInfo(GetMethodParams params, RpcContext jsonRpcContext) throws Exception {
         List<MethodFullInfo> returnVal = null;
         //BEGIN get_method_full_info
         config();
@@ -557,8 +581,8 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
      * @param   params   instance of type {@link us.kbase.narrativemethodstore.GetMethodParams GetMethodParams}
      * @return   instance of list of type {@link us.kbase.narrativemethodstore.MethodSpec MethodSpec}
      */
-    @JsonServerMethod(rpc = "NarrativeMethodStore.get_method_spec")
-    public List<MethodSpec> getMethodSpec(GetMethodParams params) throws Exception {
+    @JsonServerMethod(rpc = "NarrativeMethodStore.get_method_spec", async=true)
+    public List<MethodSpec> getMethodSpec(GetMethodParams params, RpcContext jsonRpcContext) throws Exception {
         List<MethodSpec> returnVal = null;
         //BEGIN get_method_spec
         config();
@@ -577,8 +601,8 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
      * @param   params   instance of type {@link us.kbase.narrativemethodstore.GetAppParams GetAppParams}
      * @return   instance of list of type {@link us.kbase.narrativemethodstore.AppBriefInfo AppBriefInfo}
      */
-    @JsonServerMethod(rpc = "NarrativeMethodStore.get_app_brief_info")
-    public List<AppBriefInfo> getAppBriefInfo(GetAppParams params) throws Exception {
+    @JsonServerMethod(rpc = "NarrativeMethodStore.get_app_brief_info", async=true)
+    public List<AppBriefInfo> getAppBriefInfo(GetAppParams params, RpcContext jsonRpcContext) throws Exception {
         List<AppBriefInfo> returnVal = null;
         //BEGIN get_app_brief_info
         config();
@@ -597,8 +621,8 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
      * @param   params   instance of type {@link us.kbase.narrativemethodstore.GetAppParams GetAppParams}
      * @return   instance of list of type {@link us.kbase.narrativemethodstore.AppFullInfo AppFullInfo}
      */
-    @JsonServerMethod(rpc = "NarrativeMethodStore.get_app_full_info")
-    public List<AppFullInfo> getAppFullInfo(GetAppParams params) throws Exception {
+    @JsonServerMethod(rpc = "NarrativeMethodStore.get_app_full_info", async=true)
+    public List<AppFullInfo> getAppFullInfo(GetAppParams params, RpcContext jsonRpcContext) throws Exception {
         List<AppFullInfo> returnVal = null;
         //BEGIN get_app_full_info
         config();
@@ -618,8 +642,8 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
      * @param   params   instance of type {@link us.kbase.narrativemethodstore.GetAppParams GetAppParams}
      * @return   instance of list of type {@link us.kbase.narrativemethodstore.AppSpec AppSpec}
      */
-    @JsonServerMethod(rpc = "NarrativeMethodStore.get_app_spec")
-    public List<AppSpec> getAppSpec(GetAppParams params) throws Exception {
+    @JsonServerMethod(rpc = "NarrativeMethodStore.get_app_spec", async=true)
+    public List<AppSpec> getAppSpec(GetAppParams params, RpcContext jsonRpcContext) throws Exception {
         List<AppSpec> returnVal = null;
         //BEGIN get_app_spec
         config();
@@ -638,8 +662,8 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
      * @param   params   instance of type {@link us.kbase.narrativemethodstore.GetTypeParams GetTypeParams}
      * @return   instance of list of type {@link us.kbase.narrativemethodstore.TypeInfo TypeInfo}
      */
-    @JsonServerMethod(rpc = "NarrativeMethodStore.get_type_info")
-    public List<TypeInfo> getTypeInfo(GetTypeParams params) throws Exception {
+    @JsonServerMethod(rpc = "NarrativeMethodStore.get_type_info", async=true)
+    public List<TypeInfo> getTypeInfo(GetTypeParams params, RpcContext jsonRpcContext) throws Exception {
         List<TypeInfo> returnVal = null;
         //BEGIN get_type_info
         config();
@@ -658,8 +682,8 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
      * @param   params   instance of type {@link us.kbase.narrativemethodstore.ValidateMethodParams ValidateMethodParams}
      * @return   instance of type {@link us.kbase.narrativemethodstore.ValidationResults ValidationResults}
      */
-    @JsonServerMethod(rpc = "NarrativeMethodStore.validate_method")
-    public ValidationResults validateMethod(ValidateMethodParams params) throws Exception {
+    @JsonServerMethod(rpc = "NarrativeMethodStore.validate_method", async=true)
+    public ValidationResults validateMethod(ValidateMethodParams params, RpcContext jsonRpcContext) throws Exception {
         ValidationResults returnVal = null;
         //BEGIN validate_method
         returnVal = Validator.validateMethod(params);
@@ -674,8 +698,8 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
      * @param   params   instance of type {@link us.kbase.narrativemethodstore.ValidateAppParams ValidateAppParams}
      * @return   instance of type {@link us.kbase.narrativemethodstore.ValidationResults ValidationResults}
      */
-    @JsonServerMethod(rpc = "NarrativeMethodStore.validate_app")
-    public ValidationResults validateApp(ValidateAppParams params) throws Exception {
+    @JsonServerMethod(rpc = "NarrativeMethodStore.validate_app", async=true)
+    public ValidationResults validateApp(ValidateAppParams params, RpcContext jsonRpcContext) throws Exception {
         ValidationResults returnVal = null;
         //BEGIN validate_app
         returnVal = Validator.validateApp(params);
@@ -690,8 +714,8 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
      * @param   params   instance of type {@link us.kbase.narrativemethodstore.ValidateTypeParams ValidateTypeParams}
      * @return   instance of type {@link us.kbase.narrativemethodstore.ValidationResults ValidationResults}
      */
-    @JsonServerMethod(rpc = "NarrativeMethodStore.validate_type")
-    public ValidationResults validateType(ValidateTypeParams params) throws Exception {
+    @JsonServerMethod(rpc = "NarrativeMethodStore.validate_type", async=true)
+    public ValidationResults validateType(ValidateTypeParams params, RpcContext jsonRpcContext) throws Exception {
         ValidationResults returnVal = null;
         //BEGIN validate_type
         returnVal = Validator.validateType(params);
@@ -706,8 +730,8 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
      * @param   params   instance of type {@link us.kbase.narrativemethodstore.LoadWidgetParams LoadWidgetParams}
      * @return   parameter "java_script" of String
      */
-    @JsonServerMethod(rpc = "NarrativeMethodStore.load_widget_java_script")
-    public String loadWidgetJavaScript(LoadWidgetParams params) throws Exception {
+    @JsonServerMethod(rpc = "NarrativeMethodStore.load_widget_java_script", async=true)
+    public String loadWidgetJavaScript(LoadWidgetParams params, RpcContext jsonRpcContext) throws Exception {
         String returnVal = null;
         //BEGIN load_widget_java_script
         returnVal = getLocalGitDB().loadWidgetJavaScript(params.getModuleName(), 
@@ -722,10 +746,10 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
      * </pre>
      * @param   params   instance of type {@link us.kbase.narrativemethodstore.RegisterRepoParams RegisterRepoParams}
      */
-    @JsonServerMethod(rpc = "NarrativeMethodStore.register_repo")
-    public void registerRepo(RegisterRepoParams params, AuthToken authPart) throws Exception {
+    @JsonServerMethod(rpc = "NarrativeMethodStore.register_repo", async=true)
+    public void registerRepo(RegisterRepoParams params, AuthToken authPart, RpcContext jsonRpcContext) throws Exception {
         //BEGIN register_repo
-        getLocalGitDB().registerRepo(authPart.getClientId(), params.getGitUrl(), params.getGitCommitHash());
+        getLocalGitDB().registerRepo(authPart.getUserName(), params.getGitUrl(), params.getGitCommitHash());
         //END register_repo
     }
 
@@ -735,10 +759,10 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
      * </pre>
      * @param   params   instance of type {@link us.kbase.narrativemethodstore.DisableRepoParams DisableRepoParams}
      */
-    @JsonServerMethod(rpc = "NarrativeMethodStore.disable_repo")
-    public void disableRepo(DisableRepoParams params, AuthToken authPart) throws Exception {
+    @JsonServerMethod(rpc = "NarrativeMethodStore.disable_repo", async=true)
+    public void disableRepo(DisableRepoParams params, AuthToken authPart, RpcContext jsonRpcContext) throws Exception {
         //BEGIN disable_repo
-        getLocalGitDB().setRepoState(authPart.getClientId(), params.getModuleName(), "disabled");
+        getLocalGitDB().setRepoState(authPart.getUserName(), params.getModuleName(), "disabled");
         //END disable_repo
     }
 
@@ -748,10 +772,10 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
      * </pre>
      * @param   params   instance of type {@link us.kbase.narrativemethodstore.EnableRepoParams EnableRepoParams}
      */
-    @JsonServerMethod(rpc = "NarrativeMethodStore.enable_repo")
-    public void enableRepo(EnableRepoParams params, AuthToken authPart) throws Exception {
+    @JsonServerMethod(rpc = "NarrativeMethodStore.enable_repo", async=true)
+    public void enableRepo(EnableRepoParams params, AuthToken authPart, RpcContext jsonRpcContext) throws Exception {
         //BEGIN enable_repo
-        getLocalGitDB().setRepoState(authPart.getClientId(), params.getModuleName(), "ready");
+        getLocalGitDB().setRepoState(authPart.getUserName(), params.getModuleName(), "ready");
         //END enable_repo
     }
 
@@ -761,18 +785,24 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
      * </pre>
      * @param   params   instance of type {@link us.kbase.narrativemethodstore.PushRepoToTagParams PushRepoToTagParams}
      */
-    @JsonServerMethod(rpc = "NarrativeMethodStore.push_repo_to_tag")
-    public void pushRepoToTag(PushRepoToTagParams params, AuthToken authPart) throws Exception {
+    @JsonServerMethod(rpc = "NarrativeMethodStore.push_repo_to_tag", async=true)
+    public void pushRepoToTag(PushRepoToTagParams params, AuthToken authPart, RpcContext jsonRpcContext) throws Exception {
         //BEGIN push_repo_to_tag
-        getLocalGitDB().pushRepoToTag(params.getModuleName(), params.getTag(), authPart.getClientId());
+        getLocalGitDB().pushRepoToTag(params.getModuleName(), params.getTag(), authPart.getUserName());
         //END push_repo_to_tag
     }
 
     public static void main(String[] args) throws Exception {
-        if (args.length != 1) {
+        if (args.length == 1) {
+            new NarrativeMethodStoreServer().startupServer(Integer.parseInt(args[0]));
+        } else if (args.length == 3) {
+            JsonServerSyslog.setStaticUseSyslog(false);
+            JsonServerSyslog.setStaticMlogFile(args[1] + ".log");
+            new NarrativeMethodStoreServer().processRpcCall(new File(args[0]), new File(args[1]), args[2]);
+        } else {
             System.out.println("Usage: <program> <server_port>");
+            System.out.println("   or: <program> <context_json_file> <output_json_file> <token>");
             return;
         }
-        new NarrativeMethodStoreServer().startupServer(Integer.parseInt(args[0]));
     }
 }

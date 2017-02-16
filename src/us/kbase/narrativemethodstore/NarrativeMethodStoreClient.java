@@ -11,6 +11,7 @@ import java.util.Map;
 import us.kbase.auth.AuthToken;
 import us.kbase.common.service.JsonClientCaller;
 import us.kbase.common.service.JsonClientException;
+import us.kbase.common.service.RpcContext;
 import us.kbase.common.service.Tuple4;
 import us.kbase.common.service.UnauthorizedException;
 
@@ -21,6 +22,7 @@ import us.kbase.common.service.UnauthorizedException;
  */
 public class NarrativeMethodStoreClient {
     private JsonClientCaller caller;
+    private String serviceVersion = null;
     private static URL DEFAULT_URL = null;
     static {
         try {
@@ -63,6 +65,20 @@ public class NarrativeMethodStoreClient {
      */
     public NarrativeMethodStoreClient(URL url, String user, String password) throws UnauthorizedException, IOException {
         caller = new JsonClientCaller(url, user, password);
+    }
+
+    /** Constructs a client with a custom URL
+     * and a custom authorization service URL.
+     * @param url the URL of the service.
+     * @param user the user name.
+     * @param password the password for the user name.
+     * @param auth the URL of the authorization server.
+     * @throws UnauthorizedException if the credentials are not valid.
+     * @throws IOException if an IOException occurs when checking the user's
+     * credentials.
+     */
+    public NarrativeMethodStoreClient(URL url, String user, String password, URL auth) throws UnauthorizedException, IOException {
+        caller = new JsonClientCaller(url, user, password, auth);
     }
 
     /** Constructs a client with the default URL.
@@ -131,7 +147,7 @@ public class NarrativeMethodStoreClient {
         caller.setInsecureHttpConnectionAllowed(allowed);
     }
 
-    /** Deprecated. Use setInsecureHttpConnectionAllowed().
+    /** Deprecated. Use setIsInsecureHttpConnectionAllowed().
      * @deprecated
      */
     public void setAuthAllowedForHttp(boolean isAuthAllowedForHttp) {
@@ -173,6 +189,14 @@ public class NarrativeMethodStoreClient {
         caller.setFileForNextRpcResponse(f);
     }
 
+    public String getServiceVersion() {
+        return this.serviceVersion;
+    }
+
+    public void setServiceVersion(String newValue) {
+        this.serviceVersion = newValue;
+    }
+
     /**
      * <p>Original spec-file function name: ver</p>
      * <pre>
@@ -182,10 +206,10 @@ public class NarrativeMethodStoreClient {
      * @throws IOException if an IO exception occurs
      * @throws JsonClientException if a JSON RPC exception occurs
      */
-    public String ver() throws IOException, JsonClientException {
+    public String ver(RpcContext... jsonRpcContext) throws IOException, JsonClientException {
         List<Object> args = new ArrayList<Object>();
         TypeReference<List<String>> retType = new TypeReference<List<String>>() {};
-        List<String> res = caller.jsonrpcCall("NarrativeMethodStore.ver", args, retType, true, false);
+        List<String> res = caller.jsonrpcCall("NarrativeMethodStore.ver", args, retType, true, false, jsonRpcContext, this.serviceVersion);
         return res.get(0);
     }
 
@@ -199,10 +223,10 @@ public class NarrativeMethodStoreClient {
      * @throws IOException if an IO exception occurs
      * @throws JsonClientException if a JSON RPC exception occurs
      */
-    public Status status() throws IOException, JsonClientException {
+    public Status status(RpcContext... jsonRpcContext) throws IOException, JsonClientException {
         List<Object> args = new ArrayList<Object>();
         TypeReference<List<Status>> retType = new TypeReference<List<Status>>() {};
-        List<Status> res = caller.jsonrpcCall("NarrativeMethodStore.status", args, retType, true, false);
+        List<Status> res = caller.jsonrpcCall("NarrativeMethodStore.status", args, retType, true, false, jsonRpcContext, this.serviceVersion);
         return res.get(0);
     }
 
@@ -215,11 +239,11 @@ public class NarrativeMethodStoreClient {
      * @throws IOException if an IO exception occurs
      * @throws JsonClientException if a JSON RPC exception occurs
      */
-    public Tuple4<Map<String,Category>, Map<String,MethodBriefInfo>, Map<String,AppBriefInfo>, Map<String,TypeInfo>> listCategories(ListCategoriesParams params) throws IOException, JsonClientException {
+    public Tuple4<Map<String,Category>, Map<String,MethodBriefInfo>, Map<String,AppBriefInfo>, Map<String,TypeInfo>> listCategories(ListCategoriesParams params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
         List<Object> args = new ArrayList<Object>();
         args.add(params);
         TypeReference<Tuple4<Map<String,Category>, Map<String,MethodBriefInfo>, Map<String,AppBriefInfo>, Map<String,TypeInfo>>> retType = new TypeReference<Tuple4<Map<String,Category>, Map<String,MethodBriefInfo>, Map<String,AppBriefInfo>, Map<String,TypeInfo>>>() {};
-        Tuple4<Map<String,Category>, Map<String,MethodBriefInfo>, Map<String,AppBriefInfo>, Map<String,TypeInfo>> res = caller.jsonrpcCall("NarrativeMethodStore.list_categories", args, retType, true, false);
+        Tuple4<Map<String,Category>, Map<String,MethodBriefInfo>, Map<String,AppBriefInfo>, Map<String,TypeInfo>> res = caller.jsonrpcCall("NarrativeMethodStore.list_categories", args, retType, true, false, jsonRpcContext, this.serviceVersion);
         return res;
     }
 
@@ -232,11 +256,11 @@ public class NarrativeMethodStoreClient {
      * @throws IOException if an IO exception occurs
      * @throws JsonClientException if a JSON RPC exception occurs
      */
-    public List<Category> getCategory(GetCategoryParams params) throws IOException, JsonClientException {
+    public List<Category> getCategory(GetCategoryParams params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
         List<Object> args = new ArrayList<Object>();
         args.add(params);
         TypeReference<List<List<Category>>> retType = new TypeReference<List<List<Category>>>() {};
-        List<List<Category>> res = caller.jsonrpcCall("NarrativeMethodStore.get_category", args, retType, true, false);
+        List<List<Category>> res = caller.jsonrpcCall("NarrativeMethodStore.get_category", args, retType, true, false, jsonRpcContext, this.serviceVersion);
         return res.get(0);
     }
 
@@ -249,11 +273,11 @@ public class NarrativeMethodStoreClient {
      * @throws IOException if an IO exception occurs
      * @throws JsonClientException if a JSON RPC exception occurs
      */
-    public List<MethodBriefInfo> listMethods(ListParams params) throws IOException, JsonClientException {
+    public List<MethodBriefInfo> listMethods(ListParams params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
         List<Object> args = new ArrayList<Object>();
         args.add(params);
         TypeReference<List<List<MethodBriefInfo>>> retType = new TypeReference<List<List<MethodBriefInfo>>>() {};
-        List<List<MethodBriefInfo>> res = caller.jsonrpcCall("NarrativeMethodStore.list_methods", args, retType, true, false);
+        List<List<MethodBriefInfo>> res = caller.jsonrpcCall("NarrativeMethodStore.list_methods", args, retType, true, false, jsonRpcContext, this.serviceVersion);
         return res.get(0);
     }
 
@@ -266,11 +290,11 @@ public class NarrativeMethodStoreClient {
      * @throws IOException if an IO exception occurs
      * @throws JsonClientException if a JSON RPC exception occurs
      */
-    public List<MethodFullInfo> listMethodsFullInfo(ListParams params) throws IOException, JsonClientException {
+    public List<MethodFullInfo> listMethodsFullInfo(ListParams params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
         List<Object> args = new ArrayList<Object>();
         args.add(params);
         TypeReference<List<List<MethodFullInfo>>> retType = new TypeReference<List<List<MethodFullInfo>>>() {};
-        List<List<MethodFullInfo>> res = caller.jsonrpcCall("NarrativeMethodStore.list_methods_full_info", args, retType, true, false);
+        List<List<MethodFullInfo>> res = caller.jsonrpcCall("NarrativeMethodStore.list_methods_full_info", args, retType, true, false, jsonRpcContext, this.serviceVersion);
         return res.get(0);
     }
 
@@ -283,11 +307,11 @@ public class NarrativeMethodStoreClient {
      * @throws IOException if an IO exception occurs
      * @throws JsonClientException if a JSON RPC exception occurs
      */
-    public List<MethodSpec> listMethodsSpec(ListParams params) throws IOException, JsonClientException {
+    public List<MethodSpec> listMethodsSpec(ListParams params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
         List<Object> args = new ArrayList<Object>();
         args.add(params);
         TypeReference<List<List<MethodSpec>>> retType = new TypeReference<List<List<MethodSpec>>>() {};
-        List<List<MethodSpec>> res = caller.jsonrpcCall("NarrativeMethodStore.list_methods_spec", args, retType, true, false);
+        List<List<MethodSpec>> res = caller.jsonrpcCall("NarrativeMethodStore.list_methods_spec", args, retType, true, false, jsonRpcContext, this.serviceVersion);
         return res.get(0);
     }
 
@@ -300,11 +324,11 @@ public class NarrativeMethodStoreClient {
      * @throws IOException if an IO exception occurs
      * @throws JsonClientException if a JSON RPC exception occurs
      */
-    public Map<String,String> listMethodIdsAndNames(ListMethodIdsAndNamesParams params) throws IOException, JsonClientException {
+    public Map<String,String> listMethodIdsAndNames(ListMethodIdsAndNamesParams params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
         List<Object> args = new ArrayList<Object>();
         args.add(params);
         TypeReference<List<Map<String,String>>> retType = new TypeReference<List<Map<String,String>>>() {};
-        List<Map<String,String>> res = caller.jsonrpcCall("NarrativeMethodStore.list_method_ids_and_names", args, retType, true, false);
+        List<Map<String,String>> res = caller.jsonrpcCall("NarrativeMethodStore.list_method_ids_and_names", args, retType, true, false, jsonRpcContext, this.serviceVersion);
         return res.get(0);
     }
 
@@ -317,11 +341,11 @@ public class NarrativeMethodStoreClient {
      * @throws IOException if an IO exception occurs
      * @throws JsonClientException if a JSON RPC exception occurs
      */
-    public List<AppBriefInfo> listApps(ListParams params) throws IOException, JsonClientException {
+    public List<AppBriefInfo> listApps(ListParams params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
         List<Object> args = new ArrayList<Object>();
         args.add(params);
         TypeReference<List<List<AppBriefInfo>>> retType = new TypeReference<List<List<AppBriefInfo>>>() {};
-        List<List<AppBriefInfo>> res = caller.jsonrpcCall("NarrativeMethodStore.list_apps", args, retType, true, false);
+        List<List<AppBriefInfo>> res = caller.jsonrpcCall("NarrativeMethodStore.list_apps", args, retType, true, false, jsonRpcContext, this.serviceVersion);
         return res.get(0);
     }
 
@@ -334,11 +358,11 @@ public class NarrativeMethodStoreClient {
      * @throws IOException if an IO exception occurs
      * @throws JsonClientException if a JSON RPC exception occurs
      */
-    public List<AppFullInfo> listAppsFullInfo(ListParams params) throws IOException, JsonClientException {
+    public List<AppFullInfo> listAppsFullInfo(ListParams params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
         List<Object> args = new ArrayList<Object>();
         args.add(params);
         TypeReference<List<List<AppFullInfo>>> retType = new TypeReference<List<List<AppFullInfo>>>() {};
-        List<List<AppFullInfo>> res = caller.jsonrpcCall("NarrativeMethodStore.list_apps_full_info", args, retType, true, false);
+        List<List<AppFullInfo>> res = caller.jsonrpcCall("NarrativeMethodStore.list_apps_full_info", args, retType, true, false, jsonRpcContext, this.serviceVersion);
         return res.get(0);
     }
 
@@ -351,11 +375,11 @@ public class NarrativeMethodStoreClient {
      * @throws IOException if an IO exception occurs
      * @throws JsonClientException if a JSON RPC exception occurs
      */
-    public List<AppSpec> listAppsSpec(ListParams params) throws IOException, JsonClientException {
+    public List<AppSpec> listAppsSpec(ListParams params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
         List<Object> args = new ArrayList<Object>();
         args.add(params);
         TypeReference<List<List<AppSpec>>> retType = new TypeReference<List<List<AppSpec>>>() {};
-        List<List<AppSpec>> res = caller.jsonrpcCall("NarrativeMethodStore.list_apps_spec", args, retType, true, false);
+        List<List<AppSpec>> res = caller.jsonrpcCall("NarrativeMethodStore.list_apps_spec", args, retType, true, false, jsonRpcContext, this.serviceVersion);
         return res.get(0);
     }
 
@@ -367,10 +391,10 @@ public class NarrativeMethodStoreClient {
      * @throws IOException if an IO exception occurs
      * @throws JsonClientException if a JSON RPC exception occurs
      */
-    public Map<String,String> listAppIdsAndNames() throws IOException, JsonClientException {
+    public Map<String,String> listAppIdsAndNames(RpcContext... jsonRpcContext) throws IOException, JsonClientException {
         List<Object> args = new ArrayList<Object>();
         TypeReference<List<Map<String,String>>> retType = new TypeReference<List<Map<String,String>>>() {};
-        List<Map<String,String>> res = caller.jsonrpcCall("NarrativeMethodStore.list_app_ids_and_names", args, retType, true, false);
+        List<Map<String,String>> res = caller.jsonrpcCall("NarrativeMethodStore.list_app_ids_and_names", args, retType, true, false, jsonRpcContext, this.serviceVersion);
         return res.get(0);
     }
 
@@ -383,11 +407,11 @@ public class NarrativeMethodStoreClient {
      * @throws IOException if an IO exception occurs
      * @throws JsonClientException if a JSON RPC exception occurs
      */
-    public List<TypeInfo> listTypes(ListParams params) throws IOException, JsonClientException {
+    public List<TypeInfo> listTypes(ListParams params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
         List<Object> args = new ArrayList<Object>();
         args.add(params);
         TypeReference<List<List<TypeInfo>>> retType = new TypeReference<List<List<TypeInfo>>>() {};
-        List<List<TypeInfo>> res = caller.jsonrpcCall("NarrativeMethodStore.list_types", args, retType, true, false);
+        List<List<TypeInfo>> res = caller.jsonrpcCall("NarrativeMethodStore.list_types", args, retType, true, false, jsonRpcContext, this.serviceVersion);
         return res.get(0);
     }
 
@@ -400,11 +424,11 @@ public class NarrativeMethodStoreClient {
      * @throws IOException if an IO exception occurs
      * @throws JsonClientException if a JSON RPC exception occurs
      */
-    public List<MethodBriefInfo> getMethodBriefInfo(GetMethodParams params) throws IOException, JsonClientException {
+    public List<MethodBriefInfo> getMethodBriefInfo(GetMethodParams params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
         List<Object> args = new ArrayList<Object>();
         args.add(params);
         TypeReference<List<List<MethodBriefInfo>>> retType = new TypeReference<List<List<MethodBriefInfo>>>() {};
-        List<List<MethodBriefInfo>> res = caller.jsonrpcCall("NarrativeMethodStore.get_method_brief_info", args, retType, true, false);
+        List<List<MethodBriefInfo>> res = caller.jsonrpcCall("NarrativeMethodStore.get_method_brief_info", args, retType, true, false, jsonRpcContext, this.serviceVersion);
         return res.get(0);
     }
 
@@ -417,11 +441,11 @@ public class NarrativeMethodStoreClient {
      * @throws IOException if an IO exception occurs
      * @throws JsonClientException if a JSON RPC exception occurs
      */
-    public List<MethodFullInfo> getMethodFullInfo(GetMethodParams params) throws IOException, JsonClientException {
+    public List<MethodFullInfo> getMethodFullInfo(GetMethodParams params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
         List<Object> args = new ArrayList<Object>();
         args.add(params);
         TypeReference<List<List<MethodFullInfo>>> retType = new TypeReference<List<List<MethodFullInfo>>>() {};
-        List<List<MethodFullInfo>> res = caller.jsonrpcCall("NarrativeMethodStore.get_method_full_info", args, retType, true, false);
+        List<List<MethodFullInfo>> res = caller.jsonrpcCall("NarrativeMethodStore.get_method_full_info", args, retType, true, false, jsonRpcContext, this.serviceVersion);
         return res.get(0);
     }
 
@@ -434,11 +458,11 @@ public class NarrativeMethodStoreClient {
      * @throws IOException if an IO exception occurs
      * @throws JsonClientException if a JSON RPC exception occurs
      */
-    public List<MethodSpec> getMethodSpec(GetMethodParams params) throws IOException, JsonClientException {
+    public List<MethodSpec> getMethodSpec(GetMethodParams params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
         List<Object> args = new ArrayList<Object>();
         args.add(params);
         TypeReference<List<List<MethodSpec>>> retType = new TypeReference<List<List<MethodSpec>>>() {};
-        List<List<MethodSpec>> res = caller.jsonrpcCall("NarrativeMethodStore.get_method_spec", args, retType, true, false);
+        List<List<MethodSpec>> res = caller.jsonrpcCall("NarrativeMethodStore.get_method_spec", args, retType, true, false, jsonRpcContext, this.serviceVersion);
         return res.get(0);
     }
 
@@ -451,11 +475,11 @@ public class NarrativeMethodStoreClient {
      * @throws IOException if an IO exception occurs
      * @throws JsonClientException if a JSON RPC exception occurs
      */
-    public List<AppBriefInfo> getAppBriefInfo(GetAppParams params) throws IOException, JsonClientException {
+    public List<AppBriefInfo> getAppBriefInfo(GetAppParams params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
         List<Object> args = new ArrayList<Object>();
         args.add(params);
         TypeReference<List<List<AppBriefInfo>>> retType = new TypeReference<List<List<AppBriefInfo>>>() {};
-        List<List<AppBriefInfo>> res = caller.jsonrpcCall("NarrativeMethodStore.get_app_brief_info", args, retType, true, false);
+        List<List<AppBriefInfo>> res = caller.jsonrpcCall("NarrativeMethodStore.get_app_brief_info", args, retType, true, false, jsonRpcContext, this.serviceVersion);
         return res.get(0);
     }
 
@@ -468,11 +492,11 @@ public class NarrativeMethodStoreClient {
      * @throws IOException if an IO exception occurs
      * @throws JsonClientException if a JSON RPC exception occurs
      */
-    public List<AppFullInfo> getAppFullInfo(GetAppParams params) throws IOException, JsonClientException {
+    public List<AppFullInfo> getAppFullInfo(GetAppParams params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
         List<Object> args = new ArrayList<Object>();
         args.add(params);
         TypeReference<List<List<AppFullInfo>>> retType = new TypeReference<List<List<AppFullInfo>>>() {};
-        List<List<AppFullInfo>> res = caller.jsonrpcCall("NarrativeMethodStore.get_app_full_info", args, retType, true, false);
+        List<List<AppFullInfo>> res = caller.jsonrpcCall("NarrativeMethodStore.get_app_full_info", args, retType, true, false, jsonRpcContext, this.serviceVersion);
         return res.get(0);
     }
 
@@ -485,11 +509,11 @@ public class NarrativeMethodStoreClient {
      * @throws IOException if an IO exception occurs
      * @throws JsonClientException if a JSON RPC exception occurs
      */
-    public List<AppSpec> getAppSpec(GetAppParams params) throws IOException, JsonClientException {
+    public List<AppSpec> getAppSpec(GetAppParams params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
         List<Object> args = new ArrayList<Object>();
         args.add(params);
         TypeReference<List<List<AppSpec>>> retType = new TypeReference<List<List<AppSpec>>>() {};
-        List<List<AppSpec>> res = caller.jsonrpcCall("NarrativeMethodStore.get_app_spec", args, retType, true, false);
+        List<List<AppSpec>> res = caller.jsonrpcCall("NarrativeMethodStore.get_app_spec", args, retType, true, false, jsonRpcContext, this.serviceVersion);
         return res.get(0);
     }
 
@@ -502,11 +526,11 @@ public class NarrativeMethodStoreClient {
      * @throws IOException if an IO exception occurs
      * @throws JsonClientException if a JSON RPC exception occurs
      */
-    public List<TypeInfo> getTypeInfo(GetTypeParams params) throws IOException, JsonClientException {
+    public List<TypeInfo> getTypeInfo(GetTypeParams params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
         List<Object> args = new ArrayList<Object>();
         args.add(params);
         TypeReference<List<List<TypeInfo>>> retType = new TypeReference<List<List<TypeInfo>>>() {};
-        List<List<TypeInfo>> res = caller.jsonrpcCall("NarrativeMethodStore.get_type_info", args, retType, true, false);
+        List<List<TypeInfo>> res = caller.jsonrpcCall("NarrativeMethodStore.get_type_info", args, retType, true, false, jsonRpcContext, this.serviceVersion);
         return res.get(0);
     }
 
@@ -519,11 +543,11 @@ public class NarrativeMethodStoreClient {
      * @throws IOException if an IO exception occurs
      * @throws JsonClientException if a JSON RPC exception occurs
      */
-    public ValidationResults validateMethod(ValidateMethodParams params) throws IOException, JsonClientException {
+    public ValidationResults validateMethod(ValidateMethodParams params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
         List<Object> args = new ArrayList<Object>();
         args.add(params);
         TypeReference<List<ValidationResults>> retType = new TypeReference<List<ValidationResults>>() {};
-        List<ValidationResults> res = caller.jsonrpcCall("NarrativeMethodStore.validate_method", args, retType, true, false);
+        List<ValidationResults> res = caller.jsonrpcCall("NarrativeMethodStore.validate_method", args, retType, true, false, jsonRpcContext, this.serviceVersion);
         return res.get(0);
     }
 
@@ -536,11 +560,11 @@ public class NarrativeMethodStoreClient {
      * @throws IOException if an IO exception occurs
      * @throws JsonClientException if a JSON RPC exception occurs
      */
-    public ValidationResults validateApp(ValidateAppParams params) throws IOException, JsonClientException {
+    public ValidationResults validateApp(ValidateAppParams params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
         List<Object> args = new ArrayList<Object>();
         args.add(params);
         TypeReference<List<ValidationResults>> retType = new TypeReference<List<ValidationResults>>() {};
-        List<ValidationResults> res = caller.jsonrpcCall("NarrativeMethodStore.validate_app", args, retType, true, false);
+        List<ValidationResults> res = caller.jsonrpcCall("NarrativeMethodStore.validate_app", args, retType, true, false, jsonRpcContext, this.serviceVersion);
         return res.get(0);
     }
 
@@ -553,11 +577,11 @@ public class NarrativeMethodStoreClient {
      * @throws IOException if an IO exception occurs
      * @throws JsonClientException if a JSON RPC exception occurs
      */
-    public ValidationResults validateType(ValidateTypeParams params) throws IOException, JsonClientException {
+    public ValidationResults validateType(ValidateTypeParams params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
         List<Object> args = new ArrayList<Object>();
         args.add(params);
         TypeReference<List<ValidationResults>> retType = new TypeReference<List<ValidationResults>>() {};
-        List<ValidationResults> res = caller.jsonrpcCall("NarrativeMethodStore.validate_type", args, retType, true, false);
+        List<ValidationResults> res = caller.jsonrpcCall("NarrativeMethodStore.validate_type", args, retType, true, false, jsonRpcContext, this.serviceVersion);
         return res.get(0);
     }
 
@@ -570,11 +594,11 @@ public class NarrativeMethodStoreClient {
      * @throws IOException if an IO exception occurs
      * @throws JsonClientException if a JSON RPC exception occurs
      */
-    public String loadWidgetJavaScript(LoadWidgetParams params) throws IOException, JsonClientException {
+    public String loadWidgetJavaScript(LoadWidgetParams params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
         List<Object> args = new ArrayList<Object>();
         args.add(params);
         TypeReference<List<String>> retType = new TypeReference<List<String>>() {};
-        List<String> res = caller.jsonrpcCall("NarrativeMethodStore.load_widget_java_script", args, retType, true, false);
+        List<String> res = caller.jsonrpcCall("NarrativeMethodStore.load_widget_java_script", args, retType, true, false, jsonRpcContext, this.serviceVersion);
         return res.get(0);
     }
 
@@ -586,11 +610,11 @@ public class NarrativeMethodStoreClient {
      * @throws IOException if an IO exception occurs
      * @throws JsonClientException if a JSON RPC exception occurs
      */
-    public void registerRepo(RegisterRepoParams params) throws IOException, JsonClientException {
+    public void registerRepo(RegisterRepoParams params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
         List<Object> args = new ArrayList<Object>();
         args.add(params);
         TypeReference<Object> retType = new TypeReference<Object>() {};
-        caller.jsonrpcCall("NarrativeMethodStore.register_repo", args, retType, false, true);
+        caller.jsonrpcCall("NarrativeMethodStore.register_repo", args, retType, false, true, jsonRpcContext, this.serviceVersion);
     }
 
     /**
@@ -601,11 +625,11 @@ public class NarrativeMethodStoreClient {
      * @throws IOException if an IO exception occurs
      * @throws JsonClientException if a JSON RPC exception occurs
      */
-    public void disableRepo(DisableRepoParams params) throws IOException, JsonClientException {
+    public void disableRepo(DisableRepoParams params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
         List<Object> args = new ArrayList<Object>();
         args.add(params);
         TypeReference<Object> retType = new TypeReference<Object>() {};
-        caller.jsonrpcCall("NarrativeMethodStore.disable_repo", args, retType, false, true);
+        caller.jsonrpcCall("NarrativeMethodStore.disable_repo", args, retType, false, true, jsonRpcContext, this.serviceVersion);
     }
 
     /**
@@ -616,11 +640,11 @@ public class NarrativeMethodStoreClient {
      * @throws IOException if an IO exception occurs
      * @throws JsonClientException if a JSON RPC exception occurs
      */
-    public void enableRepo(EnableRepoParams params) throws IOException, JsonClientException {
+    public void enableRepo(EnableRepoParams params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
         List<Object> args = new ArrayList<Object>();
         args.add(params);
         TypeReference<Object> retType = new TypeReference<Object>() {};
-        caller.jsonrpcCall("NarrativeMethodStore.enable_repo", args, retType, false, true);
+        caller.jsonrpcCall("NarrativeMethodStore.enable_repo", args, retType, false, true, jsonRpcContext, this.serviceVersion);
     }
 
     /**
@@ -631,10 +655,10 @@ public class NarrativeMethodStoreClient {
      * @throws IOException if an IO exception occurs
      * @throws JsonClientException if a JSON RPC exception occurs
      */
-    public void pushRepoToTag(PushRepoToTagParams params) throws IOException, JsonClientException {
+    public void pushRepoToTag(PushRepoToTagParams params, RpcContext... jsonRpcContext) throws IOException, JsonClientException {
         List<Object> args = new ArrayList<Object>();
         args.add(params);
         TypeReference<Object> retType = new TypeReference<Object>() {};
-        caller.jsonrpcCall("NarrativeMethodStore.push_repo_to_tag", args, retType, false, true);
+        caller.jsonrpcCall("NarrativeMethodStore.push_repo_to_tag", args, retType, false, true, jsonRpcContext, this.serviceVersion);
     }
 }
