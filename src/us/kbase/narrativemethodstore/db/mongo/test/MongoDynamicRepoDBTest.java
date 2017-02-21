@@ -70,7 +70,7 @@ public class MongoDynamicRepoDBTest {
     @AfterClass
     public static void afterClass() throws Exception {
         if (dbHelper != null)
-            dbHelper.shutdown();
+            dbHelper.shutdown(true);
     }
     
     @Test

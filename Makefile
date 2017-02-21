@@ -102,22 +102,22 @@ build-java-client:
 compile: compile-typespec compile-typespec-java
 
 compile-typespec-java:
-	gen_java_types -S -o . -u $(URL) $(SPEC_FILE)
-	rm -f lib/*.jar
+	kb-sdk compile $(SPEC_FILE) \
+		--out . \
+		--java \
+		--javasrc src \
+		--javapackage us.kbase \
+		--javasrv \
+		--url $(URL)
 
 compile-typespec:
-	mkdir -p lib/biokbase/$(SERVICE)
-	touch lib/biokbase/__init__.py # do not include code in biokbase/__init__.py
-	touch lib/biokbase/$(SERVICE)/__init__.py 
-	mkdir -p lib/javascript/$(SERVICE)
-	compile_typespec \
-		--client Bio::KBase::$(SERVICE_CAPS)::Client \
-		--py biokbase.$(SERVICE).client \
-		--js javascript/$(SERVICE_CAPS)/Client \
+	kb-sdk compile \
+		--plclname Bio::KBase::$(SERVICE_CAPS)::Client \
+		--pyclname biokbase.$(SERVICE).client \
+		--jsclname javascript/$(SERVICE_CAPS)/Client \
+		--out lib \
 		--url $(URL) \
-		$(SPEC_FILE) lib
-	rm -f lib/*Server.p* #should be no perl/py server files in our lib dir
-	rm -f lib/*Impl.p*   #should be no perl/py impl files in our lib dir
+		$(SPEC_FILE)
 
 build-classpath-list:
 	$(ANT) build_classpath_list $(ANT_OPTIONS)
