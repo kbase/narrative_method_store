@@ -18,7 +18,8 @@ CONFIG_OPTS = ['test.temp-dir',
                'test.method-spec-git-repo-branch',
                'test.method-spec-git-repo-refresh-rate',
                'test.method-spec-cache-size',
-               'test.auth-service-url'
+               'test.auth-service-url',
+               'test.auth-service-url-allow-insecure'
                ]
 
 

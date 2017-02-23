@@ -1302,6 +1302,7 @@ public class FullServerTest {
 			}
 		}
         String authServiceUrl = System.getProperty("test.auth-service-url");
+        String authInsecure = System.getProperty("test.auth-service-url-allow-insecure");
 		
 		System.out.println("test.temp-dir    = " + tempDirName);
 		System.out.println("test.method-spec-git-repo              = " + gitRepo);
@@ -1310,6 +1311,7 @@ public class FullServerTest {
 		System.out.println("test.method-spec-cache-size            = " + gitRepoCacheSize);
         System.out.println("test.mongo-exe-path                    = " + mongoExePath);
         System.out.println("test.auth-service-url                  = " + authServiceUrl);
+        System.out.println("test.auth-service-url-allow-insecure   = " + authInsecure);
 		
 		//create the temp directory for this test
 		tempDir = new File(tempDirName);
@@ -1342,6 +1344,9 @@ public class FullServerTest {
         ws.add("endpoint-base", "/services");
         ws.add(NarrativeMethodStoreServer.CFG_PROP_DEFAULT_TAG, "release");
         ws.add(NarrativeMethodStoreServer.CFG_PROP_AUTH_SERVICE_URL, authServiceUrl);
+        if (authInsecure != null) {
+            ws.add(NarrativeMethodStoreServer.CFG_PROP_AUTH_INSECURE, authInsecure);
+        }
 		
 		ini.store(iniFile);
 

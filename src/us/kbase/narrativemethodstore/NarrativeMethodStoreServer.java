@@ -67,6 +67,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
     public static final String    CFG_PROP_ENDPOINT_HOST = "endpoint-host";
     public static final String      CFG_PROP_DEFAULT_TAG = "method-spec-default-tag";
     public static final String CFG_PROP_AUTH_SERVICE_URL = "auth-service-url";
+    public static final String    CFG_PROP_AUTH_INSECURE = "auth-service-url-allow-insecure";
     
     public static final String VERSION = "0.3.6";
     
@@ -224,9 +225,14 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
                 throw new IllegalStateException("Parameter " + CFG_PROP_AUTH_SERVICE_URL + " is not defined in configuration");
             }
             System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_AUTH_SERVICE_URL +" = " + authServiceUrl);
+            String authAllowInsecure = config().get(CFG_PROP_AUTH_INSECURE);
+            System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_AUTH_INSECURE +" = " + 
+                    (authAllowInsecure == null ? "<not-set> ('false' will be used)" : authAllowInsecure));
             AuthToken shockToken = null;
             if (shockUser != null || shockTokenText != null) {
-                ConfigurableAuthService authService = new ConfigurableAuthService(new AuthConfig().withKBaseAuthServerURL(new URL(authServiceUrl)));
+                ConfigurableAuthService authService = new ConfigurableAuthService(
+                        new AuthConfig().withKBaseAuthServerURL(new URL(authServiceUrl))
+                        .withAllowInsecureURLs("true".equals(authAllowInsecure)));
                 if (shockTokenText == null) {
                     shockToken = authService.login(shockUser, shockPwd == null ? "" : shockPwd).getToken();
                 } else {
