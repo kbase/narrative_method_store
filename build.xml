@@ -304,6 +304,7 @@
       <sysproperty key="test.method-spec-git-repo-refresh-rate" value="${test.method-spec-git-repo-refresh-rate}"/>
       <sysproperty key="test.method-spec-cache-size" value="${test.method-spec-cache-size}"/>
       <sysproperty key="test.auth-service-url" value="${test.auth-service-url}"/>
+      <sysproperty key="test.auth-service-url-allow-insecure" value="${test.auth-service-url-allow-insecure}"/>
       <test name="us.kbase.narrativemethodstore.db.mongo.test.MongoDynamicRepoDBTest"/>
       <test name="us.kbase.narrativemethodstore.test.FullServerTest"/>
     </junit>
