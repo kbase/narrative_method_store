@@ -70,7 +70,7 @@ public class MongoDynamicRepoDBTest {
     @AfterClass
     public static void afterClass() throws Exception {
         if (dbHelper != null)
-            dbHelper.shutdown();
+            dbHelper.shutdown(true);
     }
     
     @Test
@@ -260,38 +260,6 @@ public class MongoDynamicRepoDBTest {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         fp.saveToStream(baos);
         return new String(baos.toByteArray(), Charset.forName("utf-8"));
-    }
-    
-    private void buildAndRunDockerImage(File tempRootDir, File repoDir, 
-            String moduleName, String methodName) throws Exception {
-        String dockerRegistry = System.getProperty("test.docker-registry");
-        String testUser = System.getProperty("test.user");
-        String testPassword = System.getProperty("test.password");
-        String token = AuthService.login(testUser, testPassword).getTokenString();
-        DockerImageBuilder dib = new DockerImageBuilder(dockerRegistry, tempRootDir);
-        String imageName = "async_py_module";
-        String imageVer = "1433804926692";
-        StringBuilder log = new StringBuilder();
-        File dir = new File(repoDir, "work");
-        dir.mkdir();
-        File inputData = new File(dir, "input.json");
-        TextUtils.writeLines(Arrays.asList("{" +
-                "\"version\":\"1.1\"," +
-                "\"method\":\""+moduleName+"."+methodName+"\"," +
-                "\"params\":[{\"genomeA\":\"myws.mygenome1\",\"genomeB\":\"myws.mygenome2\"}]," +
-                "\"context\":null" +
-                "}"), inputData);
-        try {
-            dib.build(imageName, imageVer, repoDir, log, false, false);
-            log = new StringBuilder();
-            File outputFile = dib.run(imageName, imageVer, moduleName, inputData, token, log, true);
-            String output = TextUtils.text(outputFile);
-            Assert.assertTrue(output.contains(token));
-            Assert.assertTrue(output.contains("\"genomeA\": \"myws.mygenome1\""));
-        } catch (Exception ex) {
-            System.out.println(log.toString());
-            throw ex;
-        }
     }
     
     private static void copyStreams(InputStream is, OutputStream os, int bufferSize) throws Exception {

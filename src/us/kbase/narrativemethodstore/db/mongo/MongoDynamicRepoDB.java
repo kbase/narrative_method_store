@@ -22,7 +22,6 @@ import com.mongodb.DB;
 import com.mongodb.MongoException.DuplicateKey;
 
 import us.kbase.auth.AuthToken;
-import us.kbase.auth.TokenExpiredException;
 import us.kbase.common.mongo.GetMongoDB;
 import us.kbase.narrativemethodstore.db.DynamicRepoDB;
 import us.kbase.narrativemethodstore.db.FileId;
@@ -567,8 +566,6 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
         } catch (IOException ex) {
             throw new NarrativeMethodStoreException(ex);
         } catch (InvalidShockUrlException ex) {
-            throw new NarrativeMethodStoreException(ex);
-        } catch (TokenExpiredException ex) {
             throw new NarrativeMethodStoreException(ex);
         } catch (ShockHttpException ex) {
             throw new NarrativeMethodStoreException(ex);

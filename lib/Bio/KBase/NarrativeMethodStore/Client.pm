@@ -137,7 +137,7 @@ Returns the current running version of the NarrativeMethodStore.
 
 =cut
 
-sub ver
+ sub ver
 {
     my($self, @args) = @_;
 
@@ -149,9 +149,10 @@ sub ver
 							       "Invalid argument count for function ver (received $n, expecting 0)");
     }
 
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
-	method => "NarrativeMethodStore.ver",
-	params => \@args,
+    my $url = $self->{url};
+    my $result = $self->{client}->call($url, $self->{headers}, {
+	    method => "NarrativeMethodStore.ver",
+	    params => \@args,
     });
     if ($result) {
 	if ($result->is_error) {
@@ -170,7 +171,7 @@ sub ver
 				       );
     }
 }
-
+ 
 
 
 =head2 status
@@ -216,7 +217,7 @@ using, and what commit it is on
 
 =cut
 
-sub status
+ sub status
 {
     my($self, @args) = @_;
 
@@ -228,9 +229,10 @@ sub status
 							       "Invalid argument count for function status (received $n, expecting 0)");
     }
 
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
-	method => "NarrativeMethodStore.status",
-	params => \@args,
+    my $url = $self->{url};
+    my $result = $self->{client}->call($url, $self->{headers}, {
+	    method => "NarrativeMethodStore.status",
+	    params => \@args,
     });
     if ($result) {
 	if ($result->is_error) {
@@ -249,7 +251,7 @@ sub status
 				       );
     }
 }
-
+ 
 
 
 =head2 list_categories
@@ -406,7 +408,7 @@ ScreenShot is a reference to a hash where the following keys are defined:
 
 =cut
 
-sub list_categories
+ sub list_categories
 {
     my($self, @args) = @_;
 
@@ -429,9 +431,10 @@ sub list_categories
 	}
     }
 
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
-	method => "NarrativeMethodStore.list_categories",
-	params => \@args,
+    my $url = $self->{url};
+    my $result = $self->{client}->call($url, $self->{headers}, {
+	    method => "NarrativeMethodStore.list_categories",
+	    params => \@args,
     });
     if ($result) {
 	if ($result->is_error) {
@@ -450,7 +453,7 @@ sub list_categories
 				       );
     }
 }
-
+ 
 
 
 =head2 get_category
@@ -507,7 +510,7 @@ Category is a reference to a hash where the following keys are defined:
 
 =cut
 
-sub get_category
+ sub get_category
 {
     my($self, @args) = @_;
 
@@ -530,9 +533,10 @@ sub get_category
 	}
     }
 
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
-	method => "NarrativeMethodStore.get_category",
-	params => \@args,
+    my $url = $self->{url};
+    my $result = $self->{client}->call($url, $self->{headers}, {
+	    method => "NarrativeMethodStore.get_category",
+	    params => \@args,
     });
     if ($result) {
 	if ($result->is_error) {
@@ -551,7 +555,7 @@ sub get_category
 				       );
     }
 }
-
+ 
 
 
 =head2 list_methods
@@ -634,7 +638,7 @@ username is a string
 
 =cut
 
-sub list_methods
+ sub list_methods
 {
     my($self, @args) = @_;
 
@@ -657,9 +661,10 @@ sub list_methods
 	}
     }
 
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
-	method => "NarrativeMethodStore.list_methods",
-	params => \@args,
+    my $url = $self->{url};
+    my $result = $self->{client}->call($url, $self->{headers}, {
+	    method => "NarrativeMethodStore.list_methods",
+	    params => \@args,
     });
     if ($result) {
 	if ($result->is_error) {
@@ -678,7 +683,7 @@ sub list_methods
 				       );
     }
 }
-
+ 
 
 
 =head2 list_methods_full_info
@@ -793,7 +798,7 @@ Publication is a reference to a hash where the following keys are defined:
 
 =cut
 
-sub list_methods_full_info
+ sub list_methods_full_info
 {
     my($self, @args) = @_;
 
@@ -816,9 +821,10 @@ sub list_methods_full_info
 	}
     }
 
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
-	method => "NarrativeMethodStore.list_methods_full_info",
-	params => \@args,
+    my $url = $self->{url};
+    my $result = $self->{client}->call($url, $self->{headers}, {
+	    method => "NarrativeMethodStore.list_methods_full_info",
+	    params => \@args,
     });
     if ($result) {
 	if ($result->is_error) {
@@ -837,7 +843,7 @@ sub list_methods_full_info
 				       );
     }
 }
-
+ 
 
 
 =head2 list_methods_spec
@@ -1194,7 +1200,7 @@ OutputMapping is a reference to a hash where the following keys are defined:
 
 =cut
 
-sub list_methods_spec
+ sub list_methods_spec
 {
     my($self, @args) = @_;
 
@@ -1217,9 +1223,10 @@ sub list_methods_spec
 	}
     }
 
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
-	method => "NarrativeMethodStore.list_methods_spec",
-	params => \@args,
+    my $url = $self->{url};
+    my $result = $self->{client}->call($url, $self->{headers}, {
+	    method => "NarrativeMethodStore.list_methods_spec",
+	    params => \@args,
     });
     if ($result) {
 	if ($result->is_error) {
@@ -1238,7 +1245,7 @@ sub list_methods_spec
 				       );
     }
 }
-
+ 
 
 
 =head2 list_method_ids_and_names
@@ -1279,7 +1286,7 @@ ListMethodIdsAndNamesParams is a reference to a hash where the following keys ar
 
 =cut
 
-sub list_method_ids_and_names
+ sub list_method_ids_and_names
 {
     my($self, @args) = @_;
 
@@ -1302,9 +1309,10 @@ sub list_method_ids_and_names
 	}
     }
 
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
-	method => "NarrativeMethodStore.list_method_ids_and_names",
-	params => \@args,
+    my $url = $self->{url};
+    my $result = $self->{client}->call($url, $self->{headers}, {
+	    method => "NarrativeMethodStore.list_method_ids_and_names",
+	    params => \@args,
     });
     if ($result) {
 	if ($result->is_error) {
@@ -1323,7 +1331,7 @@ sub list_method_ids_and_names
 				       );
     }
 }
-
+ 
 
 
 =head2 list_apps
@@ -1394,7 +1402,7 @@ url is a string
 
 =cut
 
-sub list_apps
+ sub list_apps
 {
     my($self, @args) = @_;
 
@@ -1417,9 +1425,10 @@ sub list_apps
 	}
     }
 
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
-	method => "NarrativeMethodStore.list_apps",
-	params => \@args,
+    my $url = $self->{url};
+    my $result = $self->{client}->call($url, $self->{headers}, {
+	    method => "NarrativeMethodStore.list_apps",
+	    params => \@args,
     });
     if ($result) {
 	if ($result->is_error) {
@@ -1438,7 +1447,7 @@ sub list_apps
 				       );
     }
 }
-
+ 
 
 
 =head2 list_apps_full_info
@@ -1537,7 +1546,7 @@ ScreenShot is a reference to a hash where the following keys are defined:
 
 =cut
 
-sub list_apps_full_info
+ sub list_apps_full_info
 {
     my($self, @args) = @_;
 
@@ -1560,9 +1569,10 @@ sub list_apps_full_info
 	}
     }
 
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
-	method => "NarrativeMethodStore.list_apps_full_info",
-	params => \@args,
+    my $url = $self->{url};
+    my $result = $self->{client}->call($url, $self->{headers}, {
+	    method => "NarrativeMethodStore.list_apps_full_info",
+	    params => \@args,
     });
     if ($result) {
 	if ($result->is_error) {
@@ -1581,7 +1591,7 @@ sub list_apps_full_info
 				       );
     }
 }
-
+ 
 
 
 =head2 list_apps_spec
@@ -1680,7 +1690,7 @@ boolean is an int
 
 =cut
 
-sub list_apps_spec
+ sub list_apps_spec
 {
     my($self, @args) = @_;
 
@@ -1703,9 +1713,10 @@ sub list_apps_spec
 	}
     }
 
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
-	method => "NarrativeMethodStore.list_apps_spec",
-	params => \@args,
+    my $url = $self->{url};
+    my $result = $self->{client}->call($url, $self->{headers}, {
+	    method => "NarrativeMethodStore.list_apps_spec",
+	    params => \@args,
     });
     if ($result) {
 	if ($result->is_error) {
@@ -1724,7 +1735,7 @@ sub list_apps_spec
 				       );
     }
 }
-
+ 
 
 
 =head2 list_app_ids_and_names
@@ -1759,7 +1770,7 @@ $return is a reference to a hash where the key is a string and the value is a st
 
 =cut
 
-sub list_app_ids_and_names
+ sub list_app_ids_and_names
 {
     my($self, @args) = @_;
 
@@ -1771,9 +1782,10 @@ sub list_app_ids_and_names
 							       "Invalid argument count for function list_app_ids_and_names (received $n, expecting 0)");
     }
 
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
-	method => "NarrativeMethodStore.list_app_ids_and_names",
-	params => \@args,
+    my $url = $self->{url};
+    my $result = $self->{client}->call($url, $self->{headers}, {
+	    method => "NarrativeMethodStore.list_app_ids_and_names",
+	    params => \@args,
     });
     if ($result) {
 	if ($result->is_error) {
@@ -1792,7 +1804,7 @@ sub list_app_ids_and_names
 				       );
     }
 }
-
+ 
 
 
 =head2 list_types
@@ -1867,7 +1879,7 @@ url is a string
 
 =cut
 
-sub list_types
+ sub list_types
 {
     my($self, @args) = @_;
 
@@ -1890,9 +1902,10 @@ sub list_types
 	}
     }
 
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
-	method => "NarrativeMethodStore.list_types",
-	params => \@args,
+    my $url = $self->{url};
+    my $result = $self->{client}->call($url, $self->{headers}, {
+	    method => "NarrativeMethodStore.list_types",
+	    params => \@args,
     });
     if ($result) {
 	if ($result->is_error) {
@@ -1911,7 +1924,7 @@ sub list_types
 				       );
     }
 }
-
+ 
 
 
 =head2 get_method_brief_info
@@ -1992,7 +2005,7 @@ username is a string
 
 =cut
 
-sub get_method_brief_info
+ sub get_method_brief_info
 {
     my($self, @args) = @_;
 
@@ -2015,9 +2028,10 @@ sub get_method_brief_info
 	}
     }
 
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
-	method => "NarrativeMethodStore.get_method_brief_info",
-	params => \@args,
+    my $url = $self->{url};
+    my $result = $self->{client}->call($url, $self->{headers}, {
+	    method => "NarrativeMethodStore.get_method_brief_info",
+	    params => \@args,
     });
     if ($result) {
 	if ($result->is_error) {
@@ -2036,7 +2050,7 @@ sub get_method_brief_info
 				       );
     }
 }
-
+ 
 
 
 =head2 get_method_full_info
@@ -2149,7 +2163,7 @@ Publication is a reference to a hash where the following keys are defined:
 
 =cut
 
-sub get_method_full_info
+ sub get_method_full_info
 {
     my($self, @args) = @_;
 
@@ -2172,9 +2186,10 @@ sub get_method_full_info
 	}
     }
 
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
-	method => "NarrativeMethodStore.get_method_full_info",
-	params => \@args,
+    my $url = $self->{url};
+    my $result = $self->{client}->call($url, $self->{headers}, {
+	    method => "NarrativeMethodStore.get_method_full_info",
+	    params => \@args,
     });
     if ($result) {
 	if ($result->is_error) {
@@ -2193,7 +2208,7 @@ sub get_method_full_info
 				       );
     }
 }
-
+ 
 
 
 =head2 get_method_spec
@@ -2548,7 +2563,7 @@ OutputMapping is a reference to a hash where the following keys are defined:
 
 =cut
 
-sub get_method_spec
+ sub get_method_spec
 {
     my($self, @args) = @_;
 
@@ -2571,9 +2586,10 @@ sub get_method_spec
 	}
     }
 
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
-	method => "NarrativeMethodStore.get_method_spec",
-	params => \@args,
+    my $url = $self->{url};
+    my $result = $self->{client}->call($url, $self->{headers}, {
+	    method => "NarrativeMethodStore.get_method_spec",
+	    params => \@args,
     });
     if ($result) {
 	if ($result->is_error) {
@@ -2592,7 +2608,7 @@ sub get_method_spec
 				       );
     }
 }
-
+ 
 
 
 =head2 get_app_brief_info
@@ -2659,7 +2675,7 @@ url is a string
 
 =cut
 
-sub get_app_brief_info
+ sub get_app_brief_info
 {
     my($self, @args) = @_;
 
@@ -2682,9 +2698,10 @@ sub get_app_brief_info
 	}
     }
 
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
-	method => "NarrativeMethodStore.get_app_brief_info",
-	params => \@args,
+    my $url = $self->{url};
+    my $result = $self->{client}->call($url, $self->{headers}, {
+	    method => "NarrativeMethodStore.get_app_brief_info",
+	    params => \@args,
     });
     if ($result) {
 	if ($result->is_error) {
@@ -2703,7 +2720,7 @@ sub get_app_brief_info
 				       );
     }
 }
-
+ 
 
 
 =head2 get_app_full_info
@@ -2798,7 +2815,7 @@ ScreenShot is a reference to a hash where the following keys are defined:
 
 =cut
 
-sub get_app_full_info
+ sub get_app_full_info
 {
     my($self, @args) = @_;
 
@@ -2821,9 +2838,10 @@ sub get_app_full_info
 	}
     }
 
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
-	method => "NarrativeMethodStore.get_app_full_info",
-	params => \@args,
+    my $url = $self->{url};
+    my $result = $self->{client}->call($url, $self->{headers}, {
+	    method => "NarrativeMethodStore.get_app_full_info",
+	    params => \@args,
     });
     if ($result) {
 	if ($result->is_error) {
@@ -2842,7 +2860,7 @@ sub get_app_full_info
 				       );
     }
 }
-
+ 
 
 
 =head2 get_app_spec
@@ -2937,7 +2955,7 @@ boolean is an int
 
 =cut
 
-sub get_app_spec
+ sub get_app_spec
 {
     my($self, @args) = @_;
 
@@ -2960,9 +2978,10 @@ sub get_app_spec
 	}
     }
 
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
-	method => "NarrativeMethodStore.get_app_spec",
-	params => \@args,
+    my $url = $self->{url};
+    my $result = $self->{client}->call($url, $self->{headers}, {
+	    method => "NarrativeMethodStore.get_app_spec",
+	    params => \@args,
     });
     if ($result) {
 	if ($result->is_error) {
@@ -2981,7 +3000,7 @@ sub get_app_spec
 				       );
     }
 }
-
+ 
 
 
 =head2 get_type_info
@@ -3052,7 +3071,7 @@ url is a string
 
 =cut
 
-sub get_type_info
+ sub get_type_info
 {
     my($self, @args) = @_;
 
@@ -3075,9 +3094,10 @@ sub get_type_info
 	}
     }
 
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
-	method => "NarrativeMethodStore.get_type_info",
-	params => \@args,
+    my $url = $self->{url};
+    my $result = $self->{client}->call($url, $self->{headers}, {
+	    method => "NarrativeMethodStore.get_type_info",
+	    params => \@args,
     });
     if ($result) {
 	if ($result->is_error) {
@@ -3096,7 +3116,7 @@ sub get_type_info
 				       );
     }
 }
-
+ 
 
 
 =head2 validate_method
@@ -3637,7 +3657,7 @@ TypeInfo is a reference to a hash where the following keys are defined:
 
 =cut
 
-sub validate_method
+ sub validate_method
 {
     my($self, @args) = @_;
 
@@ -3660,9 +3680,10 @@ sub validate_method
 	}
     }
 
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
-	method => "NarrativeMethodStore.validate_method",
-	params => \@args,
+    my $url = $self->{url};
+    my $result = $self->{client}->call($url, $self->{headers}, {
+	    method => "NarrativeMethodStore.validate_method",
+	    params => \@args,
     });
     if ($result) {
 	if ($result->is_error) {
@@ -3681,7 +3702,7 @@ sub validate_method
 				       );
     }
 }
-
+ 
 
 
 =head2 validate_app
@@ -4220,7 +4241,7 @@ TypeInfo is a reference to a hash where the following keys are defined:
 
 =cut
 
-sub validate_app
+ sub validate_app
 {
     my($self, @args) = @_;
 
@@ -4243,9 +4264,10 @@ sub validate_app
 	}
     }
 
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
-	method => "NarrativeMethodStore.validate_app",
-	params => \@args,
+    my $url = $self->{url};
+    my $result = $self->{client}->call($url, $self->{headers}, {
+	    method => "NarrativeMethodStore.validate_app",
+	    params => \@args,
     });
     if ($result) {
 	if ($result->is_error) {
@@ -4264,7 +4286,7 @@ sub validate_app
 				       );
     }
 }
-
+ 
 
 
 =head2 validate_type
@@ -4803,7 +4825,7 @@ TypeInfo is a reference to a hash where the following keys are defined:
 
 =cut
 
-sub validate_type
+ sub validate_type
 {
     my($self, @args) = @_;
 
@@ -4826,9 +4848,10 @@ sub validate_type
 	}
     }
 
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
-	method => "NarrativeMethodStore.validate_type",
-	params => \@args,
+    my $url = $self->{url};
+    my $result = $self->{client}->call($url, $self->{headers}, {
+	    method => "NarrativeMethodStore.validate_type",
+	    params => \@args,
     });
     if ($result) {
 	if ($result->is_error) {
@@ -4847,7 +4870,7 @@ sub validate_type
 				       );
     }
 }
-
+ 
 
 
 =head2 load_widget_java_script
@@ -4894,7 +4917,7 @@ LoadWidgetParams is a reference to a hash where the following keys are defined:
 
 =cut
 
-sub load_widget_java_script
+ sub load_widget_java_script
 {
     my($self, @args) = @_;
 
@@ -4917,9 +4940,10 @@ sub load_widget_java_script
 	}
     }
 
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
-	method => "NarrativeMethodStore.load_widget_java_script",
-	params => \@args,
+    my $url = $self->{url};
+    my $result = $self->{client}->call($url, $self->{headers}, {
+	    method => "NarrativeMethodStore.load_widget_java_script",
+	    params => \@args,
     });
     if ($result) {
 	if ($result->is_error) {
@@ -4938,7 +4962,7 @@ sub load_widget_java_script
 				       );
     }
 }
-
+ 
 
 
 =head2 register_repo
@@ -4979,7 +5003,7 @@ RegisterRepoParams is a reference to a hash where the following keys are defined
 
 =cut
 
-sub register_repo
+ sub register_repo
 {
     my($self, @args) = @_;
 
@@ -5002,9 +5026,10 @@ sub register_repo
 	}
     }
 
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
-	method => "NarrativeMethodStore.register_repo",
-	params => \@args,
+    my $url = $self->{url};
+    my $result = $self->{client}->call($url, $self->{headers}, {
+	    method => "NarrativeMethodStore.register_repo",
+	    params => \@args,
     });
     if ($result) {
 	if ($result->is_error) {
@@ -5023,7 +5048,7 @@ sub register_repo
 				       );
     }
 }
-
+ 
 
 
 =head2 disable_repo
@@ -5062,7 +5087,7 @@ DisableRepoParams is a reference to a hash where the following keys are defined:
 
 =cut
 
-sub disable_repo
+ sub disable_repo
 {
     my($self, @args) = @_;
 
@@ -5085,9 +5110,10 @@ sub disable_repo
 	}
     }
 
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
-	method => "NarrativeMethodStore.disable_repo",
-	params => \@args,
+    my $url = $self->{url};
+    my $result = $self->{client}->call($url, $self->{headers}, {
+	    method => "NarrativeMethodStore.disable_repo",
+	    params => \@args,
     });
     if ($result) {
 	if ($result->is_error) {
@@ -5106,7 +5132,7 @@ sub disable_repo
 				       );
     }
 }
-
+ 
 
 
 =head2 enable_repo
@@ -5145,7 +5171,7 @@ EnableRepoParams is a reference to a hash where the following keys are defined:
 
 =cut
 
-sub enable_repo
+ sub enable_repo
 {
     my($self, @args) = @_;
 
@@ -5168,9 +5194,10 @@ sub enable_repo
 	}
     }
 
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
-	method => "NarrativeMethodStore.enable_repo",
-	params => \@args,
+    my $url = $self->{url};
+    my $result = $self->{client}->call($url, $self->{headers}, {
+	    method => "NarrativeMethodStore.enable_repo",
+	    params => \@args,
     });
     if ($result) {
 	if ($result->is_error) {
@@ -5189,7 +5216,7 @@ sub enable_repo
 				       );
     }
 }
-
+ 
 
 
 =head2 push_repo_to_tag
@@ -5230,7 +5257,7 @@ PushRepoToTagParams is a reference to a hash where the following keys are define
 
 =cut
 
-sub push_repo_to_tag
+ sub push_repo_to_tag
 {
     my($self, @args) = @_;
 
@@ -5253,9 +5280,10 @@ sub push_repo_to_tag
 	}
     }
 
-    my $result = $self->{client}->call($self->{url}, $self->{headers}, {
-	method => "NarrativeMethodStore.push_repo_to_tag",
-	params => \@args,
+    my $url = $self->{url};
+    my $result = $self->{client}->call($url, $self->{headers}, {
+	    method => "NarrativeMethodStore.push_repo_to_tag",
+	    params => \@args,
     });
     if ($result) {
 	if ($result->is_error) {
@@ -5274,8 +5302,8 @@ sub push_repo_to_tag
 				       );
     }
 }
-
-
+ 
+   
 
 sub version {
     my ($self) = @_;

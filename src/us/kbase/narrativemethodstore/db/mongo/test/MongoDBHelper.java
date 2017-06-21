@@ -1,15 +1,10 @@
 package us.kbase.narrativemethodstore.db.mongo.test;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.nio.file.Files;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import us.kbase.common.utils.ProcessHelper;
 import us.kbase.narrativemethodstore.util.TextUtils;
@@ -45,10 +40,10 @@ public class MongoDBHelper {
         mongoPort = startupMongo(mongoExePath, mongoDir);
     }
     
-    public void shutdown() throws Exception {
+    public void shutdown(boolean deleteTempDir) throws Exception {
         killPid(mongoDir);
-        if (workDir.exists())
-            deleteRecursively(workDir);
+        if (deleteTempDir && mongoDir.exists())
+            deleteRecursively(mongoDir);
     }
     
     private static int startupMongo(String mongodExePath, File dir) throws Exception {
@@ -72,7 +67,7 @@ public class MongoDBHelper {
         TextUtils.writeLines(Arrays.asList(
                 "#!/bin/bash",
                 "cd " + dir.getAbsolutePath(),
-                mongodExePath + " --config " + configFile.getAbsolutePath() + " >out.txt 2>err.txt & pid=$!",
+                mongodExePath + " --nojournal --config " + configFile.getAbsolutePath() + " >out.txt 2>err.txt & pid=$!",
                 "echo $pid > pid.txt"
                 ), scriptFile);
         ProcessHelper.cmd("bash", scriptFile.getCanonicalPath()).exec(dir);

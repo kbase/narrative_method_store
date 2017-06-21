@@ -26,6 +26,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import us.kbase.common.service.JsonServerSyslog;
 import us.kbase.common.service.ServerException;
 import us.kbase.common.service.Tuple4;
 import us.kbase.narrativemethodstore.AppFullInfo;
@@ -1300,14 +1301,17 @@ public class FullServerTest {
 				removeTempDir = true;
 			}
 		}
+        String authServiceUrl = System.getProperty("test.auth-service-url");
+        String authInsecure = System.getProperty("test.auth-service-url-allow-insecure");
 		
 		System.out.println("test.temp-dir    = " + tempDirName);
-		
 		System.out.println("test.method-spec-git-repo              = " + gitRepo);
 		System.out.println("test.method-spec-git-repo-branch       = " + gitRepoBranch);
 		System.out.println("test.method-spec-git-repo-refresh-rate = " + gitRepoRefreshRate);
 		System.out.println("test.method-spec-cache-size            = " + gitRepoCacheSize);
         System.out.println("test.mongo-exe-path                    = " + mongoExePath);
+        System.out.println("test.auth-service-url                  = " + authServiceUrl);
+        System.out.println("test.auth-service-url-allow-insecure   = " + authInsecure);
 		
 		//create the temp directory for this test
 		tempDir = new File(tempDirName);
@@ -1339,13 +1343,19 @@ public class FullServerTest {
         ws.add("endpoint-host", "https://ci.kbase.us");
         ws.add("endpoint-base", "/services");
         ws.add(NarrativeMethodStoreServer.CFG_PROP_DEFAULT_TAG, "release");
+        ws.add(NarrativeMethodStoreServer.CFG_PROP_AUTH_SERVICE_URL, authServiceUrl);
+        if (authInsecure != null) {
+            ws.add(NarrativeMethodStoreServer.CFG_PROP_AUTH_INSECURE, authInsecure);
+        }
 		
 		ini.store(iniFile);
-		iniFile.deleteOnExit();
 
 		Map<String, String> env = getenv();
 		env.put("KB_DEPLOYMENT_CONFIG", iniFile.getAbsolutePath());
 		env.put("KB_SERVICE_NAME", "NarrativeMethodStore");
+
+        JsonServerSyslog.setStaticUseSyslog(false);
+        JsonServerSyslog.setStaticMlogFile(new File(tempDir, "service.log").getAbsolutePath());
 
 		SERVER = new NarrativeMethodStoreServer();
 		new ServerThread(SERVER).start();
@@ -1355,6 +1365,7 @@ public class FullServerTest {
 		}
 		System.out.println("Test server listening on "+SERVER.getServerPort() );
 		CLIENT = new NarrativeMethodStoreClient(new URL("http://localhost:" + SERVER.getServerPort()));
+		System.out.println("Server status: " + CLIENT.status());
 	}
 	
 	@AfterClass
@@ -1368,7 +1379,7 @@ public class FullServerTest {
 	    } finally {
 	        try {
 	            if (dbHelper != null)
-	                dbHelper.shutdown();
+	                dbHelper.shutdown(removeTempDir);
 	        } finally {
 	            if (removeTempDir)
 	                FileUtils.deleteDirectory(tempDir);
