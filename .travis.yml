@@ -1,4 +1,5 @@
 ---
+dist: precise
 language: java
 script: make && make test
 jdk:
