@@ -192,7 +192,20 @@ deploy-service-scripts:
 	cp server_scripts/jetty.xml $(SERVICE_DIR)
 	server_scripts/build_server_control_scripts.py $(SERVICE_DIR) $(WAR)\
 		$(TARGET) $(JAVA_HOME) deploy.cfg $(ASADMIN) $(SERVICE_CAPS)\
-		$(SERVICE_PORT)
+		$(SERVICE_PORTZ
+
+docker_image: build-libs build-bin
+	$(ANT) buildwar $(ANT_OPTIONS)
+	-mkdir deployment/lib
+	-mkdir -p deployment/jettybase/webapps
+	-mkdir -p deployment/jettybase/logs
+	-mkdir -p deployment/jettybase/start.d
+	cp dist/$(WAR) deployment/jettybase/webapps/root.war 
+	echo $(GITCOMMIT) > deployment/jettybase/$(SERVICE).serverdist
+	echo $(TAGS) >> deployment/jettybase/$(SERVICE).serverdist
+	./build/build_docker_image.sh
+
+
 undeploy:
 	@if ["$(SERVICE_DIR)" -eq ""]; \
 	  then \
