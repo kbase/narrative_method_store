@@ -1,5 +1,11 @@
 ---
 language: java
+
+env:
+  global:
+    - secure: "TOw2TCjqJdCayauEb1NgXsr95ZtJd7pT5gitW3mtBlZJ1E/Hs0pyu1g3LWyrohTbcWhUNUQM+Va2OwkxNdZ3HDOE062A4pASCuavnjjf7u4FKgDZaURmYitDGTieiMnUoZmsBLH3gj7o0TcaVqimRqRr8Al/8/nOWCh5tAxWhUw="
+    - secure: "fYbn5hgnDupXoe0Uv+MVBLNCp3NuSG5dSfLrOu8Zin/w7oLi5yE2wqsavczzZQQEnijfnUYEl1O+Xn65e4MS95LYbKTHO9AEgF+DyroAgWTIwLnnrQGDiTp6odvMZ4ho+iVK8cSgZh98F9eSZK2fgD1LUzZk05e1NQuK7gdXdxI="
+
 script:
   - make && make test
   - make docker_image
