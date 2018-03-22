@@ -1,8 +1,10 @@
 ---
 language: java
-script: make && make test
+script:
+  - make && make test
+  - make docker_image
+
 jdk:
-  - oraclejdk7
   - oraclejdk8
 
 branches:
@@ -10,3 +12,7 @@ branches:
   - master
   - staging
   - develop
+
+after_success:
+  - IMAGE_NAME=kbase/kb_nms ./build/push2dockerhub.sh
+
