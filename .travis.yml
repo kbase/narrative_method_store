@@ -16,7 +16,7 @@ jdk:
 branches:
   only:
   - master
-  - staging
+  - dockerize
   - develop
 
 after_success:
