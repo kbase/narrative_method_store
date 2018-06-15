@@ -29,33 +29,7 @@ import org.junit.Test;
 import us.kbase.common.service.JsonServerSyslog;
 import us.kbase.common.service.ServerException;
 import us.kbase.common.service.Tuple4;
-import us.kbase.narrativemethodstore.AppFullInfo;
-import us.kbase.narrativemethodstore.AppSpec;
-import us.kbase.narrativemethodstore.Category;
-import us.kbase.narrativemethodstore.GetAppParams;
-import us.kbase.narrativemethodstore.GetCategoryParams;
-import us.kbase.narrativemethodstore.GetMethodParams;
-import us.kbase.narrativemethodstore.GetTypeParams;
-import us.kbase.narrativemethodstore.ListCategoriesParams;
-import us.kbase.narrativemethodstore.ListMethodIdsAndNamesParams;
-import us.kbase.narrativemethodstore.ListParams;
-import us.kbase.narrativemethodstore.LoadWidgetParams;
-import us.kbase.narrativemethodstore.MethodBriefInfo;
-import us.kbase.narrativemethodstore.MethodFullInfo;
-import us.kbase.narrativemethodstore.MethodSpec;
-import us.kbase.narrativemethodstore.AppBriefInfo;
-import us.kbase.narrativemethodstore.NarrativeMethodStoreClient;
-import us.kbase.narrativemethodstore.NarrativeMethodStoreServer;
-import us.kbase.narrativemethodstore.Publication;
-import us.kbase.narrativemethodstore.RegexMatcher;
-import us.kbase.narrativemethodstore.RepoDetails;
-import us.kbase.narrativemethodstore.Status;
-import us.kbase.narrativemethodstore.TextSubdataOptions;
-import us.kbase.narrativemethodstore.TypeInfo;
-import us.kbase.narrativemethodstore.ValidateAppParams;
-import us.kbase.narrativemethodstore.ValidateMethodParams;
-import us.kbase.narrativemethodstore.ValidateTypeParams;
-import us.kbase.narrativemethodstore.ValidationResults;
+import us.kbase.narrativemethodstore.*;
 import us.kbase.narrativemethodstore.db.DynamicRepoDB;
 import us.kbase.narrativemethodstore.db.mongo.test.MongoDBHelper;
 
@@ -556,6 +530,7 @@ public class FullServerTest {
 		boolean foundTestMethod5 = false;
 		boolean foundTestMethod7 = false;
 		boolean foundTestMethod8 = false;
+		boolean foundTestMethod10 = false;
 		for(MethodSpec m : methods) {
 			// check specific things in specific test methods
 			if(m.getInfo().getId().equals("test_method_1")) {
@@ -733,6 +708,34 @@ public class FullServerTest {
 				assertEquals("id", tso.getSubdataSelection().getSelectionId());
 				assertNull(tso.getSubdataSelection().getSelectionDescription());
 				assertNull(tso.getSubdataSelection().getDescriptionTemplate());
+			} else if (m.getInfo().getId().equals("test_method_10")) {
+				foundTestMethod10 = true;
+				assertEquals(3, m.getParameters().size());
+				assertEquals("ftp", m.getParameters().get(0).getId());
+				assertEquals("dynamic_dropdown", m.getParameters().get(0).getFieldType());
+				DynamicDropdownOptions ddo0 = m.getParameters().get(0).getDynamicDropdownOptions();
+				assertNotNull(ddo0);
+				assertEquals("ftp_staging", ddo0.getDataSource());
+
+				assertEquals("search", m.getParameters().get(1).getId());
+				assertEquals("dynamic_dropdown", m.getParameters().get(1).getFieldType());
+				DynamicDropdownOptions ddo1 = m.getParameters().get(1).getDynamicDropdownOptions();
+				assertNotNull(ddo1);
+				assertEquals(new Long(0), ddo1.getMultiselection());
+				assertNotNull(ddo1.getServiceParams().toString());
+				assertEquals("taxon_name", ddo1.getSelectionId());
+				assertEquals("<strong>{{scientific_name}}</strong>: {{scientific_lineage}}", ddo1.getDescriptionTemplate());
+
+				assertEquals("custom", m.getParameters().get(2).getId());
+				assertEquals("dynamic_dropdown", m.getParameters().get(2).getFieldType());
+				DynamicDropdownOptions ddo2 = m.getParameters().get(2).getDynamicDropdownOptions();
+				assertNotNull(ddo2);
+				assertEquals(new Long(1), ddo2.getMultiselection());
+				assertEquals("BiochemistryAPI.get_reactions", ddo2.getServiceFunction());
+				assertEquals("beta", ddo2.getServiceVersion());
+				assertEquals("UObject [userObj=[{\"reactions\":[\"{{dynamic_dropdown_input}}\"]}]]", ddo2.getServiceParams().toString());
+				assertEquals("id", ddo2.getSelectionId());
+				assertEquals("<strong>{{name}}</strong>: {{equation}}", ddo2.getDescriptionTemplate());
 
 			}
 		}
@@ -748,6 +751,7 @@ public class FullServerTest {
 				foundTestMethod7);
 		assertTrue("Testing that test_method_8 was returned from listMethodSpec",
 				foundTestMethod8);
+		assertTrue("Testing that test_method_10 was returned from listMethodSpec", foundTestMethod10);
 	}
 	
 	
