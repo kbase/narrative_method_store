@@ -40,8 +40,8 @@ import us.kbase.narrativemethodstore.db.mongo.MongoDynamicRepoDB;
 public class NarrativeMethodStoreServer extends JsonServerServlet {
     private static final long serialVersionUID = 1L;
     private static final String version = "0.0.1";
-    private static final String gitUrl = "https://github.com/rsutormin/narrative_method_store";
-    private static final String gitCommitHash = "127432bbbf6f7591c359a6ff26958c7d23eb7bc8";
+    private static final String gitUrl = "https://github.com/kbase/narrative_method_store.git";
+    private static final String gitCommitHash = "b805a9d11eb5a2e9a84ab44945f5bcb2c4d4fae3";
 
     //BEGIN_CLASS_HEADER
     public static final String SYS_PROP_KB_DEPLOYMENT_CONFIG = "KB_DEPLOYMENT_CONFIG";

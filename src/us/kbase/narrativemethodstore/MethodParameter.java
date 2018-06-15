@@ -21,7 +21,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
  * short_hint - short phrase or sentence describing the parameter
  * description - longer and more technical description of the parameter
  * field_type - one of: text | textarea | textsubdata | intslider | floatslider | checkbox |
- *              dropdown | radio | tab | file
+ *              dropdown | radio | tab | file | dynamic_dropdown
  * allow_mutiple - only supported for field_type text, allows entry of a list
  *                 instead of a single value, default is 0
  *                 if set, the number of starting boxes will be either 1 or the
@@ -38,7 +38,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
  *            (input is generally an input data object, output is an output data object, 
  *            and plain old parameter is more or less numbers, fixed selections, etc)
  * @optional text_options textarea_options intslider_options floatslider_options
- * @optional checkbox_options dropdown_options radio_options tab_options
+ * @optional checkbox_options dropdown_options radio_options tab_options dynamic_dropdown_options
  * </pre>
  * 
  */
@@ -62,6 +62,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
     "floatslider_options",
     "checkbox_options",
     "dropdown_options",
+    "dynamic_dropdown_options",
     "radio_options",
     "tab_options",
     "textsubdata_options"
@@ -136,6 +137,35 @@ public class MethodParameter {
      */
     @JsonProperty("dropdown_options")
     private DropdownOptions dropdownOptions;
+    /**
+     * <p>Original spec-file type: DynamicDropdownOptions</p>
+     * <pre>
+     * Defines a parameter field that allows autocomplete based on a call to a dynamic service.
+     * For instance, selection of files from the stageing_service or from kbase_search. It will
+     * appear as a text field with dropdown similar to selection of other WS data objects.
+     *     data_source - one of ftp_staging | search | custom. Provides sensible defaults to
+     *                    for the following parameters for a common type of dropdown which can be
+     *                    overwritten
+     *     service_function - name of SDK method including prefix with SDK module started up as
+     *                    dynamic service (it's fully qualified method name where module and
+     *                    method are separated by '.').
+     *     service_version - optional version of module used in service_function
+     *                    (default value is 'release').
+     *     service_params - The parameters that will be supplied to the dynamic service call as
+     *                    JSON. The special text "{{dynamic_dropdown_input}}" will be replaced by
+     *                    the value of user input at call time.
+     *     selection_id - name of key result_aliases which will be sent as selected value
+     *     description_template - Defines how the description of items is rendered using
+     *                    Handlebar templates (use the keys in result_aliases as variable names)
+     *     multiselection - if true, then multiple selections are allowed in a single input field.
+     *                    This will override the allow_multiple option (which allows user addition)
+     *                    of additional fields.  If true, then this parameter will return a list.
+     *                    Default= false
+     * </pre>
+     * 
+     */
+    @JsonProperty("dynamic_dropdown_options")
+    private DynamicDropdownOptions dynamicDropdownOptions;
     /**
      * <p>Original spec-file type: RadioOptions</p>
      * 
@@ -500,6 +530,75 @@ public class MethodParameter {
     }
 
     /**
+     * <p>Original spec-file type: DynamicDropdownOptions</p>
+     * <pre>
+     * Defines a parameter field that allows autocomplete based on a call to a dynamic service.
+     * For instance, selection of files from the stageing_service or from kbase_search. It will
+     * appear as a text field with dropdown similar to selection of other WS data objects.
+     *     data_source - one of ftp_staging | search | custom. Provides sensible defaults to
+     *                    for the following parameters for a common type of dropdown which can be
+     *                    overwritten
+     *     service_function - name of SDK method including prefix with SDK module started up as
+     *                    dynamic service (it's fully qualified method name where module and
+     *                    method are separated by '.').
+     *     service_version - optional version of module used in service_function
+     *                    (default value is 'release').
+     *     service_params - The parameters that will be supplied to the dynamic service call as
+     *                    JSON. The special text "{{dynamic_dropdown_input}}" will be replaced by
+     *                    the value of user input at call time.
+     *     selection_id - name of key result_aliases which will be sent as selected value
+     *     description_template - Defines how the description of items is rendered using
+     *                    Handlebar templates (use the keys in result_aliases as variable names)
+     *     multiselection - if true, then multiple selections are allowed in a single input field.
+     *                    This will override the allow_multiple option (which allows user addition)
+     *                    of additional fields.  If true, then this parameter will return a list.
+     *                    Default= false
+     * </pre>
+     * 
+     */
+    @JsonProperty("dynamic_dropdown_options")
+    public DynamicDropdownOptions getDynamicDropdownOptions() {
+        return dynamicDropdownOptions;
+    }
+
+    /**
+     * <p>Original spec-file type: DynamicDropdownOptions</p>
+     * <pre>
+     * Defines a parameter field that allows autocomplete based on a call to a dynamic service.
+     * For instance, selection of files from the stageing_service or from kbase_search. It will
+     * appear as a text field with dropdown similar to selection of other WS data objects.
+     *     data_source - one of ftp_staging | search | custom. Provides sensible defaults to
+     *                    for the following parameters for a common type of dropdown which can be
+     *                    overwritten
+     *     service_function - name of SDK method including prefix with SDK module started up as
+     *                    dynamic service (it's fully qualified method name where module and
+     *                    method are separated by '.').
+     *     service_version - optional version of module used in service_function
+     *                    (default value is 'release').
+     *     service_params - The parameters that will be supplied to the dynamic service call as
+     *                    JSON. The special text "{{dynamic_dropdown_input}}" will be replaced by
+     *                    the value of user input at call time.
+     *     selection_id - name of key result_aliases which will be sent as selected value
+     *     description_template - Defines how the description of items is rendered using
+     *                    Handlebar templates (use the keys in result_aliases as variable names)
+     *     multiselection - if true, then multiple selections are allowed in a single input field.
+     *                    This will override the allow_multiple option (which allows user addition)
+     *                    of additional fields.  If true, then this parameter will return a list.
+     *                    Default= false
+     * </pre>
+     * 
+     */
+    @JsonProperty("dynamic_dropdown_options")
+    public void setDynamicDropdownOptions(DynamicDropdownOptions dynamicDropdownOptions) {
+        this.dynamicDropdownOptions = dynamicDropdownOptions;
+    }
+
+    public MethodParameter withDynamicDropdownOptions(DynamicDropdownOptions dynamicDropdownOptions) {
+        this.dynamicDropdownOptions = dynamicDropdownOptions;
+        return this;
+    }
+
+    /**
      * <p>Original spec-file type: RadioOptions</p>
      * 
      * 
@@ -620,7 +719,7 @@ public class MethodParameter {
 
     @Override
     public java.lang.String toString() {
-        return ((((((((((((((((((((((((((((((((((((((((((("MethodParameter"+" [id=")+ id)+", uiName=")+ uiName)+", shortHint=")+ shortHint)+", description=")+ description)+", fieldType=")+ fieldType)+", allowMultiple=")+ allowMultiple)+", optional=")+ optional)+", advanced=")+ advanced)+", disabled=")+ disabled)+", uiClass=")+ uiClass)+", defaultValues=")+ defaultValues)+", textOptions=")+ textOptions)+", textareaOptions=")+ textareaOptions)+", intsliderOptions=")+ intsliderOptions)+", floatsliderOptions=")+ floatsliderOptions)+", checkboxOptions=")+ checkboxOptions)+", dropdownOptions=")+ dropdownOptions)+", radioOptions=")+ radioOptions)+", tabOptions=")+ tabOptions)+", textsubdataOptions=")+ textsubdataOptions)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((((((((((((((((((((((((((((((((((((((((("MethodParameter"+" [id=")+ id)+", uiName=")+ uiName)+", shortHint=")+ shortHint)+", description=")+ description)+", fieldType=")+ fieldType)+", allowMultiple=")+ allowMultiple)+", optional=")+ optional)+", advanced=")+ advanced)+", disabled=")+ disabled)+", uiClass=")+ uiClass)+", defaultValues=")+ defaultValues)+", textOptions=")+ textOptions)+", textareaOptions=")+ textareaOptions)+", intsliderOptions=")+ intsliderOptions)+", floatsliderOptions=")+ floatsliderOptions)+", checkboxOptions=")+ checkboxOptions)+", dropdownOptions=")+ dropdownOptions)+", dynamicDropdownOptions=")+ dynamicDropdownOptions)+", radioOptions=")+ radioOptions)+", tabOptions=")+ tabOptions)+", textsubdataOptions=")+ textsubdataOptions)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }

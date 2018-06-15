@@ -85,12 +85,19 @@ sub new
     # We create an auth token, passing through the arguments that we were (hopefully) given.
 
     {
-	my $token = Bio::KBase::AuthToken->new(@args);
+	my %arg_hash2 = @args;
+	if (exists $arg_hash2{"token"}) {
+	    $self->{token} = $arg_hash2{"token"};
+	} elsif (exists $arg_hash2{"user_id"}) {
+	    my $token = Bio::KBase::AuthToken->new(@args);
+	    if (!$token->error_message) {
+	        $self->{token} = $token->token;
+	    }
+	}
 	
-	if (!$token->error_message)
+	if (exists $self->{token})
 	{
-	    $self->{token} = $token->token;
-	    $self->{client}->{token} = $token->token;
+	    $self->{client}->{token} = $self->{token};
 	}
     }
 
@@ -912,6 +919,7 @@ MethodParameter is a reference to a hash where the following keys are defined:
 	floatslider_options has a value which is a NarrativeMethodStore.FloatSliderOptions
 	checkbox_options has a value which is a NarrativeMethodStore.CheckboxOptions
 	dropdown_options has a value which is a NarrativeMethodStore.DropdownOptions
+	dynamic_dropdown_options has a value which is a NarrativeMethodStore.DynamicDropdownOptions
 	radio_options has a value which is a NarrativeMethodStore.RadioOptions
 	tab_options has a value which is a NarrativeMethodStore.TabOptions
 	textsubdata_options has a value which is a NarrativeMethodStore.TextSubdataOptions
@@ -948,6 +956,14 @@ DropdownOptions is a reference to a hash where the following keys are defined:
 DropdownOption is a reference to a hash where the following keys are defined:
 	value has a value which is a string
 	display has a value which is a string
+DynamicDropdownOptions is a reference to a hash where the following keys are defined:
+	data_source has a value which is a string
+	service_function has a value which is a string
+	service_version has a value which is a string
+	service_params has a value which is an UnspecifiedObject, which can hold any non-null object
+	selection_id has a value which is a string
+	description_template has a value which is a string
+	multiselection has a value which is a NarrativeMethodStore.boolean
 RadioOptions is a reference to a hash where the following keys are defined:
 	id_order has a value which is a reference to a list where each element is a string
 	ids_to_options has a value which is a reference to a hash where the key is a string and the value is a string
@@ -1081,6 +1097,7 @@ MethodParameter is a reference to a hash where the following keys are defined:
 	floatslider_options has a value which is a NarrativeMethodStore.FloatSliderOptions
 	checkbox_options has a value which is a NarrativeMethodStore.CheckboxOptions
 	dropdown_options has a value which is a NarrativeMethodStore.DropdownOptions
+	dynamic_dropdown_options has a value which is a NarrativeMethodStore.DynamicDropdownOptions
 	radio_options has a value which is a NarrativeMethodStore.RadioOptions
 	tab_options has a value which is a NarrativeMethodStore.TabOptions
 	textsubdata_options has a value which is a NarrativeMethodStore.TextSubdataOptions
@@ -1117,6 +1134,14 @@ DropdownOptions is a reference to a hash where the following keys are defined:
 DropdownOption is a reference to a hash where the following keys are defined:
 	value has a value which is a string
 	display has a value which is a string
+DynamicDropdownOptions is a reference to a hash where the following keys are defined:
+	data_source has a value which is a string
+	service_function has a value which is a string
+	service_version has a value which is a string
+	service_params has a value which is an UnspecifiedObject, which can hold any non-null object
+	selection_id has a value which is a string
+	description_template has a value which is a string
+	multiselection has a value which is a NarrativeMethodStore.boolean
 RadioOptions is a reference to a hash where the following keys are defined:
 	id_order has a value which is a reference to a list where each element is a string
 	ids_to_options has a value which is a reference to a hash where the key is a string and the value is a string
@@ -2276,6 +2301,7 @@ MethodParameter is a reference to a hash where the following keys are defined:
 	floatslider_options has a value which is a NarrativeMethodStore.FloatSliderOptions
 	checkbox_options has a value which is a NarrativeMethodStore.CheckboxOptions
 	dropdown_options has a value which is a NarrativeMethodStore.DropdownOptions
+	dynamic_dropdown_options has a value which is a NarrativeMethodStore.DynamicDropdownOptions
 	radio_options has a value which is a NarrativeMethodStore.RadioOptions
 	tab_options has a value which is a NarrativeMethodStore.TabOptions
 	textsubdata_options has a value which is a NarrativeMethodStore.TextSubdataOptions
@@ -2312,6 +2338,14 @@ DropdownOptions is a reference to a hash where the following keys are defined:
 DropdownOption is a reference to a hash where the following keys are defined:
 	value has a value which is a string
 	display has a value which is a string
+DynamicDropdownOptions is a reference to a hash where the following keys are defined:
+	data_source has a value which is a string
+	service_function has a value which is a string
+	service_version has a value which is a string
+	service_params has a value which is an UnspecifiedObject, which can hold any non-null object
+	selection_id has a value which is a string
+	description_template has a value which is a string
+	multiselection has a value which is a NarrativeMethodStore.boolean
 RadioOptions is a reference to a hash where the following keys are defined:
 	id_order has a value which is a reference to a list where each element is a string
 	ids_to_options has a value which is a reference to a hash where the key is a string and the value is a string
@@ -2444,6 +2478,7 @@ MethodParameter is a reference to a hash where the following keys are defined:
 	floatslider_options has a value which is a NarrativeMethodStore.FloatSliderOptions
 	checkbox_options has a value which is a NarrativeMethodStore.CheckboxOptions
 	dropdown_options has a value which is a NarrativeMethodStore.DropdownOptions
+	dynamic_dropdown_options has a value which is a NarrativeMethodStore.DynamicDropdownOptions
 	radio_options has a value which is a NarrativeMethodStore.RadioOptions
 	tab_options has a value which is a NarrativeMethodStore.TabOptions
 	textsubdata_options has a value which is a NarrativeMethodStore.TextSubdataOptions
@@ -2480,6 +2515,14 @@ DropdownOptions is a reference to a hash where the following keys are defined:
 DropdownOption is a reference to a hash where the following keys are defined:
 	value has a value which is a string
 	display has a value which is a string
+DynamicDropdownOptions is a reference to a hash where the following keys are defined:
+	data_source has a value which is a string
+	service_function has a value which is a string
+	service_version has a value which is a string
+	service_params has a value which is an UnspecifiedObject, which can hold any non-null object
+	selection_id has a value which is a string
+	description_template has a value which is a string
+	multiselection has a value which is a NarrativeMethodStore.boolean
 RadioOptions is a reference to a hash where the following keys are defined:
 	id_order has a value which is a reference to a list where each element is a string
 	ids_to_options has a value which is a reference to a hash where the key is a string and the value is a string
@@ -3266,6 +3309,7 @@ MethodParameter is a reference to a hash where the following keys are defined:
 	floatslider_options has a value which is a NarrativeMethodStore.FloatSliderOptions
 	checkbox_options has a value which is a NarrativeMethodStore.CheckboxOptions
 	dropdown_options has a value which is a NarrativeMethodStore.DropdownOptions
+	dynamic_dropdown_options has a value which is a NarrativeMethodStore.DynamicDropdownOptions
 	radio_options has a value which is a NarrativeMethodStore.RadioOptions
 	tab_options has a value which is a NarrativeMethodStore.TabOptions
 	textsubdata_options has a value which is a NarrativeMethodStore.TextSubdataOptions
@@ -3301,6 +3345,14 @@ DropdownOptions is a reference to a hash where the following keys are defined:
 DropdownOption is a reference to a hash where the following keys are defined:
 	value has a value which is a string
 	display has a value which is a string
+DynamicDropdownOptions is a reference to a hash where the following keys are defined:
+	data_source has a value which is a string
+	service_function has a value which is a string
+	service_version has a value which is a string
+	service_params has a value which is an UnspecifiedObject, which can hold any non-null object
+	selection_id has a value which is a string
+	description_template has a value which is a string
+	multiselection has a value which is a NarrativeMethodStore.boolean
 RadioOptions is a reference to a hash where the following keys are defined:
 	id_order has a value which is a reference to a list where each element is a string
 	ids_to_options has a value which is a reference to a hash where the key is a string and the value is a string
@@ -3527,6 +3579,7 @@ MethodParameter is a reference to a hash where the following keys are defined:
 	floatslider_options has a value which is a NarrativeMethodStore.FloatSliderOptions
 	checkbox_options has a value which is a NarrativeMethodStore.CheckboxOptions
 	dropdown_options has a value which is a NarrativeMethodStore.DropdownOptions
+	dynamic_dropdown_options has a value which is a NarrativeMethodStore.DynamicDropdownOptions
 	radio_options has a value which is a NarrativeMethodStore.RadioOptions
 	tab_options has a value which is a NarrativeMethodStore.TabOptions
 	textsubdata_options has a value which is a NarrativeMethodStore.TextSubdataOptions
@@ -3562,6 +3615,14 @@ DropdownOptions is a reference to a hash where the following keys are defined:
 DropdownOption is a reference to a hash where the following keys are defined:
 	value has a value which is a string
 	display has a value which is a string
+DynamicDropdownOptions is a reference to a hash where the following keys are defined:
+	data_source has a value which is a string
+	service_function has a value which is a string
+	service_version has a value which is a string
+	service_params has a value which is an UnspecifiedObject, which can hold any non-null object
+	selection_id has a value which is a string
+	description_template has a value which is a string
+	multiselection has a value which is a NarrativeMethodStore.boolean
 RadioOptions is a reference to a hash where the following keys are defined:
 	id_order has a value which is a reference to a list where each element is a string
 	ids_to_options has a value which is a reference to a hash where the key is a string and the value is a string
@@ -3851,6 +3912,7 @@ MethodParameter is a reference to a hash where the following keys are defined:
 	floatslider_options has a value which is a NarrativeMethodStore.FloatSliderOptions
 	checkbox_options has a value which is a NarrativeMethodStore.CheckboxOptions
 	dropdown_options has a value which is a NarrativeMethodStore.DropdownOptions
+	dynamic_dropdown_options has a value which is a NarrativeMethodStore.DynamicDropdownOptions
 	radio_options has a value which is a NarrativeMethodStore.RadioOptions
 	tab_options has a value which is a NarrativeMethodStore.TabOptions
 	textsubdata_options has a value which is a NarrativeMethodStore.TextSubdataOptions
@@ -3886,6 +3948,14 @@ DropdownOptions is a reference to a hash where the following keys are defined:
 DropdownOption is a reference to a hash where the following keys are defined:
 	value has a value which is a string
 	display has a value which is a string
+DynamicDropdownOptions is a reference to a hash where the following keys are defined:
+	data_source has a value which is a string
+	service_function has a value which is a string
+	service_version has a value which is a string
+	service_params has a value which is an UnspecifiedObject, which can hold any non-null object
+	selection_id has a value which is a string
+	description_template has a value which is a string
+	multiselection has a value which is a NarrativeMethodStore.boolean
 RadioOptions is a reference to a hash where the following keys are defined:
 	id_order has a value which is a reference to a list where each element is a string
 	ids_to_options has a value which is a reference to a hash where the key is a string and the value is a string
@@ -4111,6 +4181,7 @@ MethodParameter is a reference to a hash where the following keys are defined:
 	floatslider_options has a value which is a NarrativeMethodStore.FloatSliderOptions
 	checkbox_options has a value which is a NarrativeMethodStore.CheckboxOptions
 	dropdown_options has a value which is a NarrativeMethodStore.DropdownOptions
+	dynamic_dropdown_options has a value which is a NarrativeMethodStore.DynamicDropdownOptions
 	radio_options has a value which is a NarrativeMethodStore.RadioOptions
 	tab_options has a value which is a NarrativeMethodStore.TabOptions
 	textsubdata_options has a value which is a NarrativeMethodStore.TextSubdataOptions
@@ -4146,6 +4217,14 @@ DropdownOptions is a reference to a hash where the following keys are defined:
 DropdownOption is a reference to a hash where the following keys are defined:
 	value has a value which is a string
 	display has a value which is a string
+DynamicDropdownOptions is a reference to a hash where the following keys are defined:
+	data_source has a value which is a string
+	service_function has a value which is a string
+	service_version has a value which is a string
+	service_params has a value which is an UnspecifiedObject, which can hold any non-null object
+	selection_id has a value which is a string
+	description_template has a value which is a string
+	multiselection has a value which is a NarrativeMethodStore.boolean
 RadioOptions is a reference to a hash where the following keys are defined:
 	id_order has a value which is a reference to a list where each element is a string
 	ids_to_options has a value which is a reference to a hash where the key is a string and the value is a string
@@ -4435,6 +4514,7 @@ MethodParameter is a reference to a hash where the following keys are defined:
 	floatslider_options has a value which is a NarrativeMethodStore.FloatSliderOptions
 	checkbox_options has a value which is a NarrativeMethodStore.CheckboxOptions
 	dropdown_options has a value which is a NarrativeMethodStore.DropdownOptions
+	dynamic_dropdown_options has a value which is a NarrativeMethodStore.DynamicDropdownOptions
 	radio_options has a value which is a NarrativeMethodStore.RadioOptions
 	tab_options has a value which is a NarrativeMethodStore.TabOptions
 	textsubdata_options has a value which is a NarrativeMethodStore.TextSubdataOptions
@@ -4470,6 +4550,14 @@ DropdownOptions is a reference to a hash where the following keys are defined:
 DropdownOption is a reference to a hash where the following keys are defined:
 	value has a value which is a string
 	display has a value which is a string
+DynamicDropdownOptions is a reference to a hash where the following keys are defined:
+	data_source has a value which is a string
+	service_function has a value which is a string
+	service_version has a value which is a string
+	service_params has a value which is an UnspecifiedObject, which can hold any non-null object
+	selection_id has a value which is a string
+	description_template has a value which is a string
+	multiselection has a value which is a NarrativeMethodStore.boolean
 RadioOptions is a reference to a hash where the following keys are defined:
 	id_order has a value which is a reference to a list where each element is a string
 	ids_to_options has a value which is a reference to a hash where the key is a string and the value is a string
@@ -4695,6 +4783,7 @@ MethodParameter is a reference to a hash where the following keys are defined:
 	floatslider_options has a value which is a NarrativeMethodStore.FloatSliderOptions
 	checkbox_options has a value which is a NarrativeMethodStore.CheckboxOptions
 	dropdown_options has a value which is a NarrativeMethodStore.DropdownOptions
+	dynamic_dropdown_options has a value which is a NarrativeMethodStore.DynamicDropdownOptions
 	radio_options has a value which is a NarrativeMethodStore.RadioOptions
 	tab_options has a value which is a NarrativeMethodStore.TabOptions
 	textsubdata_options has a value which is a NarrativeMethodStore.TextSubdataOptions
@@ -4730,6 +4819,14 @@ DropdownOptions is a reference to a hash where the following keys are defined:
 DropdownOption is a reference to a hash where the following keys are defined:
 	value has a value which is a string
 	display has a value which is a string
+DynamicDropdownOptions is a reference to a hash where the following keys are defined:
+	data_source has a value which is a string
+	service_function has a value which is a string
+	service_version has a value which is a string
+	service_params has a value which is an UnspecifiedObject, which can hold any non-null object
+	selection_id has a value which is a string
+	description_template has a value which is a string
+	multiselection has a value which is a NarrativeMethodStore.boolean
 RadioOptions is a reference to a hash where the following keys are defined:
 	id_order has a value which is a reference to a list where each element is a string
 	ids_to_options has a value which is a reference to a hash where the key is a string and the value is a string
@@ -6352,6 +6449,79 @@ subdata_selection has a value which is a NarrativeMethodStore.SubdataSelection
 
 
 
+=head2 DynamicDropdownOptions
+
+=over 4
+
+
+
+=item Description
+
+Defines a parameter field that allows autocomplete based on a call to a dynamic service.
+For instance, selection of files from the stageing_service or from kbase_search. It will
+appear as a text field with dropdown similar to selection of other WS data objects.
+
+    data_source - one of ftp_staging | search | custom. Provides sensible defaults to
+                   for the following parameters for a common type of dropdown which can be
+                   overwritten
+
+    service_function - name of SDK method including prefix with SDK module started up as
+                   dynamic service (it's fully qualified method name where module and
+                   method are separated by '.').
+
+    service_version - optional version of module used in service_function
+                   (default value is 'release').
+
+    service_params - The parameters that will be supplied to the dynamic service call as
+                   JSON. The special text "{{dynamic_dropdown_input}}" will be replaced by
+                   the value of user input at call time.
+
+    selection_id - name of key result_aliases which will be sent as selected value
+
+    description_template - Defines how the description of items is rendered using
+                   Handlebar templates (use the keys in result_aliases as variable names)
+    multiselection - if true, then multiple selections are allowed in a single input field.
+                   This will override the allow_multiple option (which allows user addition)
+                   of additional fields.  If true, then this parameter will return a list.
+                   Default= false
+
+
+=item Definition
+
+=begin html
+
+<pre>
+a reference to a hash where the following keys are defined:
+data_source has a value which is a string
+service_function has a value which is a string
+service_version has a value which is a string
+service_params has a value which is an UnspecifiedObject, which can hold any non-null object
+selection_id has a value which is a string
+description_template has a value which is a string
+multiselection has a value which is a NarrativeMethodStore.boolean
+
+</pre>
+
+=end html
+
+=begin text
+
+a reference to a hash where the following keys are defined:
+data_source has a value which is a string
+service_function has a value which is a string
+service_version has a value which is a string
+service_params has a value which is an UnspecifiedObject, which can hold any non-null object
+selection_id has a value which is a string
+description_template has a value which is a string
+multiselection has a value which is a NarrativeMethodStore.boolean
+
+
+=end text
+
+=back
+
+
+
 =head2 MethodParameter
 
 =over 4
@@ -6367,7 +6537,7 @@ ui_name - short name that is displayed to the user
 short_hint - short phrase or sentence describing the parameter
 description - longer and more technical description of the parameter
 field_type - one of: text | textarea | textsubdata | intslider | floatslider | checkbox |
-             dropdown | radio | tab | file
+             dropdown | radio | tab | file | dynamic_dropdown
 allow_mutiple - only supported for field_type text, allows entry of a list
                 instead of a single value, default is 0
                 if set, the number of starting boxes will be either 1 or the
@@ -6386,7 +6556,7 @@ ui_class  - input | output | parameter
            and plain old parameter is more or less numbers, fixed selections, etc)
 
 @optional text_options textarea_options intslider_options floatslider_options
-@optional checkbox_options dropdown_options radio_options tab_options
+@optional checkbox_options dropdown_options radio_options tab_options dynamic_dropdown_options
 
 
 =item Definition
@@ -6412,6 +6582,7 @@ intslider_options has a value which is a NarrativeMethodStore.IntSliderOptions
 floatslider_options has a value which is a NarrativeMethodStore.FloatSliderOptions
 checkbox_options has a value which is a NarrativeMethodStore.CheckboxOptions
 dropdown_options has a value which is a NarrativeMethodStore.DropdownOptions
+dynamic_dropdown_options has a value which is a NarrativeMethodStore.DynamicDropdownOptions
 radio_options has a value which is a NarrativeMethodStore.RadioOptions
 tab_options has a value which is a NarrativeMethodStore.TabOptions
 textsubdata_options has a value which is a NarrativeMethodStore.TextSubdataOptions
@@ -6440,6 +6611,7 @@ intslider_options has a value which is a NarrativeMethodStore.IntSliderOptions
 floatslider_options has a value which is a NarrativeMethodStore.FloatSliderOptions
 checkbox_options has a value which is a NarrativeMethodStore.CheckboxOptions
 dropdown_options has a value which is a NarrativeMethodStore.DropdownOptions
+dynamic_dropdown_options has a value which is a NarrativeMethodStore.DynamicDropdownOptions
 radio_options has a value which is a NarrativeMethodStore.RadioOptions
 tab_options has a value which is a NarrativeMethodStore.TabOptions
 textsubdata_options has a value which is a NarrativeMethodStore.TextSubdataOptions
