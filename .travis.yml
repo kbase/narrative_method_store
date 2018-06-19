@@ -1,8 +1,11 @@
 ---
 language: java
+before_install:
+  - sudo apt-get -qq update
+  # ant-optional is needed for ant junit
+  - sudo apt-get install ant-optional
 script: make && make test
 jdk:
-  - oraclejdk7
   - oraclejdk8
 
 branches:

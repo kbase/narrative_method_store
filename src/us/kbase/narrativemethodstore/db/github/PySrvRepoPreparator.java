@@ -95,7 +95,7 @@ public class PySrvRepoPreparator {
             Map<String, Object> specData = new LinkedHashMap<String, Object>();
             specData.put("ver", "1.0.0");
             specData.put("authors", Arrays.asList(userId));
-            specData.put("contact", "help@kbase.us");
+            specData.put("contact", "http://kbase.us/contact-us/");
             specData.put("visible", true);
             specData.put("categories", Arrays.asList("active"));
             specData.put("widgets", new LinkedHashMap<String, Object>());
