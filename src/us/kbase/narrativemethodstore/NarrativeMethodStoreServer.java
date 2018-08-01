@@ -69,7 +69,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
     public static final String CFG_PROP_AUTH_SERVICE_URL = "auth-service-url";
     public static final String    CFG_PROP_AUTH_INSECURE = "auth-service-url-allow-insecure";
     
-    public static final String VERSION = "0.3.6";
+    public static final String VERSION = "0.3.7";
     
     private static Throwable configError = null;
     private static Map<String, String> config = null;
