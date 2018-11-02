@@ -15,7 +15,7 @@ FROM kbase/kb_jre:latest
 ARG BUILD_DATE
 ARG VCS_REF
 ARG BRANCH 
-ENV KB_DEPLOYMENT_CONFIG "/kb/deployment/conf/deploy.cfg"
+ENV KB_DEPLOYMENT_CONFIG "/kb/deployment/conf/deployment.cfg"
 
 COPY --from=build /kb/deployment /kb/deployment/
 
