@@ -51,4 +51,4 @@ method-spec-default-tag = {{ default .Env.method_spec_default_tag "dev" }}
 
 # The KBase authorization server url.
 auth-service-url = {{ default .Env.auth_service_url "https://kbase.us/services/authorization" }}
-#auth-service-url-allow-insecure={{ default .Env.auth_service_url_allow_insecure "false" }}
+auth-service-url-allow-insecure = {{ default .Env.auth_service_url_allow_insecure "false" }}

@@ -6,6 +6,7 @@
     <servlet>
         <servlet-name>RootServlet</servlet-name>
         <servlet-class>us.kbase.narrativemethodstore.NarrativeMethodStoreServer</servlet-class>
+        <load-on-startup>1</load-on-startup>
     </servlet>
     <servlet>
         <servlet-name>ImageServlet</servlet-name>

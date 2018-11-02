@@ -5,7 +5,6 @@ COPY . /tmp/narrative_method_store
 COPY deployment /kb/deployment
 
 RUN mkdir -p /kb/deployment/services/narrative_method_store && \
-    find /kb/deployment && \
     pip install configobj && \
     cd /tmp/narrative_method_store && \
     make compile deploy-service
@@ -26,6 +25,7 @@ LABEL org.label-schema.build-date=$BUILD_DATE \
       us.kbase.vcs-branch=$BRANCH \
       maintainer="Steve Chan sychan@lbl.gov"
 
+EXPOSE 7058
 ENTRYPOINT [ "/kb/deployment/bin/dockerize" ]
 CMD [ "-template", "/kb/deployment/conf/.templates/deployment.cfg.templ:/kb/deployment/conf/deployment.cfg", \
       "-template", "/kb/deployment/conf/.templates/http.ini.templ:/kb/deployment/jettybase/start.d/http.ini", \
