@@ -7,7 +7,7 @@ COPY deployment /kb/deployment
 RUN mkdir -p /kb/deployment/services/narrative_method_store && \
     pip install configobj && \
     cd /tmp/narrative_method_store && \
-    make compile build-bin deploy-service
+    make compile build-libs deploy-service
 
 FROM kbase/kb_jre:latest
 # These ARGs values are passed in via the docker build command
