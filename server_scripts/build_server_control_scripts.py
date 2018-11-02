@@ -32,6 +32,7 @@ def getConfig(param, cfg, cfile):
                  .format(param, cfile))
     return cfg[param]
 
+
 if len(sys.argv) < 8:
     printerr("Missing arguments to build_server_control_scripts")
 if len(sys.argv) == 8:
