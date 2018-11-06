@@ -28,8 +28,6 @@ ASADMIN ?= /usr/bin/true
 # make sure our make test works
 .PHONY : test
 
-ANT_OPTIONS =
-
 TESTCFG ?= test.cfg
 
 default: build-libs build-docs build-bin
