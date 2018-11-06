@@ -7,6 +7,7 @@ COPY deployment /kb/deployment
 RUN mkdir -p /kb/deployment/services/narrative_method_store && \
     pip install configobj && \
     cd /tmp/narrative_method_store && \
+    git version && \
     make && make deploy-service
 
 FROM kbase/kb_jre:latest
