@@ -10,7 +10,8 @@ RUN pip install configobj && \
     cd /tmp/narrative_method_store && \
     # do an end run around git submodule commands in makefile - breaks in docker hub
     ant compile -Djardir=/tmp/jars/lib/jars  && \ 
-    make deploy-service
+    make deploy-service && \
+    mkdir -m 777 /kb/deployment/services/narrative_method_store/logs 
 
 FROM kbase/kb_jre:latest
 # These ARGs values are passed in via the docker build command
@@ -34,7 +35,7 @@ CMD [ "-template", "/kb/deployment/conf/.templates/deployment.cfg.templ:/kb/depl
       "-template", "/kb/deployment/conf/.templates/http.ini.templ:/kb/deployment/services/narrative_method_store/start.d/http.ini", \
       "-template", "/kb/deployment/conf/.templates/server.ini.templ:/kb/deployment/services/narrative_method_store/start.d/server.ini", \
       "-template", "/kb/deployment/conf/.templates/start_server.sh.templ:/kb/deployment/bin/start_server.sh", \
-      "-stdout", "/kb/deployment/jettybase/logs/request.log", \
+      "-stdout", "/kb/deployment/services/narrative_method_store/logs/request.log", \
       "/kb/deployment/bin/start_server.sh" ]
 
 WORKDIR /kb/deployment/services/narrative_method_store
