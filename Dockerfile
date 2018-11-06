@@ -4,8 +4,7 @@ FROM kbase/sdkbase2:latest as build
 COPY . /tmp/narrative_method_store
 COPY deployment /kb/deployment
 
-RUN mkdir -p /kb/deployment/services/narrative_method_store && \
-    pip install configobj && \
+RUN pip install configobj && \
     cd /tmp && \
     git clone https://github.com/kbase/jars && \
     cd /tmp/narrative_method_store && \
@@ -32,10 +31,10 @@ LABEL org.label-schema.build-date=$BUILD_DATE \
 EXPOSE 7058
 ENTRYPOINT [ "/kb/deployment/bin/dockerize" ]
 CMD [ "-template", "/kb/deployment/conf/.templates/deployment.cfg.templ:/kb/deployment/conf/deployment.cfg", \
-      "-template", "/kb/deployment/conf/.templates/http.ini.templ:/kb/deployment/jettybase/start.d/http.ini", \
-      "-template", "/kb/deployment/conf/.templates/server.ini.templ:/kb/deployment/jettybase/start.d/server.ini", \
+      "-template", "/kb/deployment/conf/.templates/http.ini.templ:/kb/deployment/services/narrative_method_store/start.d/http.ini", \
+      "-template", "/kb/deployment/conf/.templates/server.ini.templ:/kb/deployment/services/narrative_method_store/start.d/server.ini", \
       "-template", "/kb/deployment/conf/.templates/start_server.sh.templ:/kb/deployment/bin/start_server.sh", \
       "-stdout", "/kb/deployment/jettybase/logs/request.log", \
       "/kb/deployment/bin/start_server.sh" ]
 
-WORKDIR /kb/deployment/jettybase
+WORKDIR /kb/deployment/services/narrative_method_store
