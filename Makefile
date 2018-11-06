@@ -35,7 +35,7 @@ TESTCFG ?= test.cfg
 default: build-libs build-docs build-bin
 
 
-ANT_OPTIONS = -Djardir=submodules/jars/lib/jars
+ANT_OPTIONS ?= -Djardir=submodules/jars/lib/jars
 
 build-libs: submodule-init
 	$(ANT) compile $(ANT_OPTIONS)

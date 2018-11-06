@@ -6,9 +6,12 @@ COPY deployment /kb/deployment
 
 RUN mkdir -p /kb/deployment/services/narrative_method_store && \
     pip install configobj && \
+    cd /tmp && \
+    git clone https://github.com/kbase/jars && \
     cd /tmp/narrative_method_store && \
-    git submodule init && git submodule update && \
-    make && make deploy-service
+    # do an end run around git submodule commands in makefile - breaks in docker hub
+    ant compile -Djardir=/tmp/jars/lib/jars  && \ 
+    make deploy-service
 
 FROM kbase/kb_jre:latest
 # These ARGs values are passed in via the docker build command
