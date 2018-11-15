@@ -22,6 +22,8 @@ ENV KB_DEPLOYMENT_CONFIG "/kb/deployment/conf/deployment.cfg"
 
 COPY --from=build /kb/deployment /kb/deployment/
 
+RUN apt-get update -y && apt-get install -y git
+
 LABEL org.label-schema.build-date=$BUILD_DATE \
       org.label-schema.vcs-url="https://github.com/kbase/narrative_method_store.git" \
       org.label-schema.vcs-ref=$VCS_REF \
