@@ -226,7 +226,7 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
         if (tag == null || tag.equals(RepoTag.dev))
             return getRepoLastVersion(repoModuleName);
         List<Long> vers;
-        if (tag != null && tag.isGitCommitHash()) {
+        if (tag.isGitCommitHash()) {
             vers = listRepoVersions(repoModuleName, tag);
         } else {
             String versionField = null;
@@ -235,6 +235,7 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
             } else if (tag.equals(RepoTag.release)) {
                 versionField = FIELD_RI_LAST_RELEASE_VERSION;
             } else {
+                // this is impossible based on the current RepoTag class
                 throw new NarrativeMethodStoreException("Unsupported tag: " + tag);
             }
             vers = MongoUtils.getProjection(jdb.getCollection(TABLE_REPO_INFO),
@@ -242,7 +243,7 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
                     versionField, Long.class, repoModuleName);
         }
         checkRepoRegistered(repoModuleName, vers);
-        return vers.size() == 0 ? null : Collections.max(vers);
+        return Collections.max(vers);
     }
 
     @Override
