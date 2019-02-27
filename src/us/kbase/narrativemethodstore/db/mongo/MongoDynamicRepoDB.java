@@ -18,7 +18,9 @@ import java.util.TreeSet;
 import org.jongo.Jongo;
 import org.jongo.MongoCollection;
 
+import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
+import com.mongodb.DBCollection;
 import com.mongodb.MongoException.DuplicateKey;
 
 import us.kbase.auth.AuthToken;
@@ -91,18 +93,24 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
     }
     
     private void ensureIndeces() {
-        MongoCollection repoData = jdb.getCollection(TABLE_REPO_INFO);
-        repoData.ensureIndex(String.format("{%s:1}", FIELD_RI_MODULE_NAME), "{unique:true}");
-        repoData.ensureIndex(String.format("{%s:1}", FIELD_RI_DOCKER_IMAGE), "{unique:false}");
-        MongoCollection repoHist = jdb.getCollection(TABLE_REPO_HISTORY);
-        repoHist.ensureIndex(String.format("{%s:1,%s:1}", FIELD_RH_MODULE_NAME, 
-                FIELD_RH_VERSION), "{unique:true}");
-        repoHist.ensureIndex(String.format("{%s:1,%s:1}", FIELD_RH_MODULE_NAME, 
-                FIELD_RH_REPO_DATA + ".gitCommitHash"), "{unique:false}");
-        MongoCollection repoFiles = jdb.getCollection(TABLE_REPO_FILES);
-        repoFiles.ensureIndex(String.format("{%s:1}", FIELD_RF_FILE_ID), "{unique:true}");
-        repoFiles.ensureIndex(String.format("{%s:1,%s:1,%s:1,%s:1}", FIELD_RF_MODULE_NAME, 
-                FIELD_RF_FILE_NAME, FIELD_RF_LENGTH, FIELD_RF_MD5), "{unique:false}");
+        final BasicDBObject uniq = new BasicDBObject("unique", true);
+        
+        final DBCollection repoData = db.getCollection(TABLE_REPO_INFO);
+        repoData.createIndex(new BasicDBObject(FIELD_RI_MODULE_NAME, 1), uniq);
+        repoData.createIndex(new BasicDBObject(FIELD_RI_DOCKER_IMAGE, 1));
+        
+        final DBCollection repoHist = db.getCollection(TABLE_REPO_HISTORY);
+        repoHist.createIndex(new BasicDBObject(FIELD_RH_MODULE_NAME, 1)
+                .append(FIELD_RH_VERSION, 1), uniq);
+        repoHist.createIndex(new BasicDBObject(FIELD_RH_MODULE_NAME, 1)
+                .append(FIELD_RH_REPO_DATA + ".gitCommitHash", 1));
+
+        final DBCollection repoFiles = db.getCollection(TABLE_REPO_FILES);
+        repoFiles.createIndex(new BasicDBObject(FIELD_RF_FILE_ID, 1), uniq);
+        repoFiles.createIndex(new BasicDBObject(FIELD_RF_MODULE_NAME, 1)
+                .append(FIELD_RF_FILE_NAME, 1)
+                .append(FIELD_RF_LENGTH, 1)
+                .append(FIELD_RF_MD5, 1));
     }
     
     @Override
@@ -218,7 +226,7 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
         if (tag == null || tag.equals(RepoTag.dev))
             return getRepoLastVersion(repoModuleName);
         List<Long> vers;
-        if (tag != null && tag.isGitCommitHash()) {
+        if (tag.isGitCommitHash()) {
             vers = listRepoVersions(repoModuleName, tag);
         } else {
             String versionField = null;
@@ -227,6 +235,7 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
             } else if (tag.equals(RepoTag.release)) {
                 versionField = FIELD_RI_LAST_RELEASE_VERSION;
             } else {
+                // this is impossible based on the current RepoTag class
                 throw new NarrativeMethodStoreException("Unsupported tag: " + tag);
             }
             vers = MongoUtils.getProjection(jdb.getCollection(TABLE_REPO_INFO),
@@ -234,7 +243,7 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
                     versionField, Long.class, repoModuleName);
         }
         checkRepoRegistered(repoModuleName, vers);
-        return vers.size() == 0 ? null : Collections.max(vers);
+        return Collections.max(vers);
     }
 
     @Override
@@ -291,6 +300,7 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
                 whereCondition = String.format("{%s:#,%s:1}", FIELD_RH_MODULE_NAME, 
                         tag.equals(RepoTag.beta) ? FIELD_RH_IS_BETA : FIELD_RH_IS_RELEASE);
             } else {
+                // this is impossible based on the current RepoTag code
                 throw new NarrativeMethodStoreException("Unsupported tag: " + tag);
             }
             ret = MongoUtils.getProjection(jdb.getCollection(TABLE_REPO_HISTORY),

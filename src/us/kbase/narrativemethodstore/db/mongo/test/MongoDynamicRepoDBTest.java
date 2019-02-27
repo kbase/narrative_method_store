@@ -27,7 +27,6 @@ import org.junit.Test;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.mongodb.DB;
 
-import us.kbase.auth.AuthService;
 import us.kbase.auth.AuthToken;
 import us.kbase.common.mongo.GetMongoDB;
 import us.kbase.common.service.UObject;
@@ -41,7 +40,6 @@ import us.kbase.narrativemethodstore.db.JsonRepoProvider;
 import us.kbase.narrativemethodstore.db.NarrativeMethodData;
 import us.kbase.narrativemethodstore.db.RepoProvider;
 import us.kbase.narrativemethodstore.db.DynamicRepoDB.RepoState;
-import us.kbase.narrativemethodstore.db.docker.DockerImageBuilder;
 import us.kbase.narrativemethodstore.db.github.FileRepoProvider;
 import us.kbase.narrativemethodstore.db.github.GitHubRepoProvider;
 import us.kbase.narrativemethodstore.db.github.PySrvRepoPreparator;
@@ -54,6 +52,7 @@ import us.kbase.narrativemethodstore.util.TextUtils;
 import us.kbase.shock.client.BasicShockClient;
 import us.kbase.shock.client.ShockNodeId;
 
+// It'd be nice to know why this is ignored
 @Ignore
 public class MongoDynamicRepoDBTest {
     private static final String dbName = "test_repo_registry_mongo";
