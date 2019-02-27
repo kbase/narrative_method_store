@@ -17,8 +17,10 @@ import org.bson.types.BasicBSONList;
 import us.kbase.common.service.UObject;
 import us.kbase.narrativemethodstore.exceptions.NarrativeMethodStoreException;
 
+import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
@@ -27,6 +29,11 @@ import com.mongodb.DBObject;
 public class MongoUtils {
     private static final String HEXES = "0123456789abcdef";
     private static final ObjectMapper MAPPER = new ObjectMapper();
+    static {
+        final VisibilityChecker<?> checker = MAPPER.getSerializationConfig()
+                .getDefaultVisibilityChecker();
+        MAPPER.setVisibilityChecker(checker.withFieldVisibility(Visibility.ANY));
+    }
 
     @SuppressWarnings({ "unchecked" })
     public static <T> List<T> getProjection(
@@ -52,7 +59,7 @@ public class MongoUtils {
     }
 
     /** Map an object to a MongoDB {@link DBObject}. The object must be serializable by
-     * a default {@link ObjectMapper}.
+     * an {@link ObjectMapper} configured so private fields are visible.
      * @param obj the object to map.
      * @return the new mongo compatible object.
      */
@@ -62,6 +69,20 @@ public class MongoUtils {
     
     private static Map<String, Object> objToMap(final Object obj) {
         return MAPPER.convertValue(obj, new TypeReference<Map<String, Object>>() {});
+    }
+    
+    
+    /** Map a MongoDB {@link DBObject} to a class.
+     * This method expects that all maps and lists in the objects are implemented as
+     * {@link BSONObject}s or derived classes, not standard maps, lists, or other classes.
+     * The object must be deserializable by an {@link ObjectMapper} configured so private
+     * fields are visible.
+     * @param dbo the MongoDB object to transform.
+     * @param clazz the class to which the object will be transformed.
+     * @return the transformed object.
+     */
+    public static <T> T toObject(final DBObject dbo, final Class<T> clazz) {
+        return dbo == null ? null : MAPPER.convertValue(toMap(dbo), clazz);
     }
     
     /** Map a MongoDB {@link BSONObject} to a standard map.

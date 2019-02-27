@@ -2,6 +2,7 @@ package us.kbase.narrativemethodstore.db.mongo;
 
 import static us.kbase.narrativemethodstore.db.mongo.MongoUtils.toDBObject;
 import static us.kbase.narrativemethodstore.db.mongo.MongoUtils.toMap;
+import static us.kbase.narrativemethodstore.db.mongo.MongoUtils.toObject;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -329,10 +330,9 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
         checkAdmin(userId);
         if (tag == null || tag.equals(RepoTag.dev))
             return;
-        MongoCollection data = jdb.getCollection(TABLE_REPO_INFO);
-        @SuppressWarnings("unchecked")
-        Map<String, Object> info = data.findOne(String.format("{%s:#}", 
-                FIELD_RI_MODULE_NAME), repoModuleName).as(Map.class);
+        final DBCollection data = db.getCollection(TABLE_REPO_INFO);
+        final Map<String, Object> info = toMap(data.findOne(
+                new BasicDBObject(FIELD_RI_MODULE_NAME, repoModuleName)));
         long version = (Long)info.get(FIELD_RI_LAST_VERSION);
         Long betaVer = (Long)info.get(FIELD_RI_LAST_BETA_VERSION);
         Long releaseVer = (Long)info.get(FIELD_RI_LAST_RELEASE_VERSION);
@@ -351,20 +351,23 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
         } else {
             throw new NarrativeMethodStoreException("Unsupported tag: " + tag);
         }
-        data.update(String.format("{%s:#}", FIELD_RI_MODULE_NAME), 
-                repoModuleName).with("#", info);
-        MongoCollection data2 = jdb.getCollection(TABLE_REPO_HISTORY);
-        RepoHistory hist = data2.findOne(String.format("{%s:#,%s:#}", 
-                FIELD_RH_MODULE_NAME, FIELD_RH_VERSION), repoModuleName, changedVer)
-                .as(RepoHistory.class);
+        // race condition here
+        data.update(new BasicDBObject(FIELD_RI_MODULE_NAME, repoModuleName),
+                new BasicDBObject("$set", info));
+        final DBCollection data2 = db.getCollection(TABLE_REPO_HISTORY);
+        final RepoHistory hist = toObject(data2.findOne(
+                new BasicDBObject(FIELD_RH_MODULE_NAME, repoModuleName)
+                        .append(FIELD_RH_VERSION, changedVer)), RepoHistory.class);
         hist.repo_data.repackForMongoDB();
         if (tag.equals(RepoTag.beta)) {
             hist.is_beta = 1L;
         } else {
             hist.is_release = 1L;
         }
-        data2.update(String.format("{%s:#,%s:#}", FIELD_RH_MODULE_NAME, FIELD_RH_VERSION), 
-                repoModuleName, changedVer).with("#", hist);
+        // race condition here
+        data2.update(new BasicDBObject(FIELD_RH_MODULE_NAME, repoModuleName)
+                .append(FIELD_RH_VERSION, changedVer),
+                new BasicDBObject("$set", toDBObject(hist)));
     }
     
     @Override
