@@ -20,6 +20,8 @@ import org.jongo.MongoCollection;
 import us.kbase.common.service.UObject;
 import us.kbase.narrativemethodstore.exceptions.NarrativeMethodStoreException;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
@@ -28,6 +30,7 @@ import com.mongodb.DBObject;
 
 public class MongoUtils {
     private static final String HEXES = "0123456789abcdef";
+    private static final ObjectMapper MAPPER = new ObjectMapper();
 
     @SuppressWarnings({ "unchecked" })
     public static <T> List<T> getProjection(
@@ -39,7 +42,7 @@ public class MongoUtils {
         final DBCursor cur = infos.find(whereCondition, new BasicDBObject(selectField, 1));
         final List<Map<String, Object>> data = new LinkedList<>();
         for (final DBObject dbo: cur) {
-            data.add(toMapRec(dbo));
+            data.add(toMap(dbo));
         }
         
         List<T> ret = new ArrayList<T>();
@@ -85,8 +88,27 @@ public class MongoUtils {
         }
         return value;
     }
+
+    /** Map an object to a MongoDB {@link DBObject}. The object must be serializable by
+     * a default {@link ObjectMapper}.
+     * @param obj the object to map.
+     * @return the new mongo compatible object.
+     */
+    public static DBObject toDBObject(final Object obj) {
+        return new BasicDBObject(objToMap(obj));
+    }
     
-    private static Map<String, Object> toMapRec(final BSONObject dbo) {
+    private static Map<String, Object> objToMap(final Object obj) {
+        return MAPPER.convertValue(obj, new TypeReference<Map<String, Object>>() {});
+    }
+    
+    /** Map a MongoDB {@link BSONObject} to a standard map.
+     * This method expects that all maps and lists in the objects are implemented as
+     * {@link BSONObject}s or derived classes, not standard maps, lists, or other classes.
+     * @param dbo the MongoDB object to transform to a standard map.
+     * @return the transformed object, or null if the argument was null.
+     */
+    public static Map<String, Object> toMap(final BSONObject dbo) {
         @SuppressWarnings("unchecked")
         final Map<String, Object> ret = (Map<String, Object>) cleanObject(dbo);
         return ret;

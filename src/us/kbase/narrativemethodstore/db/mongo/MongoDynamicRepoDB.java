@@ -1,5 +1,8 @@
 package us.kbase.narrativemethodstore.db.mongo;
 
+import static us.kbase.narrativemethodstore.db.mongo.MongoUtils.toDBObject;
+import static us.kbase.narrativemethodstore.db.mongo.MongoUtils.toMap;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -182,24 +185,26 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
                         "can not be updated by non-git repository: [" + oldUrl + 
                         "] -> [" + newUrl + "]");
         }
-        RepoData repoData = JsonRepoProvider.repoProviderToData(this, repoDetails);
-        MongoCollection hist = jdb.getCollection(TABLE_REPO_HISTORY);
-        hist.insert(String.format("{%s:#,%s:#,%s:#}", FIELD_RH_MODULE_NAME,
-                FIELD_RH_VERSION, FIELD_RH_REPO_DATA), repoModuleName,
-                newVersion, repoData);
-        MongoCollection data = jdb.getCollection(TABLE_REPO_INFO);
+        final RepoData repoData = JsonRepoProvider.repoProviderToData(this, repoDetails);
+        final DBCollection hist = db.getCollection(TABLE_REPO_HISTORY);
+        hist.insert(new BasicDBObject(FIELD_RH_MODULE_NAME, repoModuleName)
+                .append(FIELD_RH_VERSION, newVersion)
+                .append(FIELD_RH_REPO_DATA, toDBObject(repoData)));
+        
+        final DBCollection data = db.getCollection(TABLE_REPO_INFO);
+        //should just do an upsert rather than handling the logic application side
         if (wasReg) {
-            @SuppressWarnings("unchecked")
-            Map<String, Object> info = data.findOne(String.format("{%s:#}", 
-                    FIELD_RI_MODULE_NAME), repoModuleName).as(Map.class);
+            final Map<String, Object> info = toMap(data.findOne(
+                    new BasicDBObject(FIELD_RI_MODULE_NAME, repoModuleName)));
             info.put(FIELD_RI_LAST_VERSION, newVersion);
-            info.put(FIELD_RI_STATE, RepoState.ready);
-            data.update(String.format("{%s:#}", FIELD_RI_MODULE_NAME), 
-                    repoModuleName).with("#", info);
+            info.put(FIELD_RI_STATE, RepoState.ready.toString());
+            // this is race condition city
+            data.update(new BasicDBObject(FIELD_RI_MODULE_NAME, repoModuleName),
+                    new BasicDBObject("$set", info));
         } else {
-            data.insert(String.format("{%s:#,%s:#,%s:#}", FIELD_RI_MODULE_NAME,
-                    FIELD_RI_LAST_VERSION, FIELD_RI_STATE), 
-                    repoModuleName, newVersion, RepoState.ready);
+            data.insert(new BasicDBObject(FIELD_RI_MODULE_NAME, repoModuleName)
+                    .append(FIELD_RI_LAST_VERSION, newVersion)
+                    .append(FIELD_RI_STATE, RepoState.ready.toString()));
         }
     }
     

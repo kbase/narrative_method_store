@@ -204,8 +204,6 @@ public class MongoDynamicRepoDB2Test {
         } catch (Exception got) {
             assertExceptionCorrect(got, expected);
         }
-        
-        
     }
 
     private void registerRepo(
