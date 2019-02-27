@@ -13,14 +13,17 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.regex.Pattern;
 
 import org.jongo.Jongo;
 import org.jongo.MongoCollection;
 
+import com.google.common.collect.Lists;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
@@ -28,6 +31,7 @@ import com.mongodb.MongoException.DuplicateKey;
 
 import us.kbase.auth.AuthToken;
 import us.kbase.common.mongo.GetMongoDB;
+import us.kbase.common.service.UObject;
 import us.kbase.narrativemethodstore.db.DynamicRepoDB;
 import us.kbase.narrativemethodstore.db.FileId;
 import us.kbase.narrativemethodstore.db.FilePointer;
@@ -269,13 +273,53 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
             whereCondition = "{}";
             params = new Object[0];
         }
-        Map<String, String> map = MongoUtils.getProjection(jdb.getCollection(TABLE_REPO_INFO),
+        Map<String, String> map = getProjection(jdb.getCollection(TABLE_REPO_INFO),
                 whereCondition, FIELD_RI_MODULE_NAME, String.class, FIELD_RI_STATE, String.class, params);
         List<String> ret = new ArrayList<String>();
         for (Map.Entry<String, String> entry : map.entrySet())
             if (withDisabled || RepoState.valueOf(entry.getValue()) != RepoState.disabled)
                 ret.add(entry.getKey());
         return ret;
+    }
+    
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    private static <KT, VT> Map<KT, VT> getProjection(
+            final MongoCollection infos,
+            final String whereCondition, 
+            final String keySelectField,
+            final Class<KT> keyType,
+            final String valueSelectField,
+            final Class<VT> valueType, 
+            final Object... params)
+            throws NarrativeMethodStoreException {
+        List<Map> data = Lists.newArrayList(infos.find(whereCondition, params).projection(
+                "{'" + keySelectField + "':1,'" + valueSelectField + "':1}").as(Map.class));
+        Map<KT, VT> ret = new LinkedHashMap<KT, VT>();
+        for (Map<?,?> item : data) {
+            Object key = getMongoProp(item, keySelectField);
+            if (key == null || !(keyType.isInstance(key)))
+                throw new NarrativeMethodStoreException("Key is wrong: " + key);
+            Object value = getMongoProp(item, valueSelectField);
+            if (value == null)
+                throw new NullPointerException("Value is not defined for selected " +
+                        "field: " + valueSelectField);
+            if (!valueType.isInstance(value))
+                value = UObject.transformObjectToObject(value, valueType);
+            ret.put((KT)key, (VT)value);
+        }
+        return ret;
+    }
+    
+    private static Object getMongoProp(Map<?,?> data, String propWithDots) {
+        String[] parts = propWithDots.split(Pattern.quote("."));
+        Object value = null;
+        for (String part : parts) {
+            if (value != null) {
+                data = (Map<?,?>)value;
+            }
+            value = data.get(part);
+        }
+        return value;
     }
     
     @Override
