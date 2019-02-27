@@ -21,10 +21,11 @@ import java.util.TreeSet;
 import org.jongo.Jongo;
 import org.jongo.MongoCollection;
 
-import com.google.common.collect.Lists;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
+import com.mongodb.DBCursor;
+import com.mongodb.DBObject;
 import com.mongodb.MongoException.DuplicateKey;
 
 import us.kbase.auth.AuthToken;
@@ -261,17 +262,13 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
         // disabled repos
         // As such, that functionality has been removed and the method simplified for now
         
-        // all these warnings will be fixed on Jongo removal, next
-        final MongoCollection infos = jdb.getCollection(TABLE_REPO_INFO);
-        @SuppressWarnings("rawtypes")
-        List<Map> data = Lists.newArrayList(infos.find().projection(
-                "{'" + FIELD_RI_MODULE_NAME + "':1,'" + FIELD_RI_STATE + "':1}").as(Map.class));
+        final DBCursor cur = db.getCollection(TABLE_REPO_INFO).find(
+                new BasicDBObject(),
+                new BasicDBObject(FIELD_RI_MODULE_NAME, 1).append(FIELD_RI_STATE, 1));
         List<String> ret = new ArrayList<String>();
-        for (@SuppressWarnings("rawtypes") final Map m2: data) {
-            @SuppressWarnings("unchecked")
-            final Map<String, Object> m = m2;
-            if (RepoState.valueOf((String) m.get(FIELD_RI_STATE)) != RepoState.disabled) {
-                ret.add((String) m.get(FIELD_RI_MODULE_NAME));
+        for (final DBObject dbo: cur) {
+            if (RepoState.valueOf((String) dbo.get(FIELD_RI_STATE)) != RepoState.disabled) {
+                ret.add((String) dbo.get(FIELD_RI_MODULE_NAME));
             }
         }
         return ret;
