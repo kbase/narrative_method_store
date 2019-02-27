@@ -16,7 +16,7 @@ public interface DynamicRepoDB {
 
     public Long getRepoLastVersion(String repoModuleName, RepoTag tag) throws NarrativeMethodStoreException;
     
-    public List<String> listRepoModuleNames(boolean withDisabled, RepoTag tag) throws NarrativeMethodStoreException;
+    public List<String> listRepoModuleNames() throws NarrativeMethodStoreException;
     
     public RepoProvider getRepoDetails(String repoModuleName, RepoTag tag) throws NarrativeMethodStoreException;
     

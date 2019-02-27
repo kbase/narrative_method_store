@@ -256,29 +256,20 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
     }
 
     @Override
-    public List<String> listRepoModuleNames(boolean withDisabled, RepoTag tag)
-            throws NarrativeMethodStoreException {
-        String whereCondition;
-        Object[] params;
-        if (tag != null && !tag.equals(RepoTag.dev)) {
-            if (tag.equals(RepoTag.beta)) {
-                whereCondition = String.format("{%s:#}", FIELD_RI_LAST_BETA_VERSION);
-            } else if (tag.equals(RepoTag.release)) {
-                whereCondition = String.format("{%s:#}", FIELD_RI_LAST_RELEASE_VERSION);
-            } else {
-                throw new NarrativeMethodStoreException("Unsupported tag: " + tag);
-            }
-            params = new Object[] {tag.name()};
-        } else {
-            whereCondition = "{}";
-            params = new Object[0];
-        }
+    public List<String> listRepoModuleNames() throws NarrativeMethodStoreException {
+        // in commit 65f21e2 this method could filter based on the repo tag and disabled state
+        // however, the tag lookup was broken and would always return no values for beta or
+        // release
+        // The method was only used in one place which didn't supply a tag and filtered out
+        // disabled repos
+        // As such, that functionality has been removed and the method simplified for now
         Map<String, String> map = getProjection(jdb.getCollection(TABLE_REPO_INFO),
-                whereCondition, FIELD_RI_MODULE_NAME, String.class, FIELD_RI_STATE, String.class, params);
+                "{}", FIELD_RI_MODULE_NAME, String.class, FIELD_RI_STATE, String.class);
         List<String> ret = new ArrayList<String>();
         for (Map.Entry<String, String> entry : map.entrySet())
-            if (withDisabled || RepoState.valueOf(entry.getValue()) != RepoState.disabled)
+            if (RepoState.valueOf(entry.getValue()) != RepoState.disabled) {
                 ret.add(entry.getKey());
+            }
         return ret;
     }
     

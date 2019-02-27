@@ -90,13 +90,13 @@ public class MongoDynamicRepoDBTest {
         String host = "localhost:" + dbHelper.getMongoPort();
         MongoDynamicRepoDB db = new MongoDynamicRepoDB(host, dbName, null, null, 
                 Arrays.asList(globalAdmin), false, shockUrl, shockToken);
-        Assert.assertEquals(0, db.listRepoModuleNames(false, null).size());
+        Assert.assertEquals(0, db.listRepoModuleNames().size());
         RepoProvider pvd = localFiles ? new FileRepoProvider(new File(localPath)) :
             new GitHubRepoProvider(new URL(gitUrl), null, dbHelper.getWorkDir());
         try {
             db.registerRepo(user1, pvd);
             Assert.assertEquals("[" + repoModuleName + "]", 
-                    db.listRepoModuleNames(false, null).toString(), null);
+                    db.listRepoModuleNames().toString(), null);
             Assert.assertTrue(db.isRepoOwner(repoModuleName, user1));
             Assert.assertEquals("[msneddon, " + user1 + "]", 
                     db.listRepoOwners(repoModuleName).toString());
@@ -115,8 +115,8 @@ public class MongoDynamicRepoDBTest {
             }
             db.setRepoState(user1, repoModuleName, RepoState.disabled);
             Assert.assertEquals(RepoState.disabled, db.getRepoState(repoModuleName));
-            Assert.assertEquals(0, db.listRepoModuleNames(false, null).size());
-            Assert.assertEquals(1, db.listRepoModuleNames(true, null).size());
+            Assert.assertEquals(0, db.listRepoModuleNames().size());
+//            Assert.assertEquals(1, db.listRepoModuleNames(true, null).size());
             // Register second version
             db.registerRepo(globalAdmin, pvd);
             long ver2 = db.getRepoLastVersion(repoModuleName, null);
@@ -150,8 +150,8 @@ public class MongoDynamicRepoDBTest {
             }
             db.setRepoState(globalAdmin, repoModuleName, RepoState.testing);
             db.setRepoState(globalAdmin, repoModuleName, RepoState.disabled);
-            Assert.assertEquals(0, db.listRepoModuleNames(false, null).size());
-            Assert.assertEquals(1, db.listRepoModuleNames(true, null).size());
+            Assert.assertEquals(0, db.listRepoModuleNames().size());
+//            Assert.assertEquals(1, db.listRepoModuleNames(true, null).size());
 
             Assert.assertFalse(db.isRepoRegistered(unregModuleName, true));
             try {
@@ -223,11 +223,11 @@ public class MongoDynamicRepoDBTest {
         String host = "localhost:" + dbHelper.getMongoPort();
         MongoDynamicRepoDB db = new MongoDynamicRepoDB(host, dbName, null, null, 
                 Arrays.asList(globalAdmin), false, shockUrl, shockToken);
-        Assert.assertEquals(0, db.listRepoModuleNames(false, null).size());
+        Assert.assertEquals(0, db.listRepoModuleNames().size());
         RepoProvider pvd = new FileRepoProvider(repoDir);
         db.registerRepo(userId, pvd);
         Assert.assertEquals("[" + moduleName + "]", 
-                db.listRepoModuleNames(false, null).toString());
+                db.listRepoModuleNames().toString());
         Assert.assertTrue(db.isRepoOwner(moduleName, userId));
         Assert.assertEquals("[" + userId + "]", 
                 db.listRepoOwners(moduleName).toString());
