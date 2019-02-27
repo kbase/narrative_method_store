@@ -116,9 +116,9 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
     @Override
     public boolean isRepoRegistered(String repoModuleName, boolean withDisabled)
             throws NarrativeMethodStoreException {
-        List<String> dis = MongoUtils.getProjection(jdb.getCollection(TABLE_REPO_INFO),
-                String.format("{%s:#}", FIELD_RI_MODULE_NAME), 
-                FIELD_RI_STATE, String.class, repoModuleName);
+        List<String> dis = MongoUtils.getProjection(db.getCollection(TABLE_REPO_INFO),
+                new BasicDBObject(FIELD_RI_MODULE_NAME, repoModuleName),
+                FIELD_RI_STATE, String.class);
         return dis.size() > 0 && (withDisabled || 
                 RepoState.valueOf(dis.get(0)) != RepoState.disabled);
     }
@@ -213,9 +213,9 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
     
     private long getRepoLastVersion(String repoModuleName)
             throws NarrativeMethodStoreException {
-        List<Long> vers = MongoUtils.getProjection(jdb.getCollection(TABLE_REPO_INFO),
-                String.format("{%s:#}", FIELD_RI_MODULE_NAME), 
-                FIELD_RI_LAST_VERSION, Long.class, repoModuleName);
+        List<Long> vers = MongoUtils.getProjection(db.getCollection(TABLE_REPO_INFO),
+                new BasicDBObject(FIELD_RI_MODULE_NAME, repoModuleName),
+                FIELD_RI_LAST_VERSION, Long.class);
         checkRepoRegistered(repoModuleName, vers);
         return vers.get(0);
     }
@@ -238,9 +238,9 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
                 // this is impossible based on the current RepoTag class
                 throw new NarrativeMethodStoreException("Unsupported tag: " + tag);
             }
-            vers = MongoUtils.getProjection(jdb.getCollection(TABLE_REPO_INFO),
-                    String.format("{%s:#}", FIELD_RI_MODULE_NAME), 
-                    versionField, Long.class, repoModuleName);
+            vers = MongoUtils.getProjection(db.getCollection(TABLE_REPO_INFO),
+                    new BasicDBObject(FIELD_RI_MODULE_NAME, repoModuleName),
+                    versionField, Long.class);
         }
         checkRepoRegistered(repoModuleName, vers);
         return Collections.max(vers);
@@ -288,23 +288,24 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
         checkRepoRegistered(repoModuleName);
         List<Long> ret;
         if (tag != null && tag.isGitCommitHash()) {
-            ret = MongoUtils.getProjection(jdb.getCollection(TABLE_REPO_HISTORY),
-                    String.format("{%s:#,%s:#}", FIELD_RI_MODULE_NAME, 
-                            FIELD_RH_REPO_DATA + ".gitCommitHash"), 
-                    FIELD_RH_VERSION, Long.class, repoModuleName, tag.toString());
+            ret = MongoUtils.getProjection(db.getCollection(TABLE_REPO_HISTORY),
+                    new BasicDBObject(FIELD_RI_MODULE_NAME, repoModuleName)
+                            .append(FIELD_RH_REPO_DATA + ".gitCommitHash", tag.toString()),
+                    FIELD_RH_VERSION, Long.class);
         } else {
-            String whereCondition;
+            final BasicDBObject whereCondition = new BasicDBObject(
+                    FIELD_RH_MODULE_NAME, repoModuleName);
             if (tag == null || tag.equals(RepoTag.dev)) {
-                whereCondition = String.format("{%s:#}", FIELD_RH_MODULE_NAME);
+                // do nothing
             } else if (tag.equals(RepoTag.beta) || tag.equals(RepoTag.release)) {
-                whereCondition = String.format("{%s:#,%s:1}", FIELD_RH_MODULE_NAME, 
-                        tag.equals(RepoTag.beta) ? FIELD_RH_IS_BETA : FIELD_RH_IS_RELEASE);
+                whereCondition.append(
+                        tag.equals(RepoTag.beta) ? FIELD_RH_IS_BETA : FIELD_RH_IS_RELEASE, 1);
             } else {
                 // this is impossible based on the current RepoTag code
                 throw new NarrativeMethodStoreException("Unsupported tag: " + tag);
             }
-            ret = MongoUtils.getProjection(jdb.getCollection(TABLE_REPO_HISTORY),
-                    whereCondition, FIELD_RH_VERSION, Long.class, repoModuleName);
+            ret = MongoUtils.getProjection(db.getCollection(TABLE_REPO_HISTORY), whereCondition,
+                    FIELD_RH_VERSION, Long.class);
         }
         return ret;
     }
@@ -312,9 +313,10 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
     @Override
     public RepoProvider getRepoDetailsHistory(String repoModuleName,
             long version) throws NarrativeMethodStoreException {
-        List<RepoData> ret = MongoUtils.getProjection(jdb.getCollection(TABLE_REPO_HISTORY),
-                String.format("{%s:#,%s:#}", FIELD_RH_MODULE_NAME, FIELD_RH_VERSION), 
-                FIELD_RH_REPO_DATA, RepoData.class, repoModuleName, version);
+        List<RepoData> ret = MongoUtils.getProjection(db.getCollection(TABLE_REPO_HISTORY),
+                new BasicDBObject(FIELD_RH_MODULE_NAME, repoModuleName)
+                        .append(FIELD_RH_VERSION, version),
+                FIELD_RH_REPO_DATA, RepoData.class);
         checkRepoRegistered(repoModuleName, ret);
         return new JsonRepoProvider(this, ret.get(0));
     }
@@ -405,9 +407,9 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
     @Override
     public RepoState getRepoState(String repoModuleName)
             throws NarrativeMethodStoreException {
-        List<String> state = MongoUtils.getProjection(jdb.getCollection(TABLE_REPO_INFO),
-                String.format("{%s:#}", FIELD_RI_MODULE_NAME), 
-                FIELD_RI_STATE, String.class, repoModuleName);
+        List<String> state = MongoUtils.getProjection(db.getCollection(TABLE_REPO_INFO),
+                new BasicDBObject(FIELD_RI_MODULE_NAME, repoModuleName),
+                FIELD_RI_STATE, String.class);
         checkRepoRegistered(repoModuleName, state);
         return RepoState.valueOf(state.get(0));
     }

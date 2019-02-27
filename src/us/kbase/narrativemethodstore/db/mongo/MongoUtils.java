@@ -5,27 +5,43 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import org.bson.BSONObject;
+import org.bson.LazyBSONList;
+import org.bson.types.BasicBSONList;
 import org.jongo.MongoCollection;
 
 import us.kbase.common.service.UObject;
 import us.kbase.narrativemethodstore.exceptions.NarrativeMethodStoreException;
 
 import com.google.common.collect.Lists;
+import com.mongodb.BasicDBObject;
+import com.mongodb.DBCollection;
+import com.mongodb.DBCursor;
+import com.mongodb.DBObject;
 
 public class MongoUtils {
     private static final String HEXES = "0123456789abcdef";
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    public static <T> List<T> getProjection(MongoCollection infos,
-            String whereCondition, String selectField, Class<T> type, Object... params)
+    @SuppressWarnings({ "unchecked" })
+    public static <T> List<T> getProjection(
+            final DBCollection infos,
+            final DBObject whereCondition,
+            final String selectField,
+            final Class<T> type)
             throws NarrativeMethodStoreException {
-        List<Map> data = Lists.newArrayList(infos.find(whereCondition, params).projection(
-                "{" + selectField + ":1}").as(Map.class));
+        final DBCursor cur = infos.find(whereCondition, new BasicDBObject(selectField, 1));
+        final List<Map<String, Object>> data = new LinkedList<>();
+        for (final DBObject dbo: cur) {
+            data.add(toMapRec(dbo));
+        }
+        
         List<T> ret = new ArrayList<T>();
         for (Map<?,?> item : data) {
             Object value = item.get(selectField);
@@ -68,6 +84,50 @@ public class MongoUtils {
             value = data.get(part);
         }
         return value;
+    }
+    
+    private static Map<String, Object> toMapRec(final BSONObject dbo) {
+        @SuppressWarnings("unchecked")
+        final Map<String, Object> ret = (Map<String, Object>) cleanObject(dbo);
+        return ret;
+    }
+    
+    // this assumes there aren't BSONObjects embedded in standard objects, which should
+    // be the case for stuff returned from mongo
+    
+    // Unimplemented error for dbo.toMap()
+    // dbo is read only
+    // can't call ObjectMapper.convertValue() on dbo since it has a 'size' field outside of
+    // the internal map
+    // and just weird shit happens when you do anyway
+    private static Object cleanObject(final Object dbo) {
+        // sometimes it's lazy, sometimes it's basic. Not sure when or why.
+        if (dbo instanceof LazyBSONList) {
+            final List<Object> ret = new LinkedList<>();
+            // don't stream, sometimes has issues with nulls
+            for (final Object obj: (LazyBSONList) dbo) {
+                ret.add(cleanObject(obj));
+            }
+            return ret;
+        } else if (dbo instanceof BasicBSONList) {
+            final List<Object> ret = new LinkedList<>();
+            // don't stream, sometimes has issues with nulls
+            for (final Object obj: (BasicBSONList) dbo) {
+                ret.add(cleanObject(obj));
+            }
+        } else if (dbo instanceof BSONObject) {
+            // can't stream because streams don't like null values at HashMap.merge()
+            final BSONObject m = (BSONObject) dbo;
+            final Map<String, Object> ret = new HashMap<>();
+            for (final String k: m.keySet()) {
+                if (!k.equals("_id")) {
+                    final Object v = m.get(k);
+                    ret.put(k, cleanObject(v));
+                }
+            }
+            return ret;
+        }
+        return dbo;
     }
 
     public static String stringToHex(String text) {
