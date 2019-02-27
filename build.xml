@@ -68,7 +68,7 @@
   </fileset>
 
   <fileset dir="${jardir}" id="clientserverlib">
-    <include name="junit/junit-4.9.jar"/>
+    <include name="junit/junit-4.12.jar"/>
     <include name="kbase/auth/kbase-auth-0.4.4.jar"/>
     <include name="jackson/jackson-annotations-2.2.3.jar"/>
     <include name="jackson/jackson-core-2.2.3.jar"/>
@@ -204,7 +204,7 @@
     <echo>${commonjar}</echo>
     <pathconvert property="compile_classpath_prop" refid="compile.classpath"/>
     <echo>${compile_classpath_prop}</echo>
-    <javac destdir="${classes}" includeantruntime="false" target="1.7" source="1.7"
+    <javac destdir="${classes}" includeantruntime="false" target="1.8" source="1.8"
       debug="true" classpathref="compile.classpath">
       <src path="${src}"/>
     </javac>

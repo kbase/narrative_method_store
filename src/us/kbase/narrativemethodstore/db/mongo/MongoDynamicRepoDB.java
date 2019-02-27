@@ -300,6 +300,7 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
                 whereCondition = String.format("{%s:#,%s:1}", FIELD_RH_MODULE_NAME, 
                         tag.equals(RepoTag.beta) ? FIELD_RH_IS_BETA : FIELD_RH_IS_RELEASE);
             } else {
+                // this is impossible based on the current RepoTag code
                 throw new NarrativeMethodStoreException("Unsupported tag: " + tag);
             }
             ret = MongoUtils.getProjection(jdb.getCollection(TABLE_REPO_HISTORY),
