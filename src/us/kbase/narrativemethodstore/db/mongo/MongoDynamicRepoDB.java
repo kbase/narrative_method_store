@@ -1,5 +1,8 @@
 package us.kbase.narrativemethodstore.db.mongo;
 
+import static us.kbase.narrativemethodstore.db.mongo.MongoUtils.toDBObject;
+import static us.kbase.narrativemethodstore.db.mongo.MongoUtils.toMap;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -10,14 +13,17 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.regex.Pattern;
 
 import org.jongo.Jongo;
 import org.jongo.MongoCollection;
 
+import com.google.common.collect.Lists;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
@@ -25,6 +31,7 @@ import com.mongodb.MongoException.DuplicateKey;
 
 import us.kbase.auth.AuthToken;
 import us.kbase.common.mongo.GetMongoDB;
+import us.kbase.common.service.UObject;
 import us.kbase.narrativemethodstore.db.DynamicRepoDB;
 import us.kbase.narrativemethodstore.db.FileId;
 import us.kbase.narrativemethodstore.db.FilePointer;
@@ -182,24 +189,26 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
                         "can not be updated by non-git repository: [" + oldUrl + 
                         "] -> [" + newUrl + "]");
         }
-        RepoData repoData = JsonRepoProvider.repoProviderToData(this, repoDetails);
-        MongoCollection hist = jdb.getCollection(TABLE_REPO_HISTORY);
-        hist.insert(String.format("{%s:#,%s:#,%s:#}", FIELD_RH_MODULE_NAME,
-                FIELD_RH_VERSION, FIELD_RH_REPO_DATA), repoModuleName,
-                newVersion, repoData);
-        MongoCollection data = jdb.getCollection(TABLE_REPO_INFO);
+        final RepoData repoData = JsonRepoProvider.repoProviderToData(this, repoDetails);
+        final DBCollection hist = db.getCollection(TABLE_REPO_HISTORY);
+        hist.insert(new BasicDBObject(FIELD_RH_MODULE_NAME, repoModuleName)
+                .append(FIELD_RH_VERSION, newVersion)
+                .append(FIELD_RH_REPO_DATA, toDBObject(repoData)));
+        
+        final DBCollection data = db.getCollection(TABLE_REPO_INFO);
+        //should just do an upsert rather than handling the logic application side
         if (wasReg) {
-            @SuppressWarnings("unchecked")
-            Map<String, Object> info = data.findOne(String.format("{%s:#}", 
-                    FIELD_RI_MODULE_NAME), repoModuleName).as(Map.class);
+            final Map<String, Object> info = toMap(data.findOne(
+                    new BasicDBObject(FIELD_RI_MODULE_NAME, repoModuleName)));
             info.put(FIELD_RI_LAST_VERSION, newVersion);
-            info.put(FIELD_RI_STATE, RepoState.ready);
-            data.update(String.format("{%s:#}", FIELD_RI_MODULE_NAME), 
-                    repoModuleName).with("#", info);
+            info.put(FIELD_RI_STATE, RepoState.ready.toString());
+            // this is race condition city
+            data.update(new BasicDBObject(FIELD_RI_MODULE_NAME, repoModuleName),
+                    new BasicDBObject("$set", info));
         } else {
-            data.insert(String.format("{%s:#,%s:#,%s:#}", FIELD_RI_MODULE_NAME,
-                    FIELD_RI_LAST_VERSION, FIELD_RI_STATE), 
-                    repoModuleName, newVersion, RepoState.ready);
+            data.insert(new BasicDBObject(FIELD_RI_MODULE_NAME, repoModuleName)
+                    .append(FIELD_RI_LAST_VERSION, newVersion)
+                    .append(FIELD_RI_STATE, RepoState.ready.toString()));
         }
     }
     
@@ -264,13 +273,53 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
             whereCondition = "{}";
             params = new Object[0];
         }
-        Map<String, String> map = MongoUtils.getProjection(jdb.getCollection(TABLE_REPO_INFO),
+        Map<String, String> map = getProjection(jdb.getCollection(TABLE_REPO_INFO),
                 whereCondition, FIELD_RI_MODULE_NAME, String.class, FIELD_RI_STATE, String.class, params);
         List<String> ret = new ArrayList<String>();
         for (Map.Entry<String, String> entry : map.entrySet())
             if (withDisabled || RepoState.valueOf(entry.getValue()) != RepoState.disabled)
                 ret.add(entry.getKey());
         return ret;
+    }
+    
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    private static <KT, VT> Map<KT, VT> getProjection(
+            final MongoCollection infos,
+            final String whereCondition, 
+            final String keySelectField,
+            final Class<KT> keyType,
+            final String valueSelectField,
+            final Class<VT> valueType, 
+            final Object... params)
+            throws NarrativeMethodStoreException {
+        List<Map> data = Lists.newArrayList(infos.find(whereCondition, params).projection(
+                "{'" + keySelectField + "':1,'" + valueSelectField + "':1}").as(Map.class));
+        Map<KT, VT> ret = new LinkedHashMap<KT, VT>();
+        for (Map<?,?> item : data) {
+            Object key = getMongoProp(item, keySelectField);
+            if (key == null || !(keyType.isInstance(key)))
+                throw new NarrativeMethodStoreException("Key is wrong: " + key);
+            Object value = getMongoProp(item, valueSelectField);
+            if (value == null)
+                throw new NullPointerException("Value is not defined for selected " +
+                        "field: " + valueSelectField);
+            if (!valueType.isInstance(value))
+                value = UObject.transformObjectToObject(value, valueType);
+            ret.put((KT)key, (VT)value);
+        }
+        return ret;
+    }
+    
+    private static Object getMongoProp(Map<?,?> data, String propWithDots) {
+        String[] parts = propWithDots.split(Pattern.quote("."));
+        Object value = null;
+        for (String part : parts) {
+            if (value != null) {
+                data = (Map<?,?>)value;
+            }
+            value = data.get(part);
+        }
+        return value;
     }
     
     @Override

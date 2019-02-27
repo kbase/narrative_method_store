@@ -6,21 +6,19 @@ import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Pattern;
 
 import org.bson.BSONObject;
 import org.bson.LazyBSONList;
 import org.bson.types.BasicBSONList;
-import org.jongo.MongoCollection;
 
 import us.kbase.common.service.UObject;
 import us.kbase.narrativemethodstore.exceptions.NarrativeMethodStoreException;
 
-import com.google.common.collect.Lists;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
@@ -28,6 +26,7 @@ import com.mongodb.DBObject;
 
 public class MongoUtils {
     private static final String HEXES = "0123456789abcdef";
+    private static final ObjectMapper MAPPER = new ObjectMapper();
 
     @SuppressWarnings({ "unchecked" })
     public static <T> List<T> getProjection(
@@ -39,7 +38,7 @@ public class MongoUtils {
         final DBCursor cur = infos.find(whereCondition, new BasicDBObject(selectField, 1));
         final List<Map<String, Object>> data = new LinkedList<>();
         for (final DBObject dbo: cur) {
-            data.add(toMapRec(dbo));
+            data.add(toMap(dbo));
         }
         
         List<T> ret = new ArrayList<T>();
@@ -52,41 +51,26 @@ public class MongoUtils {
         return ret;
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    public static <KT, VT> Map<KT, VT> getProjection(MongoCollection infos, String whereCondition, 
-            String keySelectField, Class<KT> keyType, String valueSelectField, Class<VT> valueType, 
-            Object... params) throws NarrativeMethodStoreException {
-        List<Map> data = Lists.newArrayList(infos.find(whereCondition, params).projection(
-                "{'" + keySelectField + "':1,'" + valueSelectField + "':1}").as(Map.class));
-        Map<KT, VT> ret = new LinkedHashMap<KT, VT>();
-        for (Map<?,?> item : data) {
-            Object key = getMongoProp(item, keySelectField);
-            if (key == null || !(keyType.isInstance(key)))
-                throw new NarrativeMethodStoreException("Key is wrong: " + key);
-            Object value = getMongoProp(item, valueSelectField);
-            if (value == null)
-                throw new NullPointerException("Value is not defined for selected " +
-                        "field: " + valueSelectField);
-            if (!valueType.isInstance(value))
-                value = UObject.transformObjectToObject(value, valueType);
-            ret.put((KT)key, (VT)value);
-        }
-        return ret;
+    /** Map an object to a MongoDB {@link DBObject}. The object must be serializable by
+     * a default {@link ObjectMapper}.
+     * @param obj the object to map.
+     * @return the new mongo compatible object.
+     */
+    public static DBObject toDBObject(final Object obj) {
+        return new BasicDBObject(objToMap(obj));
     }
     
-    private static Object getMongoProp(Map<?,?> data, String propWithDots) {
-        String[] parts = propWithDots.split(Pattern.quote("."));
-        Object value = null;
-        for (String part : parts) {
-            if (value != null) {
-                data = (Map<?,?>)value;
-            }
-            value = data.get(part);
-        }
-        return value;
+    private static Map<String, Object> objToMap(final Object obj) {
+        return MAPPER.convertValue(obj, new TypeReference<Map<String, Object>>() {});
     }
     
-    private static Map<String, Object> toMapRec(final BSONObject dbo) {
+    /** Map a MongoDB {@link BSONObject} to a standard map.
+     * This method expects that all maps and lists in the objects are implemented as
+     * {@link BSONObject}s or derived classes, not standard maps, lists, or other classes.
+     * @param dbo the MongoDB object to transform to a standard map.
+     * @return the transformed object, or null if the argument was null.
+     */
+    public static Map<String, Object> toMap(final BSONObject dbo) {
         @SuppressWarnings("unchecked")
         final Map<String, Object> ret = (Map<String, Object>) cleanObject(dbo);
         return ret;
