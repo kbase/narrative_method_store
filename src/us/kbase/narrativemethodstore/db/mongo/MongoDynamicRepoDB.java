@@ -430,13 +430,13 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
                         " is not global admin");
         }*/
         checkAdmin(userId);
-        MongoCollection info = jdb.getCollection(TABLE_REPO_INFO);
-        @SuppressWarnings("unchecked")
-        Map<String, Object> obj = info.findOne(String.format("{%s:#}", 
-                FIELD_RI_MODULE_NAME), repoModuleName).as(Map.class);
-        obj.put(FIELD_RI_STATE, state);
-        info.update(String.format("{%s:#}", FIELD_RI_MODULE_NAME), 
-                repoModuleName).with("#", obj);
+        final DBCollection info = db.getCollection(TABLE_REPO_INFO);
+        final Map<String, Object> obj = toMap(info.findOne(
+                new BasicDBObject(FIELD_RI_MODULE_NAME, repoModuleName)));
+        obj.put(FIELD_RI_STATE, state.toString());
+        // race condition
+        info.update(new BasicDBObject(FIELD_RI_MODULE_NAME, repoModuleName),
+                new BasicDBObject("$set", obj));
     }
     
     @Override
