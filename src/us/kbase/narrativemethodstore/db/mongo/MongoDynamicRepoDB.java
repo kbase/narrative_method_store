@@ -544,10 +544,8 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
     
     private Map<String, Object> getFileObject(FileId fileId) 
             throws NarrativeMethodStoreException {
-        @SuppressWarnings("unchecked")
-        Map<String, Object> obj = jdb.getCollection(TABLE_REPO_FILES)
-                .findOne(String.format("{%s:#}", 
-                FIELD_RF_FILE_ID), fileId.getId()).as(Map.class);
+        final Map<String, Object> obj = toMap(db.getCollection(TABLE_REPO_FILES).findOne(
+                new BasicDBObject(FIELD_RF_FILE_ID, fileId.getId())));
         if (obj == null)
             throw new NarrativeMethodStoreException("File with id=" + fileId.getId() + 
                     " is not found");
@@ -590,12 +588,12 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
         }
     }
     
-    public class DbFilePointer implements FilePointer {
+    private class DbFilePointer implements FilePointer {
         private final FileId fileId;
         private final String fileName;
         private final long length;
         
-        public DbFilePointer(FileId fileId, String fileName, long length) {
+        private DbFilePointer(FileId fileId, String fileName, long length) {
             this.fileId = fileId;
             this.fileName = fileName;
             this.length = length;
@@ -628,7 +626,10 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
         }
     }
     
-    public static class RepoHistory {
+    // it is actually used, just some of the fields aren't explicitly used. They're populated
+    // by Jackson though.
+    @SuppressWarnings("unused")
+    private static class RepoHistory {
         String module_name;
         Long version;
         RepoData repo_data;

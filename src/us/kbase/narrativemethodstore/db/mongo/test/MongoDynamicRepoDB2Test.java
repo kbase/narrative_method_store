@@ -205,6 +205,26 @@ public class MongoDynamicRepoDB2Test {
             assertExceptionCorrect(got, expected);
         }
     }
+    
+    @Test
+    public void loadFileFailNoID() throws Exception {
+        final MongoDynamicRepoDB db = getDB(Arrays.asList("nmsadmin"));
+        final FileProvider fp = mock(FileProvider.class);
+        when(fp.getName()).thenReturn("filename2");
+        when(fp.length()).thenReturn(67L);
+        // returned data twice since called twice, owise data is exhausted for first call
+        when(fp.openStream()).thenReturn(getBAIS("contents"), getBAIS("contents"));
+        final FileId fid = db.saveFile("somerepo", fp);
+        final String newid = (Long.parseLong(fid.getId()) + 1) + "";
+        
+        try {
+            db.loadFile(new FileId(newid));
+            fail("expected exception");
+        } catch (Exception got) {
+            assertExceptionCorrect(got, new NarrativeMethodStoreException(String.format(
+                    "File with id=%s is not found", newid)));
+        }
+    }
 
     private void registerRepo(
             final MongoDynamicRepoDB db,
