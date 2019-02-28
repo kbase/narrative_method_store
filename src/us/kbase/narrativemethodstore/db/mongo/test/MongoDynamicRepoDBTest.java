@@ -118,7 +118,6 @@ public class MongoDynamicRepoDBTest {
             db.setRepoState(user1, repoModuleName, RepoState.disabled);
             Assert.assertEquals(RepoState.disabled, db.getRepoState(repoModuleName));
             Assert.assertEquals(0, db.listRepoModuleNames().size());
-//            Assert.assertEquals(1, db.listRepoModuleNames(true, null).size());
             // Register second version
             db.registerRepo(globalAdmin, pvd);
             long ver2 = db.getRepoLastVersion(repoModuleName, null);
@@ -153,7 +152,6 @@ public class MongoDynamicRepoDBTest {
             db.setRepoState(globalAdmin, repoModuleName, RepoState.testing);
             db.setRepoState(globalAdmin, repoModuleName, RepoState.disabled);
             Assert.assertEquals(0, db.listRepoModuleNames().size());
-//            Assert.assertEquals(1, db.listRepoModuleNames(true, null).size());
 
             Assert.assertFalse(db.isRepoRegistered(unregModuleName, true));
             try {
