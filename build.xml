@@ -84,7 +84,7 @@
     <include name="apache_commons/commons-io-2.4.jar"/>
     <include name="snakeyaml/snakeyaml-1.11.jar"/>
     <include name="google/guava-14.0.1.jar"/>
-    <include name="mongo/mongo-java-driver-2.13.3.jar"/>
+    <include name="mongo/mongo-java-driver-3.10.1.jar"/>
     <include name="bson4jackson/bson4jackson-2.2.0-2.2.0.jar"/>
     <include name="kbase/shock/shock-client-0.0.15.jar"/>
     <include name="apache_commons/http/httpclient-4.3.1.jar"/>

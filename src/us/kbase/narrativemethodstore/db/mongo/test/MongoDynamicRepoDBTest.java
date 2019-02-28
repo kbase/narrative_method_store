@@ -11,7 +11,6 @@ import java.io.OutputStream;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -29,9 +28,9 @@ import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
+import com.mongodb.MongoClient;
 
 import us.kbase.auth.AuthToken;
-import us.kbase.common.mongo.GetMongoDB;
 import us.kbase.common.service.UObject;
 import us.kbase.narrativemethodstore.MethodBriefInfo;
 import us.kbase.narrativemethodstore.MethodParameter;
@@ -289,7 +288,8 @@ public class MongoDynamicRepoDBTest {
     @After
     public void cleanup() throws Exception {
         String host = "localhost:" + dbHelper.getMongoPort();
-        DB db = GetMongoDB.getDB(host, dbName, 0, 10);
+        final MongoClient mc = new MongoClient(host);
+        final DB db = mc.getDB(dbName);
         if (shockUrl != null) {
             try {
                 final DBCollection files = db.getCollection("repo_files");
@@ -309,5 +309,6 @@ public class MongoDynamicRepoDBTest {
             }
         }
         db.dropDatabase();
+        mc.close();
     }
 }

@@ -23,7 +23,6 @@
 	<classpathentry kind="lib" path="/jars/lib/jars/apache_commons/commons-configuration-1.10.jar"/>
 	<classpathentry kind="lib" path="/jars/lib/jars/apache_commons/commons-io-2.4.jar"/>
 	<classpathentry kind="lib" path="/jars/lib/jars/bson4jackson/bson4jackson-2.2.0-2.2.0.jar"/>
-	<classpathentry kind="lib" path="/jars/lib/jars/mongo/mongo-java-driver-2.13.3.jar"/>
 	<classpathentry kind="lib" path="/jars/lib/jars/snakeyaml/snakeyaml-1.11.jar"/>
 	<classpathentry kind="lib" path="/jars/lib/jars/kbase/shock/shock-client-0.0.15.jar"/>
 	<classpathentry kind="lib" path="/jars/lib/jars/apache_commons/http/httpclient-4.3.1.jar"/>
@@ -65,5 +64,6 @@
 	<classpathentry kind="lib" path="/jars/lib/jars/objenesis/objenesis-2.5.1.jar"/>
 	<classpathentry kind="lib" path="/jars/lib/jars/apache_commons/commons-lang3-3.5.jar"/>
 	<classpathentry kind="lib" path="/jars/lib/jars/junit/junit-4.12.jar"/>
+	<classpathentry kind="lib" path="/jars/lib/jars/mongo/mongo-java-driver-3.10.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
