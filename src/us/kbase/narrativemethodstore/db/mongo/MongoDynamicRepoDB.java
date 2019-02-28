@@ -23,10 +23,13 @@ import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
-import com.mongodb.MongoException.DuplicateKey;
+import com.mongodb.DuplicateKeyException;
+import com.mongodb.MongoClient;
+import com.mongodb.MongoClientOptions;
+import com.mongodb.MongoCredential;
+import com.mongodb.ServerAddress;
 
 import us.kbase.auth.AuthToken;
-import us.kbase.common.mongo.GetMongoDB;
 import us.kbase.narrativemethodstore.db.DynamicRepoDB;
 import us.kbase.narrativemethodstore.db.FileId;
 import us.kbase.narrativemethodstore.db.FilePointer;
@@ -79,17 +82,28 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
         this.shockUrl = shockUrl;
         this.serviceToken = serviceToken;
         try {
-            if (dbUser == null && dbPwd == null) {
-                db = GetMongoDB.getDB(host, database, 0, 10);
-            } else {
-                db = GetMongoDB.getDB(host, database, dbUser, dbPwd, 0, 10);
-            }
+            db = getDB(host, database, dbUser, dbPwd);
             if (!isReadOnly)
                 ensureIndeces();
             globalAdmins = new HashSet<String>(globalAdminUserIds);
         } catch (Exception ex) {
             throw new NarrativeMethodStoreException(ex);
         }
+    }
+    
+    private DB getDB(final String host, final String db, final String user, final String pwd) {
+        // TODO update to non-deprecated APIs
+        final MongoClient cli;
+        if (user != null) {
+            final MongoCredential creds = MongoCredential.createCredential(
+                    user, db, pwd.toCharArray());
+            // unclear if and when it's safe to clear the password
+            cli = new MongoClient(new ServerAddress(host), creds,
+                    MongoClientOptions.builder().build());
+        } else {
+            cli = new MongoClient(new ServerAddress(host));
+        }
+        return cli.getDB(db);
     }
     
     private void ensureIndeces() {
@@ -520,7 +534,7 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
             try {
                 files.insert(new BasicDBObject(FIELD_RF_FILE_ID, "" + fileIdNum));
                 break;
-            } catch (DuplicateKey ex) {
+            } catch (DuplicateKeyException ex) {
                 // there's not really any reasonable way to test this, since saving a file
                 // takes >> 1ms in my tests. Would need multiple threads
                 fileIdNum++;
