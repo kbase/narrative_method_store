@@ -1,5 +1,7 @@
 package us.kbase.narrativemethodstore.db.mongo.test;
 
+import static us.kbase.narrativemethodstore.db.mongo.MongoUtils.toMap;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -15,8 +17,6 @@ import java.util.Map;
 
 import junit.framework.Assert;
 
-import org.jongo.Jongo;
-import org.jongo.MongoCollection;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -26,6 +26,9 @@ import org.junit.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.mongodb.DB;
+import com.mongodb.DBCollection;
+import com.mongodb.DBCursor;
+import com.mongodb.DBObject;
 
 import us.kbase.auth.AuthToken;
 import us.kbase.common.mongo.GetMongoDB;
@@ -282,7 +285,6 @@ public class MongoDynamicRepoDBTest {
         return ocs.isDifferent();
     }
     
-    @SuppressWarnings({ "rawtypes", "unchecked" })
     @Before 
     @After
     public void cleanup() throws Exception {
@@ -290,11 +292,10 @@ public class MongoDynamicRepoDBTest {
         DB db = GetMongoDB.getDB(host, dbName, 0, 10);
         if (shockUrl != null) {
             try {
-                Jongo jdb = new Jongo(db);
-                MongoCollection files = jdb.getCollection("repo_files");
-                Iterator<Map> it = files.find("{}").as(Map.class).iterator();
-                while (it.hasNext()) {
-                    Map<String, Object> obj = it.next();
+                final DBCollection files = db.getCollection("repo_files");
+                final DBCursor it = files.find();
+                for (final DBObject dbo: it) {
+                    Map<String, Object> obj = toMap(dbo);
                     String fileName = (String)obj.get("file_name");
                     String shockNodeId = (String)obj.get("shock_node_id");
                     if (shockNodeId != null) {
