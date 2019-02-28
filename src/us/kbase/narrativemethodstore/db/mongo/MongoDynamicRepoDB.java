@@ -13,14 +13,10 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
-
-import org.jongo.Jongo;
-import org.jongo.MongoCollection;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
@@ -46,7 +42,6 @@ import us.kbase.shock.client.exceptions.ShockHttpException;
 
 public class MongoDynamicRepoDB implements DynamicRepoDB {
     private final DB db;
-    private final Jongo jdb;
     private final Set<String> globalAdmins;
     private final boolean isReadOnly;
     private final URL shockUrl;
@@ -89,7 +84,6 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
             } else {
                 db = GetMongoDB.getDB(host, database, dbUser, dbPwd, 0, 10);
             }
-            jdb = new Jongo(db);
             if (!isReadOnly)
                 ensureIndeces();
             globalAdmins = new HashSet<String>(globalAdminUserIds);
@@ -461,7 +455,6 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
         });
     }
     
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
     public FileId saveFile(String moduleName, FileProvider file) 
             throws NarrativeMethodStoreException {
@@ -476,12 +469,12 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
         } catch (IOException ex) {
             throw new NarrativeMethodStoreException(ex);
         }
-        MongoCollection files = jdb.getCollection(TABLE_REPO_FILES);
-        Iterator<Map> it = files.find(String.format("{%s:#,%s:#,%s:#,%s:#}", 
-                FIELD_RF_MODULE_NAME, FIELD_RF_FILE_NAME, FIELD_RF_LENGTH, FIELD_RF_MD5), 
-                moduleName, fileName, length, md5).as(Map.class).iterator();
-        while (it.hasNext()) {
-            Map<String, Object> obj = it.next();
+        final DBCollection files = db.getCollection(TABLE_REPO_FILES);
+        final DBCursor it = files.find(new BasicDBObject(FIELD_RF_MODULE_NAME, moduleName)
+                .append(FIELD_RF_FILE_NAME, fileName).append(FIELD_RF_LENGTH, length)
+                .append(FIELD_RF_MD5, md5));
+        for (final DBObject dbo: it) {
+            final Map<String, Object> obj = toMap(dbo);
             is = file.openStream();
             try {
                 OutputComparatorStream ocs = new OutputComparatorStream(is);
@@ -525,19 +518,27 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
         long fileIdNum = System.currentTimeMillis();
         while (true) {
             try {
-                files.insert(String.format("{%s:#}", FIELD_RF_FILE_ID), "" + fileIdNum);
+                files.insert(new BasicDBObject(FIELD_RF_FILE_ID, "" + fileIdNum));
                 break;
             } catch (DuplicateKey ex) {
+                // there's not really any reasonable way to test this, since saving a file
+                // takes >> 1ms in my tests. Would need multiple threads
                 fileIdNum++;
             }
         }
         String fileId = String.valueOf(fileIdNum);
-        files.update(String.format("{%s:#}", FIELD_RF_FILE_ID), 
-                fileId).with(String.format("{%s:#,%s:#,%s:#,%s:#,%s:#,%s:#,%s:#}", 
-                        FIELD_RF_FILE_ID, FIELD_RF_MODULE_NAME, FIELD_RF_FILE_NAME, 
-                        FIELD_RF_LENGTH, FIELD_RF_MD5, FIELD_RF_HEX_DATA, 
-                        FIELD_RF_SHOCK_NODE_ID), fileId, moduleName, fileName, length, 
-                        md5, hexData, shockNodeId);
+        // if this fails, there will be an incomplete file record in the DB.
+        // if no shock url is configured the file is saved in a normal mongo object. Since the
+        // file is converted to hex, that means a file > ~8MB will throw a mongo error
+        files.update(new BasicDBObject(FIELD_RF_FILE_ID, fileId),
+                new BasicDBObject("$set",
+                        new BasicDBObject(FIELD_RF_FILE_ID, fileId) // this isn't necessary really
+                        .append(FIELD_RF_MODULE_NAME, moduleName)
+                        .append(FIELD_RF_FILE_NAME, fileName)
+                        .append(FIELD_RF_LENGTH, length)
+                        .append(FIELD_RF_MD5, md5)
+                        .append(FIELD_RF_HEX_DATA, hexData)
+                        .append(FIELD_RF_SHOCK_NODE_ID, shockNodeId)));
         //System.out.println("File was saved: " + fileName + ", " + length + ", " + md5 + " -> " + fileId);
         return new FileId(fileId);
     }
