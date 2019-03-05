@@ -81,7 +81,6 @@ public class NarrativeAppData {
 		
 		briefInfo.withVer(get(spec, "ver").asText()).withHeader(appHeader);
 		
-		@SuppressWarnings("unchecked")
 		Icon icon = null;
 		try {
 			String iconName = getDisplayProp(display,"icon",lookup);

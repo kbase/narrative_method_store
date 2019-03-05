@@ -1,0 +1,54 @@
+[NarrativeMethodStore]
+
+# location & branch of the public git repo hosting the method specifications
+method-spec-git-repo = {{ default .Env.method_spec_git_repo "https://github.com/kbase/narrative_method_specs" }}
+method-spec-git-repo-branch = {{ default .Env.method_spec_git_repo_branch "dev" }}
+
+# local file location (relative to the glassfish domain where the service starts, ie
+# deployment/services/narrative_method_store/glasfish_domain/NarrativeMethodStore/config/.)
+# where the method specification repo should be created.
+# WARNING! this directory will be deleted and recloned on service startup, so be
+# careful where you point this!
+method-spec-git-repo-local-dir = {{ default .Env.method_spec_git_repo_local_dir "narrative_method_specs" }}
+
+# every N minutes, the service will check if any updates have been made in the
+# git repo, and if so, the updates will be pulled and the service cache rebuilt
+#  Note: github limits api requests to 60/hour/IP
+method-spec-git-repo-refresh-rate = {{ default .Env.method_spec_git_repo_refresh_rate "2" }}
+
+# The number of methods cached in memory on the server
+method-spec-cache-size = {{ default .Env.method_spec_cache_size "5000" }}
+
+# port for the service.
+port = {{ default .Env.port "7125" }}
+
+# server thread count - this determines the number of requests that can be
+# processed simultaneously.
+server-threads = {{ default .Env.server_threads "20" }}
+
+# Minimum memory size in MB.
+min-memory = {{ default .Env.min_memory "1000" }}
+
+# Maximum memory size in MB.
+max-memory = {{ default .Env.max_memory "1500" }}
+
+method-spec-temp-dir = {{ default .Env.method_spec_temp_dir "/scratch/narrative_method_store_temp" }}
+method-spec-mongo-host = {{ default .Env.method_spec_mongo_host "localhost:27017" }}
+method-spec-mongo-dbname = {{ default .Env.method_spec_mongo_dbname "method_store_repo_db" }}
+# method-spec-mongo-user = {{ default .Env.method_spec_mongo_user "mongouser" }}
+# method-spec-mongo-password = {{ default .Env.method_spec_git_repo "" }}
+method-spec-admin-users = {{ default .Env.method_spec_admin_users "kbaseadmin,kbaseadmin2" }}
+# method-spec-shock-url = {{ default .Env.method_spec_shock_url "" }}
+# method-spec-shock-user = {{ default .Env.method_spec_shock_user "" }}
+# method-spec-shock-password = {{ default .Env.method_spec_shock_password "" }}
+# method-spec-shock-token = {{ default .Env.method_spec_shock_token "" }}
+endpoint-host={{ default .Env.endpoint_host "https://ci.kbase.us" }}
+endpoint-base={{ default .Env.endpoint_base "/services" }}
+
+# Default tag used when tag is not specified in Narrative requests.
+# It should be changed into 'release' in production deployment.
+method-spec-default-tag = {{ default .Env.method_spec_default_tag "dev" }}
+
+# The KBase authorization server url.
+auth-service-url = {{ default .Env.auth_service_url "https://kbase.us/services/authorization" }}
+auth-service-url-allow-insecure = {{ default .Env.auth_service_url_allow_insecure "false" }}

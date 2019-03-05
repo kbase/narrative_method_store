@@ -1,5 +1,9 @@
 package us.kbase.narrativemethodstore.db.mongo;
 
+import static us.kbase.narrativemethodstore.db.mongo.MongoUtils.toDBObject;
+import static us.kbase.narrativemethodstore.db.mongo.MongoUtils.toMap;
+import static us.kbase.narrativemethodstore.db.mongo.MongoUtils.toObject;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -9,20 +13,23 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
-import org.jongo.Jongo;
-import org.jongo.MongoCollection;
-
+import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
-import com.mongodb.MongoException.DuplicateKey;
+import com.mongodb.DBCollection;
+import com.mongodb.DBCursor;
+import com.mongodb.DBObject;
+import com.mongodb.DuplicateKeyException;
+import com.mongodb.MongoClient;
+import com.mongodb.MongoClientOptions;
+import com.mongodb.MongoCredential;
+import com.mongodb.ServerAddress;
 
 import us.kbase.auth.AuthToken;
-import us.kbase.common.mongo.GetMongoDB;
 import us.kbase.narrativemethodstore.db.DynamicRepoDB;
 import us.kbase.narrativemethodstore.db.FileId;
 import us.kbase.narrativemethodstore.db.FilePointer;
@@ -38,7 +45,6 @@ import us.kbase.shock.client.exceptions.ShockHttpException;
 
 public class MongoDynamicRepoDB implements DynamicRepoDB {
     private final DB db;
-    private final Jongo jdb;
     private final Set<String> globalAdmins;
     private final boolean isReadOnly;
     private final URL shockUrl;
@@ -76,12 +82,7 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
         this.shockUrl = shockUrl;
         this.serviceToken = serviceToken;
         try {
-            if (dbUser == null && dbPwd == null) {
-                db = GetMongoDB.getDB(host, database, 0, 10);
-            } else {
-                db = GetMongoDB.getDB(host, database, dbUser, dbPwd, 0, 10);
-            }
-            jdb = new Jongo(db);
+            db = getDB(host, database, dbUser, dbPwd);
             if (!isReadOnly)
                 ensureIndeces();
             globalAdmins = new HashSet<String>(globalAdminUserIds);
@@ -90,27 +91,48 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
         }
     }
     
+    private DB getDB(final String host, final String db, final String user, final String pwd) {
+        // TODO update to non-deprecated APIs
+        final MongoClient cli;
+        if (user != null) {
+            final MongoCredential creds = MongoCredential.createCredential(
+                    user, db, pwd.toCharArray());
+            // unclear if and when it's safe to clear the password
+            cli = new MongoClient(new ServerAddress(host), creds,
+                    MongoClientOptions.builder().build());
+        } else {
+            cli = new MongoClient(new ServerAddress(host));
+        }
+        return cli.getDB(db);
+    }
+    
     private void ensureIndeces() {
-        MongoCollection repoData = jdb.getCollection(TABLE_REPO_INFO);
-        repoData.ensureIndex(String.format("{%s:1}", FIELD_RI_MODULE_NAME), "{unique:true}");
-        repoData.ensureIndex(String.format("{%s:1}", FIELD_RI_DOCKER_IMAGE), "{unique:false}");
-        MongoCollection repoHist = jdb.getCollection(TABLE_REPO_HISTORY);
-        repoHist.ensureIndex(String.format("{%s:1,%s:1}", FIELD_RH_MODULE_NAME, 
-                FIELD_RH_VERSION), "{unique:true}");
-        repoHist.ensureIndex(String.format("{%s:1,%s:1}", FIELD_RH_MODULE_NAME, 
-                FIELD_RH_REPO_DATA + ".gitCommitHash"), "{unique:false}");
-        MongoCollection repoFiles = jdb.getCollection(TABLE_REPO_FILES);
-        repoFiles.ensureIndex(String.format("{%s:1}", FIELD_RF_FILE_ID), "{unique:true}");
-        repoFiles.ensureIndex(String.format("{%s:1,%s:1,%s:1,%s:1}", FIELD_RF_MODULE_NAME, 
-                FIELD_RF_FILE_NAME, FIELD_RF_LENGTH, FIELD_RF_MD5), "{unique:false}");
+        final BasicDBObject uniq = new BasicDBObject("unique", true);
+        
+        final DBCollection repoData = db.getCollection(TABLE_REPO_INFO);
+        repoData.createIndex(new BasicDBObject(FIELD_RI_MODULE_NAME, 1), uniq);
+        repoData.createIndex(new BasicDBObject(FIELD_RI_DOCKER_IMAGE, 1));
+        
+        final DBCollection repoHist = db.getCollection(TABLE_REPO_HISTORY);
+        repoHist.createIndex(new BasicDBObject(FIELD_RH_MODULE_NAME, 1)
+                .append(FIELD_RH_VERSION, 1), uniq);
+        repoHist.createIndex(new BasicDBObject(FIELD_RH_MODULE_NAME, 1)
+                .append(FIELD_RH_REPO_DATA + ".gitCommitHash", 1));
+
+        final DBCollection repoFiles = db.getCollection(TABLE_REPO_FILES);
+        repoFiles.createIndex(new BasicDBObject(FIELD_RF_FILE_ID, 1), uniq);
+        repoFiles.createIndex(new BasicDBObject(FIELD_RF_MODULE_NAME, 1)
+                .append(FIELD_RF_FILE_NAME, 1)
+                .append(FIELD_RF_LENGTH, 1)
+                .append(FIELD_RF_MD5, 1));
     }
     
     @Override
     public boolean isRepoRegistered(String repoModuleName, boolean withDisabled)
             throws NarrativeMethodStoreException {
-        List<String> dis = MongoUtils.getProjection(jdb.getCollection(TABLE_REPO_INFO),
-                String.format("{%s:#}", FIELD_RI_MODULE_NAME), 
-                FIELD_RI_STATE, String.class, repoModuleName);
+        List<String> dis = MongoUtils.getProjection(db.getCollection(TABLE_REPO_INFO),
+                new BasicDBObject(FIELD_RI_MODULE_NAME, repoModuleName),
+                FIELD_RI_STATE, String.class);
         return dis.size() > 0 && (withDisabled || 
                 RepoState.valueOf(dis.get(0)) != RepoState.disabled);
     }
@@ -174,24 +196,26 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
                         "can not be updated by non-git repository: [" + oldUrl + 
                         "] -> [" + newUrl + "]");
         }
-        RepoData repoData = JsonRepoProvider.repoProviderToData(this, repoDetails);
-        MongoCollection hist = jdb.getCollection(TABLE_REPO_HISTORY);
-        hist.insert(String.format("{%s:#,%s:#,%s:#}", FIELD_RH_MODULE_NAME,
-                FIELD_RH_VERSION, FIELD_RH_REPO_DATA), repoModuleName,
-                newVersion, repoData);
-        MongoCollection data = jdb.getCollection(TABLE_REPO_INFO);
+        final RepoData repoData = JsonRepoProvider.repoProviderToData(this, repoDetails);
+        final DBCollection hist = db.getCollection(TABLE_REPO_HISTORY);
+        hist.insert(new BasicDBObject(FIELD_RH_MODULE_NAME, repoModuleName)
+                .append(FIELD_RH_VERSION, newVersion)
+                .append(FIELD_RH_REPO_DATA, toDBObject(repoData)));
+        
+        final DBCollection data = db.getCollection(TABLE_REPO_INFO);
+        //should just do an upsert rather than handling the logic application side
         if (wasReg) {
-            @SuppressWarnings("unchecked")
-            Map<String, Object> info = data.findOne(String.format("{%s:#}", 
-                    FIELD_RI_MODULE_NAME), repoModuleName).as(Map.class);
+            final Map<String, Object> info = toMap(data.findOne(
+                    new BasicDBObject(FIELD_RI_MODULE_NAME, repoModuleName)));
             info.put(FIELD_RI_LAST_VERSION, newVersion);
-            info.put(FIELD_RI_STATE, RepoState.ready);
-            data.update(String.format("{%s:#}", FIELD_RI_MODULE_NAME), 
-                    repoModuleName).with("#", info);
+            info.put(FIELD_RI_STATE, RepoState.ready.toString());
+            // this is race condition city
+            data.update(new BasicDBObject(FIELD_RI_MODULE_NAME, repoModuleName),
+                    new BasicDBObject("$set", info));
         } else {
-            data.insert(String.format("{%s:#,%s:#,%s:#}", FIELD_RI_MODULE_NAME,
-                    FIELD_RI_LAST_VERSION, FIELD_RI_STATE), 
-                    repoModuleName, newVersion, RepoState.ready);
+            data.insert(new BasicDBObject(FIELD_RI_MODULE_NAME, repoModuleName)
+                    .append(FIELD_RI_LAST_VERSION, newVersion)
+                    .append(FIELD_RI_STATE, RepoState.ready.toString()));
         }
     }
     
@@ -205,9 +229,9 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
     
     private long getRepoLastVersion(String repoModuleName)
             throws NarrativeMethodStoreException {
-        List<Long> vers = MongoUtils.getProjection(jdb.getCollection(TABLE_REPO_INFO),
-                String.format("{%s:#}", FIELD_RI_MODULE_NAME), 
-                FIELD_RI_LAST_VERSION, Long.class, repoModuleName);
+        List<Long> vers = MongoUtils.getProjection(db.getCollection(TABLE_REPO_INFO),
+                new BasicDBObject(FIELD_RI_MODULE_NAME, repoModuleName),
+                FIELD_RI_LAST_VERSION, Long.class);
         checkRepoRegistered(repoModuleName, vers);
         return vers.get(0);
     }
@@ -218,7 +242,7 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
         if (tag == null || tag.equals(RepoTag.dev))
             return getRepoLastVersion(repoModuleName);
         List<Long> vers;
-        if (tag != null && tag.isGitCommitHash()) {
+        if (tag.isGitCommitHash()) {
             vers = listRepoVersions(repoModuleName, tag);
         } else {
             String versionField = null;
@@ -227,40 +251,35 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
             } else if (tag.equals(RepoTag.release)) {
                 versionField = FIELD_RI_LAST_RELEASE_VERSION;
             } else {
+                // this is impossible based on the current RepoTag class
                 throw new NarrativeMethodStoreException("Unsupported tag: " + tag);
             }
-            vers = MongoUtils.getProjection(jdb.getCollection(TABLE_REPO_INFO),
-                    String.format("{%s:#}", FIELD_RI_MODULE_NAME), 
-                    versionField, Long.class, repoModuleName);
+            vers = MongoUtils.getProjection(db.getCollection(TABLE_REPO_INFO),
+                    new BasicDBObject(FIELD_RI_MODULE_NAME, repoModuleName),
+                    versionField, Long.class);
         }
         checkRepoRegistered(repoModuleName, vers);
-        return vers.size() == 0 ? null : Collections.max(vers);
+        return Collections.max(vers);
     }
 
     @Override
-    public List<String> listRepoModuleNames(boolean withDisabled, RepoTag tag)
-            throws NarrativeMethodStoreException {
-        String whereCondition;
-        Object[] params;
-        if (tag != null && !tag.equals(RepoTag.dev)) {
-            if (tag.equals(RepoTag.beta)) {
-                whereCondition = String.format("{%s:#}", FIELD_RI_LAST_BETA_VERSION);
-            } else if (tag.equals(RepoTag.release)) {
-                whereCondition = String.format("{%s:#}", FIELD_RI_LAST_RELEASE_VERSION);
-            } else {
-                throw new NarrativeMethodStoreException("Unsupported tag: " + tag);
-            }
-            params = new Object[] {tag.name()};
-        } else {
-            whereCondition = "{}";
-            params = new Object[0];
-        }
-        Map<String, String> map = MongoUtils.getProjection(jdb.getCollection(TABLE_REPO_INFO),
-                whereCondition, FIELD_RI_MODULE_NAME, String.class, FIELD_RI_STATE, String.class, params);
+    public List<String> listRepoModuleNames() throws NarrativeMethodStoreException {
+        // in commit 65f21e2 this method could filter based on the repo tag and disabled state
+        // however, the tag lookup was broken and would always return no values for beta or
+        // release
+        // The method was only used in one place which didn't supply a tag and filtered out
+        // disabled repos
+        // As such, that functionality has been removed and the method simplified for now
+        
+        final DBCursor cur = db.getCollection(TABLE_REPO_INFO).find(
+                new BasicDBObject(),
+                new BasicDBObject(FIELD_RI_MODULE_NAME, 1).append(FIELD_RI_STATE, 1));
         List<String> ret = new ArrayList<String>();
-        for (Map.Entry<String, String> entry : map.entrySet())
-            if (withDisabled || RepoState.valueOf(entry.getValue()) != RepoState.disabled)
-                ret.add(entry.getKey());
+        for (final DBObject dbo: cur) {
+            if (RepoState.valueOf((String) dbo.get(FIELD_RI_STATE)) != RepoState.disabled) {
+                ret.add((String) dbo.get(FIELD_RI_MODULE_NAME));
+            }
+        }
         return ret;
     }
     
@@ -279,22 +298,24 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
         checkRepoRegistered(repoModuleName);
         List<Long> ret;
         if (tag != null && tag.isGitCommitHash()) {
-            ret = MongoUtils.getProjection(jdb.getCollection(TABLE_REPO_HISTORY),
-                    String.format("{%s:#,%s:#}", FIELD_RI_MODULE_NAME, 
-                            FIELD_RH_REPO_DATA + ".gitCommitHash"), 
-                    FIELD_RH_VERSION, Long.class, repoModuleName, tag.toString());
+            ret = MongoUtils.getProjection(db.getCollection(TABLE_REPO_HISTORY),
+                    new BasicDBObject(FIELD_RI_MODULE_NAME, repoModuleName)
+                            .append(FIELD_RH_REPO_DATA + ".gitCommitHash", tag.toString()),
+                    FIELD_RH_VERSION, Long.class);
         } else {
-            String whereCondition;
+            final BasicDBObject whereCondition = new BasicDBObject(
+                    FIELD_RH_MODULE_NAME, repoModuleName);
             if (tag == null || tag.equals(RepoTag.dev)) {
-                whereCondition = String.format("{%s:#}", FIELD_RH_MODULE_NAME);
+                // do nothing
             } else if (tag.equals(RepoTag.beta) || tag.equals(RepoTag.release)) {
-                whereCondition = String.format("{%s:#,%s:1}", FIELD_RH_MODULE_NAME, 
-                        tag.equals(RepoTag.beta) ? FIELD_RH_IS_BETA : FIELD_RH_IS_RELEASE);
+                whereCondition.append(
+                        tag.equals(RepoTag.beta) ? FIELD_RH_IS_BETA : FIELD_RH_IS_RELEASE, 1);
             } else {
+                // this is impossible based on the current RepoTag code
                 throw new NarrativeMethodStoreException("Unsupported tag: " + tag);
             }
-            ret = MongoUtils.getProjection(jdb.getCollection(TABLE_REPO_HISTORY),
-                    whereCondition, FIELD_RH_VERSION, Long.class, repoModuleName);
+            ret = MongoUtils.getProjection(db.getCollection(TABLE_REPO_HISTORY), whereCondition,
+                    FIELD_RH_VERSION, Long.class);
         }
         return ret;
     }
@@ -302,9 +323,10 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
     @Override
     public RepoProvider getRepoDetailsHistory(String repoModuleName,
             long version) throws NarrativeMethodStoreException {
-        List<RepoData> ret = MongoUtils.getProjection(jdb.getCollection(TABLE_REPO_HISTORY),
-                String.format("{%s:#,%s:#}", FIELD_RH_MODULE_NAME, FIELD_RH_VERSION), 
-                FIELD_RH_REPO_DATA, RepoData.class, repoModuleName, version);
+        List<RepoData> ret = MongoUtils.getProjection(db.getCollection(TABLE_REPO_HISTORY),
+                new BasicDBObject(FIELD_RH_MODULE_NAME, repoModuleName)
+                        .append(FIELD_RH_VERSION, version),
+                FIELD_RH_REPO_DATA, RepoData.class);
         checkRepoRegistered(repoModuleName, ret);
         return new JsonRepoProvider(this, ret.get(0));
     }
@@ -316,10 +338,9 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
         checkAdmin(userId);
         if (tag == null || tag.equals(RepoTag.dev))
             return;
-        MongoCollection data = jdb.getCollection(TABLE_REPO_INFO);
-        @SuppressWarnings("unchecked")
-        Map<String, Object> info = data.findOne(String.format("{%s:#}", 
-                FIELD_RI_MODULE_NAME), repoModuleName).as(Map.class);
+        final DBCollection data = db.getCollection(TABLE_REPO_INFO);
+        final Map<String, Object> info = toMap(data.findOne(
+                new BasicDBObject(FIELD_RI_MODULE_NAME, repoModuleName)));
         long version = (Long)info.get(FIELD_RI_LAST_VERSION);
         Long betaVer = (Long)info.get(FIELD_RI_LAST_BETA_VERSION);
         Long releaseVer = (Long)info.get(FIELD_RI_LAST_RELEASE_VERSION);
@@ -338,20 +359,23 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
         } else {
             throw new NarrativeMethodStoreException("Unsupported tag: " + tag);
         }
-        data.update(String.format("{%s:#}", FIELD_RI_MODULE_NAME), 
-                repoModuleName).with("#", info);
-        MongoCollection data2 = jdb.getCollection(TABLE_REPO_HISTORY);
-        RepoHistory hist = data2.findOne(String.format("{%s:#,%s:#}", 
-                FIELD_RH_MODULE_NAME, FIELD_RH_VERSION), repoModuleName, changedVer)
-                .as(RepoHistory.class);
+        // race condition here
+        data.update(new BasicDBObject(FIELD_RI_MODULE_NAME, repoModuleName),
+                new BasicDBObject("$set", info));
+        final DBCollection data2 = db.getCollection(TABLE_REPO_HISTORY);
+        final RepoHistory hist = toObject(data2.findOne(
+                new BasicDBObject(FIELD_RH_MODULE_NAME, repoModuleName)
+                        .append(FIELD_RH_VERSION, changedVer)), RepoHistory.class);
         hist.repo_data.repackForMongoDB();
         if (tag.equals(RepoTag.beta)) {
             hist.is_beta = 1L;
         } else {
             hist.is_release = 1L;
         }
-        data2.update(String.format("{%s:#,%s:#}", FIELD_RH_MODULE_NAME, FIELD_RH_VERSION), 
-                repoModuleName, changedVer).with("#", hist);
+        // race condition here
+        data2.update(new BasicDBObject(FIELD_RH_MODULE_NAME, repoModuleName)
+                .append(FIELD_RH_VERSION, changedVer),
+                new BasicDBObject("$set", toDBObject(hist)));
     }
     
     @Override
@@ -395,9 +419,9 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
     @Override
     public RepoState getRepoState(String repoModuleName)
             throws NarrativeMethodStoreException {
-        List<String> state = MongoUtils.getProjection(jdb.getCollection(TABLE_REPO_INFO),
-                String.format("{%s:#}", FIELD_RI_MODULE_NAME), 
-                FIELD_RI_STATE, String.class, repoModuleName);
+        List<String> state = MongoUtils.getProjection(db.getCollection(TABLE_REPO_INFO),
+                new BasicDBObject(FIELD_RI_MODULE_NAME, repoModuleName),
+                FIELD_RI_STATE, String.class);
         checkRepoRegistered(repoModuleName, state);
         return RepoState.valueOf(state.get(0));
     }
@@ -414,13 +438,13 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
                         " is not global admin");
         }*/
         checkAdmin(userId);
-        MongoCollection info = jdb.getCollection(TABLE_REPO_INFO);
-        @SuppressWarnings("unchecked")
-        Map<String, Object> obj = info.findOne(String.format("{%s:#}", 
-                FIELD_RI_MODULE_NAME), repoModuleName).as(Map.class);
-        obj.put(FIELD_RI_STATE, state);
-        info.update(String.format("{%s:#}", FIELD_RI_MODULE_NAME), 
-                repoModuleName).with("#", obj);
+        final DBCollection info = db.getCollection(TABLE_REPO_INFO);
+        final Map<String, Object> obj = toMap(info.findOne(
+                new BasicDBObject(FIELD_RI_MODULE_NAME, repoModuleName)));
+        obj.put(FIELD_RI_STATE, state.toString());
+        // race condition
+        info.update(new BasicDBObject(FIELD_RI_MODULE_NAME, repoModuleName),
+                new BasicDBObject("$set", obj));
     }
     
     @Override
@@ -445,7 +469,6 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
         });
     }
     
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
     public FileId saveFile(String moduleName, FileProvider file) 
             throws NarrativeMethodStoreException {
@@ -460,12 +483,12 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
         } catch (IOException ex) {
             throw new NarrativeMethodStoreException(ex);
         }
-        MongoCollection files = jdb.getCollection(TABLE_REPO_FILES);
-        Iterator<Map> it = files.find(String.format("{%s:#,%s:#,%s:#,%s:#}", 
-                FIELD_RF_MODULE_NAME, FIELD_RF_FILE_NAME, FIELD_RF_LENGTH, FIELD_RF_MD5), 
-                moduleName, fileName, length, md5).as(Map.class).iterator();
-        while (it.hasNext()) {
-            Map<String, Object> obj = it.next();
+        final DBCollection files = db.getCollection(TABLE_REPO_FILES);
+        final DBCursor it = files.find(new BasicDBObject(FIELD_RF_MODULE_NAME, moduleName)
+                .append(FIELD_RF_FILE_NAME, fileName).append(FIELD_RF_LENGTH, length)
+                .append(FIELD_RF_MD5, md5));
+        for (final DBObject dbo: it) {
+            final Map<String, Object> obj = toMap(dbo);
             is = file.openStream();
             try {
                 OutputComparatorStream ocs = new OutputComparatorStream(is);
@@ -509,29 +532,35 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
         long fileIdNum = System.currentTimeMillis();
         while (true) {
             try {
-                files.insert(String.format("{%s:#}", FIELD_RF_FILE_ID), "" + fileIdNum);
+                files.insert(new BasicDBObject(FIELD_RF_FILE_ID, "" + fileIdNum));
                 break;
-            } catch (DuplicateKey ex) {
+            } catch (DuplicateKeyException ex) {
+                // there's not really any reasonable way to test this, since saving a file
+                // takes >> 1ms in my tests. Would need multiple threads
                 fileIdNum++;
             }
         }
         String fileId = String.valueOf(fileIdNum);
-        files.update(String.format("{%s:#}", FIELD_RF_FILE_ID), 
-                fileId).with(String.format("{%s:#,%s:#,%s:#,%s:#,%s:#,%s:#,%s:#}", 
-                        FIELD_RF_FILE_ID, FIELD_RF_MODULE_NAME, FIELD_RF_FILE_NAME, 
-                        FIELD_RF_LENGTH, FIELD_RF_MD5, FIELD_RF_HEX_DATA, 
-                        FIELD_RF_SHOCK_NODE_ID), fileId, moduleName, fileName, length, 
-                        md5, hexData, shockNodeId);
+        // if this fails, there will be an incomplete file record in the DB.
+        // if no shock url is configured the file is saved in a normal mongo object. Since the
+        // file is converted to hex, that means a file > ~8MB will throw a mongo error
+        files.update(new BasicDBObject(FIELD_RF_FILE_ID, fileId),
+                new BasicDBObject("$set",
+                        new BasicDBObject(FIELD_RF_FILE_ID, fileId) // this isn't necessary really
+                        .append(FIELD_RF_MODULE_NAME, moduleName)
+                        .append(FIELD_RF_FILE_NAME, fileName)
+                        .append(FIELD_RF_LENGTH, length)
+                        .append(FIELD_RF_MD5, md5)
+                        .append(FIELD_RF_HEX_DATA, hexData)
+                        .append(FIELD_RF_SHOCK_NODE_ID, shockNodeId)));
         //System.out.println("File was saved: " + fileName + ", " + length + ", " + md5 + " -> " + fileId);
         return new FileId(fileId);
     }
     
     private Map<String, Object> getFileObject(FileId fileId) 
             throws NarrativeMethodStoreException {
-        @SuppressWarnings("unchecked")
-        Map<String, Object> obj = jdb.getCollection(TABLE_REPO_FILES)
-                .findOne(String.format("{%s:#}", 
-                FIELD_RF_FILE_ID), fileId.getId()).as(Map.class);
+        final Map<String, Object> obj = toMap(db.getCollection(TABLE_REPO_FILES).findOne(
+                new BasicDBObject(FIELD_RF_FILE_ID, fileId.getId())));
         if (obj == null)
             throw new NarrativeMethodStoreException("File with id=" + fileId.getId() + 
                     " is not found");
@@ -574,12 +603,12 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
         }
     }
     
-    public class DbFilePointer implements FilePointer {
+    private class DbFilePointer implements FilePointer {
         private final FileId fileId;
         private final String fileName;
         private final long length;
         
-        public DbFilePointer(FileId fileId, String fileName, long length) {
+        private DbFilePointer(FileId fileId, String fileName, long length) {
             this.fileId = fileId;
             this.fileName = fileName;
             this.length = length;
@@ -612,7 +641,10 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
         }
     }
     
-    public static class RepoHistory {
+    // it is actually used, just some of the fields aren't explicitly used. They're populated
+    // by Jackson though.
+    @SuppressWarnings("unused")
+    private static class RepoHistory {
         String module_name;
         Long version;
         RepoData repo_data;

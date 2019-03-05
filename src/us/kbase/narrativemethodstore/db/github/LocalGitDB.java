@@ -616,7 +616,7 @@ public class LocalGitDB {
 	    Set<MethodId> dynamicRepoMethods = new TreeSet<MethodId>();
 	    Map<String, Exception> dynamicRepoModuleNameToLoadingError = new TreeMap<String, Exception>();
         if (dynamicRepos != null) {
-            for (String repoMN : dynamicRepos.listRepoModuleNames(false, null)) {
+            for (String repoMN : dynamicRepos.listRepoModuleNames()) {
                 for (RepoTag tag : RepoTag.values()) {
                     try {
                         RepoProvider repo = dynamicRepos.getRepoDetails(repoMN, tag);
