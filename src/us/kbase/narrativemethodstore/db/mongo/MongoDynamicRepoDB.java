@@ -75,10 +75,6 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
     private static final String FIELD_RF_HEX_DATA = "hex_data";
     private static final String FIELD_RF_SHOCK_NODE_ID = "shock_node_id";
 
-    private static String nullIfWhitespace(final String s) {
-        return s == null || s.trim().isEmpty() ? null : s.trim();
-    }
-
     public MongoDynamicRepoDB(String host, String database, String dbUser, String dbPwd,
             List<String> globalAdminUserIds, boolean isReadOnly, URL shockUrl,
             AuthToken serviceToken) throws NarrativeMethodStoreException {
@@ -86,7 +82,7 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
         this.shockUrl = shockUrl;
         this.serviceToken = serviceToken;
         try {
-            db = getDB(host, database, nullIfWhitespace(dbUser), nullIfWhitespace(dbPwd));
+            db = getDB(host, database, dbUser, dbPwd);
             if (!isReadOnly)
                 ensureIndeces();
             globalAdmins = new HashSet<String>(globalAdminUserIds);
