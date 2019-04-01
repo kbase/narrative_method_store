@@ -1,15 +1,15 @@
----
 language: java
 before_install:
   - sudo apt-get -qq update
   # ant-optional is needed for ant junit
   - sudo apt-get install ant-optional
-script: make && make test
+script: make && make test && docker build .
+
 jdk:
   - oraclejdk8
 
 branches:
   only:
   - master
-  - staging
+  - dockerize
   - develop

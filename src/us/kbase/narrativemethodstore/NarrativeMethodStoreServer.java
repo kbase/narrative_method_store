@@ -69,7 +69,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
     public static final String CFG_PROP_AUTH_SERVICE_URL = "auth-service-url";
     public static final String    CFG_PROP_AUTH_INSECURE = "auth-service-url-allow-insecure";
     
-    public static final String VERSION = "0.3.7";
+    public static final String VERSION = "0.3.9";
     
     private static Throwable configError = null;
     private static Map<String, String> config = null;
@@ -176,7 +176,13 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
     		to = from + (int)(long)params.getLimit();
     	return data.subList(from, to);
     }
-    
+
+
+    private static String nullIfWhitespace(final String s) {
+        return s == null || s.trim().isEmpty() ? null : s.trim();
+    }
+
+
     public static synchronized LocalGitDB getLocalGitDB() throws Exception {
         if (localGitDB == null) {
             // TODO: Make sure LocalGitDB doesn't require synchronization for when shared between servlet threads (including ImageServlet).
@@ -188,8 +194,8 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
             System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_TEMP_DIR +" = " + getTempDir());
             System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_MONGO_HOST +" = " + getMongoHost());
             System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_MONGO_DBNAME +" = " + getMongoDbname());
-            String dbUser = config().get(CFG_PROP_MONGO_USER);
-            String dbPwd = config().get(CFG_PROP_MONGO_PASSWORD);
+            String dbUser = nullIfWhitespace(config().get(CFG_PROP_MONGO_USER));
+            String dbPwd = nullIfWhitespace(config().get(CFG_PROP_MONGO_PASSWORD));
             System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_MONGO_USER +" = " + (dbUser == null ? "<not-set>" : dbUser));
             System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_MONGO_PASSWORD +" = " + (dbPwd == null ? "<not-set>" : "[*****]"));
             String mongoReadOnlyText = config().get(CFG_PROP_MONGO_READONLY);

@@ -68,7 +68,7 @@
   </fileset>
 
   <fileset dir="${jardir}" id="clientserverlib">
-    <include name="junit/junit-4.9.jar"/>
+    <include name="junit/junit-4.12.jar"/>
     <include name="kbase/auth/kbase-auth-0.4.4.jar"/>
     <include name="jackson/jackson-annotations-2.2.3.jar"/>
     <include name="jackson/jackson-core-2.2.3.jar"/>
@@ -84,8 +84,7 @@
     <include name="apache_commons/commons-io-2.4.jar"/>
     <include name="snakeyaml/snakeyaml-1.11.jar"/>
     <include name="google/guava-14.0.1.jar"/>
-    <include name="mongo/mongo-java-driver-2.13.3.jar"/>
-    <include name="jongo/jongo-0.5-early-20130912-1506.jar"/>
+    <include name="mongo/mongo-java-driver-3.10.1.jar"/>
     <include name="bson4jackson/bson4jackson-2.2.0-2.2.0.jar"/>
     <include name="kbase/shock/shock-client-0.0.15.jar"/>
     <include name="apache_commons/http/httpclient-4.3.1.jar"/>
@@ -124,6 +123,13 @@
     <include name="testinfected/jpa-matchers-1.6.jar"/>
     <include name="apache_commons/velocity-1.7.jar"/>
     <include name="apache_commons/commons-collections-3.2.1.jar"/>
+    <!-- should probably make a testlib at some point -->
+    <!-- mockito and dependencies -->
+    <include name="mockito/mockito-core-2.7.10.jar"/>
+    <include name="bytebuddy/byte-buddy-1.6.8.jar"/>
+    <include name="bytebuddy/byte-buddy-agent-1.6.8.jar"/>
+    <include name="objenesis/objenesis-2.5.1.jar"/>
+    <include name="apache_commons/commons-lang3-3.5.jar"/>
   </fileset>
 	
   <union id="serverside">
@@ -197,7 +203,7 @@
     <echo>${commonjar}</echo>
     <pathconvert property="compile_classpath_prop" refid="compile.classpath"/>
     <echo>${compile_classpath_prop}</echo>
-    <javac destdir="${classes}" includeantruntime="false" target="1.7" source="1.7"
+    <javac destdir="${classes}" includeantruntime="false" target="1.8" source="1.8"
       debug="true" classpathref="compile.classpath">
       <src path="${src}"/>
     </javac>
@@ -306,6 +312,7 @@
       <sysproperty key="test.auth-service-url" value="${test.auth-service-url}"/>
       <sysproperty key="test.auth-service-url-allow-insecure" value="${test.auth-service-url-allow-insecure}"/>
       <test name="us.kbase.narrativemethodstore.db.mongo.test.MongoDynamicRepoDBTest"/>
+      <test name="us.kbase.narrativemethodstore.db.mongo.test.MongoDynamicRepoDB2Test"/>
       <test name="us.kbase.narrativemethodstore.test.FullServerTest"/>
     </junit>
     <fail message="Test failure detected, check test results." if="test.failed" />

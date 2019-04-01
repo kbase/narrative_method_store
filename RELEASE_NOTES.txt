@@ -3,6 +3,29 @@ NARRATIVE METHOD STORE OVERVIEW
 The Narrative Method Store provides an API to dynamically access the available
 narrative method/app/type specifications and documentation.
 
+VERSION: 0.3.9 (Released TBD)
+-----------------------------
+
+UPDATED FEATURES / MAJOR BUG FIXES:
+- Updated to the 3.x version of MongoDB Java driver, which supports versions of MongoDB beyond 3.2.
+
+VERSION: 0.3.8 (Released 11/06/18)
+--------------------------------------
+NOTE: This is a rollup of changes since the last release notes update
+UPDATED FEATURES / MAJOR BUG FIXES:
+- Version string in server was way behind release notes - updated to match
+- Add Dynamic Dropdowns
+- Remove support for JDK7
+- Auth2 conversion
+- Support for advanced option in group-parameters in method specs
+- Fix bug in validator code in display.yaml
+- More tests of the validator
+- Support for parameter groups in method-specs
+- Support for app_type parameter in method-spec
+- Support for generic service functions in sub-data selection spec
+- UI Typeinfo specs export_function switched to mapping
+- Versions in method specs switched to use semantic repo version
+
 
 VERSION: 0.3.3 (Released 02/11/16)
 --------------------------------------
