@@ -75,7 +75,6 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
     private static final String FIELD_RF_HEX_DATA = "hex_data";
     private static final String FIELD_RF_SHOCK_NODE_ID = "shock_node_id";
 
-
     private static String nullIfWhitespace(final String s) {
         return s == null || s.trim().isEmpty() ? null : s.trim();
     }
@@ -86,12 +85,8 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
         this.isReadOnly = isReadOnly;
         this.shockUrl = shockUrl;
         this.serviceToken = serviceToken;
-
-        final String userName = nullIfWhitespace(dbUser);
-        final String password = nullIfWhitespace(dbPwd);
-
         try {
-            db = getDB(host, database, userName, password);
+            db = getDB(host, database, nullIfWhitespace(dbUser), nullIfWhitespace(dbPwd));
             if (!isReadOnly)
                 ensureIndeces();
             globalAdmins = new HashSet<String>(globalAdminUserIds);
