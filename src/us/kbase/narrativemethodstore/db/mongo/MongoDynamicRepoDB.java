@@ -74,7 +74,7 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
     private static final String FIELD_RF_MD5 = "md5";
     private static final String FIELD_RF_HEX_DATA = "hex_data";
     private static final String FIELD_RF_SHOCK_NODE_ID = "shock_node_id";
-    
+
     public MongoDynamicRepoDB(String host, String database, String dbUser, String dbPwd,
             List<String> globalAdminUserIds, boolean isReadOnly, URL shockUrl,
             AuthToken serviceToken) throws NarrativeMethodStoreException {
