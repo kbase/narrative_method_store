@@ -41,7 +41,7 @@ public class MethodSpec {
     /**
      * <p>Original spec-file type: MethodBriefInfo</p>
      * <pre>
-     * Minimal information about a method suitable for displaying the method in a menu or navigator. 
+     * Minimal information about a method suitable for displaying the method in a menu or navigator.
      * input_types and output_types - sets of valid_ws_types occured in input/output parameters.
      * git_commit_hash - optional repo version defined for dynamically registered methods.
      * app_type - is one of: "app", "viewer", "editor".
@@ -76,8 +76,10 @@ public class MethodSpec {
      * kb_service_version - optional git commit hash defining version of repo registered dynamically.
      * kb_service_input_mapping - mapping from input parameters to input service method arguments.
      * kb_service_output_mapping - mapping from output of service method to final output of narrative method.
+     * resource_estimator_module - optional module for the resource estimator method.
+     * resource_estimator_method - optional name of method for estimating resource requirements.
      * output_mapping - mapping from input to final output of narrative method to support steps without back-end operations.
-     * @optional kb_service_name kb_service_method kb_service_input_mapping kb_service_output_mapping
+     * @optional kb_service_name kb_service_method kb_service_input_mapping kb_service_output_mapping resource_estimator_module resource_estimator_method
      * </pre>
      * 
      */
@@ -90,7 +92,7 @@ public class MethodSpec {
     /**
      * <p>Original spec-file type: MethodBriefInfo</p>
      * <pre>
-     * Minimal information about a method suitable for displaying the method in a menu or navigator. 
+     * Minimal information about a method suitable for displaying the method in a menu or navigator.
      * input_types and output_types - sets of valid_ws_types occured in input/output parameters.
      * git_commit_hash - optional repo version defined for dynamically registered methods.
      * app_type - is one of: "app", "viewer", "editor".
@@ -105,7 +107,7 @@ public class MethodSpec {
     /**
      * <p>Original spec-file type: MethodBriefInfo</p>
      * <pre>
-     * Minimal information about a method suitable for displaying the method in a menu or navigator. 
+     * Minimal information about a method suitable for displaying the method in a menu or navigator.
      * input_types and output_types - sets of valid_ws_types occured in input/output parameters.
      * git_commit_hash - optional repo version defined for dynamically registered methods.
      * app_type - is one of: "app", "viewer", "editor".
@@ -220,8 +222,10 @@ public class MethodSpec {
      * kb_service_version - optional git commit hash defining version of repo registered dynamically.
      * kb_service_input_mapping - mapping from input parameters to input service method arguments.
      * kb_service_output_mapping - mapping from output of service method to final output of narrative method.
+     * resource_estimator_module - optional module for the resource estimator method.
+     * resource_estimator_method - optional name of method for estimating resource requirements.
      * output_mapping - mapping from input to final output of narrative method to support steps without back-end operations.
-     * @optional kb_service_name kb_service_method kb_service_input_mapping kb_service_output_mapping
+     * @optional kb_service_name kb_service_method kb_service_input_mapping kb_service_output_mapping resource_estimator_module resource_estimator_method
      * </pre>
      * 
      */
@@ -239,8 +243,10 @@ public class MethodSpec {
      * kb_service_version - optional git commit hash defining version of repo registered dynamically.
      * kb_service_input_mapping - mapping from input parameters to input service method arguments.
      * kb_service_output_mapping - mapping from output of service method to final output of narrative method.
+     * resource_estimator_module - optional module for the resource estimator method.
+     * resource_estimator_method - optional name of method for estimating resource requirements.
      * output_mapping - mapping from input to final output of narrative method to support steps without back-end operations.
-     * @optional kb_service_name kb_service_method kb_service_input_mapping kb_service_output_mapping
+     * @optional kb_service_name kb_service_method kb_service_input_mapping kb_service_output_mapping resource_estimator_module resource_estimator_method
      * </pre>
      * 
      */

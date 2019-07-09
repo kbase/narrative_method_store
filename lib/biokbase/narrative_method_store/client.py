@@ -411,13 +411,19 @@ class NarrativeMethodStore(object):
            dynamically. kb_service_input_mapping - mapping from input
            parameters to input service method arguments.
            kb_service_output_mapping - mapping from output of service method
-           to final output of narrative method. output_mapping - mapping from
-           input to final output of narrative method to support steps without
-           back-end operations. @optional kb_service_name kb_service_method
-           kb_service_input_mapping kb_service_output_mapping) -> structure:
+           to final output of narrative method. resource_estimator_module -
+           optional module for the resource estimator method.
+           resource_estimator_method - optional name of method for estimating
+           resource requirements. output_mapping - mapping from input to
+           final output of narrative method to support steps without back-end
+           operations. @optional kb_service_name kb_service_method
+           kb_service_input_mapping kb_service_output_mapping
+           resource_estimator_module resource_estimator_method) -> structure:
            parameter "kb_service_url" of String, parameter "kb_service_name"
            of String, parameter "kb_service_version" of String, parameter
            "kb_service_method" of String, parameter
+           "resource_estimator_module" of String, parameter
+           "resource_estimator_method" of String, parameter
            "kb_service_input_mapping" of list of type
            "ServiceMethodInputMapping" (input_parameter - parameter_id, if
            not specified then one of 'constant_value' or
@@ -907,13 +913,19 @@ class NarrativeMethodStore(object):
            dynamically. kb_service_input_mapping - mapping from input
            parameters to input service method arguments.
            kb_service_output_mapping - mapping from output of service method
-           to final output of narrative method. output_mapping - mapping from
-           input to final output of narrative method to support steps without
-           back-end operations. @optional kb_service_name kb_service_method
-           kb_service_input_mapping kb_service_output_mapping) -> structure:
+           to final output of narrative method. resource_estimator_module -
+           optional module for the resource estimator method.
+           resource_estimator_method - optional name of method for estimating
+           resource requirements. output_mapping - mapping from input to
+           final output of narrative method to support steps without back-end
+           operations. @optional kb_service_name kb_service_method
+           kb_service_input_mapping kb_service_output_mapping
+           resource_estimator_module resource_estimator_method) -> structure:
            parameter "kb_service_url" of String, parameter "kb_service_name"
            of String, parameter "kb_service_version" of String, parameter
            "kb_service_method" of String, parameter
+           "resource_estimator_module" of String, parameter
+           "resource_estimator_method" of String, parameter
            "kb_service_input_mapping" of list of type
            "ServiceMethodInputMapping" (input_parameter - parameter_id, if
            not specified then one of 'constant_value' or
@@ -1371,13 +1383,19 @@ class NarrativeMethodStore(object):
            dynamically. kb_service_input_mapping - mapping from input
            parameters to input service method arguments.
            kb_service_output_mapping - mapping from output of service method
-           to final output of narrative method. output_mapping - mapping from
-           input to final output of narrative method to support steps without
-           back-end operations. @optional kb_service_name kb_service_method
-           kb_service_input_mapping kb_service_output_mapping) -> structure:
+           to final output of narrative method. resource_estimator_module -
+           optional module for the resource estimator method.
+           resource_estimator_method - optional name of method for estimating
+           resource requirements. output_mapping - mapping from input to
+           final output of narrative method to support steps without back-end
+           operations. @optional kb_service_name kb_service_method
+           kb_service_input_mapping kb_service_output_mapping
+           resource_estimator_module resource_estimator_method) -> structure:
            parameter "kb_service_url" of String, parameter "kb_service_name"
            of String, parameter "kb_service_version" of String, parameter
            "kb_service_method" of String, parameter
+           "resource_estimator_module" of String, parameter
+           "resource_estimator_method" of String, parameter
            "kb_service_input_mapping" of list of type
            "ServiceMethodInputMapping" (input_parameter - parameter_id, if
            not specified then one of 'constant_value' or
@@ -1750,13 +1768,19 @@ class NarrativeMethodStore(object):
            dynamically. kb_service_input_mapping - mapping from input
            parameters to input service method arguments.
            kb_service_output_mapping - mapping from output of service method
-           to final output of narrative method. output_mapping - mapping from
-           input to final output of narrative method to support steps without
-           back-end operations. @optional kb_service_name kb_service_method
-           kb_service_input_mapping kb_service_output_mapping) -> structure:
+           to final output of narrative method. resource_estimator_module -
+           optional module for the resource estimator method.
+           resource_estimator_method - optional name of method for estimating
+           resource requirements. output_mapping - mapping from input to
+           final output of narrative method to support steps without back-end
+           operations. @optional kb_service_name kb_service_method
+           kb_service_input_mapping kb_service_output_mapping
+           resource_estimator_module resource_estimator_method) -> structure:
            parameter "kb_service_url" of String, parameter "kb_service_name"
            of String, parameter "kb_service_version" of String, parameter
            "kb_service_method" of String, parameter
+           "resource_estimator_module" of String, parameter
+           "resource_estimator_method" of String, parameter
            "kb_service_input_mapping" of list of type
            "ServiceMethodInputMapping" (input_parameter - parameter_id, if
            not specified then one of 'constant_value' or
@@ -2129,13 +2153,19 @@ class NarrativeMethodStore(object):
            dynamically. kb_service_input_mapping - mapping from input
            parameters to input service method arguments.
            kb_service_output_mapping - mapping from output of service method
-           to final output of narrative method. output_mapping - mapping from
-           input to final output of narrative method to support steps without
-           back-end operations. @optional kb_service_name kb_service_method
-           kb_service_input_mapping kb_service_output_mapping) -> structure:
+           to final output of narrative method. resource_estimator_module -
+           optional module for the resource estimator method.
+           resource_estimator_method - optional name of method for estimating
+           resource requirements. output_mapping - mapping from input to
+           final output of narrative method to support steps without back-end
+           operations. @optional kb_service_name kb_service_method
+           kb_service_input_mapping kb_service_output_mapping
+           resource_estimator_module resource_estimator_method) -> structure:
            parameter "kb_service_url" of String, parameter "kb_service_name"
            of String, parameter "kb_service_version" of String, parameter
            "kb_service_method" of String, parameter
+           "resource_estimator_module" of String, parameter
+           "resource_estimator_method" of String, parameter
            "kb_service_input_mapping" of list of type
            "ServiceMethodInputMapping" (input_parameter - parameter_id, if
            not specified then one of 'constant_value' or

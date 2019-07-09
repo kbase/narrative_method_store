@@ -32,7 +32,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
  *                    the selection.  For features, for instance, this may include
  *                    the feature function, or feature aliases.
  *     description_template - Defines how the description of items is rendered using
- *                    Handlebar templates (use the name of items in the 
+ *                    Handlebar templates (use the name of items in the
  *                    selection_description list as variable names)
  *     service_function - optional name of SDK method including prefix with SDK
  *                    module started up as dynamic service (it's fully qualified

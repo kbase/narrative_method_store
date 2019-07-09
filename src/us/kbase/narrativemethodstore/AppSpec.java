@@ -16,7 +16,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
  * <p>Original spec-file type: AppSpec</p>
  * <pre>
  * typedef structure {
- * } AppBehavior;
+ *     } AppBehavior;
  * </pre>
  * 
  */

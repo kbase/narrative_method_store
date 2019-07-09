@@ -15,14 +15,14 @@ import us.kbase.common.service.UObject;
 /**
  * <p>Original spec-file type: ServiceMethodInputMapping</p>
  * <pre>
- * input_parameter - parameter_id, if not specified then one of 'constant_value' or 
+ * input_parameter - parameter_id, if not specified then one of 'constant_value' or
  *     'narrative_system_variable' should be set.
  * constant_value - constant value, could be even map/array, if not specified then 'input_parameter' or
  *     'narrative_system_variable' should be set.
  * narrative_system_variable - name of internal narrative framework property, currently only these names are
  *     supported: 'workspace', 'token', 'user_id'; if not specified then one of 'input_parameter' or
  *     'constant_value' should be set.
- * generated_value - automatically generated value; it could be used as independent mode or when another mode 
+ * generated_value - automatically generated value; it could be used as independent mode or when another mode
  *     finished with empty value (for example in case 'input_parameter' is defined but value of this
  *     parameter is left empty by user); so this mode has lower priority when used with another mode.
  * target_argument_position - position of argument in RPC-method call, optional field, default value is 0.
@@ -31,7 +31,7 @@ import us.kbase.common.service.UObject;
  *     wrapping it by structure with inner property defined by 'target_property'.
  * target_type_transform - none/string/int/float/ref, optional field, default is 'none' (it's in plans to
  *     support list<type>, mapping<type> and tuple<t1,t2,...> transformations).
- * @optional input_parameter constant_value narrative_system_variable generated_value 
+ * @optional input_parameter constant_value narrative_system_variable generated_value
  * @optional target_argument_position target_property target_type_transform
  * </pre>
  * 
