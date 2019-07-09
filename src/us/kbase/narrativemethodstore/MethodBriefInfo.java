@@ -15,7 +15,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 /**
  * <p>Original spec-file type: MethodBriefInfo</p>
  * <pre>
- * Minimal information about a method suitable for displaying the method in a menu or navigator. 
+ * Minimal information about a method suitable for displaying the method in a menu or navigator.
  * input_types and output_types - sets of valid_ws_types occured in input/output parameters.
  * git_commit_hash - optional repo version defined for dynamically registered methods.
  * app_type - is one of: "app", "viewer", "editor".

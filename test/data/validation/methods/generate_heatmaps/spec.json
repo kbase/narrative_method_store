@@ -61,7 +61,7 @@
     "text_options" : {
   		"validate_as": "float"
     }
-      	
+
   },
   {
     "id" : "num_genes",
@@ -71,21 +71,23 @@
     "default_values" : [ "200" ],
     "field_type" : "text",
     "text_options" : {
-  		"validate_as": "int",  		
-  		"max_int": 200  		
+  		"validate_as": "int",
+  		"max_int": 200
 
     }
 
   }
-  
-  
-  
+
+
+
   ],
   "behavior" : {
       "service-mapping" : {
       	"url" : "",
         "name" : "kb_cummerbund",
         "method" : "create_heatmap_de_genes",
+        "resource_estimator_module": "kb_cummerbund",
+        "resource_estimator_method": "create_heatmap_de_genes_estimator",
         "input_mapping" : [
         {
           "narrative_system_variable": "workspace",

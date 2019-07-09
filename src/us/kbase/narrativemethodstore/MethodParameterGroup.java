@@ -16,7 +16,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
  * <p>Original spec-file type: MethodParameterGroup</p>
  * <pre>
  * Description of a method parameter.
- * id - id of the parameter group, must be unique within the method among all parameters 
+ * id - id of the parameter group, must be unique within the method among all parameters
  *                 and groups,
  * parameter_ids - IDs of parameters included in this group,
  * ui_name - short name that is displayed to the user,

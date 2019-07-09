@@ -1007,6 +1007,8 @@ MethodBehavior is a reference to a hash where the following keys are defined:
 	kb_service_name has a value which is a string
 	kb_service_version has a value which is a string
 	kb_service_method has a value which is a string
+	resource_estimator_module has a value which is a string
+	resource_estimator_method has a value which is a string
 	kb_service_input_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.ServiceMethodInputMapping
 	kb_service_output_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.ServiceMethodOutputMapping
 	output_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.OutputMapping
@@ -1185,6 +1187,8 @@ MethodBehavior is a reference to a hash where the following keys are defined:
 	kb_service_name has a value which is a string
 	kb_service_version has a value which is a string
 	kb_service_method has a value which is a string
+	resource_estimator_module has a value which is a string
+	resource_estimator_method has a value which is a string
 	kb_service_input_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.ServiceMethodInputMapping
 	kb_service_output_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.ServiceMethodOutputMapping
 	output_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.OutputMapping
@@ -2389,6 +2393,8 @@ MethodBehavior is a reference to a hash where the following keys are defined:
 	kb_service_name has a value which is a string
 	kb_service_version has a value which is a string
 	kb_service_method has a value which is a string
+	resource_estimator_module has a value which is a string
+	resource_estimator_method has a value which is a string
 	kb_service_input_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.ServiceMethodInputMapping
 	kb_service_output_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.ServiceMethodOutputMapping
 	output_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.OutputMapping
@@ -2566,6 +2572,8 @@ MethodBehavior is a reference to a hash where the following keys are defined:
 	kb_service_name has a value which is a string
 	kb_service_version has a value which is a string
 	kb_service_method has a value which is a string
+	resource_estimator_module has a value which is a string
+	resource_estimator_method has a value which is a string
 	kb_service_input_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.ServiceMethodInputMapping
 	kb_service_output_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.ServiceMethodOutputMapping
 	output_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.OutputMapping
@@ -3396,6 +3404,8 @@ MethodBehavior is a reference to a hash where the following keys are defined:
 	kb_service_name has a value which is a string
 	kb_service_version has a value which is a string
 	kb_service_method has a value which is a string
+	resource_estimator_module has a value which is a string
+	resource_estimator_method has a value which is a string
 	kb_service_input_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.ServiceMethodInputMapping
 	kb_service_output_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.ServiceMethodOutputMapping
 	output_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.OutputMapping
@@ -3666,6 +3676,8 @@ MethodBehavior is a reference to a hash where the following keys are defined:
 	kb_service_name has a value which is a string
 	kb_service_version has a value which is a string
 	kb_service_method has a value which is a string
+	resource_estimator_module has a value which is a string
+	resource_estimator_method has a value which is a string
 	kb_service_input_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.ServiceMethodInputMapping
 	kb_service_output_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.ServiceMethodOutputMapping
 	output_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.OutputMapping
@@ -3999,6 +4011,8 @@ MethodBehavior is a reference to a hash where the following keys are defined:
 	kb_service_name has a value which is a string
 	kb_service_version has a value which is a string
 	kb_service_method has a value which is a string
+	resource_estimator_module has a value which is a string
+	resource_estimator_method has a value which is a string
 	kb_service_input_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.ServiceMethodInputMapping
 	kb_service_output_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.ServiceMethodOutputMapping
 	output_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.OutputMapping
@@ -4268,6 +4282,8 @@ MethodBehavior is a reference to a hash where the following keys are defined:
 	kb_service_name has a value which is a string
 	kb_service_version has a value which is a string
 	kb_service_method has a value which is a string
+	resource_estimator_module has a value which is a string
+	resource_estimator_method has a value which is a string
 	kb_service_input_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.ServiceMethodInputMapping
 	kb_service_output_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.ServiceMethodOutputMapping
 	output_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.OutputMapping
@@ -4601,6 +4617,8 @@ MethodBehavior is a reference to a hash where the following keys are defined:
 	kb_service_name has a value which is a string
 	kb_service_version has a value which is a string
 	kb_service_method has a value which is a string
+	resource_estimator_module has a value which is a string
+	resource_estimator_method has a value which is a string
 	kb_service_input_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.ServiceMethodInputMapping
 	kb_service_output_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.ServiceMethodOutputMapping
 	output_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.OutputMapping
@@ -4870,6 +4888,8 @@ MethodBehavior is a reference to a hash where the following keys are defined:
 	kb_service_name has a value which is a string
 	kb_service_version has a value which is a string
 	kb_service_method has a value which is a string
+	resource_estimator_module has a value which is a string
+	resource_estimator_method has a value which is a string
 	kb_service_input_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.ServiceMethodInputMapping
 	kb_service_output_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.ServiceMethodOutputMapping
 	output_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.OutputMapping
@@ -5684,7 +5704,7 @@ url has a value which is a NarrativeMethodStore.url
 
 =item Description
 
-Minimal information about a method suitable for displaying the method in a menu or navigator. 
+Minimal information about a method suitable for displaying the method in a menu or navigator.
 input_types and output_types - sets of valid_ws_types occured in input/output parameters.
 git_commit_hash - optional repo version defined for dynamically registered methods.
 app_type - is one of: "app", "viewer", "editor".
@@ -6342,7 +6362,7 @@ Information about a subdata selection
                    the selection.  For features, for instance, this may include
                    the feature function, or feature aliases.
     description_template - Defines how the description of items is rendered using
-                   Handlebar templates (use the name of items in the 
+                   Handlebar templates (use the name of items in the
                    selection_description list as variable names)
     service_function - optional name of SDK method including prefix with SDK
                    module started up as dynamic service (it's fully qualified
@@ -6399,7 +6419,7 @@ service_version has a value which is a string
 
 =item Description
 
-Defines a parameter field that allows autocomplete based on 
+Defines a parameter field that allows autocomplete based on
 subdata of an existing object.  For instance, selection of feature ids
 from a Genome object.  It will appear as a text field with dropdown
 similar to selection of other WS data objects.
@@ -6552,7 +6572,7 @@ disabled   - set to true to disable user input, default is 0
 ui_class  - input | output | parameter
            value is autogenerated based on the specification which determines
            if it is an input parameter, output parameter, or just plain old parameter
-           (input is generally an input data object, output is an output data object, 
+           (input is generally an input data object, output is an output data object,
            and plain old parameter is more or less numbers, fixed selections, etc)
 
 @optional text_options textarea_options intslider_options floatslider_options
@@ -6711,14 +6731,14 @@ suffix has a value which is a string
 
 =item Description
 
-input_parameter - parameter_id, if not specified then one of 'constant_value' or 
+input_parameter - parameter_id, if not specified then one of 'constant_value' or
     'narrative_system_variable' should be set.
 constant_value - constant value, could be even map/array, if not specified then 'input_parameter' or
     'narrative_system_variable' should be set.
 narrative_system_variable - name of internal narrative framework property, currently only these names are
     supported: 'workspace', 'token', 'user_id'; if not specified then one of 'input_parameter' or
     'constant_value' should be set.
-generated_value - automatically generated value; it could be used as independent mode or when another mode 
+generated_value - automatically generated value; it could be used as independent mode or when another mode
     finished with empty value (for example in case 'input_parameter' is defined but value of this
     parameter is left empty by user); so this mode has lower priority when used with another mode.
 target_argument_position - position of argument in RPC-method call, optional field, default value is 0.
@@ -6727,7 +6747,7 @@ target_property - name of field inside structure that will be send as argument. 
     wrapping it by structure with inner property defined by 'target_property'.
 target_type_transform - none/string/int/float/ref, optional field, default is 'none' (it's in plans to
     support list<type>, mapping<type> and tuple<t1,t2,...> transformations).
-@optional input_parameter constant_value narrative_system_variable generated_value 
+@optional input_parameter constant_value narrative_system_variable generated_value
 @optional target_argument_position target_property target_type_transform
 
 
@@ -6775,10 +6795,10 @@ target_type_transform has a value which is a string
 
 =item Description
 
-input_parameter - parameter_id, if not specified then one of 'constant_value' or 
+input_parameter - parameter_id, if not specified then one of 'constant_value' or
     'narrative_system_variable' should be set.
 service_method_output_path - list of properties and array element positions defining JSON-path traversing
-    through which we can find necessary value. 
+    through which we can find necessary value.
 constant_value - constant value, could be even map/array, if not specified then 'input_parameter' or
     'narrative_system_variable' should be set.
 narrative_system_variable - name of internal narrative framework property, currently only these names are
@@ -6787,9 +6807,9 @@ narrative_system_variable - name of internal narrative framework property, curre
 target_property - name of field inside structure that will be send as arguement. Optional field,
     in case this field is not defined (or null) whole object will be sent as method argument instead of
     wrapping it by structure with inner property defined by 'target_property'.
-target_type_transform - none/string/int/float/list<type>/mapping<type>/ref, optional field, default is 
+target_type_transform - none/string/int/float/list<type>/mapping<type>/ref, optional field, default is
     no transformation.
-@optional input_parameter service_method_output_path constant_value narrative_system_variable 
+@optional input_parameter service_method_output_path constant_value narrative_system_variable
 @optional target_property target_type_transform
 
 
@@ -6835,7 +6855,7 @@ target_type_transform has a value which is a string
 
 =item Description
 
-This structure should be used in case narrative method doesn't run any back-end code. 
+This structure should be used in case narrative method doesn't run any back-end code.
 See docs for ServiceMethodOutputMapping type for details.
 
 
@@ -6885,8 +6905,10 @@ kb_service_name - name of service which will be part of fully qualified method n
 kb_service_version - optional git commit hash defining version of repo registered dynamically.
 kb_service_input_mapping - mapping from input parameters to input service method arguments.
 kb_service_output_mapping - mapping from output of service method to final output of narrative method.
+resource_estimator_module - optional module for the resource estimator method.
+resource_estimator_method - optional name of method for estimating resource requirements.
 output_mapping - mapping from input to final output of narrative method to support steps without back-end operations.
-@optional kb_service_name kb_service_method kb_service_input_mapping kb_service_output_mapping
+@optional kb_service_name kb_service_method kb_service_input_mapping kb_service_output_mapping resource_estimator_module resource_estimator_method
 
 
 =item Definition
@@ -6899,6 +6921,8 @@ kb_service_url has a value which is a string
 kb_service_name has a value which is a string
 kb_service_version has a value which is a string
 kb_service_method has a value which is a string
+resource_estimator_module has a value which is a string
+resource_estimator_method has a value which is a string
 kb_service_input_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.ServiceMethodInputMapping
 kb_service_output_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.ServiceMethodOutputMapping
 output_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.OutputMapping
@@ -6914,6 +6938,8 @@ kb_service_url has a value which is a string
 kb_service_name has a value which is a string
 kb_service_version has a value which is a string
 kb_service_method has a value which is a string
+resource_estimator_module has a value which is a string
+resource_estimator_method has a value which is a string
 kb_service_input_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.ServiceMethodInputMapping
 kb_service_output_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.ServiceMethodOutputMapping
 output_mapping has a value which is a reference to a list where each element is a NarrativeMethodStore.OutputMapping
@@ -6935,7 +6961,7 @@ output_mapping has a value which is a reference to a list where each element is 
 
 Description of a method parameter.
 
-id - id of the parameter group, must be unique within the method among all parameters 
+id - id of the parameter group, must be unique within the method among all parameters
                 and groups,
 parameter_ids - IDs of parameters included in this group,
 ui_name - short name that is displayed to the user,
@@ -7163,7 +7189,7 @@ screenshots has a value which is a reference to a list where each element is a N
 =item Description
 
 Defines how any input to a particular step should be
-populated based 
+populated based
 step_source - the id of the step to pull the parameter from
 isFromInput - set to true (1) to indicate that the input should be pulled from the input
     parameters of the step_source.  This is the only supported option.  In the future, it
@@ -7252,7 +7278,7 @@ description has a value which is a string
 
 typedef structure {
 
-} AppBehavior;
+    } AppBehavior;
 
 
 =item Definition
