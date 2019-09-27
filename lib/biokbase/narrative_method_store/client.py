@@ -12,7 +12,7 @@ from __future__ import print_function
 try:
     # baseclient and this client are in a package
     from .baseclient import BaseClient as _BaseClient  # @UnusedImport
-except:
+except ImportError:
     # no they aren't
     from baseclient import BaseClient as _BaseClient  # @Reimport
 
@@ -23,7 +23,7 @@ class NarrativeMethodStore(object):
             self, url=None, timeout=30 * 60, user_id=None,
             password=None, token=None, ignore_authrc=False,
             trust_all_ssl_certificates=False,
-            auth_svc='https://kbase.us/services/authorization/Sessions/Login'):
+            auth_svc='https://ci.kbase.us/services/auth/api/legacy/KBase/Sessions/Login'):
         if url is None:
             url = 'https://kbase.us/services/narrative_method_store/rpc'
         self._service_ver = None
@@ -38,9 +38,8 @@ class NarrativeMethodStore(object):
         Returns the current running version of the NarrativeMethodStore.
         :returns: instance of String
         """
-        return self._client.call_method(
-            'NarrativeMethodStore.ver',
-            [], self._service_ver, context)
+        return self._client.call_method('NarrativeMethodStore.ver',
+                                        [], self._service_ver, context)
 
     def status(self, context=None):
         """
@@ -51,9 +50,8 @@ class NarrativeMethodStore(object):
            parameter "git_spec_commit" of String, parameter "update_interval"
            of String
         """
-        return self._client.call_method(
-            'NarrativeMethodStore.status',
-            [], self._service_ver, context)
+        return self._client.call_method('NarrativeMethodStore.status',
+                                        [], self._service_ver, context)
 
     def list_categories(self, params, context=None):
         """
@@ -105,9 +103,8 @@ class NarrativeMethodStore(object):
            String to String, parameter "landing_page_url_prefix" of String,
            parameter "loading_error" of String
         """
-        return self._client.call_method(
-            'NarrativeMethodStore.list_categories',
-            [params], self._service_ver, context)
+        return self._client.call_method('NarrativeMethodStore.list_categories',
+                                        [params], self._service_ver, context)
 
     def get_category(self, params, context=None):
         """
@@ -119,9 +116,8 @@ class NarrativeMethodStore(object):
            String, parameter "parent_ids" of list of String, parameter
            "loading_error" of String
         """
-        return self._client.call_method(
-            'NarrativeMethodStore.get_category',
-            [params], self._service_ver, context)
+        return self._client.call_method('NarrativeMethodStore.get_category',
+                                        [params], self._service_ver, context)
 
     def list_methods(self, params, context=None):
         """
@@ -148,9 +144,8 @@ class NarrativeMethodStore(object):
            list of String, parameter "output_types" of list of String,
            parameter "app_type" of String
         """
-        return self._client.call_method(
-            'NarrativeMethodStore.list_methods',
-            [params], self._service_ver, context)
+        return self._client.call_method('NarrativeMethodStore.list_methods',
+                                        [params], self._service_ver, context)
 
     def list_methods_full_info(self, params, context=None):
         """
@@ -190,9 +185,8 @@ class NarrativeMethodStore(object):
            structure: parameter "pmid" of String, parameter "display_text" of
            String, parameter "link" of type "url"
         """
-        return self._client.call_method(
-            'NarrativeMethodStore.list_methods_full_info',
-            [params], self._service_ver, context)
+        return self._client.call_method('NarrativeMethodStore.list_methods_full_info',
+                                        [params], self._service_ver, context)
 
     def list_methods_spec(self, params, context=None):
         """
@@ -292,7 +286,7 @@ class NarrativeMethodStore(object):
            String, parameter "dynamic_dropdown_options" of type
            "DynamicDropdownOptions" (Defines a parameter field that allows
            autocomplete based on a call to a dynamic service. For instance,
-           selection of files from the stageing_service or from kbase_search.
+           selection of files from the staging_service or from kbase_search.
            It will appear as a text field with dropdown similar to selection
            of other WS data objects. data_source - one of ftp_staging |
            search | custom. Provides sensible defaults to for the following
@@ -305,91 +299,116 @@ class NarrativeMethodStore(object):
            The parameters that will be supplied to the dynamic service call
            as JSON. The special text "{{dynamic_dropdown_input}}" will be
            replaced by the value of user input at call time. selection_id -
-           name of key result_aliases which will be sent as selected value
+           The value of this key will be extracted from the item selected by
+           the user. The item is expected to be represented as a map.
            description_template - Defines how the description of items is
-           rendered using Handlebar templates (use the keys in result_aliases
-           as variable names) multiselection - if true, then multiple
-           selections are allowed in a single input field. This will override
-           the allow_multiple option (which allows user addition) of
-           additional fields.  If true, then this parameter will return a
-           list. Default= false) -> structure: parameter "data_source" of
-           String, parameter "service_function" of String, parameter
-           "service_version" of String, parameter "service_params" of
-           unspecified object, parameter "selection_id" of String, parameter
-           "description_template" of String, parameter "multiselection" of
-           type "boolean" (@range [0,1]), parameter "radio_options" of type
-           "RadioOptions" -> structure: parameter "id_order" of list of
-           String, parameter "ids_to_options" of mapping from String to
-           String, parameter "ids_to_tooltip" of mapping from String to
-           String, parameter "tab_options" of type "TabOptions" -> structure:
-           parameter "tab_id_order" of list of String, parameter
-           "tab_id_to_tab_name" of mapping from String to String, parameter
-           "tab_id_to_param_ids" of mapping from String to list of String,
-           parameter "textsubdata_options" of type "TextSubdataOptions"
-           (Defines a parameter field that allows autocomplete based on
-           subdata of an existing object.  For instance, selection of feature
-           ids from a Genome object.  It will appear as a text field with
-           dropdown similar to selection of other WS data objects.
-           placeholder - placeholder text to display in the field
-           multiselection - if true, then multiple selections are allowed in
-           a single input field.  This will override the allow_multiple
-           option (which allows user addition) of additional fields.  If
-           true, then this parameter will return a list. Default= false
-           show_src_obj - if true, then the dropdown will indicate the ids
-           along with some text indicating what data object the subdata was
-           retrieved from. Default=true allow_custom - if true, then user
-           specified inputs not found in the list are accepted.  if false,
-           users can only select from the valid list of selections.
-           Default=false) -> structure: parameter "placeholder" of String,
-           parameter "multiselection" of type "boolean" (@range [0,1]),
-           parameter "show_src_obj" of type "boolean" (@range [0,1]),
-           parameter "allow_custom" of type "boolean" (@range [0,1]),
-           parameter "subdata_selection" of type "SubdataSelection"
-           (Information about a subdata selection constant_ref - can be set
-           as a fixed reference(s) to data objects so that the dropdown is
-           always populated with a particular WS object - useful for say
-           populating based on an ontology or some other library of default
-           terms, such as compounds parameter_id - pick the terms from a user
-           specified parameter in the same method path_to_subdata - specific
-           path to a list or map that should be used to populate the fields
-           selection_id - If the path_to_subdata is to a list of objects, use
-           this to specify which field of that object should be used as the
-           primary ID selection_description - Use this to specify (if the
-           subdata is a list or map) which fields should be included as a
-           short description of the selection.  For features, for instance,
-           this may include the feature function, or feature aliases.
-           description_template - Defines how the description of items is
-           rendered using Handlebar templates (use the name of items in the
-           selection_description list as variable names) service_function -
-           optional name of SDK method including prefix with SDK module
-           started up as dynamic service (it's fully qualified method name
-           where module and method are separated by '.') service_version -
-           optional version of module used in service_function (default value
-           is 'release').) -> structure: parameter "constant_ref" of list of
-           String, parameter "parameter_id" of String, parameter
-           "subdata_included" of list of String, parameter "path_to_subdata"
-           of list of String, parameter "selection_id" of String, parameter
-           "selection_description" of list of String, parameter
-           "description_template" of String, parameter "service_function" of
-           String, parameter "service_version" of String, parameter
-           "fixed_parameters" of list of type "FixedMethodParameter" (a fixed
-           parameter that does not appear in the method input forms, but is
-           informational for users in describing a backend parameter that
-           cannot be changed (e.g. if a service picks a fixed parameter for
-           say Blast)) -> structure: parameter "ui_name" of String, parameter
-           "description" of String, parameter "parameter_groups" of list of
-           type "MethodParameterGroup" (Description of a method parameter. id
-           - id of the parameter group, must be unique within the method
-           among all parameters and groups, parameter_ids - IDs of parameters
-           included in this group, ui_name - short name that is displayed to
-           the user, short_hint - short phrase or sentence describing the
-           parameter group, description - longer and more technical
-           description of the parameter group (long-hint), allow_mutiple -
-           allows entry of a list instead of a single structure, default is 0
-           if set, the number of starting boxes will be either 1 or the
-           number of elements in the default_values list, optional - set to
-           true to make the group optional, default is 0, advanced - set to
-           true to make this an advanced option, default is 0 if an option is
+           rendered using Handlebar templates (use the keys in the items as
+           variable names) multiselection - If true, then multiple selections
+           are allowed in a single input field. This will override the
+           allow_multiple option (which allows user addition) of additional
+           fields.  If true, then this parameter will return a list. Default=
+           false query_on_empty_input - true, the default, to send a request
+           to the dynamic service even if there is no input.
+           result_array_index - The index of the result array returned from
+           the dynamic service from where the selection items will be
+           extracted. Default 0. path_to_subdata - The path into the result
+           data object to the list of selection items. As an example of
+           correctly specifying where the selection items are within the data
+           structure returned from the dynamic service, if the data structure
+           is: [ "foo",                # return array position 0 {           
+           # return array position 1 "interesting_data": [ "baz", "boo", [
+           {"id": 1, "name": "foo" }, ... {"id": 42, "name": "wowbagger" } ],
+           "bat" ] }, "bar"                # return array position 2 ] KBase
+           dynamic services all return an array of values, even for
+           single-value returns, as the KIDL spec allows specifying multiple
+           return values per function. In this case: result_array_index would
+           be 1 path_to_subdata would be ["interesting_data", "2"]
+           selection_id would be "name" The selection items would be the 42
+           items represented by {"id": 1, "name": "foo" }, ... {"id": 42,
+           "name": "wowbagger" } Selection items must always be a list of
+           maps. The final value returned when the user selects a value would
+           be the "name" field - "foo" if the first item is selected, and
+           "wowbagger" if the last item is selected.) -> structure: parameter
+           "data_source" of String, parameter "service_function" of String,
+           parameter "service_version" of String, parameter "service_params"
+           of unspecified object, parameter "selection_id" of String,
+           parameter "description_template" of String, parameter
+           "multiselection" of type "boolean" (@range [0,1]), parameter
+           "query_on_empty_input" of type "boolean" (@range [0,1]), parameter
+           "result_array_index" of Long, parameter "path_to_subdata" of list
+           of String, parameter "radio_options" of type "RadioOptions" ->
+           structure: parameter "id_order" of list of String, parameter
+           "ids_to_options" of mapping from String to String, parameter
+           "ids_to_tooltip" of mapping from String to String, parameter
+           "tab_options" of type "TabOptions" -> structure: parameter
+           "tab_id_order" of list of String, parameter "tab_id_to_tab_name"
+           of mapping from String to String, parameter "tab_id_to_param_ids"
+           of mapping from String to list of String, parameter
+           "textsubdata_options" of type "TextSubdataOptions" (Defines a
+           parameter field that allows autocomplete based on subdata of an
+           existing object.  For instance, selection of feature ids from a
+           Genome object.  It will appear as a text field with dropdown
+           similar to selection of other WS data objects. placeholder -
+           placeholder text to display in the field multiselection - if true,
+           then multiple selections are allowed in a single input field. 
+           This will override the allow_multiple option (which allows user
+           addition) of additional fields.  If true, then this parameter will
+           return a list. Default= false show_src_obj - if true, then the
+           dropdown will indicate the ids along with some text indicating
+           what data object the subdata was retrieved from. Default=true
+           allow_custom - if true, then user specified inputs not found in
+           the list are accepted.  if false, users can only select from the
+           valid list of selections. Default=false) -> structure: parameter
+           "placeholder" of String, parameter "multiselection" of type
+           "boolean" (@range [0,1]), parameter "show_src_obj" of type
+           "boolean" (@range [0,1]), parameter "allow_custom" of type
+           "boolean" (@range [0,1]), parameter "subdata_selection" of type
+           "SubdataSelection" (Information about a subdata selection
+           constant_ref - can be set as a fixed reference(s) to data objects
+           so that the dropdown is always populated with a particular WS
+           object - useful for say populating based on an ontology or some
+           other library of default terms, such as compounds parameter_id -
+           pick the terms from a user specified parameter in the same method
+           path_to_subdata - specific path to a list or map that should be
+           used to populate the fields selection_id - If the path_to_subdata
+           is to a list of objects, use this to specify which field of that
+           object should be used as the primary ID selection_description -
+           Use this to specify (if the subdata is a list or map) which fields
+           should be included as a short description of the selection.  For
+           features, for instance, this may include the feature function, or
+           feature aliases. description_template - Defines how the
+           description of items is rendered using Handlebar templates (use
+           the name of items in the selection_description list as variable
+           names) service_function - optional name of SDK method including
+           prefix with SDK module started up as dynamic service (it's fully
+           qualified method name where module and method are separated by
+           '.') service_version - optional version of module used in
+           service_function (default value is 'release').) -> structure:
+           parameter "constant_ref" of list of String, parameter
+           "parameter_id" of String, parameter "subdata_included" of list of
+           String, parameter "path_to_subdata" of list of String, parameter
+           "selection_id" of String, parameter "selection_description" of
+           list of String, parameter "description_template" of String,
+           parameter "service_function" of String, parameter
+           "service_version" of String, parameter "fixed_parameters" of list
+           of type "FixedMethodParameter" (a fixed parameter that does not
+           appear in the method input forms, but is informational for users
+           in describing a backend parameter that cannot be changed (e.g. if
+           a service picks a fixed parameter for say Blast)) -> structure:
+           parameter "ui_name" of String, parameter "description" of String,
+           parameter "parameter_groups" of list of type
+           "MethodParameterGroup" (Description of a method parameter. id - id
+           of the parameter group, must be unique within the method among all
+           parameters and groups, parameter_ids - IDs of parameters included
+           in this group, ui_name - short name that is displayed to the user,
+           short_hint - short phrase or sentence describing the parameter
+           group, description - longer and more technical description of the
+           parameter group (long-hint), allow_mutiple - allows entry of a
+           list instead of a single structure, default is 0 if set, the
+           number of starting boxes will be either 1 or the number of
+           elements in the default_values list, optional - set to true to
+           make the group optional, default is 0, advanced - set to true to
+           make this an advanced option, default is 0 if an option is
            advanced, it should also be optional or have a default value,
            id_mapping - optional mapping for parameter IDs used to pack group
            into resulting value structure (not used for non-multiple groups),
@@ -496,9 +515,8 @@ class NarrativeMethodStore(object):
            "target_property" of String, parameter "target_type_transform" of
            String, parameter "job_id_output_field" of String
         """
-        return self._client.call_method(
-            'NarrativeMethodStore.list_methods_spec',
-            [params], self._service_ver, context)
+        return self._client.call_method('NarrativeMethodStore.list_methods_spec',
+                                        [params], self._service_ver, context)
 
     def list_method_ids_and_names(self, params, context=None):
         """
@@ -507,9 +525,8 @@ class NarrativeMethodStore(object):
            'release').) -> structure: parameter "tag" of String
         :returns: instance of mapping from String to String
         """
-        return self._client.call_method(
-            'NarrativeMethodStore.list_method_ids_and_names',
-            [params], self._service_ver, context)
+        return self._client.call_method('NarrativeMethodStore.list_method_ids_and_names',
+                                        [params], self._service_ver, context)
 
     def list_apps(self, params, context=None):
         """
@@ -528,9 +545,8 @@ class NarrativeMethodStore(object):
            parameter "categories" of list of String, parameter
            "loading_error" of String
         """
-        return self._client.call_method(
-            'NarrativeMethodStore.list_apps',
-            [params], self._service_ver, context)
+        return self._client.call_method('NarrativeMethodStore.list_apps',
+                                        [params], self._service_ver, context)
 
     def list_apps_full_info(self, params, context=None):
         """
@@ -556,9 +572,8 @@ class NarrativeMethodStore(object):
            parameter "screenshots" of list of type "ScreenShot" -> structure:
            parameter "url" of type "url"
         """
-        return self._client.call_method(
-            'NarrativeMethodStore.list_apps_full_info',
-            [params], self._service_ver, context)
+        return self._client.call_method('NarrativeMethodStore.list_apps_full_info',
+                                        [params], self._service_ver, context)
 
     def list_apps_spec(self, params, context=None):
         """
@@ -596,17 +611,15 @@ class NarrativeMethodStore(object):
            [0,1]), parameter "from" of String, parameter "to" of String,
            parameter "description" of String
         """
-        return self._client.call_method(
-            'NarrativeMethodStore.list_apps_spec',
-            [params], self._service_ver, context)
+        return self._client.call_method('NarrativeMethodStore.list_apps_spec',
+                                        [params], self._service_ver, context)
 
     def list_app_ids_and_names(self, context=None):
         """
         :returns: instance of mapping from String to String
         """
-        return self._client.call_method(
-            'NarrativeMethodStore.list_app_ids_and_names',
-            [], self._service_ver, context)
+        return self._client.call_method('NarrativeMethodStore.list_app_ids_and_names',
+                                        [], self._service_ver, context)
 
     def list_types(self, params, context=None):
         """
@@ -630,9 +643,8 @@ class NarrativeMethodStore(object):
            "landing_page_url_prefix" of String, parameter "loading_error" of
            String
         """
-        return self._client.call_method(
-            'NarrativeMethodStore.list_types',
-            [params], self._service_ver, context)
+        return self._client.call_method('NarrativeMethodStore.list_types',
+                                        [params], self._service_ver, context)
 
     def get_method_brief_info(self, params, context=None):
         """
@@ -656,9 +668,8 @@ class NarrativeMethodStore(object):
            list of String, parameter "output_types" of list of String,
            parameter "app_type" of String
         """
-        return self._client.call_method(
-            'NarrativeMethodStore.get_method_brief_info',
-            [params], self._service_ver, context)
+        return self._client.call_method('NarrativeMethodStore.get_method_brief_info',
+                                        [params], self._service_ver, context)
 
     def get_method_full_info(self, params, context=None):
         """
@@ -695,9 +706,8 @@ class NarrativeMethodStore(object):
            structure: parameter "pmid" of String, parameter "display_text" of
            String, parameter "link" of type "url"
         """
-        return self._client.call_method(
-            'NarrativeMethodStore.get_method_full_info',
-            [params], self._service_ver, context)
+        return self._client.call_method('NarrativeMethodStore.get_method_full_info',
+                                        [params], self._service_ver, context)
 
     def get_method_spec(self, params, context=None):
         """
@@ -794,7 +804,7 @@ class NarrativeMethodStore(object):
            String, parameter "dynamic_dropdown_options" of type
            "DynamicDropdownOptions" (Defines a parameter field that allows
            autocomplete based on a call to a dynamic service. For instance,
-           selection of files from the stageing_service or from kbase_search.
+           selection of files from the staging_service or from kbase_search.
            It will appear as a text field with dropdown similar to selection
            of other WS data objects. data_source - one of ftp_staging |
            search | custom. Provides sensible defaults to for the following
@@ -807,91 +817,116 @@ class NarrativeMethodStore(object):
            The parameters that will be supplied to the dynamic service call
            as JSON. The special text "{{dynamic_dropdown_input}}" will be
            replaced by the value of user input at call time. selection_id -
-           name of key result_aliases which will be sent as selected value
+           The value of this key will be extracted from the item selected by
+           the user. The item is expected to be represented as a map.
            description_template - Defines how the description of items is
-           rendered using Handlebar templates (use the keys in result_aliases
-           as variable names) multiselection - if true, then multiple
-           selections are allowed in a single input field. This will override
-           the allow_multiple option (which allows user addition) of
-           additional fields.  If true, then this parameter will return a
-           list. Default= false) -> structure: parameter "data_source" of
-           String, parameter "service_function" of String, parameter
-           "service_version" of String, parameter "service_params" of
-           unspecified object, parameter "selection_id" of String, parameter
-           "description_template" of String, parameter "multiselection" of
-           type "boolean" (@range [0,1]), parameter "radio_options" of type
-           "RadioOptions" -> structure: parameter "id_order" of list of
-           String, parameter "ids_to_options" of mapping from String to
-           String, parameter "ids_to_tooltip" of mapping from String to
-           String, parameter "tab_options" of type "TabOptions" -> structure:
-           parameter "tab_id_order" of list of String, parameter
-           "tab_id_to_tab_name" of mapping from String to String, parameter
-           "tab_id_to_param_ids" of mapping from String to list of String,
-           parameter "textsubdata_options" of type "TextSubdataOptions"
-           (Defines a parameter field that allows autocomplete based on
-           subdata of an existing object.  For instance, selection of feature
-           ids from a Genome object.  It will appear as a text field with
-           dropdown similar to selection of other WS data objects.
-           placeholder - placeholder text to display in the field
-           multiselection - if true, then multiple selections are allowed in
-           a single input field.  This will override the allow_multiple
-           option (which allows user addition) of additional fields.  If
-           true, then this parameter will return a list. Default= false
-           show_src_obj - if true, then the dropdown will indicate the ids
-           along with some text indicating what data object the subdata was
-           retrieved from. Default=true allow_custom - if true, then user
-           specified inputs not found in the list are accepted.  if false,
-           users can only select from the valid list of selections.
-           Default=false) -> structure: parameter "placeholder" of String,
-           parameter "multiselection" of type "boolean" (@range [0,1]),
-           parameter "show_src_obj" of type "boolean" (@range [0,1]),
-           parameter "allow_custom" of type "boolean" (@range [0,1]),
-           parameter "subdata_selection" of type "SubdataSelection"
-           (Information about a subdata selection constant_ref - can be set
-           as a fixed reference(s) to data objects so that the dropdown is
-           always populated with a particular WS object - useful for say
-           populating based on an ontology or some other library of default
-           terms, such as compounds parameter_id - pick the terms from a user
-           specified parameter in the same method path_to_subdata - specific
-           path to a list or map that should be used to populate the fields
-           selection_id - If the path_to_subdata is to a list of objects, use
-           this to specify which field of that object should be used as the
-           primary ID selection_description - Use this to specify (if the
-           subdata is a list or map) which fields should be included as a
-           short description of the selection.  For features, for instance,
-           this may include the feature function, or feature aliases.
-           description_template - Defines how the description of items is
-           rendered using Handlebar templates (use the name of items in the
-           selection_description list as variable names) service_function -
-           optional name of SDK method including prefix with SDK module
-           started up as dynamic service (it's fully qualified method name
-           where module and method are separated by '.') service_version -
-           optional version of module used in service_function (default value
-           is 'release').) -> structure: parameter "constant_ref" of list of
-           String, parameter "parameter_id" of String, parameter
-           "subdata_included" of list of String, parameter "path_to_subdata"
-           of list of String, parameter "selection_id" of String, parameter
-           "selection_description" of list of String, parameter
-           "description_template" of String, parameter "service_function" of
-           String, parameter "service_version" of String, parameter
-           "fixed_parameters" of list of type "FixedMethodParameter" (a fixed
-           parameter that does not appear in the method input forms, but is
-           informational for users in describing a backend parameter that
-           cannot be changed (e.g. if a service picks a fixed parameter for
-           say Blast)) -> structure: parameter "ui_name" of String, parameter
-           "description" of String, parameter "parameter_groups" of list of
-           type "MethodParameterGroup" (Description of a method parameter. id
-           - id of the parameter group, must be unique within the method
-           among all parameters and groups, parameter_ids - IDs of parameters
-           included in this group, ui_name - short name that is displayed to
-           the user, short_hint - short phrase or sentence describing the
-           parameter group, description - longer and more technical
-           description of the parameter group (long-hint), allow_mutiple -
-           allows entry of a list instead of a single structure, default is 0
-           if set, the number of starting boxes will be either 1 or the
-           number of elements in the default_values list, optional - set to
-           true to make the group optional, default is 0, advanced - set to
-           true to make this an advanced option, default is 0 if an option is
+           rendered using Handlebar templates (use the keys in the items as
+           variable names) multiselection - If true, then multiple selections
+           are allowed in a single input field. This will override the
+           allow_multiple option (which allows user addition) of additional
+           fields.  If true, then this parameter will return a list. Default=
+           false query_on_empty_input - true, the default, to send a request
+           to the dynamic service even if there is no input.
+           result_array_index - The index of the result array returned from
+           the dynamic service from where the selection items will be
+           extracted. Default 0. path_to_subdata - The path into the result
+           data object to the list of selection items. As an example of
+           correctly specifying where the selection items are within the data
+           structure returned from the dynamic service, if the data structure
+           is: [ "foo",                # return array position 0 {           
+           # return array position 1 "interesting_data": [ "baz", "boo", [
+           {"id": 1, "name": "foo" }, ... {"id": 42, "name": "wowbagger" } ],
+           "bat" ] }, "bar"                # return array position 2 ] KBase
+           dynamic services all return an array of values, even for
+           single-value returns, as the KIDL spec allows specifying multiple
+           return values per function. In this case: result_array_index would
+           be 1 path_to_subdata would be ["interesting_data", "2"]
+           selection_id would be "name" The selection items would be the 42
+           items represented by {"id": 1, "name": "foo" }, ... {"id": 42,
+           "name": "wowbagger" } Selection items must always be a list of
+           maps. The final value returned when the user selects a value would
+           be the "name" field - "foo" if the first item is selected, and
+           "wowbagger" if the last item is selected.) -> structure: parameter
+           "data_source" of String, parameter "service_function" of String,
+           parameter "service_version" of String, parameter "service_params"
+           of unspecified object, parameter "selection_id" of String,
+           parameter "description_template" of String, parameter
+           "multiselection" of type "boolean" (@range [0,1]), parameter
+           "query_on_empty_input" of type "boolean" (@range [0,1]), parameter
+           "result_array_index" of Long, parameter "path_to_subdata" of list
+           of String, parameter "radio_options" of type "RadioOptions" ->
+           structure: parameter "id_order" of list of String, parameter
+           "ids_to_options" of mapping from String to String, parameter
+           "ids_to_tooltip" of mapping from String to String, parameter
+           "tab_options" of type "TabOptions" -> structure: parameter
+           "tab_id_order" of list of String, parameter "tab_id_to_tab_name"
+           of mapping from String to String, parameter "tab_id_to_param_ids"
+           of mapping from String to list of String, parameter
+           "textsubdata_options" of type "TextSubdataOptions" (Defines a
+           parameter field that allows autocomplete based on subdata of an
+           existing object.  For instance, selection of feature ids from a
+           Genome object.  It will appear as a text field with dropdown
+           similar to selection of other WS data objects. placeholder -
+           placeholder text to display in the field multiselection - if true,
+           then multiple selections are allowed in a single input field. 
+           This will override the allow_multiple option (which allows user
+           addition) of additional fields.  If true, then this parameter will
+           return a list. Default= false show_src_obj - if true, then the
+           dropdown will indicate the ids along with some text indicating
+           what data object the subdata was retrieved from. Default=true
+           allow_custom - if true, then user specified inputs not found in
+           the list are accepted.  if false, users can only select from the
+           valid list of selections. Default=false) -> structure: parameter
+           "placeholder" of String, parameter "multiselection" of type
+           "boolean" (@range [0,1]), parameter "show_src_obj" of type
+           "boolean" (@range [0,1]), parameter "allow_custom" of type
+           "boolean" (@range [0,1]), parameter "subdata_selection" of type
+           "SubdataSelection" (Information about a subdata selection
+           constant_ref - can be set as a fixed reference(s) to data objects
+           so that the dropdown is always populated with a particular WS
+           object - useful for say populating based on an ontology or some
+           other library of default terms, such as compounds parameter_id -
+           pick the terms from a user specified parameter in the same method
+           path_to_subdata - specific path to a list or map that should be
+           used to populate the fields selection_id - If the path_to_subdata
+           is to a list of objects, use this to specify which field of that
+           object should be used as the primary ID selection_description -
+           Use this to specify (if the subdata is a list or map) which fields
+           should be included as a short description of the selection.  For
+           features, for instance, this may include the feature function, or
+           feature aliases. description_template - Defines how the
+           description of items is rendered using Handlebar templates (use
+           the name of items in the selection_description list as variable
+           names) service_function - optional name of SDK method including
+           prefix with SDK module started up as dynamic service (it's fully
+           qualified method name where module and method are separated by
+           '.') service_version - optional version of module used in
+           service_function (default value is 'release').) -> structure:
+           parameter "constant_ref" of list of String, parameter
+           "parameter_id" of String, parameter "subdata_included" of list of
+           String, parameter "path_to_subdata" of list of String, parameter
+           "selection_id" of String, parameter "selection_description" of
+           list of String, parameter "description_template" of String,
+           parameter "service_function" of String, parameter
+           "service_version" of String, parameter "fixed_parameters" of list
+           of type "FixedMethodParameter" (a fixed parameter that does not
+           appear in the method input forms, but is informational for users
+           in describing a backend parameter that cannot be changed (e.g. if
+           a service picks a fixed parameter for say Blast)) -> structure:
+           parameter "ui_name" of String, parameter "description" of String,
+           parameter "parameter_groups" of list of type
+           "MethodParameterGroup" (Description of a method parameter. id - id
+           of the parameter group, must be unique within the method among all
+           parameters and groups, parameter_ids - IDs of parameters included
+           in this group, ui_name - short name that is displayed to the user,
+           short_hint - short phrase or sentence describing the parameter
+           group, description - longer and more technical description of the
+           parameter group (long-hint), allow_mutiple - allows entry of a
+           list instead of a single structure, default is 0 if set, the
+           number of starting boxes will be either 1 or the number of
+           elements in the default_values list, optional - set to true to
+           make the group optional, default is 0, advanced - set to true to
+           make this an advanced option, default is 0 if an option is
            advanced, it should also be optional or have a default value,
            id_mapping - optional mapping for parameter IDs used to pack group
            into resulting value structure (not used for non-multiple groups),
@@ -998,9 +1033,8 @@ class NarrativeMethodStore(object):
            "target_property" of String, parameter "target_type_transform" of
            String, parameter "job_id_output_field" of String
         """
-        return self._client.call_method(
-            'NarrativeMethodStore.get_method_spec',
-            [params], self._service_ver, context)
+        return self._client.call_method('NarrativeMethodStore.get_method_spec',
+                                        [params], self._service_ver, context)
 
     def get_app_brief_info(self, params, context=None):
         """
@@ -1014,9 +1048,8 @@ class NarrativeMethodStore(object):
            parameter "categories" of list of String, parameter
            "loading_error" of String
         """
-        return self._client.call_method(
-            'NarrativeMethodStore.get_app_brief_info',
-            [params], self._service_ver, context)
+        return self._client.call_method('NarrativeMethodStore.get_app_brief_info',
+                                        [params], self._service_ver, context)
 
     def get_app_full_info(self, params, context=None):
         """
@@ -1037,9 +1070,8 @@ class NarrativeMethodStore(object):
            parameter "screenshots" of list of type "ScreenShot" -> structure:
            parameter "url" of type "url"
         """
-        return self._client.call_method(
-            'NarrativeMethodStore.get_app_full_info',
-            [params], self._service_ver, context)
+        return self._client.call_method('NarrativeMethodStore.get_app_full_info',
+                                        [params], self._service_ver, context)
 
     def get_app_spec(self, params, context=None):
         """
@@ -1072,9 +1104,8 @@ class NarrativeMethodStore(object):
            [0,1]), parameter "from" of String, parameter "to" of String,
            parameter "description" of String
         """
-        return self._client.call_method(
-            'NarrativeMethodStore.get_app_spec',
-            [params], self._service_ver, context)
+        return self._client.call_method('NarrativeMethodStore.get_app_spec',
+                                        [params], self._service_ver, context)
 
     def get_type_info(self, params, context=None):
         """
@@ -1093,9 +1124,8 @@ class NarrativeMethodStore(object):
            "landing_page_url_prefix" of String, parameter "loading_error" of
            String
         """
-        return self._client.call_method(
-            'NarrativeMethodStore.get_type_info',
-            [params], self._service_ver, context)
+        return self._client.call_method('NarrativeMethodStore.get_type_info',
+                                        [params], self._service_ver, context)
 
     def validate_method(self, params, context=None):
         """
@@ -1264,7 +1294,7 @@ class NarrativeMethodStore(object):
            String, parameter "dynamic_dropdown_options" of type
            "DynamicDropdownOptions" (Defines a parameter field that allows
            autocomplete based on a call to a dynamic service. For instance,
-           selection of files from the stageing_service or from kbase_search.
+           selection of files from the staging_service or from kbase_search.
            It will appear as a text field with dropdown similar to selection
            of other WS data objects. data_source - one of ftp_staging |
            search | custom. Provides sensible defaults to for the following
@@ -1277,91 +1307,116 @@ class NarrativeMethodStore(object):
            The parameters that will be supplied to the dynamic service call
            as JSON. The special text "{{dynamic_dropdown_input}}" will be
            replaced by the value of user input at call time. selection_id -
-           name of key result_aliases which will be sent as selected value
+           The value of this key will be extracted from the item selected by
+           the user. The item is expected to be represented as a map.
            description_template - Defines how the description of items is
-           rendered using Handlebar templates (use the keys in result_aliases
-           as variable names) multiselection - if true, then multiple
-           selections are allowed in a single input field. This will override
-           the allow_multiple option (which allows user addition) of
-           additional fields.  If true, then this parameter will return a
-           list. Default= false) -> structure: parameter "data_source" of
-           String, parameter "service_function" of String, parameter
-           "service_version" of String, parameter "service_params" of
-           unspecified object, parameter "selection_id" of String, parameter
-           "description_template" of String, parameter "multiselection" of
-           type "boolean" (@range [0,1]), parameter "radio_options" of type
-           "RadioOptions" -> structure: parameter "id_order" of list of
-           String, parameter "ids_to_options" of mapping from String to
-           String, parameter "ids_to_tooltip" of mapping from String to
-           String, parameter "tab_options" of type "TabOptions" -> structure:
-           parameter "tab_id_order" of list of String, parameter
-           "tab_id_to_tab_name" of mapping from String to String, parameter
-           "tab_id_to_param_ids" of mapping from String to list of String,
-           parameter "textsubdata_options" of type "TextSubdataOptions"
-           (Defines a parameter field that allows autocomplete based on
-           subdata of an existing object.  For instance, selection of feature
-           ids from a Genome object.  It will appear as a text field with
-           dropdown similar to selection of other WS data objects.
-           placeholder - placeholder text to display in the field
-           multiselection - if true, then multiple selections are allowed in
-           a single input field.  This will override the allow_multiple
-           option (which allows user addition) of additional fields.  If
-           true, then this parameter will return a list. Default= false
-           show_src_obj - if true, then the dropdown will indicate the ids
-           along with some text indicating what data object the subdata was
-           retrieved from. Default=true allow_custom - if true, then user
-           specified inputs not found in the list are accepted.  if false,
-           users can only select from the valid list of selections.
-           Default=false) -> structure: parameter "placeholder" of String,
-           parameter "multiselection" of type "boolean" (@range [0,1]),
-           parameter "show_src_obj" of type "boolean" (@range [0,1]),
-           parameter "allow_custom" of type "boolean" (@range [0,1]),
-           parameter "subdata_selection" of type "SubdataSelection"
-           (Information about a subdata selection constant_ref - can be set
-           as a fixed reference(s) to data objects so that the dropdown is
-           always populated with a particular WS object - useful for say
-           populating based on an ontology or some other library of default
-           terms, such as compounds parameter_id - pick the terms from a user
-           specified parameter in the same method path_to_subdata - specific
-           path to a list or map that should be used to populate the fields
-           selection_id - If the path_to_subdata is to a list of objects, use
-           this to specify which field of that object should be used as the
-           primary ID selection_description - Use this to specify (if the
-           subdata is a list or map) which fields should be included as a
-           short description of the selection.  For features, for instance,
-           this may include the feature function, or feature aliases.
-           description_template - Defines how the description of items is
-           rendered using Handlebar templates (use the name of items in the
-           selection_description list as variable names) service_function -
-           optional name of SDK method including prefix with SDK module
-           started up as dynamic service (it's fully qualified method name
-           where module and method are separated by '.') service_version -
-           optional version of module used in service_function (default value
-           is 'release').) -> structure: parameter "constant_ref" of list of
-           String, parameter "parameter_id" of String, parameter
-           "subdata_included" of list of String, parameter "path_to_subdata"
-           of list of String, parameter "selection_id" of String, parameter
-           "selection_description" of list of String, parameter
-           "description_template" of String, parameter "service_function" of
-           String, parameter "service_version" of String, parameter
-           "fixed_parameters" of list of type "FixedMethodParameter" (a fixed
-           parameter that does not appear in the method input forms, but is
-           informational for users in describing a backend parameter that
-           cannot be changed (e.g. if a service picks a fixed parameter for
-           say Blast)) -> structure: parameter "ui_name" of String, parameter
-           "description" of String, parameter "parameter_groups" of list of
-           type "MethodParameterGroup" (Description of a method parameter. id
-           - id of the parameter group, must be unique within the method
-           among all parameters and groups, parameter_ids - IDs of parameters
-           included in this group, ui_name - short name that is displayed to
-           the user, short_hint - short phrase or sentence describing the
-           parameter group, description - longer and more technical
-           description of the parameter group (long-hint), allow_mutiple -
-           allows entry of a list instead of a single structure, default is 0
-           if set, the number of starting boxes will be either 1 or the
-           number of elements in the default_values list, optional - set to
-           true to make the group optional, default is 0, advanced - set to
-           true to make this an advanced option, default is 0 if an option is
+           rendered using Handlebar templates (use the keys in the items as
+           variable names) multiselection - If true, then multiple selections
+           are allowed in a single input field. This will override the
+           allow_multiple option (which allows user addition) of additional
+           fields.  If true, then this parameter will return a list. Default=
+           false query_on_empty_input - true, the default, to send a request
+           to the dynamic service even if there is no input.
+           result_array_index - The index of the result array returned from
+           the dynamic service from where the selection items will be
+           extracted. Default 0. path_to_subdata - The path into the result
+           data object to the list of selection items. As an example of
+           correctly specifying where the selection items are within the data
+           structure returned from the dynamic service, if the data structure
+           is: [ "foo",                # return array position 0 {           
+           # return array position 1 "interesting_data": [ "baz", "boo", [
+           {"id": 1, "name": "foo" }, ... {"id": 42, "name": "wowbagger" } ],
+           "bat" ] }, "bar"                # return array position 2 ] KBase
+           dynamic services all return an array of values, even for
+           single-value returns, as the KIDL spec allows specifying multiple
+           return values per function. In this case: result_array_index would
+           be 1 path_to_subdata would be ["interesting_data", "2"]
+           selection_id would be "name" The selection items would be the 42
+           items represented by {"id": 1, "name": "foo" }, ... {"id": 42,
+           "name": "wowbagger" } Selection items must always be a list of
+           maps. The final value returned when the user selects a value would
+           be the "name" field - "foo" if the first item is selected, and
+           "wowbagger" if the last item is selected.) -> structure: parameter
+           "data_source" of String, parameter "service_function" of String,
+           parameter "service_version" of String, parameter "service_params"
+           of unspecified object, parameter "selection_id" of String,
+           parameter "description_template" of String, parameter
+           "multiselection" of type "boolean" (@range [0,1]), parameter
+           "query_on_empty_input" of type "boolean" (@range [0,1]), parameter
+           "result_array_index" of Long, parameter "path_to_subdata" of list
+           of String, parameter "radio_options" of type "RadioOptions" ->
+           structure: parameter "id_order" of list of String, parameter
+           "ids_to_options" of mapping from String to String, parameter
+           "ids_to_tooltip" of mapping from String to String, parameter
+           "tab_options" of type "TabOptions" -> structure: parameter
+           "tab_id_order" of list of String, parameter "tab_id_to_tab_name"
+           of mapping from String to String, parameter "tab_id_to_param_ids"
+           of mapping from String to list of String, parameter
+           "textsubdata_options" of type "TextSubdataOptions" (Defines a
+           parameter field that allows autocomplete based on subdata of an
+           existing object.  For instance, selection of feature ids from a
+           Genome object.  It will appear as a text field with dropdown
+           similar to selection of other WS data objects. placeholder -
+           placeholder text to display in the field multiselection - if true,
+           then multiple selections are allowed in a single input field. 
+           This will override the allow_multiple option (which allows user
+           addition) of additional fields.  If true, then this parameter will
+           return a list. Default= false show_src_obj - if true, then the
+           dropdown will indicate the ids along with some text indicating
+           what data object the subdata was retrieved from. Default=true
+           allow_custom - if true, then user specified inputs not found in
+           the list are accepted.  if false, users can only select from the
+           valid list of selections. Default=false) -> structure: parameter
+           "placeholder" of String, parameter "multiselection" of type
+           "boolean" (@range [0,1]), parameter "show_src_obj" of type
+           "boolean" (@range [0,1]), parameter "allow_custom" of type
+           "boolean" (@range [0,1]), parameter "subdata_selection" of type
+           "SubdataSelection" (Information about a subdata selection
+           constant_ref - can be set as a fixed reference(s) to data objects
+           so that the dropdown is always populated with a particular WS
+           object - useful for say populating based on an ontology or some
+           other library of default terms, such as compounds parameter_id -
+           pick the terms from a user specified parameter in the same method
+           path_to_subdata - specific path to a list or map that should be
+           used to populate the fields selection_id - If the path_to_subdata
+           is to a list of objects, use this to specify which field of that
+           object should be used as the primary ID selection_description -
+           Use this to specify (if the subdata is a list or map) which fields
+           should be included as a short description of the selection.  For
+           features, for instance, this may include the feature function, or
+           feature aliases. description_template - Defines how the
+           description of items is rendered using Handlebar templates (use
+           the name of items in the selection_description list as variable
+           names) service_function - optional name of SDK method including
+           prefix with SDK module started up as dynamic service (it's fully
+           qualified method name where module and method are separated by
+           '.') service_version - optional version of module used in
+           service_function (default value is 'release').) -> structure:
+           parameter "constant_ref" of list of String, parameter
+           "parameter_id" of String, parameter "subdata_included" of list of
+           String, parameter "path_to_subdata" of list of String, parameter
+           "selection_id" of String, parameter "selection_description" of
+           list of String, parameter "description_template" of String,
+           parameter "service_function" of String, parameter
+           "service_version" of String, parameter "fixed_parameters" of list
+           of type "FixedMethodParameter" (a fixed parameter that does not
+           appear in the method input forms, but is informational for users
+           in describing a backend parameter that cannot be changed (e.g. if
+           a service picks a fixed parameter for say Blast)) -> structure:
+           parameter "ui_name" of String, parameter "description" of String,
+           parameter "parameter_groups" of list of type
+           "MethodParameterGroup" (Description of a method parameter. id - id
+           of the parameter group, must be unique within the method among all
+           parameters and groups, parameter_ids - IDs of parameters included
+           in this group, ui_name - short name that is displayed to the user,
+           short_hint - short phrase or sentence describing the parameter
+           group, description - longer and more technical description of the
+           parameter group (long-hint), allow_mutiple - allows entry of a
+           list instead of a single structure, default is 0 if set, the
+           number of starting boxes will be either 1 or the number of
+           elements in the default_values list, optional - set to true to
+           make the group optional, default is 0, advanced - set to true to
+           make this an advanced option, default is 0 if an option is
            advanced, it should also be optional or have a default value,
            id_mapping - optional mapping for parameter IDs used to pack group
            into resulting value structure (not used for non-multiple groups),
@@ -1480,9 +1535,8 @@ class NarrativeMethodStore(object):
            "landing_page_url_prefix" of String, parameter "loading_error" of
            String
         """
-        return self._client.call_method(
-            'NarrativeMethodStore.validate_method',
-            [params], self._service_ver, context)
+        return self._client.call_method('NarrativeMethodStore.validate_method',
+                                        [params], self._service_ver, context)
 
     def validate_app(self, params, context=None):
         """
@@ -1649,7 +1703,7 @@ class NarrativeMethodStore(object):
            String, parameter "dynamic_dropdown_options" of type
            "DynamicDropdownOptions" (Defines a parameter field that allows
            autocomplete based on a call to a dynamic service. For instance,
-           selection of files from the stageing_service or from kbase_search.
+           selection of files from the staging_service or from kbase_search.
            It will appear as a text field with dropdown similar to selection
            of other WS data objects. data_source - one of ftp_staging |
            search | custom. Provides sensible defaults to for the following
@@ -1662,91 +1716,116 @@ class NarrativeMethodStore(object):
            The parameters that will be supplied to the dynamic service call
            as JSON. The special text "{{dynamic_dropdown_input}}" will be
            replaced by the value of user input at call time. selection_id -
-           name of key result_aliases which will be sent as selected value
+           The value of this key will be extracted from the item selected by
+           the user. The item is expected to be represented as a map.
            description_template - Defines how the description of items is
-           rendered using Handlebar templates (use the keys in result_aliases
-           as variable names) multiselection - if true, then multiple
-           selections are allowed in a single input field. This will override
-           the allow_multiple option (which allows user addition) of
-           additional fields.  If true, then this parameter will return a
-           list. Default= false) -> structure: parameter "data_source" of
-           String, parameter "service_function" of String, parameter
-           "service_version" of String, parameter "service_params" of
-           unspecified object, parameter "selection_id" of String, parameter
-           "description_template" of String, parameter "multiselection" of
-           type "boolean" (@range [0,1]), parameter "radio_options" of type
-           "RadioOptions" -> structure: parameter "id_order" of list of
-           String, parameter "ids_to_options" of mapping from String to
-           String, parameter "ids_to_tooltip" of mapping from String to
-           String, parameter "tab_options" of type "TabOptions" -> structure:
-           parameter "tab_id_order" of list of String, parameter
-           "tab_id_to_tab_name" of mapping from String to String, parameter
-           "tab_id_to_param_ids" of mapping from String to list of String,
-           parameter "textsubdata_options" of type "TextSubdataOptions"
-           (Defines a parameter field that allows autocomplete based on
-           subdata of an existing object.  For instance, selection of feature
-           ids from a Genome object.  It will appear as a text field with
-           dropdown similar to selection of other WS data objects.
-           placeholder - placeholder text to display in the field
-           multiselection - if true, then multiple selections are allowed in
-           a single input field.  This will override the allow_multiple
-           option (which allows user addition) of additional fields.  If
-           true, then this parameter will return a list. Default= false
-           show_src_obj - if true, then the dropdown will indicate the ids
-           along with some text indicating what data object the subdata was
-           retrieved from. Default=true allow_custom - if true, then user
-           specified inputs not found in the list are accepted.  if false,
-           users can only select from the valid list of selections.
-           Default=false) -> structure: parameter "placeholder" of String,
-           parameter "multiselection" of type "boolean" (@range [0,1]),
-           parameter "show_src_obj" of type "boolean" (@range [0,1]),
-           parameter "allow_custom" of type "boolean" (@range [0,1]),
-           parameter "subdata_selection" of type "SubdataSelection"
-           (Information about a subdata selection constant_ref - can be set
-           as a fixed reference(s) to data objects so that the dropdown is
-           always populated with a particular WS object - useful for say
-           populating based on an ontology or some other library of default
-           terms, such as compounds parameter_id - pick the terms from a user
-           specified parameter in the same method path_to_subdata - specific
-           path to a list or map that should be used to populate the fields
-           selection_id - If the path_to_subdata is to a list of objects, use
-           this to specify which field of that object should be used as the
-           primary ID selection_description - Use this to specify (if the
-           subdata is a list or map) which fields should be included as a
-           short description of the selection.  For features, for instance,
-           this may include the feature function, or feature aliases.
-           description_template - Defines how the description of items is
-           rendered using Handlebar templates (use the name of items in the
-           selection_description list as variable names) service_function -
-           optional name of SDK method including prefix with SDK module
-           started up as dynamic service (it's fully qualified method name
-           where module and method are separated by '.') service_version -
-           optional version of module used in service_function (default value
-           is 'release').) -> structure: parameter "constant_ref" of list of
-           String, parameter "parameter_id" of String, parameter
-           "subdata_included" of list of String, parameter "path_to_subdata"
-           of list of String, parameter "selection_id" of String, parameter
-           "selection_description" of list of String, parameter
-           "description_template" of String, parameter "service_function" of
-           String, parameter "service_version" of String, parameter
-           "fixed_parameters" of list of type "FixedMethodParameter" (a fixed
-           parameter that does not appear in the method input forms, but is
-           informational for users in describing a backend parameter that
-           cannot be changed (e.g. if a service picks a fixed parameter for
-           say Blast)) -> structure: parameter "ui_name" of String, parameter
-           "description" of String, parameter "parameter_groups" of list of
-           type "MethodParameterGroup" (Description of a method parameter. id
-           - id of the parameter group, must be unique within the method
-           among all parameters and groups, parameter_ids - IDs of parameters
-           included in this group, ui_name - short name that is displayed to
-           the user, short_hint - short phrase or sentence describing the
-           parameter group, description - longer and more technical
-           description of the parameter group (long-hint), allow_mutiple -
-           allows entry of a list instead of a single structure, default is 0
-           if set, the number of starting boxes will be either 1 or the
-           number of elements in the default_values list, optional - set to
-           true to make the group optional, default is 0, advanced - set to
-           true to make this an advanced option, default is 0 if an option is
+           rendered using Handlebar templates (use the keys in the items as
+           variable names) multiselection - If true, then multiple selections
+           are allowed in a single input field. This will override the
+           allow_multiple option (which allows user addition) of additional
+           fields.  If true, then this parameter will return a list. Default=
+           false query_on_empty_input - true, the default, to send a request
+           to the dynamic service even if there is no input.
+           result_array_index - The index of the result array returned from
+           the dynamic service from where the selection items will be
+           extracted. Default 0. path_to_subdata - The path into the result
+           data object to the list of selection items. As an example of
+           correctly specifying where the selection items are within the data
+           structure returned from the dynamic service, if the data structure
+           is: [ "foo",                # return array position 0 {           
+           # return array position 1 "interesting_data": [ "baz", "boo", [
+           {"id": 1, "name": "foo" }, ... {"id": 42, "name": "wowbagger" } ],
+           "bat" ] }, "bar"                # return array position 2 ] KBase
+           dynamic services all return an array of values, even for
+           single-value returns, as the KIDL spec allows specifying multiple
+           return values per function. In this case: result_array_index would
+           be 1 path_to_subdata would be ["interesting_data", "2"]
+           selection_id would be "name" The selection items would be the 42
+           items represented by {"id": 1, "name": "foo" }, ... {"id": 42,
+           "name": "wowbagger" } Selection items must always be a list of
+           maps. The final value returned when the user selects a value would
+           be the "name" field - "foo" if the first item is selected, and
+           "wowbagger" if the last item is selected.) -> structure: parameter
+           "data_source" of String, parameter "service_function" of String,
+           parameter "service_version" of String, parameter "service_params"
+           of unspecified object, parameter "selection_id" of String,
+           parameter "description_template" of String, parameter
+           "multiselection" of type "boolean" (@range [0,1]), parameter
+           "query_on_empty_input" of type "boolean" (@range [0,1]), parameter
+           "result_array_index" of Long, parameter "path_to_subdata" of list
+           of String, parameter "radio_options" of type "RadioOptions" ->
+           structure: parameter "id_order" of list of String, parameter
+           "ids_to_options" of mapping from String to String, parameter
+           "ids_to_tooltip" of mapping from String to String, parameter
+           "tab_options" of type "TabOptions" -> structure: parameter
+           "tab_id_order" of list of String, parameter "tab_id_to_tab_name"
+           of mapping from String to String, parameter "tab_id_to_param_ids"
+           of mapping from String to list of String, parameter
+           "textsubdata_options" of type "TextSubdataOptions" (Defines a
+           parameter field that allows autocomplete based on subdata of an
+           existing object.  For instance, selection of feature ids from a
+           Genome object.  It will appear as a text field with dropdown
+           similar to selection of other WS data objects. placeholder -
+           placeholder text to display in the field multiselection - if true,
+           then multiple selections are allowed in a single input field. 
+           This will override the allow_multiple option (which allows user
+           addition) of additional fields.  If true, then this parameter will
+           return a list. Default= false show_src_obj - if true, then the
+           dropdown will indicate the ids along with some text indicating
+           what data object the subdata was retrieved from. Default=true
+           allow_custom - if true, then user specified inputs not found in
+           the list are accepted.  if false, users can only select from the
+           valid list of selections. Default=false) -> structure: parameter
+           "placeholder" of String, parameter "multiselection" of type
+           "boolean" (@range [0,1]), parameter "show_src_obj" of type
+           "boolean" (@range [0,1]), parameter "allow_custom" of type
+           "boolean" (@range [0,1]), parameter "subdata_selection" of type
+           "SubdataSelection" (Information about a subdata selection
+           constant_ref - can be set as a fixed reference(s) to data objects
+           so that the dropdown is always populated with a particular WS
+           object - useful for say populating based on an ontology or some
+           other library of default terms, such as compounds parameter_id -
+           pick the terms from a user specified parameter in the same method
+           path_to_subdata - specific path to a list or map that should be
+           used to populate the fields selection_id - If the path_to_subdata
+           is to a list of objects, use this to specify which field of that
+           object should be used as the primary ID selection_description -
+           Use this to specify (if the subdata is a list or map) which fields
+           should be included as a short description of the selection.  For
+           features, for instance, this may include the feature function, or
+           feature aliases. description_template - Defines how the
+           description of items is rendered using Handlebar templates (use
+           the name of items in the selection_description list as variable
+           names) service_function - optional name of SDK method including
+           prefix with SDK module started up as dynamic service (it's fully
+           qualified method name where module and method are separated by
+           '.') service_version - optional version of module used in
+           service_function (default value is 'release').) -> structure:
+           parameter "constant_ref" of list of String, parameter
+           "parameter_id" of String, parameter "subdata_included" of list of
+           String, parameter "path_to_subdata" of list of String, parameter
+           "selection_id" of String, parameter "selection_description" of
+           list of String, parameter "description_template" of String,
+           parameter "service_function" of String, parameter
+           "service_version" of String, parameter "fixed_parameters" of list
+           of type "FixedMethodParameter" (a fixed parameter that does not
+           appear in the method input forms, but is informational for users
+           in describing a backend parameter that cannot be changed (e.g. if
+           a service picks a fixed parameter for say Blast)) -> structure:
+           parameter "ui_name" of String, parameter "description" of String,
+           parameter "parameter_groups" of list of type
+           "MethodParameterGroup" (Description of a method parameter. id - id
+           of the parameter group, must be unique within the method among all
+           parameters and groups, parameter_ids - IDs of parameters included
+           in this group, ui_name - short name that is displayed to the user,
+           short_hint - short phrase or sentence describing the parameter
+           group, description - longer and more technical description of the
+           parameter group (long-hint), allow_mutiple - allows entry of a
+           list instead of a single structure, default is 0 if set, the
+           number of starting boxes will be either 1 or the number of
+           elements in the default_values list, optional - set to true to
+           make the group optional, default is 0, advanced - set to true to
+           make this an advanced option, default is 0 if an option is
            advanced, it should also be optional or have a default value,
            id_mapping - optional mapping for parameter IDs used to pack group
            into resulting value structure (not used for non-multiple groups),
@@ -1865,9 +1944,8 @@ class NarrativeMethodStore(object):
            "landing_page_url_prefix" of String, parameter "loading_error" of
            String
         """
-        return self._client.call_method(
-            'NarrativeMethodStore.validate_app',
-            [params], self._service_ver, context)
+        return self._client.call_method('NarrativeMethodStore.validate_app',
+                                        [params], self._service_ver, context)
 
     def validate_type(self, params, context=None):
         """
@@ -2034,7 +2112,7 @@ class NarrativeMethodStore(object):
            String, parameter "dynamic_dropdown_options" of type
            "DynamicDropdownOptions" (Defines a parameter field that allows
            autocomplete based on a call to a dynamic service. For instance,
-           selection of files from the stageing_service or from kbase_search.
+           selection of files from the staging_service or from kbase_search.
            It will appear as a text field with dropdown similar to selection
            of other WS data objects. data_source - one of ftp_staging |
            search | custom. Provides sensible defaults to for the following
@@ -2047,91 +2125,116 @@ class NarrativeMethodStore(object):
            The parameters that will be supplied to the dynamic service call
            as JSON. The special text "{{dynamic_dropdown_input}}" will be
            replaced by the value of user input at call time. selection_id -
-           name of key result_aliases which will be sent as selected value
+           The value of this key will be extracted from the item selected by
+           the user. The item is expected to be represented as a map.
            description_template - Defines how the description of items is
-           rendered using Handlebar templates (use the keys in result_aliases
-           as variable names) multiselection - if true, then multiple
-           selections are allowed in a single input field. This will override
-           the allow_multiple option (which allows user addition) of
-           additional fields.  If true, then this parameter will return a
-           list. Default= false) -> structure: parameter "data_source" of
-           String, parameter "service_function" of String, parameter
-           "service_version" of String, parameter "service_params" of
-           unspecified object, parameter "selection_id" of String, parameter
-           "description_template" of String, parameter "multiselection" of
-           type "boolean" (@range [0,1]), parameter "radio_options" of type
-           "RadioOptions" -> structure: parameter "id_order" of list of
-           String, parameter "ids_to_options" of mapping from String to
-           String, parameter "ids_to_tooltip" of mapping from String to
-           String, parameter "tab_options" of type "TabOptions" -> structure:
-           parameter "tab_id_order" of list of String, parameter
-           "tab_id_to_tab_name" of mapping from String to String, parameter
-           "tab_id_to_param_ids" of mapping from String to list of String,
-           parameter "textsubdata_options" of type "TextSubdataOptions"
-           (Defines a parameter field that allows autocomplete based on
-           subdata of an existing object.  For instance, selection of feature
-           ids from a Genome object.  It will appear as a text field with
-           dropdown similar to selection of other WS data objects.
-           placeholder - placeholder text to display in the field
-           multiselection - if true, then multiple selections are allowed in
-           a single input field.  This will override the allow_multiple
-           option (which allows user addition) of additional fields.  If
-           true, then this parameter will return a list. Default= false
-           show_src_obj - if true, then the dropdown will indicate the ids
-           along with some text indicating what data object the subdata was
-           retrieved from. Default=true allow_custom - if true, then user
-           specified inputs not found in the list are accepted.  if false,
-           users can only select from the valid list of selections.
-           Default=false) -> structure: parameter "placeholder" of String,
-           parameter "multiselection" of type "boolean" (@range [0,1]),
-           parameter "show_src_obj" of type "boolean" (@range [0,1]),
-           parameter "allow_custom" of type "boolean" (@range [0,1]),
-           parameter "subdata_selection" of type "SubdataSelection"
-           (Information about a subdata selection constant_ref - can be set
-           as a fixed reference(s) to data objects so that the dropdown is
-           always populated with a particular WS object - useful for say
-           populating based on an ontology or some other library of default
-           terms, such as compounds parameter_id - pick the terms from a user
-           specified parameter in the same method path_to_subdata - specific
-           path to a list or map that should be used to populate the fields
-           selection_id - If the path_to_subdata is to a list of objects, use
-           this to specify which field of that object should be used as the
-           primary ID selection_description - Use this to specify (if the
-           subdata is a list or map) which fields should be included as a
-           short description of the selection.  For features, for instance,
-           this may include the feature function, or feature aliases.
-           description_template - Defines how the description of items is
-           rendered using Handlebar templates (use the name of items in the
-           selection_description list as variable names) service_function -
-           optional name of SDK method including prefix with SDK module
-           started up as dynamic service (it's fully qualified method name
-           where module and method are separated by '.') service_version -
-           optional version of module used in service_function (default value
-           is 'release').) -> structure: parameter "constant_ref" of list of
-           String, parameter "parameter_id" of String, parameter
-           "subdata_included" of list of String, parameter "path_to_subdata"
-           of list of String, parameter "selection_id" of String, parameter
-           "selection_description" of list of String, parameter
-           "description_template" of String, parameter "service_function" of
-           String, parameter "service_version" of String, parameter
-           "fixed_parameters" of list of type "FixedMethodParameter" (a fixed
-           parameter that does not appear in the method input forms, but is
-           informational for users in describing a backend parameter that
-           cannot be changed (e.g. if a service picks a fixed parameter for
-           say Blast)) -> structure: parameter "ui_name" of String, parameter
-           "description" of String, parameter "parameter_groups" of list of
-           type "MethodParameterGroup" (Description of a method parameter. id
-           - id of the parameter group, must be unique within the method
-           among all parameters and groups, parameter_ids - IDs of parameters
-           included in this group, ui_name - short name that is displayed to
-           the user, short_hint - short phrase or sentence describing the
-           parameter group, description - longer and more technical
-           description of the parameter group (long-hint), allow_mutiple -
-           allows entry of a list instead of a single structure, default is 0
-           if set, the number of starting boxes will be either 1 or the
-           number of elements in the default_values list, optional - set to
-           true to make the group optional, default is 0, advanced - set to
-           true to make this an advanced option, default is 0 if an option is
+           rendered using Handlebar templates (use the keys in the items as
+           variable names) multiselection - If true, then multiple selections
+           are allowed in a single input field. This will override the
+           allow_multiple option (which allows user addition) of additional
+           fields.  If true, then this parameter will return a list. Default=
+           false query_on_empty_input - true, the default, to send a request
+           to the dynamic service even if there is no input.
+           result_array_index - The index of the result array returned from
+           the dynamic service from where the selection items will be
+           extracted. Default 0. path_to_subdata - The path into the result
+           data object to the list of selection items. As an example of
+           correctly specifying where the selection items are within the data
+           structure returned from the dynamic service, if the data structure
+           is: [ "foo",                # return array position 0 {           
+           # return array position 1 "interesting_data": [ "baz", "boo", [
+           {"id": 1, "name": "foo" }, ... {"id": 42, "name": "wowbagger" } ],
+           "bat" ] }, "bar"                # return array position 2 ] KBase
+           dynamic services all return an array of values, even for
+           single-value returns, as the KIDL spec allows specifying multiple
+           return values per function. In this case: result_array_index would
+           be 1 path_to_subdata would be ["interesting_data", "2"]
+           selection_id would be "name" The selection items would be the 42
+           items represented by {"id": 1, "name": "foo" }, ... {"id": 42,
+           "name": "wowbagger" } Selection items must always be a list of
+           maps. The final value returned when the user selects a value would
+           be the "name" field - "foo" if the first item is selected, and
+           "wowbagger" if the last item is selected.) -> structure: parameter
+           "data_source" of String, parameter "service_function" of String,
+           parameter "service_version" of String, parameter "service_params"
+           of unspecified object, parameter "selection_id" of String,
+           parameter "description_template" of String, parameter
+           "multiselection" of type "boolean" (@range [0,1]), parameter
+           "query_on_empty_input" of type "boolean" (@range [0,1]), parameter
+           "result_array_index" of Long, parameter "path_to_subdata" of list
+           of String, parameter "radio_options" of type "RadioOptions" ->
+           structure: parameter "id_order" of list of String, parameter
+           "ids_to_options" of mapping from String to String, parameter
+           "ids_to_tooltip" of mapping from String to String, parameter
+           "tab_options" of type "TabOptions" -> structure: parameter
+           "tab_id_order" of list of String, parameter "tab_id_to_tab_name"
+           of mapping from String to String, parameter "tab_id_to_param_ids"
+           of mapping from String to list of String, parameter
+           "textsubdata_options" of type "TextSubdataOptions" (Defines a
+           parameter field that allows autocomplete based on subdata of an
+           existing object.  For instance, selection of feature ids from a
+           Genome object.  It will appear as a text field with dropdown
+           similar to selection of other WS data objects. placeholder -
+           placeholder text to display in the field multiselection - if true,
+           then multiple selections are allowed in a single input field. 
+           This will override the allow_multiple option (which allows user
+           addition) of additional fields.  If true, then this parameter will
+           return a list. Default= false show_src_obj - if true, then the
+           dropdown will indicate the ids along with some text indicating
+           what data object the subdata was retrieved from. Default=true
+           allow_custom - if true, then user specified inputs not found in
+           the list are accepted.  if false, users can only select from the
+           valid list of selections. Default=false) -> structure: parameter
+           "placeholder" of String, parameter "multiselection" of type
+           "boolean" (@range [0,1]), parameter "show_src_obj" of type
+           "boolean" (@range [0,1]), parameter "allow_custom" of type
+           "boolean" (@range [0,1]), parameter "subdata_selection" of type
+           "SubdataSelection" (Information about a subdata selection
+           constant_ref - can be set as a fixed reference(s) to data objects
+           so that the dropdown is always populated with a particular WS
+           object - useful for say populating based on an ontology or some
+           other library of default terms, such as compounds parameter_id -
+           pick the terms from a user specified parameter in the same method
+           path_to_subdata - specific path to a list or map that should be
+           used to populate the fields selection_id - If the path_to_subdata
+           is to a list of objects, use this to specify which field of that
+           object should be used as the primary ID selection_description -
+           Use this to specify (if the subdata is a list or map) which fields
+           should be included as a short description of the selection.  For
+           features, for instance, this may include the feature function, or
+           feature aliases. description_template - Defines how the
+           description of items is rendered using Handlebar templates (use
+           the name of items in the selection_description list as variable
+           names) service_function - optional name of SDK method including
+           prefix with SDK module started up as dynamic service (it's fully
+           qualified method name where module and method are separated by
+           '.') service_version - optional version of module used in
+           service_function (default value is 'release').) -> structure:
+           parameter "constant_ref" of list of String, parameter
+           "parameter_id" of String, parameter "subdata_included" of list of
+           String, parameter "path_to_subdata" of list of String, parameter
+           "selection_id" of String, parameter "selection_description" of
+           list of String, parameter "description_template" of String,
+           parameter "service_function" of String, parameter
+           "service_version" of String, parameter "fixed_parameters" of list
+           of type "FixedMethodParameter" (a fixed parameter that does not
+           appear in the method input forms, but is informational for users
+           in describing a backend parameter that cannot be changed (e.g. if
+           a service picks a fixed parameter for say Blast)) -> structure:
+           parameter "ui_name" of String, parameter "description" of String,
+           parameter "parameter_groups" of list of type
+           "MethodParameterGroup" (Description of a method parameter. id - id
+           of the parameter group, must be unique within the method among all
+           parameters and groups, parameter_ids - IDs of parameters included
+           in this group, ui_name - short name that is displayed to the user,
+           short_hint - short phrase or sentence describing the parameter
+           group, description - longer and more technical description of the
+           parameter group (long-hint), allow_mutiple - allows entry of a
+           list instead of a single structure, default is 0 if set, the
+           number of starting boxes will be either 1 or the number of
+           elements in the default_values list, optional - set to true to
+           make the group optional, default is 0, advanced - set to true to
+           make this an advanced option, default is 0 if an option is
            advanced, it should also be optional or have a default value,
            id_mapping - optional mapping for parameter IDs used to pack group
            into resulting value structure (not used for non-multiple groups),
@@ -2250,9 +2353,8 @@ class NarrativeMethodStore(object):
            "landing_page_url_prefix" of String, parameter "loading_error" of
            String
         """
-        return self._client.call_method(
-            'NarrativeMethodStore.validate_type',
-            [params], self._service_ver, context)
+        return self._client.call_method('NarrativeMethodStore.validate_type',
+                                        [params], self._service_ver, context)
 
     def load_widget_java_script(self, params, context=None):
         """
@@ -2267,9 +2369,8 @@ class NarrativeMethodStore(object):
            parameter "tag" of String
         :returns: instance of String
         """
-        return self._client.call_method(
-            'NarrativeMethodStore.load_widget_java_script',
-            [params], self._service_ver, context)
+        return self._client.call_method('NarrativeMethodStore.load_widget_java_script',
+                                        [params], self._service_ver, context)
 
     def register_repo(self, params, context=None):
         """
@@ -2278,27 +2379,24 @@ class NarrativeMethodStore(object):
            ******************************) -> structure: parameter "git_url"
            of String, parameter "git_commit_hash" of String
         """
-        return self._client.call_method(
-            'NarrativeMethodStore.register_repo',
-            [params], self._service_ver, context)
+        return self._client.call_method('NarrativeMethodStore.register_repo',
+                                        [params], self._service_ver, context)
 
     def disable_repo(self, params, context=None):
         """
         :param params: instance of type "DisableRepoParams" -> structure:
            parameter "module_name" of String
         """
-        return self._client.call_method(
-            'NarrativeMethodStore.disable_repo',
-            [params], self._service_ver, context)
+        return self._client.call_method('NarrativeMethodStore.disable_repo',
+                                        [params], self._service_ver, context)
 
     def enable_repo(self, params, context=None):
         """
         :param params: instance of type "EnableRepoParams" -> structure:
            parameter "module_name" of String
         """
-        return self._client.call_method(
-            'NarrativeMethodStore.enable_repo',
-            [params], self._service_ver, context)
+        return self._client.call_method('NarrativeMethodStore.enable_repo',
+                                        [params], self._service_ver, context)
 
     def push_repo_to_tag(self, params, context=None):
         """
@@ -2306,6 +2404,5 @@ class NarrativeMethodStore(object):
            two values: 'beta' or 'release'.) -> structure: parameter
            "module_name" of String, parameter "tag" of String
         """
-        return self._client.call_method(
-            'NarrativeMethodStore.push_repo_to_tag',
-            [params], self._service_ver, context)
+        return self._client.call_method('NarrativeMethodStore.push_repo_to_tag',
+                                        [params], self._service_ver, context)

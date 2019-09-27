@@ -2,6 +2,7 @@
 package us.kbase.narrativemethodstore;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.annotation.Generated;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
@@ -16,7 +17,7 @@ import us.kbase.common.service.UObject;
  * <p>Original spec-file type: DynamicDropdownOptions</p>
  * <pre>
  * Defines a parameter field that allows autocomplete based on a call to a dynamic service.
- * For instance, selection of files from the stageing_service or from kbase_search. It will
+ * For instance, selection of files from the staging_service or from kbase_search. It will
  * appear as a text field with dropdown similar to selection of other WS data objects.
  *     data_source - one of ftp_staging | search | custom. Provides sensible defaults to
  *                    for the following parameters for a common type of dropdown which can be
@@ -29,13 +30,67 @@ import us.kbase.common.service.UObject;
  *     service_params - The parameters that will be supplied to the dynamic service call as
  *                    JSON. The special text "{{dynamic_dropdown_input}}" will be replaced by
  *                    the value of user input at call time.
- *     selection_id - name of key result_aliases which will be sent as selected value
+ *     selection_id - The value of this key will be extracted from the item selected by the
+ *                    user. The item is expected to be represented as a map.
  *     description_template - Defines how the description of items is rendered using
- *                    Handlebar templates (use the keys in result_aliases as variable names)
- *     multiselection - if true, then multiple selections are allowed in a single input field.
+ *                    Handlebar templates (use the keys in the items as variable names)
+ *     multiselection - If true, then multiple selections are allowed in a single input field.
  *                    This will override the allow_multiple option (which allows user addition)
  *                    of additional fields.  If true, then this parameter will return a list.
  *                    Default= false
+ *     query_on_empty_input - true, the default, to send a request to the dynamic service even
+ *                    if there is no input.
+ *     result_array_index - The index of the result array returned from the dynamic service
+ *                    from where the selection items will be extracted. Default 0.
+ *                    
+ *     path_to_subdata - The path into the result data object to the list of selection items.
+ *     
+ *     As an example of correctly specifying where the selection items are within the
+ *     data structure returned from the dynamic service, if the data structure is:
+ *     
+ *     [
+ *         "foo",                # return array position 0
+ *         {                     # return array position 1
+ *          "interesting_data":
+ *              [
+ *                  "baz",
+ *                  "boo",
+ *                  [
+ *                      {"id": 1,
+ *                       "name": "foo"
+ *                       },
+ *                       ...
+ *                      {"id": 42,
+ *                       "name": "wowbagger"
+ *                       }
+ *                  ],
+ *                  "bat"
+ *              ]
+ *          },
+ *          "bar"                # return array position 2
+ *      ]
+ *      
+ *     KBase dynamic services all return an array of values, even for single-value returns,
+ *     as the KIDL spec allows specifying multiple return values per function.
+ *     
+ *     In this case:
+ *         result_array_index would be 1
+ *         path_to_subdata would be ["interesting_data", "2"]
+ *         selection_id would be "name"
+ *         
+ *     The selection items would be the 42 items represented by
+ *     {"id": 1,
+ *      "name": "foo"
+ *      },
+ *      ...
+ *     {"id": 42,
+ *      "name": "wowbagger"
+ *      }
+ *     
+ *     Selection items must always be a list of maps.
+ *     
+ *     The final value returned when the user selects a value would be the "name" field -
+ *     "foo" if the first item is selected, and "wowbagger" if the last item is selected.
  * </pre>
  * 
  */
@@ -48,67 +103,76 @@ import us.kbase.common.service.UObject;
     "service_params",
     "selection_id",
     "description_template",
-    "multiselection"
+    "multiselection",
+    "query_on_empty_input",
+    "result_array_index",
+    "path_to_subdata"
 })
 public class DynamicDropdownOptions {
 
     @JsonProperty("data_source")
-    private String dataSource;
+    private java.lang.String dataSource;
     @JsonProperty("service_function")
-    private String serviceFunction;
+    private java.lang.String serviceFunction;
     @JsonProperty("service_version")
-    private String serviceVersion;
+    private java.lang.String serviceVersion;
     @JsonProperty("service_params")
     private UObject serviceParams;
     @JsonProperty("selection_id")
-    private String selectionId;
+    private java.lang.String selectionId;
     @JsonProperty("description_template")
-    private String descriptionTemplate;
+    private java.lang.String descriptionTemplate;
     @JsonProperty("multiselection")
     private Long multiselection;
-    private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+    @JsonProperty("query_on_empty_input")
+    private Long queryOnEmptyInput;
+    @JsonProperty("result_array_index")
+    private Long resultArrayIndex;
+    @JsonProperty("path_to_subdata")
+    private List<String> pathToSubdata;
+    private Map<java.lang.String, Object> additionalProperties = new HashMap<java.lang.String, Object>();
 
     @JsonProperty("data_source")
-    public String getDataSource() {
+    public java.lang.String getDataSource() {
         return dataSource;
     }
 
     @JsonProperty("data_source")
-    public void setDataSource(String dataSource) {
+    public void setDataSource(java.lang.String dataSource) {
         this.dataSource = dataSource;
     }
 
-    public DynamicDropdownOptions withDataSource(String dataSource) {
+    public DynamicDropdownOptions withDataSource(java.lang.String dataSource) {
         this.dataSource = dataSource;
         return this;
     }
 
     @JsonProperty("service_function")
-    public String getServiceFunction() {
+    public java.lang.String getServiceFunction() {
         return serviceFunction;
     }
 
     @JsonProperty("service_function")
-    public void setServiceFunction(String serviceFunction) {
+    public void setServiceFunction(java.lang.String serviceFunction) {
         this.serviceFunction = serviceFunction;
     }
 
-    public DynamicDropdownOptions withServiceFunction(String serviceFunction) {
+    public DynamicDropdownOptions withServiceFunction(java.lang.String serviceFunction) {
         this.serviceFunction = serviceFunction;
         return this;
     }
 
     @JsonProperty("service_version")
-    public String getServiceVersion() {
+    public java.lang.String getServiceVersion() {
         return serviceVersion;
     }
 
     @JsonProperty("service_version")
-    public void setServiceVersion(String serviceVersion) {
+    public void setServiceVersion(java.lang.String serviceVersion) {
         this.serviceVersion = serviceVersion;
     }
 
-    public DynamicDropdownOptions withServiceVersion(String serviceVersion) {
+    public DynamicDropdownOptions withServiceVersion(java.lang.String serviceVersion) {
         this.serviceVersion = serviceVersion;
         return this;
     }
@@ -129,31 +193,31 @@ public class DynamicDropdownOptions {
     }
 
     @JsonProperty("selection_id")
-    public String getSelectionId() {
+    public java.lang.String getSelectionId() {
         return selectionId;
     }
 
     @JsonProperty("selection_id")
-    public void setSelectionId(String selectionId) {
+    public void setSelectionId(java.lang.String selectionId) {
         this.selectionId = selectionId;
     }
 
-    public DynamicDropdownOptions withSelectionId(String selectionId) {
+    public DynamicDropdownOptions withSelectionId(java.lang.String selectionId) {
         this.selectionId = selectionId;
         return this;
     }
 
     @JsonProperty("description_template")
-    public String getDescriptionTemplate() {
+    public java.lang.String getDescriptionTemplate() {
         return descriptionTemplate;
     }
 
     @JsonProperty("description_template")
-    public void setDescriptionTemplate(String descriptionTemplate) {
+    public void setDescriptionTemplate(java.lang.String descriptionTemplate) {
         this.descriptionTemplate = descriptionTemplate;
     }
 
-    public DynamicDropdownOptions withDescriptionTemplate(String descriptionTemplate) {
+    public DynamicDropdownOptions withDescriptionTemplate(java.lang.String descriptionTemplate) {
         this.descriptionTemplate = descriptionTemplate;
         return this;
     }
@@ -173,19 +237,64 @@ public class DynamicDropdownOptions {
         return this;
     }
 
+    @JsonProperty("query_on_empty_input")
+    public Long getQueryOnEmptyInput() {
+        return queryOnEmptyInput;
+    }
+
+    @JsonProperty("query_on_empty_input")
+    public void setQueryOnEmptyInput(Long queryOnEmptyInput) {
+        this.queryOnEmptyInput = queryOnEmptyInput;
+    }
+
+    public DynamicDropdownOptions withQueryOnEmptyInput(Long queryOnEmptyInput) {
+        this.queryOnEmptyInput = queryOnEmptyInput;
+        return this;
+    }
+
+    @JsonProperty("result_array_index")
+    public Long getResultArrayIndex() {
+        return resultArrayIndex;
+    }
+
+    @JsonProperty("result_array_index")
+    public void setResultArrayIndex(Long resultArrayIndex) {
+        this.resultArrayIndex = resultArrayIndex;
+    }
+
+    public DynamicDropdownOptions withResultArrayIndex(Long resultArrayIndex) {
+        this.resultArrayIndex = resultArrayIndex;
+        return this;
+    }
+
+    @JsonProperty("path_to_subdata")
+    public List<String> getPathToSubdata() {
+        return pathToSubdata;
+    }
+
+    @JsonProperty("path_to_subdata")
+    public void setPathToSubdata(List<String> pathToSubdata) {
+        this.pathToSubdata = pathToSubdata;
+    }
+
+    public DynamicDropdownOptions withPathToSubdata(List<String> pathToSubdata) {
+        this.pathToSubdata = pathToSubdata;
+        return this;
+    }
+
     @JsonAnyGetter
-    public Map<String, Object> getAdditionalProperties() {
+    public Map<java.lang.String, Object> getAdditionalProperties() {
         return this.additionalProperties;
     }
 
     @JsonAnySetter
-    public void setAdditionalProperties(String name, Object value) {
+    public void setAdditionalProperties(java.lang.String name, Object value) {
         this.additionalProperties.put(name, value);
     }
 
     @Override
-    public String toString() {
-        return ((((((((((((((((("DynamicDropdownOptions"+" [dataSource=")+ dataSource)+", serviceFunction=")+ serviceFunction)+", serviceVersion=")+ serviceVersion)+", serviceParams=")+ serviceParams)+", selectionId=")+ selectionId)+", descriptionTemplate=")+ descriptionTemplate)+", multiselection=")+ multiselection)+", additionalProperties=")+ additionalProperties)+"]");
+    public java.lang.String toString() {
+        return ((((((((((((((((((((((("DynamicDropdownOptions"+" [dataSource=")+ dataSource)+", serviceFunction=")+ serviceFunction)+", serviceVersion=")+ serviceVersion)+", serviceParams=")+ serviceParams)+", selectionId=")+ selectionId)+", descriptionTemplate=")+ descriptionTemplate)+", multiselection=")+ multiselection)+", queryOnEmptyInput=")+ queryOnEmptyInput)+", resultArrayIndex=")+ resultArrayIndex)+", pathToSubdata=")+ pathToSubdata)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }

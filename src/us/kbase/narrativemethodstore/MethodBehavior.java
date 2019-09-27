@@ -26,7 +26,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
  * output_mapping - mapping from input to final output of narrative method to support steps without back-end operations.
  * @optional kb_service_name kb_service_method kb_service_input_mapping kb_service_output_mapping resource_estimator_module resource_estimator_method
  * </pre>
- *
+ * 
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Generated("com.googlecode.jsonschema2pojo")
