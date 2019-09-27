@@ -265,7 +265,7 @@ module NarrativeMethodStore {
 
     /*
         Defines a parameter field that allows autocomplete based on a call to a dynamic service.
-        For instance, selection of files from the stageing_service or from kbase_search. It will
+        For instance, selection of files from the staging_service or from kbase_search. It will
         appear as a text field with dropdown similar to selection of other WS data objects.
 
             data_source - one of ftp_staging | search | custom. Provides sensible defaults to
@@ -283,14 +283,72 @@ module NarrativeMethodStore {
                            JSON. The special text "{{dynamic_dropdown_input}}" will be replaced by
                            the value of user input at call time.
 
-            selection_id - name of key result_aliases which will be sent as selected value
+            selection_id - The value of this key will be extracted from the item selected by the
+                           user. The item is expected to be represented as a map.
 
             description_template - Defines how the description of items is rendered using
-                           Handlebar templates (use the keys in result_aliases as variable names)
-            multiselection - if true, then multiple selections are allowed in a single input field.
+                           Handlebar templates (use the keys in the items as variable names)
+
+            multiselection - If true, then multiple selections are allowed in a single input field.
                            This will override the allow_multiple option (which allows user addition)
                            of additional fields.  If true, then this parameter will return a list.
                            Default= false
+
+            query_on_empty_input - true, the default, to send a request to the dynamic service even
+                           if there is no input.
+
+            result_array_index - The index of the result array returned from the dynamic service
+                           from where the selection items will be extracted. Default 0.
+                           
+            path_to_subdata - The path into the result data object to the list of selection items.
+            
+            As an example of correctly specifying where the selection items are within the
+            data structure returned from the dynamic service, if the data structure is:
+            
+            [
+                "foo",                # return array position 0
+                {                     # return array position 1
+                 "interesting_data":
+                     [
+                         "baz",
+                         "boo",
+                         [
+                             {"id": 1,
+                              "name": "foo"
+                              },
+                              ...
+                             {"id": 42,
+                              "name": "wowbagger"
+                              }
+                         ],
+                         "bat"
+                     ]
+                 },
+                 "bar"                # return array position 2
+             ]
+             
+            KBase dynamic services all return an array of values, even for single-value returns,
+            as the KIDL spec allows specifying multiple return values per function.
+            
+            In this case:
+                result_array_index would be 1
+                path_to_subdata would be ["interesting_data", "2"]
+                selection_id would be "name"
+                
+            The selection items would be the 42 items represented by
+            {"id": 1,
+             "name": "foo"
+             },
+             ...
+            {"id": 42,
+             "name": "wowbagger"
+             }
+            
+            Selection items must always be a list of maps.
+            
+            The final value returned when the user selects a value would be the "name" field -
+            "foo" if the first item is selected, and "wowbagger" if the last item is selected.
+                 
     */
 
     typedef structure {
@@ -301,6 +359,9 @@ module NarrativeMethodStore {
         string selection_id;
         string description_template;
         boolean multiselection;
+        boolean query_on_empty_input;
+        int result_array_index;
+        list<string> path_to_subdata;
     } DynamicDropdownOptions;
 
 
