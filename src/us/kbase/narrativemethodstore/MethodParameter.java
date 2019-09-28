@@ -198,12 +198,12 @@ public class MethodParameter {
      *          "bar"                # return array position 2
      *      ]
      *      
-     *     KBase dynamic services all return an array of values, even for single-value returns,
-     *     as the KIDL spec allows specifying multiple return values per function.
+     *     Note that KBase dynamic services all return an array of values, even for single-value
+     *     returns, as the KIDL spec allows specifying multiple return values per function.
      *     
      *     In this case:
      *         result_array_index would be 1
-     *         path_to_subdata would be ["interesting_data", "2"]
+     *         path_to_selection_items would be ["interesting_data", "2"]
      *         selection_id would be "name"
      *         
      *     The selection items would be the 42 items represented by
@@ -648,12 +648,12 @@ public class MethodParameter {
      *          "bar"                # return array position 2
      *      ]
      *      
-     *     KBase dynamic services all return an array of values, even for single-value returns,
-     *     as the KIDL spec allows specifying multiple return values per function.
+     *     Note that KBase dynamic services all return an array of values, even for single-value
+     *     returns, as the KIDL spec allows specifying multiple return values per function.
      *     
      *     In this case:
      *         result_array_index would be 1
-     *         path_to_subdata would be ["interesting_data", "2"]
+     *         path_to_selection_items would be ["interesting_data", "2"]
      *         selection_id would be "name"
      *         
      *     The selection items would be the 42 items represented by
@@ -738,12 +738,12 @@ public class MethodParameter {
      *          "bar"                # return array position 2
      *      ]
      *      
-     *     KBase dynamic services all return an array of values, even for single-value returns,
-     *     as the KIDL spec allows specifying multiple return values per function.
+     *     Note that KBase dynamic services all return an array of values, even for single-value
+     *     returns, as the KIDL spec allows specifying multiple return values per function.
      *     
      *     In this case:
      *         result_array_index would be 1
-     *         path_to_subdata would be ["interesting_data", "2"]
+     *         path_to_selection_items would be ["interesting_data", "2"]
      *         selection_id would be "name"
      *         
      *     The selection items would be the 42 items represented by

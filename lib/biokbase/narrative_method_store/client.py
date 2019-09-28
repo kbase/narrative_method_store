@@ -321,45 +321,45 @@ class NarrativeMethodStore(object):
            structure is: [ "foo",                # return array position 0 { 
            # return array position 1 "interesting_data": [ "baz", "boo", [
            {"id": 1, "name": "foo" }, ... {"id": 42, "name": "wowbagger" } ],
-           "bat" ] }, "bar"                # return array position 2 ] KBase
-           dynamic services all return an array of values, even for
-           single-value returns, as the KIDL spec allows specifying multiple
-           return values per function. In this case: result_array_index would
-           be 1 path_to_subdata would be ["interesting_data", "2"]
-           selection_id would be "name" The selection items would be the 42
-           items represented by {"id": 1, "name": "foo" }, ... {"id": 42,
-           "name": "wowbagger" } Selection items must always be a list of
-           maps. The final value returned when the user selects a value would
-           be the "name" field - "foo" if the first item is selected, and
-           "wowbagger" if the last item is selected.) -> structure: parameter
-           "data_source" of String, parameter "service_function" of String,
-           parameter "service_version" of String, parameter "service_params"
-           of unspecified object, parameter "selection_id" of String,
-           parameter "description_template" of String, parameter
-           "multiselection" of type "boolean" (@range [0,1]), parameter
-           "query_on_empty_input" of type "boolean" (@range [0,1]), parameter
-           "result_array_index" of Long, parameter "path_to_selection_items"
-           of list of String, parameter "radio_options" of type
-           "RadioOptions" -> structure: parameter "id_order" of list of
-           String, parameter "ids_to_options" of mapping from String to
-           String, parameter "ids_to_tooltip" of mapping from String to
-           String, parameter "tab_options" of type "TabOptions" -> structure:
-           parameter "tab_id_order" of list of String, parameter
-           "tab_id_to_tab_name" of mapping from String to String, parameter
-           "tab_id_to_param_ids" of mapping from String to list of String,
-           parameter "textsubdata_options" of type "TextSubdataOptions"
-           (Defines a parameter field that allows autocomplete based on
-           subdata of an existing object.  For instance, selection of feature
-           ids from a Genome object.  It will appear as a text field with
-           dropdown similar to selection of other WS data objects.
-           placeholder - placeholder text to display in the field
-           multiselection - if true, then multiple selections are allowed in
-           a single input field.  This will override the allow_multiple
-           option (which allows user addition) of additional fields.  If
-           true, then this parameter will return a list. Default= false
-           show_src_obj - if true, then the dropdown will indicate the ids
-           along with some text indicating what data object the subdata was
-           retrieved from. Default=true allow_custom - if true, then user
+           "bat" ] }, "bar"                # return array position 2 ] Note
+           that KBase dynamic services all return an array of values, even
+           for single-value returns, as the KIDL spec allows specifying
+           multiple return values per function. In this case:
+           result_array_index would be 1 path_to_selection_items would be
+           ["interesting_data", "2"] selection_id would be "name" The
+           selection items would be the 42 items represented by {"id": 1,
+           "name": "foo" }, ... {"id": 42, "name": "wowbagger" } Selection
+           items must always be a list of maps. The final value returned when
+           the user selects a value would be the "name" field - "foo" if the
+           first item is selected, and "wowbagger" if the last item is
+           selected.) -> structure: parameter "data_source" of String,
+           parameter "service_function" of String, parameter
+           "service_version" of String, parameter "service_params" of
+           unspecified object, parameter "selection_id" of String, parameter
+           "description_template" of String, parameter "multiselection" of
+           type "boolean" (@range [0,1]), parameter "query_on_empty_input" of
+           type "boolean" (@range [0,1]), parameter "result_array_index" of
+           Long, parameter "path_to_selection_items" of list of String,
+           parameter "radio_options" of type "RadioOptions" -> structure:
+           parameter "id_order" of list of String, parameter "ids_to_options"
+           of mapping from String to String, parameter "ids_to_tooltip" of
+           mapping from String to String, parameter "tab_options" of type
+           "TabOptions" -> structure: parameter "tab_id_order" of list of
+           String, parameter "tab_id_to_tab_name" of mapping from String to
+           String, parameter "tab_id_to_param_ids" of mapping from String to
+           list of String, parameter "textsubdata_options" of type
+           "TextSubdataOptions" (Defines a parameter field that allows
+           autocomplete based on subdata of an existing object.  For
+           instance, selection of feature ids from a Genome object.  It will
+           appear as a text field with dropdown similar to selection of other
+           WS data objects. placeholder - placeholder text to display in the
+           field multiselection - if true, then multiple selections are
+           allowed in a single input field.  This will override the
+           allow_multiple option (which allows user addition) of additional
+           fields.  If true, then this parameter will return a list. Default=
+           false show_src_obj - if true, then the dropdown will indicate the
+           ids along with some text indicating what data object the subdata
+           was retrieved from. Default=true allow_custom - if true, then user
            specified inputs not found in the list are accepted.  if false,
            users can only select from the valid list of selections.
            Default=false) -> structure: parameter "placeholder" of String,
@@ -842,45 +842,45 @@ class NarrativeMethodStore(object):
            structure is: [ "foo",                # return array position 0 { 
            # return array position 1 "interesting_data": [ "baz", "boo", [
            {"id": 1, "name": "foo" }, ... {"id": 42, "name": "wowbagger" } ],
-           "bat" ] }, "bar"                # return array position 2 ] KBase
-           dynamic services all return an array of values, even for
-           single-value returns, as the KIDL spec allows specifying multiple
-           return values per function. In this case: result_array_index would
-           be 1 path_to_subdata would be ["interesting_data", "2"]
-           selection_id would be "name" The selection items would be the 42
-           items represented by {"id": 1, "name": "foo" }, ... {"id": 42,
-           "name": "wowbagger" } Selection items must always be a list of
-           maps. The final value returned when the user selects a value would
-           be the "name" field - "foo" if the first item is selected, and
-           "wowbagger" if the last item is selected.) -> structure: parameter
-           "data_source" of String, parameter "service_function" of String,
-           parameter "service_version" of String, parameter "service_params"
-           of unspecified object, parameter "selection_id" of String,
-           parameter "description_template" of String, parameter
-           "multiselection" of type "boolean" (@range [0,1]), parameter
-           "query_on_empty_input" of type "boolean" (@range [0,1]), parameter
-           "result_array_index" of Long, parameter "path_to_selection_items"
-           of list of String, parameter "radio_options" of type
-           "RadioOptions" -> structure: parameter "id_order" of list of
-           String, parameter "ids_to_options" of mapping from String to
-           String, parameter "ids_to_tooltip" of mapping from String to
-           String, parameter "tab_options" of type "TabOptions" -> structure:
-           parameter "tab_id_order" of list of String, parameter
-           "tab_id_to_tab_name" of mapping from String to String, parameter
-           "tab_id_to_param_ids" of mapping from String to list of String,
-           parameter "textsubdata_options" of type "TextSubdataOptions"
-           (Defines a parameter field that allows autocomplete based on
-           subdata of an existing object.  For instance, selection of feature
-           ids from a Genome object.  It will appear as a text field with
-           dropdown similar to selection of other WS data objects.
-           placeholder - placeholder text to display in the field
-           multiselection - if true, then multiple selections are allowed in
-           a single input field.  This will override the allow_multiple
-           option (which allows user addition) of additional fields.  If
-           true, then this parameter will return a list. Default= false
-           show_src_obj - if true, then the dropdown will indicate the ids
-           along with some text indicating what data object the subdata was
-           retrieved from. Default=true allow_custom - if true, then user
+           "bat" ] }, "bar"                # return array position 2 ] Note
+           that KBase dynamic services all return an array of values, even
+           for single-value returns, as the KIDL spec allows specifying
+           multiple return values per function. In this case:
+           result_array_index would be 1 path_to_selection_items would be
+           ["interesting_data", "2"] selection_id would be "name" The
+           selection items would be the 42 items represented by {"id": 1,
+           "name": "foo" }, ... {"id": 42, "name": "wowbagger" } Selection
+           items must always be a list of maps. The final value returned when
+           the user selects a value would be the "name" field - "foo" if the
+           first item is selected, and "wowbagger" if the last item is
+           selected.) -> structure: parameter "data_source" of String,
+           parameter "service_function" of String, parameter
+           "service_version" of String, parameter "service_params" of
+           unspecified object, parameter "selection_id" of String, parameter
+           "description_template" of String, parameter "multiselection" of
+           type "boolean" (@range [0,1]), parameter "query_on_empty_input" of
+           type "boolean" (@range [0,1]), parameter "result_array_index" of
+           Long, parameter "path_to_selection_items" of list of String,
+           parameter "radio_options" of type "RadioOptions" -> structure:
+           parameter "id_order" of list of String, parameter "ids_to_options"
+           of mapping from String to String, parameter "ids_to_tooltip" of
+           mapping from String to String, parameter "tab_options" of type
+           "TabOptions" -> structure: parameter "tab_id_order" of list of
+           String, parameter "tab_id_to_tab_name" of mapping from String to
+           String, parameter "tab_id_to_param_ids" of mapping from String to
+           list of String, parameter "textsubdata_options" of type
+           "TextSubdataOptions" (Defines a parameter field that allows
+           autocomplete based on subdata of an existing object.  For
+           instance, selection of feature ids from a Genome object.  It will
+           appear as a text field with dropdown similar to selection of other
+           WS data objects. placeholder - placeholder text to display in the
+           field multiselection - if true, then multiple selections are
+           allowed in a single input field.  This will override the
+           allow_multiple option (which allows user addition) of additional
+           fields.  If true, then this parameter will return a list. Default=
+           false show_src_obj - if true, then the dropdown will indicate the
+           ids along with some text indicating what data object the subdata
+           was retrieved from. Default=true allow_custom - if true, then user
            specified inputs not found in the list are accepted.  if false,
            users can only select from the valid list of selections.
            Default=false) -> structure: parameter "placeholder" of String,
@@ -1335,45 +1335,45 @@ class NarrativeMethodStore(object):
            structure is: [ "foo",                # return array position 0 { 
            # return array position 1 "interesting_data": [ "baz", "boo", [
            {"id": 1, "name": "foo" }, ... {"id": 42, "name": "wowbagger" } ],
-           "bat" ] }, "bar"                # return array position 2 ] KBase
-           dynamic services all return an array of values, even for
-           single-value returns, as the KIDL spec allows specifying multiple
-           return values per function. In this case: result_array_index would
-           be 1 path_to_subdata would be ["interesting_data", "2"]
-           selection_id would be "name" The selection items would be the 42
-           items represented by {"id": 1, "name": "foo" }, ... {"id": 42,
-           "name": "wowbagger" } Selection items must always be a list of
-           maps. The final value returned when the user selects a value would
-           be the "name" field - "foo" if the first item is selected, and
-           "wowbagger" if the last item is selected.) -> structure: parameter
-           "data_source" of String, parameter "service_function" of String,
-           parameter "service_version" of String, parameter "service_params"
-           of unspecified object, parameter "selection_id" of String,
-           parameter "description_template" of String, parameter
-           "multiselection" of type "boolean" (@range [0,1]), parameter
-           "query_on_empty_input" of type "boolean" (@range [0,1]), parameter
-           "result_array_index" of Long, parameter "path_to_selection_items"
-           of list of String, parameter "radio_options" of type
-           "RadioOptions" -> structure: parameter "id_order" of list of
-           String, parameter "ids_to_options" of mapping from String to
-           String, parameter "ids_to_tooltip" of mapping from String to
-           String, parameter "tab_options" of type "TabOptions" -> structure:
-           parameter "tab_id_order" of list of String, parameter
-           "tab_id_to_tab_name" of mapping from String to String, parameter
-           "tab_id_to_param_ids" of mapping from String to list of String,
-           parameter "textsubdata_options" of type "TextSubdataOptions"
-           (Defines a parameter field that allows autocomplete based on
-           subdata of an existing object.  For instance, selection of feature
-           ids from a Genome object.  It will appear as a text field with
-           dropdown similar to selection of other WS data objects.
-           placeholder - placeholder text to display in the field
-           multiselection - if true, then multiple selections are allowed in
-           a single input field.  This will override the allow_multiple
-           option (which allows user addition) of additional fields.  If
-           true, then this parameter will return a list. Default= false
-           show_src_obj - if true, then the dropdown will indicate the ids
-           along with some text indicating what data object the subdata was
-           retrieved from. Default=true allow_custom - if true, then user
+           "bat" ] }, "bar"                # return array position 2 ] Note
+           that KBase dynamic services all return an array of values, even
+           for single-value returns, as the KIDL spec allows specifying
+           multiple return values per function. In this case:
+           result_array_index would be 1 path_to_selection_items would be
+           ["interesting_data", "2"] selection_id would be "name" The
+           selection items would be the 42 items represented by {"id": 1,
+           "name": "foo" }, ... {"id": 42, "name": "wowbagger" } Selection
+           items must always be a list of maps. The final value returned when
+           the user selects a value would be the "name" field - "foo" if the
+           first item is selected, and "wowbagger" if the last item is
+           selected.) -> structure: parameter "data_source" of String,
+           parameter "service_function" of String, parameter
+           "service_version" of String, parameter "service_params" of
+           unspecified object, parameter "selection_id" of String, parameter
+           "description_template" of String, parameter "multiselection" of
+           type "boolean" (@range [0,1]), parameter "query_on_empty_input" of
+           type "boolean" (@range [0,1]), parameter "result_array_index" of
+           Long, parameter "path_to_selection_items" of list of String,
+           parameter "radio_options" of type "RadioOptions" -> structure:
+           parameter "id_order" of list of String, parameter "ids_to_options"
+           of mapping from String to String, parameter "ids_to_tooltip" of
+           mapping from String to String, parameter "tab_options" of type
+           "TabOptions" -> structure: parameter "tab_id_order" of list of
+           String, parameter "tab_id_to_tab_name" of mapping from String to
+           String, parameter "tab_id_to_param_ids" of mapping from String to
+           list of String, parameter "textsubdata_options" of type
+           "TextSubdataOptions" (Defines a parameter field that allows
+           autocomplete based on subdata of an existing object.  For
+           instance, selection of feature ids from a Genome object.  It will
+           appear as a text field with dropdown similar to selection of other
+           WS data objects. placeholder - placeholder text to display in the
+           field multiselection - if true, then multiple selections are
+           allowed in a single input field.  This will override the
+           allow_multiple option (which allows user addition) of additional
+           fields.  If true, then this parameter will return a list. Default=
+           false show_src_obj - if true, then the dropdown will indicate the
+           ids along with some text indicating what data object the subdata
+           was retrieved from. Default=true allow_custom - if true, then user
            specified inputs not found in the list are accepted.  if false,
            users can only select from the valid list of selections.
            Default=false) -> structure: parameter "placeholder" of String,
@@ -1747,45 +1747,45 @@ class NarrativeMethodStore(object):
            structure is: [ "foo",                # return array position 0 { 
            # return array position 1 "interesting_data": [ "baz", "boo", [
            {"id": 1, "name": "foo" }, ... {"id": 42, "name": "wowbagger" } ],
-           "bat" ] }, "bar"                # return array position 2 ] KBase
-           dynamic services all return an array of values, even for
-           single-value returns, as the KIDL spec allows specifying multiple
-           return values per function. In this case: result_array_index would
-           be 1 path_to_subdata would be ["interesting_data", "2"]
-           selection_id would be "name" The selection items would be the 42
-           items represented by {"id": 1, "name": "foo" }, ... {"id": 42,
-           "name": "wowbagger" } Selection items must always be a list of
-           maps. The final value returned when the user selects a value would
-           be the "name" field - "foo" if the first item is selected, and
-           "wowbagger" if the last item is selected.) -> structure: parameter
-           "data_source" of String, parameter "service_function" of String,
-           parameter "service_version" of String, parameter "service_params"
-           of unspecified object, parameter "selection_id" of String,
-           parameter "description_template" of String, parameter
-           "multiselection" of type "boolean" (@range [0,1]), parameter
-           "query_on_empty_input" of type "boolean" (@range [0,1]), parameter
-           "result_array_index" of Long, parameter "path_to_selection_items"
-           of list of String, parameter "radio_options" of type
-           "RadioOptions" -> structure: parameter "id_order" of list of
-           String, parameter "ids_to_options" of mapping from String to
-           String, parameter "ids_to_tooltip" of mapping from String to
-           String, parameter "tab_options" of type "TabOptions" -> structure:
-           parameter "tab_id_order" of list of String, parameter
-           "tab_id_to_tab_name" of mapping from String to String, parameter
-           "tab_id_to_param_ids" of mapping from String to list of String,
-           parameter "textsubdata_options" of type "TextSubdataOptions"
-           (Defines a parameter field that allows autocomplete based on
-           subdata of an existing object.  For instance, selection of feature
-           ids from a Genome object.  It will appear as a text field with
-           dropdown similar to selection of other WS data objects.
-           placeholder - placeholder text to display in the field
-           multiselection - if true, then multiple selections are allowed in
-           a single input field.  This will override the allow_multiple
-           option (which allows user addition) of additional fields.  If
-           true, then this parameter will return a list. Default= false
-           show_src_obj - if true, then the dropdown will indicate the ids
-           along with some text indicating what data object the subdata was
-           retrieved from. Default=true allow_custom - if true, then user
+           "bat" ] }, "bar"                # return array position 2 ] Note
+           that KBase dynamic services all return an array of values, even
+           for single-value returns, as the KIDL spec allows specifying
+           multiple return values per function. In this case:
+           result_array_index would be 1 path_to_selection_items would be
+           ["interesting_data", "2"] selection_id would be "name" The
+           selection items would be the 42 items represented by {"id": 1,
+           "name": "foo" }, ... {"id": 42, "name": "wowbagger" } Selection
+           items must always be a list of maps. The final value returned when
+           the user selects a value would be the "name" field - "foo" if the
+           first item is selected, and "wowbagger" if the last item is
+           selected.) -> structure: parameter "data_source" of String,
+           parameter "service_function" of String, parameter
+           "service_version" of String, parameter "service_params" of
+           unspecified object, parameter "selection_id" of String, parameter
+           "description_template" of String, parameter "multiselection" of
+           type "boolean" (@range [0,1]), parameter "query_on_empty_input" of
+           type "boolean" (@range [0,1]), parameter "result_array_index" of
+           Long, parameter "path_to_selection_items" of list of String,
+           parameter "radio_options" of type "RadioOptions" -> structure:
+           parameter "id_order" of list of String, parameter "ids_to_options"
+           of mapping from String to String, parameter "ids_to_tooltip" of
+           mapping from String to String, parameter "tab_options" of type
+           "TabOptions" -> structure: parameter "tab_id_order" of list of
+           String, parameter "tab_id_to_tab_name" of mapping from String to
+           String, parameter "tab_id_to_param_ids" of mapping from String to
+           list of String, parameter "textsubdata_options" of type
+           "TextSubdataOptions" (Defines a parameter field that allows
+           autocomplete based on subdata of an existing object.  For
+           instance, selection of feature ids from a Genome object.  It will
+           appear as a text field with dropdown similar to selection of other
+           WS data objects. placeholder - placeholder text to display in the
+           field multiselection - if true, then multiple selections are
+           allowed in a single input field.  This will override the
+           allow_multiple option (which allows user addition) of additional
+           fields.  If true, then this parameter will return a list. Default=
+           false show_src_obj - if true, then the dropdown will indicate the
+           ids along with some text indicating what data object the subdata
+           was retrieved from. Default=true allow_custom - if true, then user
            specified inputs not found in the list are accepted.  if false,
            users can only select from the valid list of selections.
            Default=false) -> structure: parameter "placeholder" of String,
@@ -2159,45 +2159,45 @@ class NarrativeMethodStore(object):
            structure is: [ "foo",                # return array position 0 { 
            # return array position 1 "interesting_data": [ "baz", "boo", [
            {"id": 1, "name": "foo" }, ... {"id": 42, "name": "wowbagger" } ],
-           "bat" ] }, "bar"                # return array position 2 ] KBase
-           dynamic services all return an array of values, even for
-           single-value returns, as the KIDL spec allows specifying multiple
-           return values per function. In this case: result_array_index would
-           be 1 path_to_subdata would be ["interesting_data", "2"]
-           selection_id would be "name" The selection items would be the 42
-           items represented by {"id": 1, "name": "foo" }, ... {"id": 42,
-           "name": "wowbagger" } Selection items must always be a list of
-           maps. The final value returned when the user selects a value would
-           be the "name" field - "foo" if the first item is selected, and
-           "wowbagger" if the last item is selected.) -> structure: parameter
-           "data_source" of String, parameter "service_function" of String,
-           parameter "service_version" of String, parameter "service_params"
-           of unspecified object, parameter "selection_id" of String,
-           parameter "description_template" of String, parameter
-           "multiselection" of type "boolean" (@range [0,1]), parameter
-           "query_on_empty_input" of type "boolean" (@range [0,1]), parameter
-           "result_array_index" of Long, parameter "path_to_selection_items"
-           of list of String, parameter "radio_options" of type
-           "RadioOptions" -> structure: parameter "id_order" of list of
-           String, parameter "ids_to_options" of mapping from String to
-           String, parameter "ids_to_tooltip" of mapping from String to
-           String, parameter "tab_options" of type "TabOptions" -> structure:
-           parameter "tab_id_order" of list of String, parameter
-           "tab_id_to_tab_name" of mapping from String to String, parameter
-           "tab_id_to_param_ids" of mapping from String to list of String,
-           parameter "textsubdata_options" of type "TextSubdataOptions"
-           (Defines a parameter field that allows autocomplete based on
-           subdata of an existing object.  For instance, selection of feature
-           ids from a Genome object.  It will appear as a text field with
-           dropdown similar to selection of other WS data objects.
-           placeholder - placeholder text to display in the field
-           multiselection - if true, then multiple selections are allowed in
-           a single input field.  This will override the allow_multiple
-           option (which allows user addition) of additional fields.  If
-           true, then this parameter will return a list. Default= false
-           show_src_obj - if true, then the dropdown will indicate the ids
-           along with some text indicating what data object the subdata was
-           retrieved from. Default=true allow_custom - if true, then user
+           "bat" ] }, "bar"                # return array position 2 ] Note
+           that KBase dynamic services all return an array of values, even
+           for single-value returns, as the KIDL spec allows specifying
+           multiple return values per function. In this case:
+           result_array_index would be 1 path_to_selection_items would be
+           ["interesting_data", "2"] selection_id would be "name" The
+           selection items would be the 42 items represented by {"id": 1,
+           "name": "foo" }, ... {"id": 42, "name": "wowbagger" } Selection
+           items must always be a list of maps. The final value returned when
+           the user selects a value would be the "name" field - "foo" if the
+           first item is selected, and "wowbagger" if the last item is
+           selected.) -> structure: parameter "data_source" of String,
+           parameter "service_function" of String, parameter
+           "service_version" of String, parameter "service_params" of
+           unspecified object, parameter "selection_id" of String, parameter
+           "description_template" of String, parameter "multiselection" of
+           type "boolean" (@range [0,1]), parameter "query_on_empty_input" of
+           type "boolean" (@range [0,1]), parameter "result_array_index" of
+           Long, parameter "path_to_selection_items" of list of String,
+           parameter "radio_options" of type "RadioOptions" -> structure:
+           parameter "id_order" of list of String, parameter "ids_to_options"
+           of mapping from String to String, parameter "ids_to_tooltip" of
+           mapping from String to String, parameter "tab_options" of type
+           "TabOptions" -> structure: parameter "tab_id_order" of list of
+           String, parameter "tab_id_to_tab_name" of mapping from String to
+           String, parameter "tab_id_to_param_ids" of mapping from String to
+           list of String, parameter "textsubdata_options" of type
+           "TextSubdataOptions" (Defines a parameter field that allows
+           autocomplete based on subdata of an existing object.  For
+           instance, selection of feature ids from a Genome object.  It will
+           appear as a text field with dropdown similar to selection of other
+           WS data objects. placeholder - placeholder text to display in the
+           field multiselection - if true, then multiple selections are
+           allowed in a single input field.  This will override the
+           allow_multiple option (which allows user addition) of additional
+           fields.  If true, then this parameter will return a list. Default=
+           false show_src_obj - if true, then the dropdown will indicate the
+           ids along with some text indicating what data object the subdata
+           was retrieved from. Default=true allow_custom - if true, then user
            specified inputs not found in the list are accepted.  if false,
            users can only select from the valid list of selections.
            Default=false) -> structure: parameter "placeholder" of String,
