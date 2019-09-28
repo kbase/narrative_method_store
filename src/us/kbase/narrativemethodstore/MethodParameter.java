@@ -167,7 +167,11 @@ public class MethodParameter {
      *     result_array_index - The index of the result array returned from the dynamic service
      *                    from where the selection items will be extracted. Default 0.
      *                    
-     *     path_to_subdata - The path into the result data object to the list of selection items.
+     *     path_to_selection_items - The path into the result data object to the list of
+     *                    selection items. If missing, the data at the specified result array
+     *                    index is used (defaulting to the first returned value in the list).
+     *                    
+     *     The selection items data structure must be a list of mappings or structures.
      *     
      *     As an example of correctly specifying where the selection items are within the
      *     data structure returned from the dynamic service, if the data structure is:
@@ -613,7 +617,11 @@ public class MethodParameter {
      *     result_array_index - The index of the result array returned from the dynamic service
      *                    from where the selection items will be extracted. Default 0.
      *                    
-     *     path_to_subdata - The path into the result data object to the list of selection items.
+     *     path_to_selection_items - The path into the result data object to the list of
+     *                    selection items. If missing, the data at the specified result array
+     *                    index is used (defaulting to the first returned value in the list).
+     *                    
+     *     The selection items data structure must be a list of mappings or structures.
      *     
      *     As an example of correctly specifying where the selection items are within the
      *     data structure returned from the dynamic service, if the data structure is:
@@ -699,7 +707,11 @@ public class MethodParameter {
      *     result_array_index - The index of the result array returned from the dynamic service
      *                    from where the selection items will be extracted. Default 0.
      *                    
-     *     path_to_subdata - The path into the result data object to the list of selection items.
+     *     path_to_selection_items - The path into the result data object to the list of
+     *                    selection items. If missing, the data at the specified result array
+     *                    index is used (defaulting to the first returned value in the list).
+     *                    
+     *     The selection items data structure must be a list of mappings or structures.
      *     
      *     As an example of correctly specifying where the selection items are within the
      *     data structure returned from the dynamic service, if the data structure is:

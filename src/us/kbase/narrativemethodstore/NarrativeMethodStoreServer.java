@@ -39,7 +39,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
     private static final long serialVersionUID = 1L;
     private static final String version = "0.0.1";
     private static final String gitUrl = "https://github.com/mrcreosote/narrative_method_store.git";
-    private static final String gitCommitHash = "90968991bb94e02ae90928c36329080882b98894";
+    private static final String gitCommitHash = "e0a9e4c64ed7c289d74ff724b44227435f9628f0";
 
     //BEGIN_CLASS_HEADER
     public static final String SYS_PROP_KB_DEPLOYMENT_CONFIG = "KB_DEPLOYMENT_CONFIG";

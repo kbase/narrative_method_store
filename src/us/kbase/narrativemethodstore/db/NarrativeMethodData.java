@@ -555,7 +555,8 @@ public class NarrativeMethodData {
 						.withQueryOnEmptyInput(
 								jsonBooleanToRPC(optNode.get("query_on_empty_input"), 1L))
 						.withResultArrayIndex(getLongOrNull(optNode.get("result_array_index"), 0L))
-						.withPathToSubdata(jsonListToStringList(optNode.get("path_to_subdata")))
+						.withPathToSelectionItems(jsonListToStringList(
+								optNode.get("path_to_selection_items")))
 						.withDescriptionTemplate(getTextOrNull(
 								optNode.get("description_template")))
 						.withServiceFunction(getTextOrNull(optNode.get("service_function")))

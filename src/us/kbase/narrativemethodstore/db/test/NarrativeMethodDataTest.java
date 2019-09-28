@@ -124,7 +124,7 @@ public class NarrativeMethodDataTest {
 						"search_text", "prefix:{{dynamic_dropdown_input}}",
 						"ns", "ncbi_taxonomy"))));
 		assertThat("incorrect serv ver", ddo.getServiceVersion(), is("dev"));
-		assertThat("incorrect sub path", ddo.getPathToSubdata(),
+		assertThat("incorrect sub path", ddo.getPathToSelectionItems(),
 				is(Arrays.asList("result", "0", "results")));
 		assertThat("incorrect query empty", ddo.getQueryOnEmptyInput(), is(0L));
 		assertThat("incorrect result index", ddo.getResultArrayIndex(), is(3L));
@@ -150,7 +150,7 @@ public class NarrativeMethodDataTest {
 						"search_text", "prefix:{{dynamic_dropdown_input}}",
 						"ns", "ncbi_taxonomy"))));
 		assertThat("incorrect serv ver", ddo.getServiceVersion(), nullValue());
-		assertThat("incorrect sub path", ddo.getPathToSubdata(), nullValue());
+		assertThat("incorrect sub path", ddo.getPathToSelectionItems(), nullValue());
 		assertThat("incorrect query empty", ddo.getQueryOnEmptyInput(), is(1L));
 		assertThat("incorrect result index", ddo.getResultArrayIndex(), is(0L));
 	}

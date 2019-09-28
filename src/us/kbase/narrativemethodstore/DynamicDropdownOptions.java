@@ -43,7 +43,11 @@ import us.kbase.common.service.UObject;
  *     result_array_index - The index of the result array returned from the dynamic service
  *                    from where the selection items will be extracted. Default 0.
  *                    
- *     path_to_subdata - The path into the result data object to the list of selection items.
+ *     path_to_selection_items - The path into the result data object to the list of
+ *                    selection items. If missing, the data at the specified result array
+ *                    index is used (defaulting to the first returned value in the list).
+ *                    
+ *     The selection items data structure must be a list of mappings or structures.
  *     
  *     As an example of correctly specifying where the selection items are within the
  *     data structure returned from the dynamic service, if the data structure is:
@@ -106,7 +110,7 @@ import us.kbase.common.service.UObject;
     "multiselection",
     "query_on_empty_input",
     "result_array_index",
-    "path_to_subdata"
+    "path_to_selection_items"
 })
 public class DynamicDropdownOptions {
 
@@ -128,8 +132,8 @@ public class DynamicDropdownOptions {
     private Long queryOnEmptyInput;
     @JsonProperty("result_array_index")
     private Long resultArrayIndex;
-    @JsonProperty("path_to_subdata")
-    private List<String> pathToSubdata;
+    @JsonProperty("path_to_selection_items")
+    private List<String> pathToSelectionItems;
     private Map<java.lang.String, Object> additionalProperties = new HashMap<java.lang.String, Object>();
 
     @JsonProperty("data_source")
@@ -267,18 +271,18 @@ public class DynamicDropdownOptions {
         return this;
     }
 
-    @JsonProperty("path_to_subdata")
-    public List<String> getPathToSubdata() {
-        return pathToSubdata;
+    @JsonProperty("path_to_selection_items")
+    public List<String> getPathToSelectionItems() {
+        return pathToSelectionItems;
     }
 
-    @JsonProperty("path_to_subdata")
-    public void setPathToSubdata(List<String> pathToSubdata) {
-        this.pathToSubdata = pathToSubdata;
+    @JsonProperty("path_to_selection_items")
+    public void setPathToSelectionItems(List<String> pathToSelectionItems) {
+        this.pathToSelectionItems = pathToSelectionItems;
     }
 
-    public DynamicDropdownOptions withPathToSubdata(List<String> pathToSubdata) {
-        this.pathToSubdata = pathToSubdata;
+    public DynamicDropdownOptions withPathToSelectionItems(List<String> pathToSelectionItems) {
+        this.pathToSelectionItems = pathToSelectionItems;
         return this;
     }
 
@@ -294,7 +298,7 @@ public class DynamicDropdownOptions {
 
     @Override
     public java.lang.String toString() {
-        return ((((((((((((((((((((((("DynamicDropdownOptions"+" [dataSource=")+ dataSource)+", serviceFunction=")+ serviceFunction)+", serviceVersion=")+ serviceVersion)+", serviceParams=")+ serviceParams)+", selectionId=")+ selectionId)+", descriptionTemplate=")+ descriptionTemplate)+", multiselection=")+ multiselection)+", queryOnEmptyInput=")+ queryOnEmptyInput)+", resultArrayIndex=")+ resultArrayIndex)+", pathToSubdata=")+ pathToSubdata)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((((((((((((((((((("DynamicDropdownOptions"+" [dataSource=")+ dataSource)+", serviceFunction=")+ serviceFunction)+", serviceVersion=")+ serviceVersion)+", serviceParams=")+ serviceParams)+", selectionId=")+ selectionId)+", descriptionTemplate=")+ descriptionTemplate)+", multiselection=")+ multiselection)+", queryOnEmptyInput=")+ queryOnEmptyInput)+", resultArrayIndex=")+ resultArrayIndex)+", pathToSelectionItems=")+ pathToSelectionItems)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }
