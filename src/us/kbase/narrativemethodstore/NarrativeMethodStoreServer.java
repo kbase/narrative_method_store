@@ -3,9 +3,7 @@ package us.kbase.narrativemethodstore;
 import java.io.File;
 import java.util.List;
 import java.util.Map;
-import us.kbase.auth.AuthConfig;
 import us.kbase.auth.AuthToken;
-import us.kbase.auth.ConfigurableAuthService;
 import us.kbase.common.service.JsonServerMethod;
 import us.kbase.common.service.JsonServerServlet;
 import us.kbase.common.service.JsonServerSyslog;
@@ -22,7 +20,8 @@ import java.util.regex.Pattern;
 
 import org.ini4j.Ini;
 
-import us.kbase.auth.AuthService;
+import us.kbase.auth.AuthConfig;
+import us.kbase.auth.ConfigurableAuthService;
 import us.kbase.narrativemethodstore.db.NarrativeCategoriesIndex;
 import us.kbase.narrativemethodstore.db.ServiceUrlTemplateEvaluater;
 import us.kbase.narrativemethodstore.db.Validator;
@@ -39,8 +38,8 @@ import us.kbase.narrativemethodstore.db.mongo.MongoDynamicRepoDB;
 public class NarrativeMethodStoreServer extends JsonServerServlet {
     private static final long serialVersionUID = 1L;
     private static final String version = "0.0.1";
-    private static final String gitUrl = "https://github.com/briehl/narrative_method_store";
-    private static final String gitCommitHash = "7c61f761f4de7cc503b4298d5a1855b7f331daa1";
+    private static final String gitUrl = "https://github.com/mrcreosote/narrative_method_store.git";
+    private static final String gitCommitHash = "9157349ad7883efbc35cff34a48d81dc1fcdbec6";
 
     //BEGIN_CLASS_HEADER
     public static final String SYS_PROP_KB_DEPLOYMENT_CONFIG = "KB_DEPLOYMENT_CONFIG";
@@ -68,7 +67,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
     public static final String CFG_PROP_AUTH_SERVICE_URL = "auth-service-url";
     public static final String    CFG_PROP_AUTH_INSECURE = "auth-service-url-allow-insecure";
 
-    public static final String VERSION = "0.3.9";
+    public static final String VERSION = "0.3.10";
 
     private static Throwable configError = null;
     private static Map<String, String> config = null;

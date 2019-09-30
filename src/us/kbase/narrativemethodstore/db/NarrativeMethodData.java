@@ -552,7 +552,13 @@ public class NarrativeMethodData {
 						.withDataSource(getTextOrNull(optNode.get("data_source")))
 						.withServiceParams(new UObject(optNode.get("service_params")))
 						.withSelectionId(getTextOrNull(optNode.get("selection_id")))
-						.withDescriptionTemplate(getTextOrNull(optNode.get("description_template")))
+						.withQueryOnEmptyInput(
+								jsonBooleanToRPC(optNode.get("query_on_empty_input"), 1L))
+						.withResultArrayIndex(getLongOrNull(optNode.get("result_array_index"), 0L))
+						.withPathToSelectionItems(jsonListToStringList(
+								optNode.get("path_to_selection_items")))
+						.withDescriptionTemplate(getTextOrNull(
+								optNode.get("description_template")))
 						.withServiceFunction(getTextOrNull(optNode.get("service_function")))
 						.withServiceVersion(getTextOrNull(optNode.get("service_version")));
 			}
@@ -858,6 +864,11 @@ public class NarrativeMethodData {
 		return node == null || node.isNull() ? null : node.asLong();
 	}
 
+	private static Long getLongOrNull(JsonNode node, Long defaultValue) {
+		return node == null || node.isNull() ? defaultValue : node.asLong();
+	}
+
+	
 	private static Long jsonBooleanToRPC(JsonNode node) {
 		return node.asBoolean() ? 1L : 0L;
 	}
