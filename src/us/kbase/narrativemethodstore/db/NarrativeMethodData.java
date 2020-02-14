@@ -18,6 +18,8 @@ import us.kbase.narrativemethodstore.db.github.RepoTag;
 import us.kbase.narrativemethodstore.exceptions.NarrativeMethodStoreException;
 
 public class NarrativeMethodData {
+	public static final String RESOURCE_ESTIMATOR_MODULE_KEY = "resource_estimator_module";
+	public static final String RESOURCE_ESTIMATOR_METHOD_KEY = "resource_estimator_method";
 	protected String methodId;
 	protected MethodBriefInfo briefInfo;
 	protected MethodFullInfo fullInfo;
@@ -27,7 +29,7 @@ public class NarrativeMethodData {
 	        FileLookup lookup, RepoTag tag) throws NarrativeMethodStoreException {
 	    this(methodId, spec, display, lookup, null, null, null, tag, null);
 	}
-	
+
 	public NarrativeMethodData(String methodId, JsonNode spec, Map<String, Object> display,
 			FileLookup lookup, String namespace, String serviceVersion,
 			ServiceUrlTemplateEvaluater srvUrlTemplEval, RepoTag tag,
@@ -45,20 +47,20 @@ public class NarrativeMethodData {
 			throw ret;
 		}
 	}
-	
+
 	public MethodBriefInfo getMethodBriefInfo() {
 		return briefInfo;
 	}
-	
+
 	public MethodFullInfo getMethodFullInfo() {
 		return fullInfo;
 	}
-	
+
 	public MethodSpec getMethodSpec() {
 		return methodSpec;
 	}
-	
-	
+
+
 	public void update(String methodId, JsonNode spec, Map<String, Object> display,
 			FileLookup lookup, String namespace, String serviceVersion,
 			ServiceUrlTemplateEvaluater srvUrlTemplEval, RepoTag tag,
@@ -77,40 +79,40 @@ public class NarrativeMethodData {
 			categories.add(cats.get(k).asText());
 		}
 		briefInfo.withCategories(categories);
-		
+
 		String methodName = getDisplayText(display, "name", lookup);
 		briefInfo.withName(methodName);
 		String methodTooltip = getDisplayText(display, "tooltip", lookup);
 		briefInfo.withTooltip(methodTooltip);
-		
+
 		String methodSubtitle = methodTooltip;
 		try {
 			methodSubtitle = getDisplayText(display, "subtitle", lookup);
 		} catch (IllegalStateException e) { }
 		briefInfo.withSubtitle(methodSubtitle);
-		
+
 		String methodDescription = getDisplayText(display, "description", lookup);
 		String methodTechnicalDescr = "";
 		try { methodTechnicalDescr = getDisplayText(display, "technical-description", lookup); }
 		catch (IllegalStateException e) { /*tech description is optional; do nothing*/ }
-		
+
 		// if replacement text is missing, do nothing, we just won't have any replacement text
 		String replacementText = null;
 		try { replacementText = getDisplayText(display,"replacement-text",lookup); }
 		catch (IllegalStateException e) { }
-		
+
 		if (version == null) {
-		    // "ver" property from spec.json is still used in case of non-dynamic method 
+		    // "ver" property from spec.json is still used in case of non-dynamic method
 		    // (it's mostly when method comes from narrative_method_specs).
 		    version = get(spec, "ver").asText();
 		}
 		briefInfo.withVer(version);
-		
+
 		List <String> authors = jsonListToStringList(spec.get("authors"));
 		briefInfo.withAuthors(authors);
 
 		List <String> kbContributors = jsonListToStringList(spec.get("kb_contributors"));
-		
+
 		List<ScreenShot> screenshots = new ArrayList<ScreenShot>();
 		@SuppressWarnings("unchecked")
 		List<String> imageNames = (List<String>)getDisplayItem("/", display, "screenshots");
@@ -123,7 +125,7 @@ public class NarrativeMethodData {
 			        screenshots.add(new ScreenShot().withUrl(url));
 			    }
 		}
-		
+
 		Icon icon = null;
 		try {
 			String iconName = getDisplayText(display,"icon",lookup);
@@ -135,13 +137,13 @@ public class NarrativeMethodData {
 			}
 			briefInfo.withIcon(icon);
 		} catch (IllegalStateException e) { /* icon is optional, do nothing */ }
-		
+
 		String appType = getTextOrNull(spec.get("app_type"));
 		if (appType == null) {
 		    appType = "app";
 		}
 		briefInfo.withAppType(appType);
-		
+
 		List<Publication> publications = new ArrayList<Publication>();
 		List<Object> pubInfoList = castDisplayValue("publications", display.get("publications"),
 		        new TypeReference<List<Object>>() {}, "list of strings");
@@ -158,7 +160,7 @@ public class NarrativeMethodData {
 		            if(pubInfoMap.get("link")!=null) { p.setLink(pubInfoMap.get("link").toString()); shouldAdd = true;}
 
 		            if(pubInfoMap.get("display-text")!=null) { p.setDisplayText(pubInfoMap.get("display-text").toString()); shouldAdd = true;}
-		            else if(shouldAdd) { 
+		            else if(shouldAdd) {
 		                if(p.getLink()!=null) { p.setDisplayText(p.getLink()); }
 		                else if(p.getPmid()!=null) { p.setDisplayText(p.getPmid()); }
 		            }
@@ -170,7 +172,7 @@ public class NarrativeMethodData {
 		        }
 		    }
 		}
-		
+
 		List<String> relatedApps = new ArrayList<String>();
 		List<String> nextApps = new ArrayList<String>();
 		List<String> relatedMethods = new ArrayList<String>();
@@ -204,7 +206,7 @@ public class NarrativeMethodData {
 									.withNextApps(nextApps)
 									.withRelatedMethods(relatedMethods)
 									.withNextMethods(nextMethods);
-		
+
 		fullInfo = new MethodFullInfo()
 							.withId(this.methodId)
 							.withModuleName(namespace)
@@ -215,22 +217,22 @@ public class NarrativeMethodData {
 							.withTooltip(methodTooltip)
 							.withCategories(categories)
 							.withAppType(appType)
-							
+
 							.withAuthors(authors)
 							.withKbContributors(kbContributors)
 							.withContact(get(spec, "contact").asText())
-							
+
 							.withDescription(methodDescription)
 							.withTechnicalDescription(methodTechnicalDescr)
 							.withScreenshots(screenshots)
 							.withIcon(icon)
-		
+
 							.withSuggestions(suggestions)
-							
+
 							.withPublications(publications);
-		
+
 		fullInfo.getAdditionalProperties().put("namespace", namespace);
-		
+
 		JsonNode widgetsNode = get(spec, "widgets");
 		WidgetSpec widgets = new WidgetSpec()
 							.withInput(getTextOrNull(widgetsNode.get("input")))
@@ -272,7 +274,7 @@ public class NarrativeMethodData {
 								agv.withSuffix(generNode.get(field3).asText());
 							} else {
 								throw new IllegalStateException("Unknown field [" + field + "] in generated " +
-										"value structure within path behavior/service-mapping/input_mapping/" + j + 
+										"value structure within path behavior/service-mapping/input_mapping/" + j +
 										"/generated_value");
 							}
 							paramMapping.withGeneratedValue(agv);
@@ -324,14 +326,27 @@ public class NarrativeMethodData {
 			String moduleName = getTextOrNull(serviceMappingNode.get("name"));
 			String serviceUrl = getTextOrNull(serviceMappingNode.get("url"));
 			if (srvUrlTemplEval != null && serviceUrl != null && serviceUrl.length() > 0)
-			    serviceUrl = srvUrlTemplEval.evaluate(serviceUrl, moduleName, serviceVersion);
+				serviceUrl = srvUrlTemplEval.evaluate(serviceUrl, moduleName, serviceVersion);
+			String resourceEstimateMod = getTextOrNull(serviceMappingNode.get(RESOURCE_ESTIMATOR_MODULE_KEY));
+			String resourceEstimateMeth = getTextOrNull(serviceMappingNode.get(RESOURCE_ESTIMATOR_METHOD_KEY));
+			if (resourceEstimateMeth != null && resourceEstimateMod == null) {
+				throw new IllegalStateException("If " + RESOURCE_ESTIMATOR_METHOD_KEY + " is defined, then " + RESOURCE_ESTIMATOR_MODULE_KEY + " must also be defined.");
+			}
+			if (resourceEstimateMod != null && resourceEstimateMeth == null) {
+				throw new IllegalStateException("If " + RESOURCE_ESTIMATOR_MODULE_KEY + " is defined, then " + RESOURCE_ESTIMATOR_METHOD_KEY + " must also be defined.");
+			}
+			if (resourceEstimateMod != null && resourceEstimateMeth != null) {
+				// TODO - see if it exists as a function
+			}
 			behavior
 				.withKbServiceUrl(serviceUrl)
 				.withKbServiceName(moduleName)
 				.withKbServiceVersion(serviceVersion)
 				.withKbServiceMethod(getTextOrNull(get("behavior/service-mapping", serviceMappingNode, "method")))
 				.withKbServiceInputMapping(paramsMapping)
-				.withKbServiceOutputMapping(outputMapping);
+				.withKbServiceOutputMapping(outputMapping)
+				.withResourceEstimatorModule(resourceEstimateMod)
+				.withResourceEstimatorMethod(resourceEstimateMeth);
 		} else if (behaviorNode.get("none") != null) {
 			JsonNode noneNode = behaviorNode.get("none");
 			List<OutputMapping> outputMapping = new ArrayList<OutputMapping>();
@@ -381,7 +396,7 @@ public class NarrativeMethodData {
 				JsonNode optNode = get(paramPath, paramNode, "text_options");
 				JsonNode isOutputName = optNode.get("is_output_name");
 				long isOutputNameFlag = 0L;
-				
+
 				if(isOutputName!=null) {
 					if(isOutputName.asBoolean()){
 						isOutputNameFlag = 1L;
@@ -391,8 +406,8 @@ public class NarrativeMethodData {
 				try {
 					placeholder = getDisplayText("parameters/" + paramId, paramDisplay, "placeholder");
 				} catch (IllegalStateException e) { }
-				
-				List<String> types = jsonListToStringList(optNode.get("valid_ws_types")); 
+
+				List<String> types = jsonListToStringList(optNode.get("valid_ws_types"));
 				textOpt = new TextOptions()
 							.withValidWsTypes(types)
 							.withValidateAs(getTextOrNull(optNode.get("validate_as")))
@@ -407,7 +422,7 @@ public class NarrativeMethodData {
                         inputTypes.addAll(types);
 				    }
 				}
-				
+
 				// todo: add better checks of min/max numbers, like if it is numeric
 				if(optNode.get("min_int")!=null) {
 					textOpt.withMinInt(optNode.get("min_int").asLong());
@@ -421,7 +436,7 @@ public class NarrativeMethodData {
 				if(optNode.get("max_float")!=null) {
 					textOpt.withMaxFloat(optNode.get("max_float").asDouble());
 				}
-				
+
 				List<RegexMatcher> regexList = new ArrayList<RegexMatcher>();
 				if(optNode.get("regex_constraint")!=null) {
 					for(int rxi=0; rxi<optNode.get("regex_constraint").size(); rxi++) {
@@ -448,7 +463,7 @@ public class NarrativeMethodData {
 			TextSubdataOptions textSubdataOpt = null;
 			if (paramNode.has("textsubdata_options")) {
 				JsonNode optNode = get(paramPath, paramNode, "textsubdata_options");
-				
+
 				// multiselection - default is false
 				JsonNode multiselection = optNode.get("multiselection");
 				long multiselectionFlag = 0L;
@@ -473,12 +488,12 @@ public class NarrativeMethodData {
 						allow_customFlag = 1L;
 					}
 				}
-				
+
 				String placeholder = "";
 				try {
 					placeholder = getDisplayText("parameters/" + paramId, paramDisplay, "placeholder");
 				} catch (IllegalStateException e) { }
-				
+
 				JsonNode subdataSelection = optNode.get("subdata_selection");
 				if(subdataSelection==null) {
 					throw new IllegalStateException("In parameter [" + paramId + "] has textsubdata_options  " +
@@ -498,7 +513,7 @@ public class NarrativeMethodData {
 											.withDescriptionTemplate(getTextOrNull(subdataSelection.get("description_template")))
 											.withServiceFunction(getTextOrNull(subdataSelection.get("service_function")))
 											.withServiceVersion(getTextOrNull(subdataSelection.get("service_version")));
-				
+
 				textSubdataOpt = new TextSubdataOptions()
 										.withPlaceholder(placeholder)
 										.withMultiselection(multiselectionFlag)
@@ -537,7 +552,13 @@ public class NarrativeMethodData {
 						.withDataSource(getTextOrNull(optNode.get("data_source")))
 						.withServiceParams(new UObject(optNode.get("service_params")))
 						.withSelectionId(getTextOrNull(optNode.get("selection_id")))
-						.withDescriptionTemplate(getTextOrNull(optNode.get("description_template")))
+						.withQueryOnEmptyInput(
+								jsonBooleanToRPC(optNode.get("query_on_empty_input"), 1L))
+						.withResultArrayIndex(getLongOrNull(optNode.get("result_array_index"), 0L))
+						.withPathToSelectionItems(jsonListToStringList(
+								optNode.get("path_to_selection_items")))
+						.withDescriptionTemplate(getTextOrNull(
+								optNode.get("description_template")))
 						.withServiceFunction(getTextOrNull(optNode.get("service_function")))
 						.withServiceVersion(getTextOrNull(optNode.get("service_version")));
 			}
@@ -598,12 +619,12 @@ public class NarrativeMethodData {
 					String uiName = get(paramPath + "/tab_options/options/" + j, itemNode, "ui_name").asText();
 					options.put(id, uiName);
 					List<String> tabParamIds = jsonListToStringList(itemNode.get("param_ids"));
-					if (tabParamIds != null) 
+					if (tabParamIds != null)
 						tabIdToParamIds.put(id, tabParamIds);
 				}
 				tabOpt = new TabOptions().withTabIdOrder(idOrder).withTabIdToTabName(options).withTabIdToParamIds(tabIdToParamIds);
 			}
-			
+
 			String paramDescription = "";
 			try {
 				paramDescription = getDisplayText("parameters/" + paramId, paramDisplay, "long-hint");
@@ -615,7 +636,7 @@ public class NarrativeMethodData {
 			try {
 				disabled = jsonBooleanToRPC(get(paramPath, paramNode, "disabled"));
 			} catch (IllegalStateException e) {}
-			
+
 			List<String> defDefVals = Arrays.asList("");
 			MethodParameter param = new MethodParameter()
 							.withId(paramId)
@@ -641,9 +662,9 @@ public class NarrativeMethodData {
 							.withDynamicDropdownOptions(dyddOpt);
 			parameters.add(param);
 		}
-		
+
 		briefInfo.withInputTypes(new ArrayList<String>(inputTypes)).withOutputTypes(new ArrayList<String>(outputTypes));
-		
+
 		List<FixedMethodParameter> fixedParameters = new ArrayList<FixedMethodParameter>();
 		try {
 			@SuppressWarnings("unchecked")
@@ -665,7 +686,7 @@ public class NarrativeMethodData {
 				fixedParameters.add(fmp);
 			}
 		} catch (IllegalStateException e) { /* fixed parameters are optional; do nothing */ }
-		
+
         Set<String> groupIds = new TreeSet<String>();
         List<MethodParameterGroup> groups = null;
 		JsonNode groupsNode = spec.get("parameter-groups");
@@ -689,7 +710,7 @@ public class NarrativeMethodData {
 	            if (groupDescription == null) {
 	                groupDescription = getDisplayTextOptional(groupDisplay, "description", "");
 	            }
-	            List<String> parameterIds = 
+	            List<String> parameterIds =
 	                    jsonListToStringList(get(groupPath, groupNode, "parameters"));
 	            for (String paramId : parameterIds) {
 	                if (!paramIds.contains(paramId)) {
@@ -701,7 +722,7 @@ public class NarrativeMethodData {
 	            if (idMapping != null) {
 	                for (String paramId : idMapping.keySet()) {
 	                    if (!paramIds.contains(paramId)) {
-	                        throw new IllegalStateException("Undeclared parameter [" + paramId + 
+	                        throw new IllegalStateException("Undeclared parameter [" + paramId +
 	                                "] found within path [" + groupPath + "/mapping]");
 	                    }
 	                }
@@ -715,7 +736,7 @@ public class NarrativeMethodData {
 	            }
 	            String withBorderText = getDisplayTextOptional(groupDisplay, "with-border", "false");
                 long withBorder;
-	            if (withBorderText.equals("true") || withBorderText.equals("1") || 
+	            if (withBorderText.equals("true") || withBorderText.equals("1") ||
 	                    withBorderText.equals("yes")) {
 	                withBorder = 1;
 	                if (allowMultiple == 1L) {
@@ -744,7 +765,7 @@ public class NarrativeMethodData {
 	            groups.add(group);
 	        }
 		}
-		
+
 		if (behavior.getKbServiceInputMapping() != null) {
 			for (int i = 0; i < behavior.getKbServiceInputMapping().size(); i++) {
 				ServiceMethodInputMapping mapping = behavior.getKbServiceInputMapping().get(i);
@@ -775,7 +796,7 @@ public class NarrativeMethodData {
 				}
 			}
 		}
-		
+
 		methodSpec = new MethodSpec()
 							.withInfo(briefInfo)
 							.withReplacementText(replacementText)
@@ -790,7 +811,7 @@ public class NarrativeMethodData {
 	private static JsonNode get(JsonNode node, String childName) {
 		return get(null, node, childName);
 	}
-	
+
 	private static JsonNode get(String nodePath, JsonNode node, String childName) {
 		JsonNode ret = node.get(childName);
 		if (ret == null)
@@ -798,8 +819,8 @@ public class NarrativeMethodData {
 					"path [" + (nodePath == null ? "/" : nodePath) + "] in spec.json");
 		return ret;
 	}
-	
-	private static String getDisplayText(Map<String, Object> display, String propName, 
+
+	private static String getDisplayText(Map<String, Object> display, String propName,
 			FileLookup lookup) {
 		String ret = lookup.loadFileContent(propName + ".html");
 		if (ret == null) {
@@ -808,11 +829,11 @@ public class NarrativeMethodData {
 		}
 		return ret;
 	}
-	
+
 	private static Object getDisplayItem(String path, Map<String, Object> display, String propName) {
 		Object ret = display.get(propName);
 		if (ret == null)
-			throw new IllegalStateException("Can't find property [" + propName + "] within path [" + 
+			throw new IllegalStateException("Can't find property [" + propName + "] within path [" +
 					path + "] in display.yaml");
 		return ret;
 	}
@@ -823,7 +844,7 @@ public class NarrativeMethodData {
         return ret;
 	}
 
-	private static String getDisplayTextOptional(Map<String, Object> display, String propName, 
+	private static String getDisplayTextOptional(Map<String, Object> display, String propName,
 	        String defaultValue) {
 	    Object obj = display.get(propName);
 	    String ret = (String)(obj == null ? null : obj.toString());
@@ -843,6 +864,11 @@ public class NarrativeMethodData {
 		return node == null || node.isNull() ? null : node.asLong();
 	}
 
+	private static Long getLongOrNull(JsonNode node, Long defaultValue) {
+		return node == null || node.isNull() ? defaultValue : node.asLong();
+	}
+
+	
 	private static Long jsonBooleanToRPC(JsonNode node) {
 		return node.asBoolean() ? 1L : 0L;
 	}
@@ -874,8 +900,8 @@ public class NarrativeMethodData {
 		}
 		return ret;
 	}
-	
-	private static <T> T castDisplayValue(String path, Object value, TypeReference<T> type, 
+
+	private static <T> T castDisplayValue(String path, Object value, TypeReference<T> type,
 	        String typeName) {
 	    if (value == null)
 	        return null;

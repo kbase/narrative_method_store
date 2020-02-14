@@ -21,8 +21,10 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
  * kb_service_version - optional git commit hash defining version of repo registered dynamically.
  * kb_service_input_mapping - mapping from input parameters to input service method arguments.
  * kb_service_output_mapping - mapping from output of service method to final output of narrative method.
+ * resource_estimator_module - optional module for the resource estimator method.
+ * resource_estimator_method - optional name of method for estimating resource requirements.
  * output_mapping - mapping from input to final output of narrative method to support steps without back-end operations.
- * @optional kb_service_name kb_service_method kb_service_input_mapping kb_service_output_mapping
+ * @optional kb_service_name kb_service_method kb_service_input_mapping kb_service_output_mapping resource_estimator_module resource_estimator_method
  * </pre>
  * 
  */
@@ -33,6 +35,8 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
     "kb_service_name",
     "kb_service_version",
     "kb_service_method",
+    "resource_estimator_module",
+    "resource_estimator_method",
     "kb_service_input_mapping",
     "kb_service_output_mapping",
     "output_mapping"
@@ -47,6 +51,10 @@ public class MethodBehavior {
     private String kbServiceVersion;
     @JsonProperty("kb_service_method")
     private String kbServiceMethod;
+    @JsonProperty("resource_estimator_module")
+    private String resourceEstimatorModule;
+    @JsonProperty("resource_estimator_method")
+    private String resourceEstimatorMethod;
     @JsonProperty("kb_service_input_mapping")
     private List<ServiceMethodInputMapping> kbServiceInputMapping;
     @JsonProperty("kb_service_output_mapping")
@@ -115,6 +123,36 @@ public class MethodBehavior {
         return this;
     }
 
+    @JsonProperty("resource_estimator_module")
+    public String getResourceEstimatorModule() {
+        return resourceEstimatorModule;
+    }
+
+    @JsonProperty("resource_estimator_module")
+    public void setResourceEstimatorModule(String resourceEstimatorModule) {
+        this.resourceEstimatorModule = resourceEstimatorModule;
+    }
+
+    public MethodBehavior withResourceEstimatorModule(String resourceEstimatorModule) {
+        this.resourceEstimatorModule = resourceEstimatorModule;
+        return this;
+    }
+
+    @JsonProperty("resource_estimator_method")
+    public String getResourceEstimatorMethod() {
+        return resourceEstimatorMethod;
+    }
+
+    @JsonProperty("resource_estimator_method")
+    public void setResourceEstimatorMethod(String resourceEstimatorMethod) {
+        this.resourceEstimatorMethod = resourceEstimatorMethod;
+    }
+
+    public MethodBehavior withResourceEstimatorMethod(String resourceEstimatorMethod) {
+        this.resourceEstimatorMethod = resourceEstimatorMethod;
+        return this;
+    }
+
     @JsonProperty("kb_service_input_mapping")
     public List<ServiceMethodInputMapping> getKbServiceInputMapping() {
         return kbServiceInputMapping;
@@ -172,7 +210,7 @@ public class MethodBehavior {
 
     @Override
     public String toString() {
-        return ((((((((((((((((("MethodBehavior"+" [kbServiceUrl=")+ kbServiceUrl)+", kbServiceName=")+ kbServiceName)+", kbServiceVersion=")+ kbServiceVersion)+", kbServiceMethod=")+ kbServiceMethod)+", kbServiceInputMapping=")+ kbServiceInputMapping)+", kbServiceOutputMapping=")+ kbServiceOutputMapping)+", outputMapping=")+ outputMapping)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((((((((((((((((("MethodBehavior"+" [kbServiceUrl=")+ kbServiceUrl)+", kbServiceName=")+ kbServiceName)+", kbServiceVersion=")+ kbServiceVersion)+", kbServiceMethod=")+ kbServiceMethod)+", resourceEstimatorModule=")+ resourceEstimatorModule)+", resourceEstimatorMethod=")+ resourceEstimatorMethod)+", kbServiceInputMapping=")+ kbServiceInputMapping)+", kbServiceOutputMapping=")+ kbServiceOutputMapping)+", outputMapping=")+ outputMapping)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }

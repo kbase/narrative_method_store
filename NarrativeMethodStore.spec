@@ -5,14 +5,14 @@ module NarrativeMethodStore {
 
     /* Returns the current running version of the NarrativeMethodStore. */
     funcdef ver() returns (string);
-    
+
     typedef structure {
     	string git_spec_url;
     	string git_spec_branch;
     	string git_spec_commit;
     	string update_interval;
     } Status;
-    
+
     /* Simply check the status of this service to see what Spec repository it is
     using, and what commit it is on */
     funcdef status() returns (Status);
@@ -20,7 +20,7 @@ module NarrativeMethodStore {
 
     /* @range [0,1] */
     typedef int boolean;
-    
+
     typedef string url;
     typedef string username;
     typedef string email;
@@ -34,12 +34,12 @@ module NarrativeMethodStore {
         list<string> parent_ids;
         string loading_error;
     } Category;
-    
+
     typedef structure {
         url url;
     } Icon;
-    
-    /* Minimal information about a method suitable for displaying the method in a menu or navigator. 
+
+    /* Minimal information about a method suitable for displaying the method in a menu or navigator.
          input_types and output_types - sets of valid_ws_types occured in input/output parameters.
          git_commit_hash - optional repo version defined for dynamically registered methods.
          app_type - is one of: "app", "viewer", "editor".
@@ -60,11 +60,11 @@ module NarrativeMethodStore {
         list <string> output_types;
         string app_type;
     } MethodBriefInfo;
-    
+
     typedef structure {
         url url;
     } ScreenShot;
-    
+
     /* Publication info can get complicated.  To keep things simple, we only allow a few things now:
          pmid - pubmed id, if present, we can use this id to pull all publication info we want
          display_text - what is shown to the user if there is no pubmed id, or if the pubmed id is not valid
@@ -75,15 +75,15 @@ module NarrativeMethodStore {
         string display_text;
         url link;
     } Publication;
-    
-    
+
+
     typedef structure {
         list<string> related_methods;
         list<string> next_methods;
         list<string> related_apps;
         list<string> next_apps;
     } Suggestions;
-    
+
     /* Full information about a method suitable for displaying a method landing page.
          git_commit_hash - optional repo version defined for dynamically registered methods.
          app_type - is one of: "app", "viewer", "editor".
@@ -97,23 +97,23 @@ module NarrativeMethodStore {
         list <username> authors;
         list <username> kb_contributors;
         email contact;
-        
+
         string subtitle;
         string tooltip;
         string description;
         string technical_description;
         string app_type;
-        
+
         Suggestions suggestions;
-        
+
         Icon icon;
-        
+
         list<string> categories;
-        
+
         list<ScreenShot> screenshots;
-        
+
         list<Publication> publications;
-        
+
     } MethodFullInfo;
 
     /* specify the input / ouput widgets used for rendering */
@@ -156,23 +156,23 @@ module NarrativeMethodStore {
         int n_rows;
         string placeholder;
     } TextAreaOptions;
-    
+
     typedef structure {
         int min;
         int max;
         int step;
     } IntSliderOptions;
-    
+
     typedef structure {
         float min;
         float max;
     } FloatSliderOptions;
-    
+
     typedef structure {
         int checked_value;
         int unchecked_value;
     } CheckboxOptions;
-    
+
     /*
        value is what is passed from the form, display is how the selection is
        shown to the user
@@ -181,11 +181,11 @@ module NarrativeMethodStore {
         string value;
         string display;
     } DropdownOption;
-    
+
     typedef structure {
         list<DropdownOption> options;
     } DropdownOptions;
-    
+
     typedef structure {
         list<string> id_order;
         mapping<string,string> ids_to_options;
@@ -216,7 +216,7 @@ module NarrativeMethodStore {
                            the selection.  For features, for instance, this may include
                            the feature function, or feature aliases.
             description_template - Defines how the description of items is rendered using
-                           Handlebar templates (use the name of items in the 
+                           Handlebar templates (use the name of items in the
                            selection_description list as variable names)
             service_function - optional name of SDK method including prefix with SDK
                            module started up as dynamic service (it's fully qualified
@@ -237,7 +237,7 @@ module NarrativeMethodStore {
     } SubdataSelection;
 
     /*
-        Defines a parameter field that allows autocomplete based on 
+        Defines a parameter field that allows autocomplete based on
         subdata of an existing object.  For instance, selection of feature ids
         from a Genome object.  It will appear as a text field with dropdown
         similar to selection of other WS data objects.
@@ -265,7 +265,7 @@ module NarrativeMethodStore {
 
     /*
         Defines a parameter field that allows autocomplete based on a call to a dynamic service.
-        For instance, selection of files from the stageing_service or from kbase_search. It will
+        For instance, selection of files from the staging_service or from kbase_search. It will
         appear as a text field with dropdown similar to selection of other WS data objects.
 
             data_source - one of ftp_staging | search | custom. Provides sensible defaults to
@@ -283,14 +283,76 @@ module NarrativeMethodStore {
                            JSON. The special text "{{dynamic_dropdown_input}}" will be replaced by
                            the value of user input at call time.
 
-            selection_id - name of key result_aliases which will be sent as selected value
+            selection_id - The value of this key will be extracted from the item selected by the
+                           user. The item is expected to be represented as a map.
 
             description_template - Defines how the description of items is rendered using
-                           Handlebar templates (use the keys in result_aliases as variable names)
-            multiselection - if true, then multiple selections are allowed in a single input field.
+                           Handlebar templates (use the keys in the items as variable names)
+
+            multiselection - If true, then multiple selections are allowed in a single input field.
                            This will override the allow_multiple option (which allows user addition)
                            of additional fields.  If true, then this parameter will return a list.
                            Default= false
+
+            query_on_empty_input - true, the default, to send a request to the dynamic service even
+                           if there is no input.
+
+            result_array_index - The index of the result array returned from the dynamic service
+                           from where the selection items will be extracted. Default 0.
+                           
+            path_to_selection_items - The path into the result data object to the list of
+                           selection items. If missing, the data at the specified result array
+                           index is used (defaulting to the first returned value in the list).
+                           
+            The selection items data structure must be a list of mappings or structures.
+            
+            As an example of correctly specifying where the selection items are within the
+            data structure returned from the dynamic service, if the data structure is:
+            
+            [
+                "foo",                # return array position 0
+                {                     # return array position 1
+                 "interesting_data":
+                     [
+                         "baz",
+                         "boo",
+                         [
+                             {"id": 1,
+                              "name": "foo"
+                              },
+                              ...
+                             {"id": 42,
+                              "name": "wowbagger"
+                              }
+                         ],
+                         "bat"
+                     ]
+                 },
+                 "bar"                # return array position 2
+             ]
+             
+            Note that KBase dynamic services all return an array of values, even for single-value
+            returns, as the KIDL spec allows specifying multiple return values per function.
+            
+            In this case:
+                result_array_index would be 1
+                path_to_selection_items would be ["interesting_data", "2"]
+                selection_id would be "name"
+                
+            The selection items would be the 42 items represented by
+            {"id": 1,
+             "name": "foo"
+             },
+             ...
+            {"id": 42,
+             "name": "wowbagger"
+             }
+            
+            Selection items must always be a list of maps.
+            
+            The final value returned when the user selects a value would be the "name" field -
+            "foo" if the first item is selected, and "wowbagger" if the last item is selected.
+                 
     */
 
     typedef structure {
@@ -301,12 +363,15 @@ module NarrativeMethodStore {
         string selection_id;
         string description_template;
         boolean multiselection;
+        boolean query_on_empty_input;
+        int result_array_index;
+        list<string> path_to_selection_items;
     } DynamicDropdownOptions;
 
 
     /*
         Description of a method parameter.
-        
+
         id - id of the parameter, must be unique within the method
         ui_name - short name that is displayed to the user
         short_hint - short phrase or sentence describing the parameter
@@ -323,13 +388,13 @@ module NarrativeMethodStore {
                    a default value
         disabled   - set to true to disable user input, default is 0
                    if disabled, a default value should be provided
-        
+
         ui_class  - input | output | parameter
                    value is autogenerated based on the specification which determines
                    if it is an input parameter, output parameter, or just plain old parameter
-                   (input is generally an input data object, output is an output data object, 
+                   (input is generally an input data object, output is an output data object,
                    and plain old parameter is more or less numbers, fixed selections, etc)
-        
+
         @optional text_options textarea_options intslider_options floatslider_options
         @optional checkbox_options dropdown_options radio_options tab_options dynamic_dropdown_options
     */
@@ -343,11 +408,11 @@ module NarrativeMethodStore {
         boolean optional;
         boolean advanced;
         boolean disabled;
-        
+
         string ui_class;
-        
+
         list<string> default_values;
-        
+
         TextOptions text_options;
         TextAreaOptions textarea_options;
         IntSliderOptions intslider_options;
@@ -359,14 +424,14 @@ module NarrativeMethodStore {
         TabOptions tab_options;
         TextSubdataOptions textsubdata_options;
     } MethodParameter;
-    
+
     /* a fixed parameter that does not appear in the method input forms, but is informational for users in describing
     a backend parameter that cannot be changed (e.g. if a service picks a fixed parameter for say Blast) */
     typedef structure {
         string ui_name;
         string description;
     } FixedMethodParameter;
-    
+
     /*
     	prefix - optional string concatenated before generated part
     	symbols - number of generated characters, optional, default is 8
@@ -378,16 +443,16 @@ module NarrativeMethodStore {
         int symbols;
         string suffix;
     } AutoGeneratedValue;
-    
+
     /*
-        input_parameter - parameter_id, if not specified then one of 'constant_value' or 
+        input_parameter - parameter_id, if not specified then one of 'constant_value' or
             'narrative_system_variable' should be set.
         constant_value - constant value, could be even map/array, if not specified then 'input_parameter' or
             'narrative_system_variable' should be set.
         narrative_system_variable - name of internal narrative framework property, currently only these names are
             supported: 'workspace', 'token', 'user_id'; if not specified then one of 'input_parameter' or
             'constant_value' should be set.
-        generated_value - automatically generated value; it could be used as independent mode or when another mode 
+        generated_value - automatically generated value; it could be used as independent mode or when another mode
             finished with empty value (for example in case 'input_parameter' is defined but value of this
             parameter is left empty by user); so this mode has lower priority when used with another mode.
         target_argument_position - position of argument in RPC-method call, optional field, default value is 0.
@@ -396,7 +461,7 @@ module NarrativeMethodStore {
             wrapping it by structure with inner property defined by 'target_property'.
         target_type_transform - none/string/int/float/ref, optional field, default is 'none' (it's in plans to
             support list<type>, mapping<type> and tuple<t1,t2,...> transformations).
-        @optional input_parameter constant_value narrative_system_variable generated_value 
+        @optional input_parameter constant_value narrative_system_variable generated_value
         @optional target_argument_position target_property target_type_transform
     */
     typedef structure {
@@ -410,10 +475,10 @@ module NarrativeMethodStore {
     } ServiceMethodInputMapping;
 
     /*
-        input_parameter - parameter_id, if not specified then one of 'constant_value' or 
+        input_parameter - parameter_id, if not specified then one of 'constant_value' or
             'narrative_system_variable' should be set.
         service_method_output_path - list of properties and array element positions defining JSON-path traversing
-            through which we can find necessary value. 
+            through which we can find necessary value.
         constant_value - constant value, could be even map/array, if not specified then 'input_parameter' or
             'narrative_system_variable' should be set.
         narrative_system_variable - name of internal narrative framework property, currently only these names are
@@ -422,9 +487,9 @@ module NarrativeMethodStore {
         target_property - name of field inside structure that will be send as arguement. Optional field,
             in case this field is not defined (or null) whole object will be sent as method argument instead of
             wrapping it by structure with inner property defined by 'target_property'.
-        target_type_transform - none/string/int/float/list<type>/mapping<type>/ref, optional field, default is 
+        target_type_transform - none/string/int/float/list<type>/mapping<type>/ref, optional field, default is
             no transformation.
-        @optional input_parameter service_method_output_path constant_value narrative_system_variable 
+        @optional input_parameter service_method_output_path constant_value narrative_system_variable
         @optional target_property target_type_transform
     */
     typedef structure {
@@ -436,8 +501,8 @@ module NarrativeMethodStore {
         string target_type_transform;
     } ServiceMethodOutputMapping;
 
-    /* This structure should be used in case narrative method doesn't run any back-end code. 
-    	See docs for ServiceMethodOutputMapping type for details. 
+    /* This structure should be used in case narrative method doesn't run any back-end code.
+    	See docs for ServiceMethodOutputMapping type for details.
     */
     typedef structure {
         string input_parameter;
@@ -454,14 +519,18 @@ module NarrativeMethodStore {
         kb_service_version - optional git commit hash defining version of repo registered dynamically.
         kb_service_input_mapping - mapping from input parameters to input service method arguments.
         kb_service_output_mapping - mapping from output of service method to final output of narrative method.
+        resource_estimator_module - optional module for the resource estimator method.
+        resource_estimator_method - optional name of method for estimating resource requirements.
         output_mapping - mapping from input to final output of narrative method to support steps without back-end operations.
-        @optional kb_service_name kb_service_method kb_service_input_mapping kb_service_output_mapping
+        @optional kb_service_name kb_service_method kb_service_input_mapping kb_service_output_mapping resource_estimator_module resource_estimator_method
     */
     typedef structure {
         string kb_service_url;
         string kb_service_name;
         string kb_service_version;
         string kb_service_method;
+        string resource_estimator_module;
+        string resource_estimator_method;
         list<ServiceMethodInputMapping> kb_service_input_mapping;
         list<ServiceMethodOutputMapping> kb_service_output_mapping;
         list<OutputMapping> output_mapping;
@@ -469,8 +538,8 @@ module NarrativeMethodStore {
 
     /*
         Description of a method parameter.
-        
-        id - id of the parameter group, must be unique within the method among all parameters 
+
+        id - id of the parameter group, must be unique within the method among all parameters
                         and groups,
         parameter_ids - IDs of parameters included in this group,
         ui_name - short name that is displayed to the user,
@@ -486,7 +555,7 @@ module NarrativeMethodStore {
         id_mapping - optional mapping for parameter IDs used to pack group into resulting
                         value structure (not used for non-multiple groups),
         with_border - flag for one-copy groups saying to show these group with border.
-        
+
         @optional id_mapping
     */
     typedef structure {
@@ -505,32 +574,32 @@ module NarrativeMethodStore {
     /*
         The method specification which should provide enough information to render a default
         input widget for the method.
-        
+
         replacement_text indicates the text that should replace the input boxes after the method
         has run.  You can refer to parameters by putting them in double curly braces (on the front
         end we will use the handlebars library).
            for example:  Ran flux balance analysis on model {{model_param}} with parameter 2 set to {{param2}}.
-        
+
     */
     typedef structure {
         MethodBriefInfo info;
-        
+
         string replacement_text;
-        
+
         WidgetSpec widgets;
         list<MethodParameter> parameters;
-        
+
         list<FixedMethodParameter> fixed_parameters;
-        
+
         list<MethodParameterGroup> parameter_groups;
-        
+
         MethodBehavior behavior;
 
         string job_id_output_field;
     } MethodSpec;
 
 
-    
+
     typedef structure {
         string id;
         string name;
@@ -549,26 +618,26 @@ module NarrativeMethodStore {
         string ver;
         list <username> authors;
         email contact;
-        
+
         string subtitle;
         string tooltip;
-        
+
         string header;
-        
+
         string description;
         string technical_description;
-        
+
         Suggestions suggestions;
-        
+
         list<string> categories;
-        
+
         Icon icon;
         list<ScreenShot> screenshots;
     } AppFullInfo;
-    
+
     /*
         Defines how any input to a particular step should be
-        populated based 
+        populated based
         step_source - the id of the step to pull the parameter from
         isFromInput - set to true (1) to indicate that the input should be pulled from the input
             parameters of the step_source.  This is the only supported option.  In the future, it
@@ -586,21 +655,21 @@ module NarrativeMethodStore {
         string from;
         string to;
     } AppStepInputMapping;
-    
+
     typedef structure {
         string step_id;
         string method_id;
         list<AppStepInputMapping> input_mapping;
         string description;
     } AppSteps;
-    
+
     /* typedef structure {
-    
+
     } AppBehavior; */
-    
+
     typedef structure {
         AppBriefInfo info;
-        
+
         list<AppSteps> steps;
 
     } AppSpec;
@@ -637,7 +706,7 @@ module NarrativeMethodStore {
         string tag;
     } ListCategoriesParams;
 
-    funcdef list_categories(ListCategoriesParams params) 
+    funcdef list_categories(ListCategoriesParams params)
                 returns ( mapping<string, Category> categories,
                           mapping<string, MethodBriefInfo> methods,
                           mapping<string, AppBriefInfo> apps,
@@ -661,11 +730,11 @@ module NarrativeMethodStore {
         int offset;
         string tag;
     } ListParams;
-    
+
     funcdef list_methods(ListParams params) returns (list<MethodBriefInfo>);
-    
+
     funcdef list_methods_full_info(ListParams params) returns (list<MethodFullInfo>);
-    
+
     funcdef list_methods_spec(ListParams params) returns (list<MethodSpec>);
 
     /*
@@ -676,18 +745,18 @@ module NarrativeMethodStore {
     } ListMethodIdsAndNamesParams;
 
     funcdef list_method_ids_and_names(ListMethodIdsAndNamesParams params) returns (mapping<string,string>);
-    
-    
+
+
     funcdef list_apps(ListParams params) returns (list<AppBriefInfo>);
-    
+
     funcdef list_apps_full_info(ListParams params) returns (list<AppFullInfo>);
-    
+
     funcdef list_apps_spec(ListParams params) returns (list<AppSpec>);
-    
+
     funcdef list_app_ids_and_names() returns (mapping<string,string>);
-    
+
     funcdef list_types(ListParams params) returns (list<TypeInfo>);
-    
+
     /*
         tag - optional access level for dynamic repos (one of 'dev', 'beta' or 'release').
     */
@@ -697,28 +766,28 @@ module NarrativeMethodStore {
     } GetMethodParams;
 
     funcdef get_method_brief_info(GetMethodParams params) returns (list<MethodBriefInfo>);
-    
+
     funcdef get_method_full_info(GetMethodParams params) returns (list<MethodFullInfo>);
-    
+
     funcdef get_method_spec(GetMethodParams params) returns (list<MethodSpec>);
-    
-    
-    
+
+
+
     typedef structure {
         list <string> ids;
     } GetAppParams;
 
     funcdef get_app_brief_info(GetAppParams params) returns (list<AppBriefInfo>);
-    
+
     funcdef get_app_full_info(GetAppParams params) returns (list<AppFullInfo>);
-    
+
     funcdef get_app_spec(GetAppParams params) returns (list<AppSpec>);
 
 
     typedef structure {
         list <string> type_names;
     } GetTypeParams;
-    
+
     funcdef get_type_info(GetTypeParams params) returns (list<TypeInfo>);
 
 
@@ -782,7 +851,7 @@ module NarrativeMethodStore {
         string tag;
     } LoadWidgetParams;
 
-    funcdef load_widget_java_script(LoadWidgetParams params) returns (string 
+    funcdef load_widget_java_script(LoadWidgetParams params) returns (string
         java_script);
 
     /****************************** Dynamic Repos API *******************************/
@@ -799,7 +868,7 @@ module NarrativeMethodStore {
         string module_name;
     } DisableRepoParams;
 
-    funcdef disable_repo(DisableRepoParams params) returns () authentication 
+    funcdef disable_repo(DisableRepoParams params) returns () authentication
         required;
 
     typedef structure {
@@ -817,7 +886,7 @@ module NarrativeMethodStore {
         string tag;
     } PushRepoToTagParams;
 
-    funcdef push_repo_to_tag(PushRepoToTagParams params) returns () 
+    funcdef push_repo_to_tag(PushRepoToTagParams params) returns ()
         authentication required;
 
 };

@@ -15,7 +15,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
  * <p>Original spec-file type: AppStepInputMapping</p>
  * <pre>
  * Defines how any input to a particular step should be
- * populated based 
+ * populated based
  * step_source - the id of the step to pull the parameter from
  * isFromInput - set to true (1) to indicate that the input should be pulled from the input
  *     parameters of the step_source.  This is the only supported option.  In the future, it

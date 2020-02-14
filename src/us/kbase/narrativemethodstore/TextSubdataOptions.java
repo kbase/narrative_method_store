@@ -14,7 +14,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 /**
  * <p>Original spec-file type: TextSubdataOptions</p>
  * <pre>
- * Defines a parameter field that allows autocomplete based on 
+ * Defines a parameter field that allows autocomplete based on
  * subdata of an existing object.  For instance, selection of feature ids
  * from a Genome object.  It will appear as a text field with dropdown
  * similar to selection of other WS data objects.
@@ -72,7 +72,7 @@ public class TextSubdataOptions {
      *                    the selection.  For features, for instance, this may include
      *                    the feature function, or feature aliases.
      *     description_template - Defines how the description of items is rendered using
-     *                    Handlebar templates (use the name of items in the 
+     *                    Handlebar templates (use the name of items in the
      *                    selection_description list as variable names)
      *     service_function - optional name of SDK method including prefix with SDK
      *                    module started up as dynamic service (it's fully qualified
@@ -166,7 +166,7 @@ public class TextSubdataOptions {
      *                    the selection.  For features, for instance, this may include
      *                    the feature function, or feature aliases.
      *     description_template - Defines how the description of items is rendered using
-     *                    Handlebar templates (use the name of items in the 
+     *                    Handlebar templates (use the name of items in the
      *                    selection_description list as variable names)
      *     service_function - optional name of SDK method including prefix with SDK
      *                    module started up as dynamic service (it's fully qualified
@@ -201,7 +201,7 @@ public class TextSubdataOptions {
      *                    the selection.  For features, for instance, this may include
      *                    the feature function, or feature aliases.
      *     description_template - Defines how the description of items is rendered using
-     *                    Handlebar templates (use the name of items in the 
+     *                    Handlebar templates (use the name of items in the
      *                    selection_description list as variable names)
      *     service_function - optional name of SDK method including prefix with SDK
      *                    module started up as dynamic service (it's fully qualified

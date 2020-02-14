@@ -48,7 +48,7 @@ public class ValidationResults {
      * <p>Original spec-file type: AppSpec</p>
      * <pre>
      * typedef structure {
-     * } AppBehavior;
+     *     } AppBehavior;
      * </pre>
      * 
      */
@@ -165,7 +165,7 @@ public class ValidationResults {
      * <p>Original spec-file type: AppSpec</p>
      * <pre>
      * typedef structure {
-     * } AppBehavior;
+     *     } AppBehavior;
      * </pre>
      * 
      */
@@ -178,7 +178,7 @@ public class ValidationResults {
      * <p>Original spec-file type: AppSpec</p>
      * <pre>
      * typedef structure {
-     * } AppBehavior;
+     *     } AppBehavior;
      * </pre>
      * 
      */

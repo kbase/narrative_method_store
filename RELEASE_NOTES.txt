@@ -3,6 +3,16 @@ NARRATIVE METHOD STORE OVERVIEW
 The Narrative Method Store provides an API to dynamically access the available
 narrative method/app/type specifications and documentation.
 
+VERSION: 0.3.10 (Released TBD)
+------------------------------
+
+UPDATED FEATURES / MAJOR BUG FIXES:
+- Added the `query_on_empty_input`, `result_array_index`, and `path_to_selection_items` fields to
+  the dynamic dropdown spec.
+- Added resource estimator modules to the `behavior` block of specs. These are used by setting `behavior.service-mapping.resource_estimator_module`
+  and `behavior.service-mapping.resource_estimator_method` to the module and method,
+  respectively, of the estimator function.
+
 VERSION: 0.3.9 (Released 4/1/19)
 -----------------------------
 
@@ -44,8 +54,8 @@ UPDATED FEATURES / MAJOR BUG FIXES:
 - Fix for bug with listing of method-specs when default tag is "release".
 - Fix for bug with push to tag for repo with images (dots are not allowed
   in map keys in MongoDB ver>2.6).
-- Change in registration procedure (it fails now if method-specs are not valid). 
-- Urls for images now contain tag for dynamic repos. Many small fixes for cases 
+- Change in registration procedure (it fails now if method-specs are not valid).
+- Urls for images now contain tag for dynamic repos. Many small fixes for cases
   of errors.
 - Fix for bug with null publication when parsing display.yaml file.
 

@@ -16,10 +16,10 @@ import us.kbase.common.service.UObject;
 /**
  * <p>Original spec-file type: ServiceMethodOutputMapping</p>
  * <pre>
- * input_parameter - parameter_id, if not specified then one of 'constant_value' or 
+ * input_parameter - parameter_id, if not specified then one of 'constant_value' or
  *     'narrative_system_variable' should be set.
  * service_method_output_path - list of properties and array element positions defining JSON-path traversing
- *     through which we can find necessary value. 
+ *     through which we can find necessary value.
  * constant_value - constant value, could be even map/array, if not specified then 'input_parameter' or
  *     'narrative_system_variable' should be set.
  * narrative_system_variable - name of internal narrative framework property, currently only these names are
@@ -28,9 +28,9 @@ import us.kbase.common.service.UObject;
  * target_property - name of field inside structure that will be send as arguement. Optional field,
  *     in case this field is not defined (or null) whole object will be sent as method argument instead of
  *     wrapping it by structure with inner property defined by 'target_property'.
- * target_type_transform - none/string/int/float/list<type>/mapping<type>/ref, optional field, default is 
+ * target_type_transform - none/string/int/float/list<type>/mapping<type>/ref, optional field, default is
  *     no transformation.
- * @optional input_parameter service_method_output_path constant_value narrative_system_variable 
+ * @optional input_parameter service_method_output_path constant_value narrative_system_variable
  * @optional target_property target_type_transform
  * </pre>
  * 

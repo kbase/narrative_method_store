@@ -1,5 +1,11 @@
 package us.kbase.narrativemethodstore.db.test;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.junit.Assert.assertThat;
+
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import org.junit.Assert;
@@ -7,9 +13,12 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import jersey.repackaged.com.google.common.collect.ImmutableMap;
+import us.kbase.narrativemethodstore.DynamicDropdownOptions;
 import us.kbase.narrativemethodstore.MethodParameterGroup;
 import us.kbase.narrativemethodstore.db.FileLookup;
 import us.kbase.narrativemethodstore.db.NarrativeMethodData;
@@ -94,6 +103,57 @@ public class NarrativeMethodDataTest {
         Assert.assertNotNull(group.getShortHint());
         Assert.assertEquals(1L, (long)group.getWithBorder());
     }
+
+	@Test
+	public void dynamicDropDown() throws Exception {
+		final NarrativeMethodData nmd = load(10);
+		final DynamicDropdownOptions ddo = nmd.getMethodSpec().getParameters().get(0)
+				.getDynamicDropdownOptions();
+		
+		assertThat("incorrect data source", ddo.getDataSource(), is("custom"));
+		assertThat("incorrect serv func", ddo.getServiceFunction(),
+				is("taxonomy_re_api.search_taxa"));
+		assertThat("incorrect template", ddo.getDescriptionTemplate(),
+				is("<div>{{scientific_name}}</div>"));
+		assertThat("incorrect multiselect", ddo.getMultiselection(), is(1L));
+		assertThat("incorrect select id", ddo.getSelectionId(), is("scientific_name"));
+		assertThat("incorrect params",
+				ddo.getServiceParams()
+						.asClassInstance(new TypeReference<List<Map<String, Object>>>() {}),
+				is(Arrays.asList(ImmutableMap.of(
+						"search_text", "prefix:{{dynamic_dropdown_input}}",
+						"ns", "ncbi_taxonomy"))));
+		assertThat("incorrect serv ver", ddo.getServiceVersion(), is("dev"));
+		assertThat("incorrect sub path", ddo.getPathToSelectionItems(),
+				is(Arrays.asList("result", "0", "results")));
+		assertThat("incorrect query empty", ddo.getQueryOnEmptyInput(), is(0L));
+		assertThat("incorrect result index", ddo.getResultArrayIndex(), is(3L));
+	}
+	
+	@Test
+	public void dynamicDropDownDefaults() throws Exception {
+		final NarrativeMethodData nmd = load(11);
+		final DynamicDropdownOptions ddo = nmd.getMethodSpec().getParameters().get(0)
+				.getDynamicDropdownOptions();
+		
+		assertThat("incorrect data source", ddo.getDataSource(), is("custom"));
+		assertThat("incorrect serv func", ddo.getServiceFunction(),
+				is("taxonomy_re_api.search_taxa"));
+		assertThat("incorrect template", ddo.getDescriptionTemplate(),
+				is("<div>{{scientific_name}}</div>"));
+		assertThat("incorrect multiselect", ddo.getMultiselection(), is(0L));
+		assertThat("incorrect select id", ddo.getSelectionId(), is("scientific_name"));
+		assertThat("incorrect params",
+				ddo.getServiceParams()
+						.asClassInstance(new TypeReference<List<Map<String, Object>>>() {}),
+				is(Arrays.asList(ImmutableMap.of(
+						"search_text", "prefix:{{dynamic_dropdown_input}}",
+						"ns", "ncbi_taxonomy"))));
+		assertThat("incorrect serv ver", ddo.getServiceVersion(), nullValue());
+		assertThat("incorrect sub path", ddo.getPathToSelectionItems(), nullValue());
+		assertThat("incorrect query empty", ddo.getQueryOnEmptyInput(), is(1L));
+		assertThat("incorrect result index", ddo.getResultArrayIndex(), is(0L));
+	}
 
     private static NarrativeMethodData load(int num) throws Exception {
         FileLookup fl = new FileLookup() {

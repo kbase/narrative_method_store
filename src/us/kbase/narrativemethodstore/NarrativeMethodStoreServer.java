@@ -3,10 +3,7 @@ package us.kbase.narrativemethodstore;
 import java.io.File;
 import java.util.List;
 import java.util.Map;
-
-import us.kbase.auth.AuthConfig;
 import us.kbase.auth.AuthToken;
-import us.kbase.auth.ConfigurableAuthService;
 import us.kbase.common.service.JsonServerMethod;
 import us.kbase.common.service.JsonServerServlet;
 import us.kbase.common.service.JsonServerSyslog;
@@ -23,7 +20,8 @@ import java.util.regex.Pattern;
 
 import org.ini4j.Ini;
 
-import us.kbase.auth.AuthService;
+import us.kbase.auth.AuthConfig;
+import us.kbase.auth.ConfigurableAuthService;
 import us.kbase.narrativemethodstore.db.NarrativeCategoriesIndex;
 import us.kbase.narrativemethodstore.db.ServiceUrlTemplateEvaluater;
 import us.kbase.narrativemethodstore.db.Validator;
@@ -39,14 +37,14 @@ import us.kbase.narrativemethodstore.db.mongo.MongoDynamicRepoDB;
  */
 public class NarrativeMethodStoreServer extends JsonServerServlet {
     private static final long serialVersionUID = 1L;
-    private static final String version = "0.1.0";
-    private static final String gitUrl = "https://github.com/kbase/narrative_method_store.git";
-    private static final String gitCommitHash = "b805a9d11eb5a2e9a84ab44945f5bcb2c4d4fae3";
+    private static final String version = "0.0.1";
+    private static final String gitUrl = "https://github.com/mrcreosote/narrative_method_store.git";
+    private static final String gitCommitHash = "9157349ad7883efbc35cff34a48d81dc1fcdbec6";
 
     //BEGIN_CLASS_HEADER
     public static final String SYS_PROP_KB_DEPLOYMENT_CONFIG = "KB_DEPLOYMENT_CONFIG";
     public static final String SERVICE_DEPLOYMENT_NAME = "NarrativeMethodStore";
-    
+
     public static final String         CFG_PROP_GIT_REPO = "method-spec-git-repo";
     public static final String       CFG_PROP_GIT_BRANCH = "method-spec-git-repo-branch";
     public static final String    CFG_PROP_GIT_LOCAL_DIR = "method-spec-git-repo-local-dir";
@@ -68,9 +66,9 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
     public static final String      CFG_PROP_DEFAULT_TAG = "method-spec-default-tag";
     public static final String CFG_PROP_AUTH_SERVICE_URL = "auth-service-url";
     public static final String    CFG_PROP_AUTH_INSECURE = "auth-service-url-allow-insecure";
-    
-    public static final String VERSION = "0.3.9";
-    
+
+    public static final String VERSION = "0.3.10";
+
     private static Throwable configError = null;
     private static Map<String, String> config = null;
 
@@ -100,7 +98,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
 					+ "the configuration: is the ["+SERVICE_DEPLOYMENT_NAME+"] config group defined?");
 		return config;
     }
-    
+
     private static String getGitRepo() {
     	String ret = config().get(CFG_PROP_GIT_REPO);
     	if (ret == null)
@@ -166,7 +164,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
     private static String getDefaultTag() {
         return config().get(CFG_PROP_DEFAULT_TAG);
     }
-    
+
     private static <T> List<T> trim(List<T> data, ListParams params) {
     	if (params.getOffset() == null && params.getLimit() == null)
     		return data;
@@ -199,7 +197,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
             System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_MONGO_USER +" = " + (dbUser == null ? "<not-set>" : dbUser));
             System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_MONGO_PASSWORD +" = " + (dbPwd == null ? "<not-set>" : "[*****]"));
             String mongoReadOnlyText = config().get(CFG_PROP_MONGO_READONLY);
-            boolean mongoRO = mongoReadOnlyText != null && (mongoReadOnlyText.equals("1") || mongoReadOnlyText.equals("true") || 
+            boolean mongoRO = mongoReadOnlyText != null && (mongoReadOnlyText.equals("1") || mongoReadOnlyText.equals("true") ||
                     mongoReadOnlyText.equals("y") || mongoReadOnlyText.equals("yes"));
             System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_MONGO_READONLY +" = " + mongoRO);
             System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_ADMIN_USERS +" = " + getAdminUsers());
@@ -232,7 +230,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
             }
             System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_AUTH_SERVICE_URL +" = " + authServiceUrl);
             String authAllowInsecure = config().get(CFG_PROP_AUTH_INSECURE);
-            System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_AUTH_INSECURE +" = " + 
+            System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_AUTH_INSECURE +" = " +
                     (authAllowInsecure == null ? "<not-set> ('false' will be used)" : authAllowInsecure));
             AuthToken shockToken = null;
             if (shockUser != null || shockTokenText != null) {
@@ -245,8 +243,8 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
                     shockToken = authService.validateToken(shockTokenText);
                 }
             }
-            localGitDB = new LocalGitDB(new URL(getGitRepo()), getGitBranch(), new File(getGitLocalDir()), getGitRefreshRate(), getCacheSize(), 
-                    new MongoDynamicRepoDB(getMongoHost(), getMongoDbname(), dbUser, dbPwd, adminUsers, mongoRO, 
+            localGitDB = new LocalGitDB(new URL(getGitRepo()), getGitBranch(), new File(getGitLocalDir()), getGitRefreshRate(), getCacheSize(),
+                    new MongoDynamicRepoDB(getMongoHost(), getMongoDbname(), dbUser, dbPwd, adminUsers, mongoRO,
                             shockUrl == null ? null : new URL(shockUrl), shockToken), new File(getTempDir()),
                             new ServiceUrlTemplateEvaluater(endpointHost, endpointBase), RepoTag.valueOf(defaultTag));
         }
@@ -751,7 +749,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
     public String loadWidgetJavaScript(LoadWidgetParams params, RpcContext jsonRpcContext) throws Exception {
         String returnVal = null;
         //BEGIN load_widget_java_script
-        returnVal = getLocalGitDB().loadWidgetJavaScript(params.getModuleName(), 
+        returnVal = getLocalGitDB().loadWidgetJavaScript(params.getModuleName(),
                 params.getVersion(), params.getWidgetId(), params.getTag());
         //END load_widget_java_script
         return returnVal;
