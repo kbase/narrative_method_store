@@ -314,39 +314,35 @@ class NarrativeMethodStore(object):
            extracted. Default 0. path_to_selection_items - The path into the
            result data object to the list of selection items. If missing, the
            data at the specified result array index is used (defaulting to
-           the first returned value in the list). validate_as - What type of
-           field this input should provide to the app. Can be one of
-           "string", "int", "float", "ws_ref". Any value that is not one of
-           these types will be rejected. Default = "string" The selection
-           items data structure must be a list of mappings or structures. As
-           an example of correctly specifying where the selection items are
-           within the data structure returned from the dynamic service, if
-           the data structure is: [ "foo",                # return array
-           position 0 {                     # return array position 1
-           "interesting_data": [ "baz", "boo", [ {"id": 1, "name": "foo" },
-           ... {"id": 42, "name": "wowbagger" } ], "bat" ] }, "bar"          
-           # return array position 2 ] Note that KBase dynamic services all
-           return an array of values, even for single-value returns, as the
-           KIDL spec allows specifying multiple return values per function.
-           In this case: result_array_index would be 1
-           path_to_selection_items would be ["interesting_data", "2"]
-           selection_id would be "name" The selection items would be the 42
-           items represented by {"id": 1, "name": "foo" }, ... {"id": 42,
-           "name": "wowbagger" } Selection items must always be a list of
-           maps. The final value returned when the user selects a value would
-           be the "name" field - "foo" if the first item is selected, and
-           "wowbagger" if the last item is selected.) -> structure: parameter
-           "data_source" of String, parameter "service_function" of String,
-           parameter "service_version" of String, parameter "service_params"
-           of unspecified object, parameter "selection_id" of String,
-           parameter "description_template" of String, parameter
-           "multiselection" of type "boolean" (@range [0,1]), parameter
-           "query_on_empty_input" of type "boolean" (@range [0,1]), parameter
-           "result_array_index" of Long, parameter "path_to_selection_items"
-           of list of String, parameter "validate_as" of String, parameter
-           "radio_options" of type "RadioOptions" -> structure: parameter
-           "id_order" of list of String, parameter "ids_to_options" of
-           mapping from String to String, parameter "ids_to_tooltip" of
+           the first returned value in the list). The selection items data
+           structure must be a list of mappings or structures. As an example
+           of correctly specifying where the selection items are within the
+           data structure returned from the dynamic service, if the data
+           structure is: [ "foo",                # return array position 0 { 
+           # return array position 1 "interesting_data": [ "baz", "boo", [
+           {"id": 1, "name": "foo" }, ... {"id": 42, "name": "wowbagger" } ],
+           "bat" ] }, "bar"                # return array position 2 ] Note
+           that KBase dynamic services all return an array of values, even
+           for single-value returns, as the KIDL spec allows specifying
+           multiple return values per function. In this case:
+           result_array_index would be 1 path_to_selection_items would be
+           ["interesting_data", "2"] selection_id would be "name" The
+           selection items would be the 42 items represented by {"id": 1,
+           "name": "foo" }, ... {"id": 42, "name": "wowbagger" } Selection
+           items must always be a list of maps. The final value returned when
+           the user selects a value would be the "name" field - "foo" if the
+           first item is selected, and "wowbagger" if the last item is
+           selected.) -> structure: parameter "data_source" of String,
+           parameter "service_function" of String, parameter
+           "service_version" of String, parameter "service_params" of
+           unspecified object, parameter "selection_id" of String, parameter
+           "description_template" of String, parameter "multiselection" of
+           type "boolean" (@range [0,1]), parameter "query_on_empty_input" of
+           type "boolean" (@range [0,1]), parameter "result_array_index" of
+           Long, parameter "path_to_selection_items" of list of String,
+           parameter "radio_options" of type "RadioOptions" -> structure:
+           parameter "id_order" of list of String, parameter "ids_to_options"
+           of mapping from String to String, parameter "ids_to_tooltip" of
            mapping from String to String, parameter "tab_options" of type
            "TabOptions" -> structure: parameter "tab_id_order" of list of
            String, parameter "tab_id_to_tab_name" of mapping from String to
@@ -839,39 +835,35 @@ class NarrativeMethodStore(object):
            extracted. Default 0. path_to_selection_items - The path into the
            result data object to the list of selection items. If missing, the
            data at the specified result array index is used (defaulting to
-           the first returned value in the list). validate_as - What type of
-           field this input should provide to the app. Can be one of
-           "string", "int", "float", "ws_ref". Any value that is not one of
-           these types will be rejected. Default = "string" The selection
-           items data structure must be a list of mappings or structures. As
-           an example of correctly specifying where the selection items are
-           within the data structure returned from the dynamic service, if
-           the data structure is: [ "foo",                # return array
-           position 0 {                     # return array position 1
-           "interesting_data": [ "baz", "boo", [ {"id": 1, "name": "foo" },
-           ... {"id": 42, "name": "wowbagger" } ], "bat" ] }, "bar"          
-           # return array position 2 ] Note that KBase dynamic services all
-           return an array of values, even for single-value returns, as the
-           KIDL spec allows specifying multiple return values per function.
-           In this case: result_array_index would be 1
-           path_to_selection_items would be ["interesting_data", "2"]
-           selection_id would be "name" The selection items would be the 42
-           items represented by {"id": 1, "name": "foo" }, ... {"id": 42,
-           "name": "wowbagger" } Selection items must always be a list of
-           maps. The final value returned when the user selects a value would
-           be the "name" field - "foo" if the first item is selected, and
-           "wowbagger" if the last item is selected.) -> structure: parameter
-           "data_source" of String, parameter "service_function" of String,
-           parameter "service_version" of String, parameter "service_params"
-           of unspecified object, parameter "selection_id" of String,
-           parameter "description_template" of String, parameter
-           "multiselection" of type "boolean" (@range [0,1]), parameter
-           "query_on_empty_input" of type "boolean" (@range [0,1]), parameter
-           "result_array_index" of Long, parameter "path_to_selection_items"
-           of list of String, parameter "validate_as" of String, parameter
-           "radio_options" of type "RadioOptions" -> structure: parameter
-           "id_order" of list of String, parameter "ids_to_options" of
-           mapping from String to String, parameter "ids_to_tooltip" of
+           the first returned value in the list). The selection items data
+           structure must be a list of mappings or structures. As an example
+           of correctly specifying where the selection items are within the
+           data structure returned from the dynamic service, if the data
+           structure is: [ "foo",                # return array position 0 { 
+           # return array position 1 "interesting_data": [ "baz", "boo", [
+           {"id": 1, "name": "foo" }, ... {"id": 42, "name": "wowbagger" } ],
+           "bat" ] }, "bar"                # return array position 2 ] Note
+           that KBase dynamic services all return an array of values, even
+           for single-value returns, as the KIDL spec allows specifying
+           multiple return values per function. In this case:
+           result_array_index would be 1 path_to_selection_items would be
+           ["interesting_data", "2"] selection_id would be "name" The
+           selection items would be the 42 items represented by {"id": 1,
+           "name": "foo" }, ... {"id": 42, "name": "wowbagger" } Selection
+           items must always be a list of maps. The final value returned when
+           the user selects a value would be the "name" field - "foo" if the
+           first item is selected, and "wowbagger" if the last item is
+           selected.) -> structure: parameter "data_source" of String,
+           parameter "service_function" of String, parameter
+           "service_version" of String, parameter "service_params" of
+           unspecified object, parameter "selection_id" of String, parameter
+           "description_template" of String, parameter "multiselection" of
+           type "boolean" (@range [0,1]), parameter "query_on_empty_input" of
+           type "boolean" (@range [0,1]), parameter "result_array_index" of
+           Long, parameter "path_to_selection_items" of list of String,
+           parameter "radio_options" of type "RadioOptions" -> structure:
+           parameter "id_order" of list of String, parameter "ids_to_options"
+           of mapping from String to String, parameter "ids_to_tooltip" of
            mapping from String to String, parameter "tab_options" of type
            "TabOptions" -> structure: parameter "tab_id_order" of list of
            String, parameter "tab_id_to_tab_name" of mapping from String to
@@ -1336,39 +1328,35 @@ class NarrativeMethodStore(object):
            extracted. Default 0. path_to_selection_items - The path into the
            result data object to the list of selection items. If missing, the
            data at the specified result array index is used (defaulting to
-           the first returned value in the list). validate_as - What type of
-           field this input should provide to the app. Can be one of
-           "string", "int", "float", "ws_ref". Any value that is not one of
-           these types will be rejected. Default = "string" The selection
-           items data structure must be a list of mappings or structures. As
-           an example of correctly specifying where the selection items are
-           within the data structure returned from the dynamic service, if
-           the data structure is: [ "foo",                # return array
-           position 0 {                     # return array position 1
-           "interesting_data": [ "baz", "boo", [ {"id": 1, "name": "foo" },
-           ... {"id": 42, "name": "wowbagger" } ], "bat" ] }, "bar"          
-           # return array position 2 ] Note that KBase dynamic services all
-           return an array of values, even for single-value returns, as the
-           KIDL spec allows specifying multiple return values per function.
-           In this case: result_array_index would be 1
-           path_to_selection_items would be ["interesting_data", "2"]
-           selection_id would be "name" The selection items would be the 42
-           items represented by {"id": 1, "name": "foo" }, ... {"id": 42,
-           "name": "wowbagger" } Selection items must always be a list of
-           maps. The final value returned when the user selects a value would
-           be the "name" field - "foo" if the first item is selected, and
-           "wowbagger" if the last item is selected.) -> structure: parameter
-           "data_source" of String, parameter "service_function" of String,
-           parameter "service_version" of String, parameter "service_params"
-           of unspecified object, parameter "selection_id" of String,
-           parameter "description_template" of String, parameter
-           "multiselection" of type "boolean" (@range [0,1]), parameter
-           "query_on_empty_input" of type "boolean" (@range [0,1]), parameter
-           "result_array_index" of Long, parameter "path_to_selection_items"
-           of list of String, parameter "validate_as" of String, parameter
-           "radio_options" of type "RadioOptions" -> structure: parameter
-           "id_order" of list of String, parameter "ids_to_options" of
-           mapping from String to String, parameter "ids_to_tooltip" of
+           the first returned value in the list). The selection items data
+           structure must be a list of mappings or structures. As an example
+           of correctly specifying where the selection items are within the
+           data structure returned from the dynamic service, if the data
+           structure is: [ "foo",                # return array position 0 { 
+           # return array position 1 "interesting_data": [ "baz", "boo", [
+           {"id": 1, "name": "foo" }, ... {"id": 42, "name": "wowbagger" } ],
+           "bat" ] }, "bar"                # return array position 2 ] Note
+           that KBase dynamic services all return an array of values, even
+           for single-value returns, as the KIDL spec allows specifying
+           multiple return values per function. In this case:
+           result_array_index would be 1 path_to_selection_items would be
+           ["interesting_data", "2"] selection_id would be "name" The
+           selection items would be the 42 items represented by {"id": 1,
+           "name": "foo" }, ... {"id": 42, "name": "wowbagger" } Selection
+           items must always be a list of maps. The final value returned when
+           the user selects a value would be the "name" field - "foo" if the
+           first item is selected, and "wowbagger" if the last item is
+           selected.) -> structure: parameter "data_source" of String,
+           parameter "service_function" of String, parameter
+           "service_version" of String, parameter "service_params" of
+           unspecified object, parameter "selection_id" of String, parameter
+           "description_template" of String, parameter "multiselection" of
+           type "boolean" (@range [0,1]), parameter "query_on_empty_input" of
+           type "boolean" (@range [0,1]), parameter "result_array_index" of
+           Long, parameter "path_to_selection_items" of list of String,
+           parameter "radio_options" of type "RadioOptions" -> structure:
+           parameter "id_order" of list of String, parameter "ids_to_options"
+           of mapping from String to String, parameter "ids_to_tooltip" of
            mapping from String to String, parameter "tab_options" of type
            "TabOptions" -> structure: parameter "tab_id_order" of list of
            String, parameter "tab_id_to_tab_name" of mapping from String to
@@ -1752,39 +1740,35 @@ class NarrativeMethodStore(object):
            extracted. Default 0. path_to_selection_items - The path into the
            result data object to the list of selection items. If missing, the
            data at the specified result array index is used (defaulting to
-           the first returned value in the list). validate_as - What type of
-           field this input should provide to the app. Can be one of
-           "string", "int", "float", "ws_ref". Any value that is not one of
-           these types will be rejected. Default = "string" The selection
-           items data structure must be a list of mappings or structures. As
-           an example of correctly specifying where the selection items are
-           within the data structure returned from the dynamic service, if
-           the data structure is: [ "foo",                # return array
-           position 0 {                     # return array position 1
-           "interesting_data": [ "baz", "boo", [ {"id": 1, "name": "foo" },
-           ... {"id": 42, "name": "wowbagger" } ], "bat" ] }, "bar"          
-           # return array position 2 ] Note that KBase dynamic services all
-           return an array of values, even for single-value returns, as the
-           KIDL spec allows specifying multiple return values per function.
-           In this case: result_array_index would be 1
-           path_to_selection_items would be ["interesting_data", "2"]
-           selection_id would be "name" The selection items would be the 42
-           items represented by {"id": 1, "name": "foo" }, ... {"id": 42,
-           "name": "wowbagger" } Selection items must always be a list of
-           maps. The final value returned when the user selects a value would
-           be the "name" field - "foo" if the first item is selected, and
-           "wowbagger" if the last item is selected.) -> structure: parameter
-           "data_source" of String, parameter "service_function" of String,
-           parameter "service_version" of String, parameter "service_params"
-           of unspecified object, parameter "selection_id" of String,
-           parameter "description_template" of String, parameter
-           "multiselection" of type "boolean" (@range [0,1]), parameter
-           "query_on_empty_input" of type "boolean" (@range [0,1]), parameter
-           "result_array_index" of Long, parameter "path_to_selection_items"
-           of list of String, parameter "validate_as" of String, parameter
-           "radio_options" of type "RadioOptions" -> structure: parameter
-           "id_order" of list of String, parameter "ids_to_options" of
-           mapping from String to String, parameter "ids_to_tooltip" of
+           the first returned value in the list). The selection items data
+           structure must be a list of mappings or structures. As an example
+           of correctly specifying where the selection items are within the
+           data structure returned from the dynamic service, if the data
+           structure is: [ "foo",                # return array position 0 { 
+           # return array position 1 "interesting_data": [ "baz", "boo", [
+           {"id": 1, "name": "foo" }, ... {"id": 42, "name": "wowbagger" } ],
+           "bat" ] }, "bar"                # return array position 2 ] Note
+           that KBase dynamic services all return an array of values, even
+           for single-value returns, as the KIDL spec allows specifying
+           multiple return values per function. In this case:
+           result_array_index would be 1 path_to_selection_items would be
+           ["interesting_data", "2"] selection_id would be "name" The
+           selection items would be the 42 items represented by {"id": 1,
+           "name": "foo" }, ... {"id": 42, "name": "wowbagger" } Selection
+           items must always be a list of maps. The final value returned when
+           the user selects a value would be the "name" field - "foo" if the
+           first item is selected, and "wowbagger" if the last item is
+           selected.) -> structure: parameter "data_source" of String,
+           parameter "service_function" of String, parameter
+           "service_version" of String, parameter "service_params" of
+           unspecified object, parameter "selection_id" of String, parameter
+           "description_template" of String, parameter "multiselection" of
+           type "boolean" (@range [0,1]), parameter "query_on_empty_input" of
+           type "boolean" (@range [0,1]), parameter "result_array_index" of
+           Long, parameter "path_to_selection_items" of list of String,
+           parameter "radio_options" of type "RadioOptions" -> structure:
+           parameter "id_order" of list of String, parameter "ids_to_options"
+           of mapping from String to String, parameter "ids_to_tooltip" of
            mapping from String to String, parameter "tab_options" of type
            "TabOptions" -> structure: parameter "tab_id_order" of list of
            String, parameter "tab_id_to_tab_name" of mapping from String to
@@ -2168,39 +2152,35 @@ class NarrativeMethodStore(object):
            extracted. Default 0. path_to_selection_items - The path into the
            result data object to the list of selection items. If missing, the
            data at the specified result array index is used (defaulting to
-           the first returned value in the list). validate_as - What type of
-           field this input should provide to the app. Can be one of
-           "string", "int", "float", "ws_ref". Any value that is not one of
-           these types will be rejected. Default = "string" The selection
-           items data structure must be a list of mappings or structures. As
-           an example of correctly specifying where the selection items are
-           within the data structure returned from the dynamic service, if
-           the data structure is: [ "foo",                # return array
-           position 0 {                     # return array position 1
-           "interesting_data": [ "baz", "boo", [ {"id": 1, "name": "foo" },
-           ... {"id": 42, "name": "wowbagger" } ], "bat" ] }, "bar"          
-           # return array position 2 ] Note that KBase dynamic services all
-           return an array of values, even for single-value returns, as the
-           KIDL spec allows specifying multiple return values per function.
-           In this case: result_array_index would be 1
-           path_to_selection_items would be ["interesting_data", "2"]
-           selection_id would be "name" The selection items would be the 42
-           items represented by {"id": 1, "name": "foo" }, ... {"id": 42,
-           "name": "wowbagger" } Selection items must always be a list of
-           maps. The final value returned when the user selects a value would
-           be the "name" field - "foo" if the first item is selected, and
-           "wowbagger" if the last item is selected.) -> structure: parameter
-           "data_source" of String, parameter "service_function" of String,
-           parameter "service_version" of String, parameter "service_params"
-           of unspecified object, parameter "selection_id" of String,
-           parameter "description_template" of String, parameter
-           "multiselection" of type "boolean" (@range [0,1]), parameter
-           "query_on_empty_input" of type "boolean" (@range [0,1]), parameter
-           "result_array_index" of Long, parameter "path_to_selection_items"
-           of list of String, parameter "validate_as" of String, parameter
-           "radio_options" of type "RadioOptions" -> structure: parameter
-           "id_order" of list of String, parameter "ids_to_options" of
-           mapping from String to String, parameter "ids_to_tooltip" of
+           the first returned value in the list). The selection items data
+           structure must be a list of mappings or structures. As an example
+           of correctly specifying where the selection items are within the
+           data structure returned from the dynamic service, if the data
+           structure is: [ "foo",                # return array position 0 { 
+           # return array position 1 "interesting_data": [ "baz", "boo", [
+           {"id": 1, "name": "foo" }, ... {"id": 42, "name": "wowbagger" } ],
+           "bat" ] }, "bar"                # return array position 2 ] Note
+           that KBase dynamic services all return an array of values, even
+           for single-value returns, as the KIDL spec allows specifying
+           multiple return values per function. In this case:
+           result_array_index would be 1 path_to_selection_items would be
+           ["interesting_data", "2"] selection_id would be "name" The
+           selection items would be the 42 items represented by {"id": 1,
+           "name": "foo" }, ... {"id": 42, "name": "wowbagger" } Selection
+           items must always be a list of maps. The final value returned when
+           the user selects a value would be the "name" field - "foo" if the
+           first item is selected, and "wowbagger" if the last item is
+           selected.) -> structure: parameter "data_source" of String,
+           parameter "service_function" of String, parameter
+           "service_version" of String, parameter "service_params" of
+           unspecified object, parameter "selection_id" of String, parameter
+           "description_template" of String, parameter "multiselection" of
+           type "boolean" (@range [0,1]), parameter "query_on_empty_input" of
+           type "boolean" (@range [0,1]), parameter "result_array_index" of
+           Long, parameter "path_to_selection_items" of list of String,
+           parameter "radio_options" of type "RadioOptions" -> structure:
+           parameter "id_order" of list of String, parameter "ids_to_options"
+           of mapping from String to String, parameter "ids_to_tooltip" of
            mapping from String to String, parameter "tab_options" of type
            "TabOptions" -> structure: parameter "tab_id_order" of list of
            String, parameter "tab_id_to_tab_name" of mapping from String to
