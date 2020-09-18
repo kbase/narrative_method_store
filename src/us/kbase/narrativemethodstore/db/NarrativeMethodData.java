@@ -541,7 +541,8 @@ public class NarrativeMethodData {
 					String displayText = get(paramPath + "/dropdown_options/options/" + j, itemNode, "display").asText();
 					options.add(new DropdownOption().withValue(value).withDisplay(displayText));
 				}
-				ddOpt = new DropdownOptions().withOptions(options);
+				ddOpt = new DropdownOptions().withOptions(options)
+						.withMultiselection(jsonBooleanToRPC(optNode.get("multiselection"), 0L));
 			}
 			DynamicDropdownOptions dyddOpt = null;
 			if (paramNode.has("dynamic_dropdown_options")) {
@@ -868,7 +869,7 @@ public class NarrativeMethodData {
 		return node == null || node.isNull() ? defaultValue : node.asLong();
 	}
 
-	
+
 	private static Long jsonBooleanToRPC(JsonNode node) {
 		return node.asBoolean() ? 1L : 0L;
 	}
