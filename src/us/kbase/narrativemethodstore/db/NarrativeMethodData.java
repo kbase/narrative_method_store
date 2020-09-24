@@ -532,8 +532,8 @@ public class NarrativeMethodData {
 			}
 			DropdownOptions ddOpt = null;
 			if (paramNode.has("dropdown_options")) {
-				JsonNode optNode = get(paramPath, paramNode, "dropdown_options");
-				optNode = get(paramPath + "/dropdown_options", optNode, "options");
+				JsonNode ddOptNode = get(paramPath, paramNode, "dropdown_options");
+				JsonNode optNode = get(paramPath + "/dropdown_options", ddOptNode, "options");
 				List<DropdownOption> options = new ArrayList<DropdownOption>();
 				for (int j = 0; j < optNode.size(); j++) {
 					JsonNode itemNode = optNode.get(j);
@@ -542,7 +542,7 @@ public class NarrativeMethodData {
 					options.add(new DropdownOption().withValue(value).withDisplay(displayText));
 				}
 				ddOpt = new DropdownOptions().withOptions(options)
-						.withMultiselection(jsonBooleanToRPC(optNode.get("multiselection"), 0L));
+						.withMultiselection(jsonBooleanToRPC(ddOptNode.get("multiselection"), 0L));
 			}
 			DynamicDropdownOptions dyddOpt = null;
 			if (paramNode.has("dynamic_dropdown_options")) {
