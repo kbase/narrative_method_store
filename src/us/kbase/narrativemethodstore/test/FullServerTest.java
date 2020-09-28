@@ -35,6 +35,10 @@ import us.kbase.narrativemethodstore.db.mongo.test.MongoDBHelper;
 
 /**
  * Client-server JSON-RPC test for Narrative Method Store.
+ *
+ * Test data comes from the `test` branch of
+ * https://github.com/kbase/narrative_method_specs
+ *
  */
 public class FullServerTest {
 
@@ -531,6 +535,7 @@ public class FullServerTest {
 		boolean foundTestMethod7 = false;
 		boolean foundTestMethod8 = false;
 		boolean foundTestMethod10 = false;
+		boolean foundTestMethod12 = false;
 		for(MethodSpec m : methods) {
 			// check specific things in specific test methods
 			if(m.getInfo().getId().equals("test_method_1")) {
@@ -737,7 +742,35 @@ public class FullServerTest {
 				assertEquals("id", ddo2.getSelectionId());
 				assertEquals("<strong>{{name}}</strong>: {{equation}}", ddo2.getDescriptionTemplate());
 
-			}
+			} else if (m.getInfo().getId().equals("test_method_12")) {
+        foundTestMethod12 = true;
+        int listSize = 6;
+        assertEquals(listSize, m.getParameters().size());
+
+        // names of the parameters, minus the initial "param_"
+        String[] ParamNameList = {
+          "multiselection_false",
+          "multiselection_true",
+          "multiselection_default",
+          "multiselection_false_allow_multiple",
+          "multiselection_true_allow_multiple",
+          "multiselection_default_allow_multiple",
+        };
+        // whether or not the multiselection parameter is true
+        int[] IsTrueList = {0, 1, 0, 0, 1, 0};
+
+        for (int n = 0; n < listSize; n++) {
+          String ParamName = ParamNameList[n];
+          int IsTrue = IsTrueList[n];
+          assertEquals("param_" + ParamName, m.getParameters().get(n).getId());
+          assertEquals("dropdown", m.getParameters().get(n).getFieldType());
+          assertEquals(2, m.getParameters().get(n).getDropdownOptions().getOptions().size());
+          DropdownOptions ddo = m.getParameters().get(n).getDropdownOptions();
+          assertNotNull(ddo);
+          assertEquals(new Long(IsTrue), ddo.getMultiselection());
+          assertEquals("item_" + ParamName + "_0", ddo.getOptions().get(0).getValue());
+        }
+      }
 		}
 		assertTrue("Testing that test_method_1 was returned from listMethodSpec",
 				foundTestMethod1);
@@ -752,6 +785,7 @@ public class FullServerTest {
 		assertTrue("Testing that test_method_8 was returned from listMethodSpec",
 				foundTestMethod8);
 		assertTrue("Testing that test_method_10 was returned from listMethodSpec", foundTestMethod10);
+		assertTrue("Testing that test_method_12 was returned from listMethodSpec", foundTestMethod12);
 	}
 
 
