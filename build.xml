@@ -131,7 +131,7 @@
     <include name="objenesis/objenesis-2.5.1.jar"/>
     <include name="apache_commons/commons-lang3-3.5.jar"/>
   </fileset>
-	
+
   <union id="serverside">
     <fileset refid="serverlib"/>
     <fileset refid="clientserverlib"/>
@@ -150,7 +150,7 @@
     <exclude name="common/service/JsonTreeTraversingParser.java"/>
     <exclude name="common/service/KBaseJsonParser.java"/>
   </fileset>
-	
+
   <fileset id="sources-jdoc-files" dir="${tempunpack}/us/kbase/common/service"
     defaultexcludes="yes">
     <include name="UObject.java"/>
@@ -181,7 +181,7 @@
     <fileset file="${dist}/${jar.file}"/>
   </path>
 
-	
+
   <target name="init" description="make directories">
     <!-- Create the output directory structure-->
     <mkdir dir="${classes}"/>
@@ -314,6 +314,9 @@
       <test name="us.kbase.narrativemethodstore.db.mongo.test.MongoDynamicRepoDBTest"/>
       <test name="us.kbase.narrativemethodstore.db.mongo.test.MongoDynamicRepoDB2Test"/>
       <test name="us.kbase.narrativemethodstore.test.FullServerTest"/>
+      <test name="us.kbase.narrativemethodstore.db.test.NarrativeMethodDataTest" />
+      <test name="us.kbase.narrativemethodstore.db.test.ServiceUrlTemplateEvaluaterTest" />
+      <test name="us.kbase.narrativemethodstore.db.test.ValidatorTest" />
     </junit>
     <fail message="Test failure detected, check test results." if="test.failed" />
   </target>
