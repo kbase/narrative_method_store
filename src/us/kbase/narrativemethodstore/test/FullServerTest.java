@@ -1,8 +1,13 @@
 package us.kbase.narrativemethodstore.test;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -1326,14 +1331,13 @@ public class FullServerTest {
 		/* Ideally we'd register the repo via the client, but auth is set up to use a remote
 		 * server, so that's not possible currently without using a pre-made token.
 		 * Long term set up a local auth server and run it as part of the tests like other
-		 * repos.
+		 * repos. To register via the client do:
+		 * CLIENT.registerRepo(new RegisterRepoParams().withGitUrl(gitUrl));
 		 */
-		// CLIENT.registerRepo(new RegisterRepoParams().withGitUrl(gitUrl));
 		SERVER.getLocalGitDB().registerRepo(admin1, gitUrl, null);
 		// note apps and methods are different. This apparently is a method.
 		final List<MethodSpec> spec = CLIENT.getMethodSpec(new GetMethodParams()
 				.withIds(Arrays.asList(methodId)).withTag("dev"));
-		System.out.println(spec);
 		assertThat("correct spec size", spec.size(), is(1));
 		assertThat("correct parameter counts", spec.get(0).getParameters().size(), is(1));
 		final MethodParameter param = spec.get(0).getParameters().get(0);
