@@ -3,14 +3,15 @@ NARRATIVE METHOD STORE OVERVIEW
 The Narrative Method Store provides an API to dynamically access the available
 narrative method/app/type specifications and documentation.
 
-VERSION: 0.3.11 (Released 09-2020)
+VERSION: 0.3.11 (Released TBD)
 ----------------------------------
 
 UPDATED FEATURES:
 - Added the `multiselection` field to the dropdown spec.
+- Added the `valid_file_types` field to the parameter options spec.
 
-VERSION: 0.3.10 (Released ?)
-------------------------------
+VERSION: 0.3.10 (Released 2/14/2020)
+------------------------------------
 
 UPDATED FEATURES / MAJOR BUG FIXES:
 - Added the `query_on_empty_input`, `result_array_index`, and `path_to_selection_items` fields to

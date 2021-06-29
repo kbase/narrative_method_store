@@ -37,6 +37,12 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
  *            if it is an input parameter, output parameter, or just plain old parameter
  *            (input is generally an input data object, output is an output data object,
  *            and plain old parameter is more or less numbers, fixed selections, etc)
+ *            
+ * valid_file_types - a list of staging area file types that are valid for the method
+ *     parameter. This might apply to a text box, dropdown, dynamic dropdown, etc. depending
+ *     on the context. The file type is available in the mappings key of the json response
+ *     from staging service importer mappings endpoint. Each mapping has a file_type key
+ *     containing the type.
  * @optional text_options textarea_options intslider_options floatslider_options
  * @optional checkbox_options dropdown_options radio_options tab_options dynamic_dropdown_options
  * </pre>
@@ -56,6 +62,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
     "disabled",
     "ui_class",
     "default_values",
+    "valid_file_types",
     "text_options",
     "textarea_options",
     "intslider_options",
@@ -91,6 +98,8 @@ public class MethodParameter {
     private java.lang.String uiClass;
     @JsonProperty("default_values")
     private List<String> defaultValues;
+    @JsonProperty("valid_file_types")
+    private List<String> validFileTypes;
     /**
      * <p>Original spec-file type: TextOptions</p>
      * <pre>
@@ -428,6 +437,21 @@ public class MethodParameter {
 
     public MethodParameter withDefaultValues(List<String> defaultValues) {
         this.defaultValues = defaultValues;
+        return this;
+    }
+
+    @JsonProperty("valid_file_types")
+    public List<String> getValidFileTypes() {
+        return validFileTypes;
+    }
+
+    @JsonProperty("valid_file_types")
+    public void setValidFileTypes(List<String> validFileTypes) {
+        this.validFileTypes = validFileTypes;
+    }
+
+    public MethodParameter withValidFileTypes(List<String> validFileTypes) {
+        this.validFileTypes = validFileTypes;
         return this;
     }
 
@@ -899,7 +923,7 @@ public class MethodParameter {
 
     @Override
     public java.lang.String toString() {
-        return ((((((((((((((((((((((((((((((((((((((((((((("MethodParameter"+" [id=")+ id)+", uiName=")+ uiName)+", shortHint=")+ shortHint)+", description=")+ description)+", fieldType=")+ fieldType)+", allowMultiple=")+ allowMultiple)+", optional=")+ optional)+", advanced=")+ advanced)+", disabled=")+ disabled)+", uiClass=")+ uiClass)+", defaultValues=")+ defaultValues)+", textOptions=")+ textOptions)+", textareaOptions=")+ textareaOptions)+", intsliderOptions=")+ intsliderOptions)+", floatsliderOptions=")+ floatsliderOptions)+", checkboxOptions=")+ checkboxOptions)+", dropdownOptions=")+ dropdownOptions)+", dynamicDropdownOptions=")+ dynamicDropdownOptions)+", radioOptions=")+ radioOptions)+", tabOptions=")+ tabOptions)+", textsubdataOptions=")+ textsubdataOptions)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((((((((((((((((((((((((((((((((((((((((((("MethodParameter"+" [id=")+ id)+", uiName=")+ uiName)+", shortHint=")+ shortHint)+", description=")+ description)+", fieldType=")+ fieldType)+", allowMultiple=")+ allowMultiple)+", optional=")+ optional)+", advanced=")+ advanced)+", disabled=")+ disabled)+", uiClass=")+ uiClass)+", defaultValues=")+ defaultValues)+", validFileTypes=")+ validFileTypes)+", textOptions=")+ textOptions)+", textareaOptions=")+ textareaOptions)+", intsliderOptions=")+ intsliderOptions)+", floatsliderOptions=")+ floatsliderOptions)+", checkboxOptions=")+ checkboxOptions)+", dropdownOptions=")+ dropdownOptions)+", dynamicDropdownOptions=")+ dynamicDropdownOptions)+", radioOptions=")+ radioOptions)+", tabOptions=")+ tabOptions)+", textsubdataOptions=")+ textsubdataOptions)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }

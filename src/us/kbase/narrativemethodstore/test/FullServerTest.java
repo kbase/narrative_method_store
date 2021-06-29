@@ -1,6 +1,13 @@
 package us.kbase.narrativemethodstore.test;
 
-import static org.junit.Assert.*;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -1166,24 +1173,38 @@ public class FullServerTest {
 
 	@SuppressWarnings("static-access")
     @Test
-	public void testDynamicRepos() throws Exception {
-	    try {
-	        String moduleName = "onerepotest";
-	        String gitUrl = "https://github.com/kbaseIncubator/onerepotest";
-	        String methodId = moduleName + "/send_data";
-	        Map<String,MethodBriefInfo> methods = CLIENT.listCategories(new ListCategoriesParams().withLoadMethods(1L)).getE2();
-	        MethodBriefInfo bi = methods.get(methodId);
-	        Assert.assertNull(bi);
-	        SERVER.getLocalGitDB().registerRepo(admin1, gitUrl, null);
-            Assert.assertEquals(2, CLIENT.listMethods(new ListParams().withTag("dev")).size() -
-                    CLIENT.listMethods(new ListParams().withTag("release")).size());
-            Assert.assertEquals(2, CLIENT.listMethodsSpec(new ListParams().withTag("dev")).size() -
-                    CLIENT.listMethodsSpec(new ListParams().withTag("release")).size());
-            Assert.assertEquals(2, CLIENT.listMethodsFullInfo(new ListParams().withTag("dev")).size() -
-                    CLIENT.listMethodsFullInfo(new ListParams().withTag("release")).size());
-            Assert.assertEquals(2, CLIENT.listMethodIdsAndNames(new ListMethodIdsAndNamesParams().withTag("dev")).size() -
-                    CLIENT.listMethodIdsAndNames(new ListMethodIdsAndNamesParams().withTag("release")).size());
-	        Assert.assertNull(CLIENT.listCategories(new ListCategoriesParams().withLoadMethods(1L).withTag("beta")).getE2().get(methodId));
+    public void testDynamicRepos() throws Exception {
+        try {
+            String moduleName = "onerepotest";
+            String gitUrl = "https://github.com/kbaseIncubator/onerepotest";
+            String methodId = moduleName + "/send_data";
+            Map<String,MethodBriefInfo> methods = CLIENT.listCategories(new ListCategoriesParams().withLoadMethods(1L)).getE2();
+            MethodBriefInfo bi = methods.get(methodId);
+            Assert.assertNull(bi);
+            SERVER.getLocalGitDB().registerRepo(admin1, gitUrl, null);
+            /* As there doesn't seem to be a way to easily clear the DB between tests, we
+             * need to account for the fact that the other dynamic repo test may have run
+             * before or after this one.
+             */
+            final int lMCnt = CLIENT.listMethods(new ListParams().withTag("dev")).size() -
+                    CLIENT.listMethods(new ListParams().withTag("release")).size();
+            assertThat("incorrect listMethods count: " + lMCnt, lMCnt > 1 && lMCnt < 4, is(true));
+            final int lMSCnt = CLIENT.listMethodsSpec(new ListParams().withTag("dev")).size() -
+                    CLIENT.listMethodsSpec(new ListParams().withTag("release")).size();
+            assertThat("incorrect listMethodsSpec count: " + lMSCnt,
+                    lMSCnt > 1 && lMSCnt < 4, is(true));
+            final int lMFICnt = CLIENT.listMethodsFullInfo(
+                    new ListParams().withTag("dev")).size() - CLIENT.listMethodsFullInfo(
+                            new ListParams().withTag("release")).size();
+            assertThat("incorrect listMethodsFullInfo count: " + lMFICnt,
+                    lMFICnt > 1 && lMFICnt < 4, is(true));
+            final int lMINCnt = CLIENT.listMethodIdsAndNames(
+                    new ListMethodIdsAndNamesParams().withTag("dev")).size() -
+                    CLIENT.listMethodIdsAndNames(
+                            new ListMethodIdsAndNamesParams().withTag("release")).size();
+            assertThat("incorrect listMethodIdsAndNames count: " + lMINCnt,
+                    lMINCnt > 1 && lMINCnt < 4, is(true));
+            Assert.assertNull(CLIENT.listCategories(new ListCategoriesParams().withLoadMethods(1L).withTag("beta")).getE2().get(methodId));
             SERVER.getLocalGitDB().pushRepoToTag(moduleName, "beta", admin1);
             Assert.assertNotNull(CLIENT.listCategories(new ListCategoriesParams().withLoadMethods(1L).withTag("beta")).getE2().get(methodId));
 	        methods = CLIENT.listCategories(new ListCategoriesParams().withLoadMethods(1L).withTag("dev")).getE2();
@@ -1299,6 +1320,33 @@ public class FullServerTest {
 	    }
 	}
 
+	@Test
+	public void dynamicRepoWithValidFileTypes() throws Exception {
+		/* Tests that registering a repo with the valid_file_types key preserves that
+		 * key when fetching the module spec.
+		 */
+		final String moduleName = "nms_fake_type_test";
+		final String gitUrl = "https://github.com/kbasetest/nms_fake_type_test";
+		final String methodId = moduleName + "/run_" + moduleName;
+		/* Ideally we'd register the repo via the client, but auth is set up to use a remote
+		 * server, so that's not possible currently without using a pre-made token.
+		 * Long term set up a local auth server and run it as part of the tests like other
+		 * repos. To register via the client do:
+		 * CLIENT.registerRepo(new RegisterRepoParams().withGitUrl(gitUrl));
+		 */
+		SERVER.getLocalGitDB().registerRepo(admin1, gitUrl, null);
+		// note apps and methods are different. This apparently is a method.
+		final List<MethodSpec> spec = CLIENT.getMethodSpec(new GetMethodParams()
+				.withIds(Arrays.asList(methodId)).withTag("dev"));
+		assertThat("correct spec size", spec.size(), is(1));
+		assertThat("correct parameter counts", spec.get(0).getParameters().size(), is(1));
+		final MethodParameter param = spec.get(0).getParameters().get(0);
+		assertThat("correct valid file types", param.getValidFileTypes(),
+				is(Arrays.asList("FASTQ", "FASTQ-FWD")));
+		/* Unfortunately there doesn't appear to be a simple way to clear the database between
+		 * tests
+		 */
+	}
 
     private static void checkMethod(String methodId, int paramCount, String param1id,
             String param1name, String tag) throws Exception {
