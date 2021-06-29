@@ -37,6 +37,12 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
  *            if it is an input parameter, output parameter, or just plain old parameter
  *            (input is generally an input data object, output is an output data object,
  *            and plain old parameter is more or less numbers, fixed selections, etc)
+ *            
+ * valid_file_types - a list of staging area file types that are valid for the method
+ *     parameter. This might apply to a text box, dropdown, dynamic dropdown, etc. depending
+ *     on the context. The file type is available in the mappings key of the json response
+ *     from staging service importer mappings endpoint. Each mapping has a file_type key
+ *     containing the type.
  * @optional text_options textarea_options intslider_options floatslider_options
  * @optional checkbox_options dropdown_options radio_options tab_options dynamic_dropdown_options
  * </pre>
@@ -56,6 +62,7 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
     "disabled",
     "ui_class",
     "default_values",
+    "valid_file_types",
     "text_options",
     "textarea_options",
     "intslider_options",
@@ -91,6 +98,8 @@ public class MethodParameter {
     private java.lang.String uiClass;
     @JsonProperty("default_values")
     private List<String> defaultValues;
+    @JsonProperty("valid_file_types")
+    private List<String> validFileTypes;
     /**
      * <p>Original spec-file type: TextOptions</p>
      * <pre>
@@ -132,7 +141,18 @@ public class MethodParameter {
     private CheckboxOptions checkboxOptions;
     /**
      * <p>Original spec-file type: DropdownOptions</p>
-     * 
+     * <pre>
+     * Defines a parameter field that allows users to select from a list of options. It will
+     * appear as a dropdown (a 'select' HTML element).
+     * Parameters:
+     *    options   - a list of maps with keys 'value' and 'display'; 'display' is the text
+     *              presented to the user, and 'value' is what is passed from the element
+     *              when it is submitted. See the DropDownOption type for the spec.
+     *    multiselection - If true, multiple selections are allowed from a single field, and
+     *              the parameter will return a list, rather than a single value.
+     *              This parameter is optional.
+     *              Default = false
+     * </pre>
      * 
      */
     @JsonProperty("dropdown_options")
@@ -166,16 +186,12 @@ public class MethodParameter {
      *                    if there is no input.
      *     result_array_index - The index of the result array returned from the dynamic service
      *                    from where the selection items will be extracted. Default 0.
-     *                    
      *     path_to_selection_items - The path into the result data object to the list of
      *                    selection items. If missing, the data at the specified result array
      *                    index is used (defaulting to the first returned value in the list).
-     *                    
      *     The selection items data structure must be a list of mappings or structures.
-     *     
      *     As an example of correctly specifying where the selection items are within the
      *     data structure returned from the dynamic service, if the data structure is:
-     *     
      *     [
      *         "foo",                # return array position 0
      *         {                     # return array position 1
@@ -197,15 +213,12 @@ public class MethodParameter {
      *          },
      *          "bar"                # return array position 2
      *      ]
-     *      
      *     Note that KBase dynamic services all return an array of values, even for single-value
      *     returns, as the KIDL spec allows specifying multiple return values per function.
-     *     
      *     In this case:
      *         result_array_index would be 1
      *         path_to_selection_items would be ["interesting_data", "2"]
      *         selection_id would be "name"
-     *         
      *     The selection items would be the 42 items represented by
      *     {"id": 1,
      *      "name": "foo"
@@ -214,9 +227,7 @@ public class MethodParameter {
      *     {"id": 42,
      *      "name": "wowbagger"
      *      }
-     *     
      *     Selection items must always be a list of maps.
-     *     
      *     The final value returned when the user selects a value would be the "name" field -
      *     "foo" if the first item is selected, and "wowbagger" if the last item is selected.
      * </pre>
@@ -429,6 +440,21 @@ public class MethodParameter {
         return this;
     }
 
+    @JsonProperty("valid_file_types")
+    public List<String> getValidFileTypes() {
+        return validFileTypes;
+    }
+
+    @JsonProperty("valid_file_types")
+    public void setValidFileTypes(List<String> validFileTypes) {
+        this.validFileTypes = validFileTypes;
+    }
+
+    public MethodParameter withValidFileTypes(List<String> validFileTypes) {
+        this.validFileTypes = validFileTypes;
+        return this;
+    }
+
     /**
      * <p>Original spec-file type: TextOptions</p>
      * <pre>
@@ -564,7 +590,18 @@ public class MethodParameter {
 
     /**
      * <p>Original spec-file type: DropdownOptions</p>
-     * 
+     * <pre>
+     * Defines a parameter field that allows users to select from a list of options. It will
+     * appear as a dropdown (a 'select' HTML element).
+     * Parameters:
+     *    options   - a list of maps with keys 'value' and 'display'; 'display' is the text
+     *              presented to the user, and 'value' is what is passed from the element
+     *              when it is submitted. See the DropDownOption type for the spec.
+     *    multiselection - If true, multiple selections are allowed from a single field, and
+     *              the parameter will return a list, rather than a single value.
+     *              This parameter is optional.
+     *              Default = false
+     * </pre>
      * 
      */
     @JsonProperty("dropdown_options")
@@ -574,7 +611,18 @@ public class MethodParameter {
 
     /**
      * <p>Original spec-file type: DropdownOptions</p>
-     * 
+     * <pre>
+     * Defines a parameter field that allows users to select from a list of options. It will
+     * appear as a dropdown (a 'select' HTML element).
+     * Parameters:
+     *    options   - a list of maps with keys 'value' and 'display'; 'display' is the text
+     *              presented to the user, and 'value' is what is passed from the element
+     *              when it is submitted. See the DropDownOption type for the spec.
+     *    multiselection - If true, multiple selections are allowed from a single field, and
+     *              the parameter will return a list, rather than a single value.
+     *              This parameter is optional.
+     *              Default = false
+     * </pre>
      * 
      */
     @JsonProperty("dropdown_options")
@@ -616,16 +664,12 @@ public class MethodParameter {
      *                    if there is no input.
      *     result_array_index - The index of the result array returned from the dynamic service
      *                    from where the selection items will be extracted. Default 0.
-     *                    
      *     path_to_selection_items - The path into the result data object to the list of
      *                    selection items. If missing, the data at the specified result array
      *                    index is used (defaulting to the first returned value in the list).
-     *                    
      *     The selection items data structure must be a list of mappings or structures.
-     *     
      *     As an example of correctly specifying where the selection items are within the
      *     data structure returned from the dynamic service, if the data structure is:
-     *     
      *     [
      *         "foo",                # return array position 0
      *         {                     # return array position 1
@@ -647,15 +691,12 @@ public class MethodParameter {
      *          },
      *          "bar"                # return array position 2
      *      ]
-     *      
      *     Note that KBase dynamic services all return an array of values, even for single-value
      *     returns, as the KIDL spec allows specifying multiple return values per function.
-     *     
      *     In this case:
      *         result_array_index would be 1
      *         path_to_selection_items would be ["interesting_data", "2"]
      *         selection_id would be "name"
-     *         
      *     The selection items would be the 42 items represented by
      *     {"id": 1,
      *      "name": "foo"
@@ -664,9 +705,7 @@ public class MethodParameter {
      *     {"id": 42,
      *      "name": "wowbagger"
      *      }
-     *     
      *     Selection items must always be a list of maps.
-     *     
      *     The final value returned when the user selects a value would be the "name" field -
      *     "foo" if the first item is selected, and "wowbagger" if the last item is selected.
      * </pre>
@@ -706,16 +745,12 @@ public class MethodParameter {
      *                    if there is no input.
      *     result_array_index - The index of the result array returned from the dynamic service
      *                    from where the selection items will be extracted. Default 0.
-     *                    
      *     path_to_selection_items - The path into the result data object to the list of
      *                    selection items. If missing, the data at the specified result array
      *                    index is used (defaulting to the first returned value in the list).
-     *                    
      *     The selection items data structure must be a list of mappings or structures.
-     *     
      *     As an example of correctly specifying where the selection items are within the
      *     data structure returned from the dynamic service, if the data structure is:
-     *     
      *     [
      *         "foo",                # return array position 0
      *         {                     # return array position 1
@@ -737,15 +772,12 @@ public class MethodParameter {
      *          },
      *          "bar"                # return array position 2
      *      ]
-     *      
      *     Note that KBase dynamic services all return an array of values, even for single-value
      *     returns, as the KIDL spec allows specifying multiple return values per function.
-     *     
      *     In this case:
      *         result_array_index would be 1
      *         path_to_selection_items would be ["interesting_data", "2"]
      *         selection_id would be "name"
-     *         
      *     The selection items would be the 42 items represented by
      *     {"id": 1,
      *      "name": "foo"
@@ -754,9 +786,7 @@ public class MethodParameter {
      *     {"id": 42,
      *      "name": "wowbagger"
      *      }
-     *     
      *     Selection items must always be a list of maps.
-     *     
      *     The final value returned when the user selects a value would be the "name" field -
      *     "foo" if the first item is selected, and "wowbagger" if the last item is selected.
      * </pre>
@@ -893,7 +923,7 @@ public class MethodParameter {
 
     @Override
     public java.lang.String toString() {
-        return ((((((((((((((((((((((((((((((((((((((((((((("MethodParameter"+" [id=")+ id)+", uiName=")+ uiName)+", shortHint=")+ shortHint)+", description=")+ description)+", fieldType=")+ fieldType)+", allowMultiple=")+ allowMultiple)+", optional=")+ optional)+", advanced=")+ advanced)+", disabled=")+ disabled)+", uiClass=")+ uiClass)+", defaultValues=")+ defaultValues)+", textOptions=")+ textOptions)+", textareaOptions=")+ textareaOptions)+", intsliderOptions=")+ intsliderOptions)+", floatsliderOptions=")+ floatsliderOptions)+", checkboxOptions=")+ checkboxOptions)+", dropdownOptions=")+ dropdownOptions)+", dynamicDropdownOptions=")+ dynamicDropdownOptions)+", radioOptions=")+ radioOptions)+", tabOptions=")+ tabOptions)+", textsubdataOptions=")+ textsubdataOptions)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((((((((((((((((((((((((((((((((((((((((((("MethodParameter"+" [id=")+ id)+", uiName=")+ uiName)+", shortHint=")+ shortHint)+", description=")+ description)+", fieldType=")+ fieldType)+", allowMultiple=")+ allowMultiple)+", optional=")+ optional)+", advanced=")+ advanced)+", disabled=")+ disabled)+", uiClass=")+ uiClass)+", defaultValues=")+ defaultValues)+", validFileTypes=")+ validFileTypes)+", textOptions=")+ textOptions)+", textareaOptions=")+ textareaOptions)+", intsliderOptions=")+ intsliderOptions)+", floatsliderOptions=")+ floatsliderOptions)+", checkboxOptions=")+ checkboxOptions)+", dropdownOptions=")+ dropdownOptions)+", dynamicDropdownOptions=")+ dynamicDropdownOptions)+", radioOptions=")+ radioOptions)+", tabOptions=")+ tabOptions)+", textsubdataOptions=")+ textsubdataOptions)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }

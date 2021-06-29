@@ -65,6 +65,7 @@ public class NarrativeMethodData {
 			FileLookup lookup, String namespace, String serviceVersion,
 			ServiceUrlTemplateEvaluater srvUrlTemplEval, RepoTag tag,
 			String version) throws NarrativeMethodStoreException {
+		/* this method is 750 lines long. That is all. */
 		this.methodId = methodId;
 
 		briefInfo = new MethodBriefInfo()
@@ -532,8 +533,8 @@ public class NarrativeMethodData {
 			}
 			DropdownOptions ddOpt = null;
 			if (paramNode.has("dropdown_options")) {
-				JsonNode optNode = get(paramPath, paramNode, "dropdown_options");
-				optNode = get(paramPath + "/dropdown_options", optNode, "options");
+				JsonNode ddOptNode = get(paramPath, paramNode, "dropdown_options");
+				JsonNode optNode = get(paramPath + "/dropdown_options", ddOptNode, "options");
 				List<DropdownOption> options = new ArrayList<DropdownOption>();
 				for (int j = 0; j < optNode.size(); j++) {
 					JsonNode itemNode = optNode.get(j);
@@ -541,7 +542,8 @@ public class NarrativeMethodData {
 					String displayText = get(paramPath + "/dropdown_options/options/" + j, itemNode, "display").asText();
 					options.add(new DropdownOption().withValue(value).withDisplay(displayText));
 				}
-				ddOpt = new DropdownOptions().withOptions(options);
+				ddOpt = new DropdownOptions().withOptions(options)
+						.withMultiselection(jsonBooleanToRPC(ddOptNode.get("multiselection"), 0L));
 			}
 			DynamicDropdownOptions dyddOpt = null;
 			if (paramNode.has("dynamic_dropdown_options")) {
@@ -636,6 +638,9 @@ public class NarrativeMethodData {
 			try {
 				disabled = jsonBooleanToRPC(get(paramPath, paramNode, "disabled"));
 			} catch (IllegalStateException e) {}
+			
+			final List<String> validFileTypes = jsonListToStringList(
+					paramNode.get("valid_file_types"));
 
 			List<String> defDefVals = Arrays.asList("");
 			MethodParameter param = new MethodParameter()
@@ -647,6 +652,7 @@ public class NarrativeMethodData {
 							.withAdvanced(jsonBooleanToRPC(paramNode.get("advanced"), 0))
 							.withDisabled(disabled)
 							.withUiClass(uiClass)
+							.withValidFileTypes(validFileTypes)
 							.withAllowMultiple(jsonBooleanToRPC(paramNode.get("allow_multiple"), 0))
 							.withDefaultValues(jsonListToStringList(paramNode.get("default_values"), defDefVals))
 							.withFieldType(get(paramPath, paramNode, "field_type").asText())
@@ -868,7 +874,7 @@ public class NarrativeMethodData {
 		return node == null || node.isNull() ? defaultValue : node.asLong();
 	}
 
-	
+
 	private static Long jsonBooleanToRPC(JsonNode node) {
 		return node.asBoolean() ? 1L : 0L;
 	}

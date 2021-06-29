@@ -182,8 +182,26 @@ module NarrativeMethodStore {
         string display;
     } DropdownOption;
 
+
+    /*
+     Defines a parameter field that allows users to select from a list of options. It will
+     appear as a dropdown (a 'select' HTML element).
+
+     Parameters:
+
+        options   - a list of maps with keys 'value' and 'display'; 'display' is the text
+                  presented to the user, and 'value' is what is passed from the element
+                  when it is submitted. See the DropDownOption type for the spec.
+
+        multiselection - If true, multiple selections are allowed from a single field, and
+                  the parameter will return a list, rather than a single value.
+                  This parameter is optional.
+                  Default = false
+     */
+
     typedef structure {
         list<DropdownOption> options;
+        boolean multiselection;
     } DropdownOptions;
 
     typedef structure {
@@ -299,16 +317,16 @@ module NarrativeMethodStore {
 
             result_array_index - The index of the result array returned from the dynamic service
                            from where the selection items will be extracted. Default 0.
-                           
+
             path_to_selection_items - The path into the result data object to the list of
                            selection items. If missing, the data at the specified result array
                            index is used (defaulting to the first returned value in the list).
-                           
+
             The selection items data structure must be a list of mappings or structures.
-            
+
             As an example of correctly specifying where the selection items are within the
             data structure returned from the dynamic service, if the data structure is:
-            
+
             [
                 "foo",                # return array position 0
                 {                     # return array position 1
@@ -330,15 +348,15 @@ module NarrativeMethodStore {
                  },
                  "bar"                # return array position 2
              ]
-             
+
             Note that KBase dynamic services all return an array of values, even for single-value
             returns, as the KIDL spec allows specifying multiple return values per function.
-            
+
             In this case:
                 result_array_index would be 1
                 path_to_selection_items would be ["interesting_data", "2"]
                 selection_id would be "name"
-                
+
             The selection items would be the 42 items represented by
             {"id": 1,
              "name": "foo"
@@ -347,12 +365,12 @@ module NarrativeMethodStore {
             {"id": 42,
              "name": "wowbagger"
              }
-            
+
             Selection items must always be a list of maps.
-            
+
             The final value returned when the user selects a value would be the "name" field -
             "foo" if the first item is selected, and "wowbagger" if the last item is selected.
-                 
+
     */
 
     typedef structure {
@@ -394,6 +412,12 @@ module NarrativeMethodStore {
                    if it is an input parameter, output parameter, or just plain old parameter
                    (input is generally an input data object, output is an output data object,
                    and plain old parameter is more or less numbers, fixed selections, etc)
+                   
+        valid_file_types - a list of staging area file types that are valid for the method
+            parameter. This might apply to a text box, dropdown, dynamic dropdown, etc. depending
+            on the context. The file type is available in the mappings key of the json response
+            from staging service importer mappings endpoint. Each mapping has a file_type key
+            containing the type.
 
         @optional text_options textarea_options intslider_options floatslider_options
         @optional checkbox_options dropdown_options radio_options tab_options dynamic_dropdown_options
@@ -412,6 +436,7 @@ module NarrativeMethodStore {
         string ui_class;
 
         list<string> default_values;
+        list<string> valid_file_types;
 
         TextOptions text_options;
         TextAreaOptions textarea_options;

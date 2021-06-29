@@ -38,8 +38,8 @@ import us.kbase.narrativemethodstore.db.mongo.MongoDynamicRepoDB;
 public class NarrativeMethodStoreServer extends JsonServerServlet {
     private static final long serialVersionUID = 1L;
     private static final String version = "0.0.1";
-    private static final String gitUrl = "https://github.com/mrcreosote/narrative_method_store.git";
-    private static final String gitCommitHash = "9157349ad7883efbc35cff34a48d81dc1fcdbec6";
+    private static final String gitUrl = "https://github.com/kbase/narrative_method_store";
+    private static final String gitCommitHash = "0f3ae3efce96f44d63388273cb8f77b600fe044c";
 
     //BEGIN_CLASS_HEADER
     public static final String SYS_PROP_KB_DEPLOYMENT_CONFIG = "KB_DEPLOYMENT_CONFIG";
@@ -67,7 +67,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
     public static final String CFG_PROP_AUTH_SERVICE_URL = "auth-service-url";
     public static final String    CFG_PROP_AUTH_INSECURE = "auth-service-url-allow-insecure";
 
-    public static final String VERSION = "0.3.10";
+    public static final String VERSION = "0.3.11";
 
     private static Throwable configError = null;
     private static Map<String, String> config = null;
