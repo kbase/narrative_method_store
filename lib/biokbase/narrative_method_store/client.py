@@ -243,24 +243,30 @@ class NarrativeMethodStore(object):
            if it is an input parameter, output parameter, or just plain old
            parameter (input is generally an input data object, output is an
            output data object, and plain old parameter is more or less
-           numbers, fixed selections, etc) @optional text_options
-           textarea_options intslider_options floatslider_options @optional
-           checkbox_options dropdown_options radio_options tab_options
-           dynamic_dropdown_options) -> structure: parameter "id" of String,
-           parameter "ui_name" of String, parameter "short_hint" of String,
-           parameter "description" of String, parameter "field_type" of
-           String, parameter "allow_multiple" of type "boolean" (@range
-           [0,1]), parameter "optional" of type "boolean" (@range [0,1]),
-           parameter "advanced" of type "boolean" (@range [0,1]), parameter
-           "disabled" of type "boolean" (@range [0,1]), parameter "ui_class"
-           of String, parameter "default_values" of list of String, parameter
-           "text_options" of type "TextOptions" (valid_ws_types  - list of
-           valid ws types that can be used for input validate_as     - int |
-           float | nonnumeric | none is_output_name  - true if the user is
-           specifying an output name, false otherwise, default is false) ->
-           structure: parameter "valid_ws_types" of list of String, parameter
-           "validate_as" of String, parameter "is_output_name" of type
-           "boolean" (@range [0,1]), parameter "placeholder" of String,
+           numbers, fixed selections, etc) valid_file_types - a list of
+           staging area file types that are valid for the method parameter.
+           This might apply to a text box, dropdown, dynamic dropdown, etc.
+           depending on the context. The file type is available in the
+           mappings key of the json response from staging service importer
+           mappings endpoint. Each mapping has a file_type key containing the
+           type. @optional text_options textarea_options intslider_options
+           floatslider_options @optional checkbox_options dropdown_options
+           radio_options tab_options dynamic_dropdown_options) -> structure:
+           parameter "id" of String, parameter "ui_name" of String, parameter
+           "short_hint" of String, parameter "description" of String,
+           parameter "field_type" of String, parameter "allow_multiple" of
+           type "boolean" (@range [0,1]), parameter "optional" of type
+           "boolean" (@range [0,1]), parameter "advanced" of type "boolean"
+           (@range [0,1]), parameter "disabled" of type "boolean" (@range
+           [0,1]), parameter "ui_class" of String, parameter "default_values"
+           of list of String, parameter "valid_file_types" of list of String,
+           parameter "text_options" of type "TextOptions" (valid_ws_types  -
+           list of valid ws types that can be used for input validate_as    
+           - int | float | nonnumeric | none is_output_name  - true if the
+           user is specifying an output name, false otherwise, default is
+           false) -> structure: parameter "valid_ws_types" of list of String,
+           parameter "validate_as" of String, parameter "is_output_name" of
+           type "boolean" (@range [0,1]), parameter "placeholder" of String,
            parameter "min_int" of Long, parameter "max_int" of Long,
            parameter "min_float" of Double, parameter "max_float" of Double,
            parameter "regex_constraint" of list of type "RegexMatcher" (regex
@@ -279,87 +285,97 @@ class NarrativeMethodStore(object):
            parameter "max" of Double, parameter "checkbox_options" of type
            "CheckboxOptions" -> structure: parameter "checked_value" of Long,
            parameter "unchecked_value" of Long, parameter "dropdown_options"
-           of type "DropdownOptions" -> structure: parameter "options" of
-           list of type "DropdownOption" (value is what is passed from the
-           form, display is how the selection is shown to the user) ->
-           structure: parameter "value" of String, parameter "display" of
-           String, parameter "dynamic_dropdown_options" of type
-           "DynamicDropdownOptions" (Defines a parameter field that allows
-           autocomplete based on a call to a dynamic service. For instance,
-           selection of files from the staging_service or from kbase_search.
-           It will appear as a text field with dropdown similar to selection
-           of other WS data objects. data_source - one of ftp_staging |
-           search | custom. Provides sensible defaults to for the following
-           parameters for a common type of dropdown which can be overwritten
-           service_function - name of SDK method including prefix with SDK
-           module started up as dynamic service (it's fully qualified method
-           name where module and method are separated by '.').
-           service_version - optional version of module used in
-           service_function (default value is 'release'). service_params -
-           The parameters that will be supplied to the dynamic service call
-           as JSON. The special text "{{dynamic_dropdown_input}}" will be
-           replaced by the value of user input at call time. selection_id -
-           The value of this key will be extracted from the item selected by
-           the user. The item is expected to be represented as a map.
-           description_template - Defines how the description of items is
-           rendered using Handlebar templates (use the keys in the items as
-           variable names) multiselection - If true, then multiple selections
-           are allowed in a single input field. This will override the
-           allow_multiple option (which allows user addition) of additional
-           fields.  If true, then this parameter will return a list. Default=
-           false query_on_empty_input - true, the default, to send a request
-           to the dynamic service even if there is no input.
-           result_array_index - The index of the result array returned from
-           the dynamic service from where the selection items will be
-           extracted. Default 0. path_to_selection_items - The path into the
-           result data object to the list of selection items. If missing, the
-           data at the specified result array index is used (defaulting to
-           the first returned value in the list). The selection items data
-           structure must be a list of mappings or structures. As an example
-           of correctly specifying where the selection items are within the
-           data structure returned from the dynamic service, if the data
-           structure is: [ "foo",                # return array position 0 { 
-           # return array position 1 "interesting_data": [ "baz", "boo", [
-           {"id": 1, "name": "foo" }, ... {"id": 42, "name": "wowbagger" } ],
-           "bat" ] }, "bar"                # return array position 2 ] Note
-           that KBase dynamic services all return an array of values, even
-           for single-value returns, as the KIDL spec allows specifying
-           multiple return values per function. In this case:
-           result_array_index would be 1 path_to_selection_items would be
-           ["interesting_data", "2"] selection_id would be "name" The
-           selection items would be the 42 items represented by {"id": 1,
-           "name": "foo" }, ... {"id": 42, "name": "wowbagger" } Selection
-           items must always be a list of maps. The final value returned when
-           the user selects a value would be the "name" field - "foo" if the
-           first item is selected, and "wowbagger" if the last item is
-           selected.) -> structure: parameter "data_source" of String,
-           parameter "service_function" of String, parameter
-           "service_version" of String, parameter "service_params" of
-           unspecified object, parameter "selection_id" of String, parameter
-           "description_template" of String, parameter "multiselection" of
-           type "boolean" (@range [0,1]), parameter "query_on_empty_input" of
-           type "boolean" (@range [0,1]), parameter "result_array_index" of
-           Long, parameter "path_to_selection_items" of list of String,
-           parameter "radio_options" of type "RadioOptions" -> structure:
-           parameter "id_order" of list of String, parameter "ids_to_options"
-           of mapping from String to String, parameter "ids_to_tooltip" of
-           mapping from String to String, parameter "tab_options" of type
-           "TabOptions" -> structure: parameter "tab_id_order" of list of
-           String, parameter "tab_id_to_tab_name" of mapping from String to
-           String, parameter "tab_id_to_param_ids" of mapping from String to
-           list of String, parameter "textsubdata_options" of type
-           "TextSubdataOptions" (Defines a parameter field that allows
-           autocomplete based on subdata of an existing object.  For
-           instance, selection of feature ids from a Genome object.  It will
-           appear as a text field with dropdown similar to selection of other
-           WS data objects. placeholder - placeholder text to display in the
-           field multiselection - if true, then multiple selections are
-           allowed in a single input field.  This will override the
-           allow_multiple option (which allows user addition) of additional
-           fields.  If true, then this parameter will return a list. Default=
-           false show_src_obj - if true, then the dropdown will indicate the
-           ids along with some text indicating what data object the subdata
-           was retrieved from. Default=true allow_custom - if true, then user
+           of type "DropdownOptions" (Defines a parameter field that allows
+           users to select from a list of options. It will appear as a
+           dropdown (a 'select' HTML element). Parameters: options   - a list
+           of maps with keys 'value' and 'display'; 'display' is the text
+           presented to the user, and 'value' is what is passed from the
+           element when it is submitted. See the DropDownOption type for the
+           spec. multiselection - If true, multiple selections are allowed
+           from a single field, and the parameter will return a list, rather
+           than a single value. This parameter is optional. Default = false)
+           -> structure: parameter "options" of list of type "DropdownOption"
+           (value is what is passed from the form, display is how the
+           selection is shown to the user) -> structure: parameter "value" of
+           String, parameter "display" of String, parameter "multiselection"
+           of type "boolean" (@range [0,1]), parameter
+           "dynamic_dropdown_options" of type "DynamicDropdownOptions"
+           (Defines a parameter field that allows autocomplete based on a
+           call to a dynamic service. For instance, selection of files from
+           the staging_service or from kbase_search. It will appear as a text
+           field with dropdown similar to selection of other WS data objects.
+           data_source - one of ftp_staging | search | custom. Provides
+           sensible defaults to for the following parameters for a common
+           type of dropdown which can be overwritten service_function - name
+           of SDK method including prefix with SDK module started up as
+           dynamic service (it's fully qualified method name where module and
+           method are separated by '.'). service_version - optional version
+           of module used in service_function (default value is 'release').
+           service_params - The parameters that will be supplied to the
+           dynamic service call as JSON. The special text
+           "{{dynamic_dropdown_input}}" will be replaced by the value of user
+           input at call time. selection_id - The value of this key will be
+           extracted from the item selected by the user. The item is expected
+           to be represented as a map. description_template - Defines how the
+           description of items is rendered using Handlebar templates (use
+           the keys in the items as variable names) multiselection - If true,
+           then multiple selections are allowed in a single input field. This
+           will override the allow_multiple option (which allows user
+           addition) of additional fields.  If true, then this parameter will
+           return a list. Default= false query_on_empty_input - true, the
+           default, to send a request to the dynamic service even if there is
+           no input. result_array_index - The index of the result array
+           returned from the dynamic service from where the selection items
+           will be extracted. Default 0. path_to_selection_items - The path
+           into the result data object to the list of selection items. If
+           missing, the data at the specified result array index is used
+           (defaulting to the first returned value in the list). The
+           selection items data structure must be a list of mappings or
+           structures. As an example of correctly specifying where the
+           selection items are within the data structure returned from the
+           dynamic service, if the data structure is: [ "foo",               
+           # return array position 0 {                     # return array
+           position 1 "interesting_data": [ "baz", "boo", [ {"id": 1, "name":
+           "foo" }, ... {"id": 42, "name": "wowbagger" } ], "bat" ] }, "bar" 
+           # return array position 2 ] Note that KBase dynamic services all
+           return an array of values, even for single-value returns, as the
+           KIDL spec allows specifying multiple return values per function.
+           In this case: result_array_index would be 1
+           path_to_selection_items would be ["interesting_data", "2"]
+           selection_id would be "name" The selection items would be the 42
+           items represented by {"id": 1, "name": "foo" }, ... {"id": 42,
+           "name": "wowbagger" } Selection items must always be a list of
+           maps. The final value returned when the user selects a value would
+           be the "name" field - "foo" if the first item is selected, and
+           "wowbagger" if the last item is selected.) -> structure: parameter
+           "data_source" of String, parameter "service_function" of String,
+           parameter "service_version" of String, parameter "service_params"
+           of unspecified object, parameter "selection_id" of String,
+           parameter "description_template" of String, parameter
+           "multiselection" of type "boolean" (@range [0,1]), parameter
+           "query_on_empty_input" of type "boolean" (@range [0,1]), parameter
+           "result_array_index" of Long, parameter "path_to_selection_items"
+           of list of String, parameter "radio_options" of type
+           "RadioOptions" -> structure: parameter "id_order" of list of
+           String, parameter "ids_to_options" of mapping from String to
+           String, parameter "ids_to_tooltip" of mapping from String to
+           String, parameter "tab_options" of type "TabOptions" -> structure:
+           parameter "tab_id_order" of list of String, parameter
+           "tab_id_to_tab_name" of mapping from String to String, parameter
+           "tab_id_to_param_ids" of mapping from String to list of String,
+           parameter "textsubdata_options" of type "TextSubdataOptions"
+           (Defines a parameter field that allows autocomplete based on
+           subdata of an existing object.  For instance, selection of feature
+           ids from a Genome object.  It will appear as a text field with
+           dropdown similar to selection of other WS data objects.
+           placeholder - placeholder text to display in the field
+           multiselection - if true, then multiple selections are allowed in
+           a single input field.  This will override the allow_multiple
+           option (which allows user addition) of additional fields.  If
+           true, then this parameter will return a list. Default= false
+           show_src_obj - if true, then the dropdown will indicate the ids
+           along with some text indicating what data object the subdata was
+           retrieved from. Default=true allow_custom - if true, then user
            specified inputs not found in the list are accepted.  if false,
            users can only select from the valid list of selections.
            Default=false) -> structure: parameter "placeholder" of String,
@@ -764,24 +780,30 @@ class NarrativeMethodStore(object):
            if it is an input parameter, output parameter, or just plain old
            parameter (input is generally an input data object, output is an
            output data object, and plain old parameter is more or less
-           numbers, fixed selections, etc) @optional text_options
-           textarea_options intslider_options floatslider_options @optional
-           checkbox_options dropdown_options radio_options tab_options
-           dynamic_dropdown_options) -> structure: parameter "id" of String,
-           parameter "ui_name" of String, parameter "short_hint" of String,
-           parameter "description" of String, parameter "field_type" of
-           String, parameter "allow_multiple" of type "boolean" (@range
-           [0,1]), parameter "optional" of type "boolean" (@range [0,1]),
-           parameter "advanced" of type "boolean" (@range [0,1]), parameter
-           "disabled" of type "boolean" (@range [0,1]), parameter "ui_class"
-           of String, parameter "default_values" of list of String, parameter
-           "text_options" of type "TextOptions" (valid_ws_types  - list of
-           valid ws types that can be used for input validate_as     - int |
-           float | nonnumeric | none is_output_name  - true if the user is
-           specifying an output name, false otherwise, default is false) ->
-           structure: parameter "valid_ws_types" of list of String, parameter
-           "validate_as" of String, parameter "is_output_name" of type
-           "boolean" (@range [0,1]), parameter "placeholder" of String,
+           numbers, fixed selections, etc) valid_file_types - a list of
+           staging area file types that are valid for the method parameter.
+           This might apply to a text box, dropdown, dynamic dropdown, etc.
+           depending on the context. The file type is available in the
+           mappings key of the json response from staging service importer
+           mappings endpoint. Each mapping has a file_type key containing the
+           type. @optional text_options textarea_options intslider_options
+           floatslider_options @optional checkbox_options dropdown_options
+           radio_options tab_options dynamic_dropdown_options) -> structure:
+           parameter "id" of String, parameter "ui_name" of String, parameter
+           "short_hint" of String, parameter "description" of String,
+           parameter "field_type" of String, parameter "allow_multiple" of
+           type "boolean" (@range [0,1]), parameter "optional" of type
+           "boolean" (@range [0,1]), parameter "advanced" of type "boolean"
+           (@range [0,1]), parameter "disabled" of type "boolean" (@range
+           [0,1]), parameter "ui_class" of String, parameter "default_values"
+           of list of String, parameter "valid_file_types" of list of String,
+           parameter "text_options" of type "TextOptions" (valid_ws_types  -
+           list of valid ws types that can be used for input validate_as    
+           - int | float | nonnumeric | none is_output_name  - true if the
+           user is specifying an output name, false otherwise, default is
+           false) -> structure: parameter "valid_ws_types" of list of String,
+           parameter "validate_as" of String, parameter "is_output_name" of
+           type "boolean" (@range [0,1]), parameter "placeholder" of String,
            parameter "min_int" of Long, parameter "max_int" of Long,
            parameter "min_float" of Double, parameter "max_float" of Double,
            parameter "regex_constraint" of list of type "RegexMatcher" (regex
@@ -800,87 +822,97 @@ class NarrativeMethodStore(object):
            parameter "max" of Double, parameter "checkbox_options" of type
            "CheckboxOptions" -> structure: parameter "checked_value" of Long,
            parameter "unchecked_value" of Long, parameter "dropdown_options"
-           of type "DropdownOptions" -> structure: parameter "options" of
-           list of type "DropdownOption" (value is what is passed from the
-           form, display is how the selection is shown to the user) ->
-           structure: parameter "value" of String, parameter "display" of
-           String, parameter "dynamic_dropdown_options" of type
-           "DynamicDropdownOptions" (Defines a parameter field that allows
-           autocomplete based on a call to a dynamic service. For instance,
-           selection of files from the staging_service or from kbase_search.
-           It will appear as a text field with dropdown similar to selection
-           of other WS data objects. data_source - one of ftp_staging |
-           search | custom. Provides sensible defaults to for the following
-           parameters for a common type of dropdown which can be overwritten
-           service_function - name of SDK method including prefix with SDK
-           module started up as dynamic service (it's fully qualified method
-           name where module and method are separated by '.').
-           service_version - optional version of module used in
-           service_function (default value is 'release'). service_params -
-           The parameters that will be supplied to the dynamic service call
-           as JSON. The special text "{{dynamic_dropdown_input}}" will be
-           replaced by the value of user input at call time. selection_id -
-           The value of this key will be extracted from the item selected by
-           the user. The item is expected to be represented as a map.
-           description_template - Defines how the description of items is
-           rendered using Handlebar templates (use the keys in the items as
-           variable names) multiselection - If true, then multiple selections
-           are allowed in a single input field. This will override the
-           allow_multiple option (which allows user addition) of additional
-           fields.  If true, then this parameter will return a list. Default=
-           false query_on_empty_input - true, the default, to send a request
-           to the dynamic service even if there is no input.
-           result_array_index - The index of the result array returned from
-           the dynamic service from where the selection items will be
-           extracted. Default 0. path_to_selection_items - The path into the
-           result data object to the list of selection items. If missing, the
-           data at the specified result array index is used (defaulting to
-           the first returned value in the list). The selection items data
-           structure must be a list of mappings or structures. As an example
-           of correctly specifying where the selection items are within the
-           data structure returned from the dynamic service, if the data
-           structure is: [ "foo",                # return array position 0 { 
-           # return array position 1 "interesting_data": [ "baz", "boo", [
-           {"id": 1, "name": "foo" }, ... {"id": 42, "name": "wowbagger" } ],
-           "bat" ] }, "bar"                # return array position 2 ] Note
-           that KBase dynamic services all return an array of values, even
-           for single-value returns, as the KIDL spec allows specifying
-           multiple return values per function. In this case:
-           result_array_index would be 1 path_to_selection_items would be
-           ["interesting_data", "2"] selection_id would be "name" The
-           selection items would be the 42 items represented by {"id": 1,
-           "name": "foo" }, ... {"id": 42, "name": "wowbagger" } Selection
-           items must always be a list of maps. The final value returned when
-           the user selects a value would be the "name" field - "foo" if the
-           first item is selected, and "wowbagger" if the last item is
-           selected.) -> structure: parameter "data_source" of String,
-           parameter "service_function" of String, parameter
-           "service_version" of String, parameter "service_params" of
-           unspecified object, parameter "selection_id" of String, parameter
-           "description_template" of String, parameter "multiselection" of
-           type "boolean" (@range [0,1]), parameter "query_on_empty_input" of
-           type "boolean" (@range [0,1]), parameter "result_array_index" of
-           Long, parameter "path_to_selection_items" of list of String,
-           parameter "radio_options" of type "RadioOptions" -> structure:
-           parameter "id_order" of list of String, parameter "ids_to_options"
-           of mapping from String to String, parameter "ids_to_tooltip" of
-           mapping from String to String, parameter "tab_options" of type
-           "TabOptions" -> structure: parameter "tab_id_order" of list of
-           String, parameter "tab_id_to_tab_name" of mapping from String to
-           String, parameter "tab_id_to_param_ids" of mapping from String to
-           list of String, parameter "textsubdata_options" of type
-           "TextSubdataOptions" (Defines a parameter field that allows
-           autocomplete based on subdata of an existing object.  For
-           instance, selection of feature ids from a Genome object.  It will
-           appear as a text field with dropdown similar to selection of other
-           WS data objects. placeholder - placeholder text to display in the
-           field multiselection - if true, then multiple selections are
-           allowed in a single input field.  This will override the
-           allow_multiple option (which allows user addition) of additional
-           fields.  If true, then this parameter will return a list. Default=
-           false show_src_obj - if true, then the dropdown will indicate the
-           ids along with some text indicating what data object the subdata
-           was retrieved from. Default=true allow_custom - if true, then user
+           of type "DropdownOptions" (Defines a parameter field that allows
+           users to select from a list of options. It will appear as a
+           dropdown (a 'select' HTML element). Parameters: options   - a list
+           of maps with keys 'value' and 'display'; 'display' is the text
+           presented to the user, and 'value' is what is passed from the
+           element when it is submitted. See the DropDownOption type for the
+           spec. multiselection - If true, multiple selections are allowed
+           from a single field, and the parameter will return a list, rather
+           than a single value. This parameter is optional. Default = false)
+           -> structure: parameter "options" of list of type "DropdownOption"
+           (value is what is passed from the form, display is how the
+           selection is shown to the user) -> structure: parameter "value" of
+           String, parameter "display" of String, parameter "multiselection"
+           of type "boolean" (@range [0,1]), parameter
+           "dynamic_dropdown_options" of type "DynamicDropdownOptions"
+           (Defines a parameter field that allows autocomplete based on a
+           call to a dynamic service. For instance, selection of files from
+           the staging_service or from kbase_search. It will appear as a text
+           field with dropdown similar to selection of other WS data objects.
+           data_source - one of ftp_staging | search | custom. Provides
+           sensible defaults to for the following parameters for a common
+           type of dropdown which can be overwritten service_function - name
+           of SDK method including prefix with SDK module started up as
+           dynamic service (it's fully qualified method name where module and
+           method are separated by '.'). service_version - optional version
+           of module used in service_function (default value is 'release').
+           service_params - The parameters that will be supplied to the
+           dynamic service call as JSON. The special text
+           "{{dynamic_dropdown_input}}" will be replaced by the value of user
+           input at call time. selection_id - The value of this key will be
+           extracted from the item selected by the user. The item is expected
+           to be represented as a map. description_template - Defines how the
+           description of items is rendered using Handlebar templates (use
+           the keys in the items as variable names) multiselection - If true,
+           then multiple selections are allowed in a single input field. This
+           will override the allow_multiple option (which allows user
+           addition) of additional fields.  If true, then this parameter will
+           return a list. Default= false query_on_empty_input - true, the
+           default, to send a request to the dynamic service even if there is
+           no input. result_array_index - The index of the result array
+           returned from the dynamic service from where the selection items
+           will be extracted. Default 0. path_to_selection_items - The path
+           into the result data object to the list of selection items. If
+           missing, the data at the specified result array index is used
+           (defaulting to the first returned value in the list). The
+           selection items data structure must be a list of mappings or
+           structures. As an example of correctly specifying where the
+           selection items are within the data structure returned from the
+           dynamic service, if the data structure is: [ "foo",               
+           # return array position 0 {                     # return array
+           position 1 "interesting_data": [ "baz", "boo", [ {"id": 1, "name":
+           "foo" }, ... {"id": 42, "name": "wowbagger" } ], "bat" ] }, "bar" 
+           # return array position 2 ] Note that KBase dynamic services all
+           return an array of values, even for single-value returns, as the
+           KIDL spec allows specifying multiple return values per function.
+           In this case: result_array_index would be 1
+           path_to_selection_items would be ["interesting_data", "2"]
+           selection_id would be "name" The selection items would be the 42
+           items represented by {"id": 1, "name": "foo" }, ... {"id": 42,
+           "name": "wowbagger" } Selection items must always be a list of
+           maps. The final value returned when the user selects a value would
+           be the "name" field - "foo" if the first item is selected, and
+           "wowbagger" if the last item is selected.) -> structure: parameter
+           "data_source" of String, parameter "service_function" of String,
+           parameter "service_version" of String, parameter "service_params"
+           of unspecified object, parameter "selection_id" of String,
+           parameter "description_template" of String, parameter
+           "multiselection" of type "boolean" (@range [0,1]), parameter
+           "query_on_empty_input" of type "boolean" (@range [0,1]), parameter
+           "result_array_index" of Long, parameter "path_to_selection_items"
+           of list of String, parameter "radio_options" of type
+           "RadioOptions" -> structure: parameter "id_order" of list of
+           String, parameter "ids_to_options" of mapping from String to
+           String, parameter "ids_to_tooltip" of mapping from String to
+           String, parameter "tab_options" of type "TabOptions" -> structure:
+           parameter "tab_id_order" of list of String, parameter
+           "tab_id_to_tab_name" of mapping from String to String, parameter
+           "tab_id_to_param_ids" of mapping from String to list of String,
+           parameter "textsubdata_options" of type "TextSubdataOptions"
+           (Defines a parameter field that allows autocomplete based on
+           subdata of an existing object.  For instance, selection of feature
+           ids from a Genome object.  It will appear as a text field with
+           dropdown similar to selection of other WS data objects.
+           placeholder - placeholder text to display in the field
+           multiselection - if true, then multiple selections are allowed in
+           a single input field.  This will override the allow_multiple
+           option (which allows user addition) of additional fields.  If
+           true, then this parameter will return a list. Default= false
+           show_src_obj - if true, then the dropdown will indicate the ids
+           along with some text indicating what data object the subdata was
+           retrieved from. Default=true allow_custom - if true, then user
            specified inputs not found in the list are accepted.  if false,
            users can only select from the valid list of selections.
            Default=false) -> structure: parameter "placeholder" of String,
@@ -1257,24 +1289,30 @@ class NarrativeMethodStore(object):
            an input parameter, output parameter, or just plain old parameter
            (input is generally an input data object, output is an output data
            object, and plain old parameter is more or less numbers, fixed
-           selections, etc) @optional text_options textarea_options
-           intslider_options floatslider_options @optional checkbox_options
-           dropdown_options radio_options tab_options
-           dynamic_dropdown_options) -> structure: parameter "id" of String,
-           parameter "ui_name" of String, parameter "short_hint" of String,
-           parameter "description" of String, parameter "field_type" of
-           String, parameter "allow_multiple" of type "boolean" (@range
-           [0,1]), parameter "optional" of type "boolean" (@range [0,1]),
-           parameter "advanced" of type "boolean" (@range [0,1]), parameter
-           "disabled" of type "boolean" (@range [0,1]), parameter "ui_class"
-           of String, parameter "default_values" of list of String, parameter
-           "text_options" of type "TextOptions" (valid_ws_types  - list of
-           valid ws types that can be used for input validate_as     - int |
-           float | nonnumeric | none is_output_name  - true if the user is
-           specifying an output name, false otherwise, default is false) ->
-           structure: parameter "valid_ws_types" of list of String, parameter
-           "validate_as" of String, parameter "is_output_name" of type
-           "boolean" (@range [0,1]), parameter "placeholder" of String,
+           selections, etc) valid_file_types - a list of staging area file
+           types that are valid for the method parameter. This might apply to
+           a text box, dropdown, dynamic dropdown, etc. depending on the
+           context. The file type is available in the mappings key of the
+           json response from staging service importer mappings endpoint.
+           Each mapping has a file_type key containing the type. @optional
+           text_options textarea_options intslider_options
+           floatslider_options @optional checkbox_options dropdown_options
+           radio_options tab_options dynamic_dropdown_options) -> structure:
+           parameter "id" of String, parameter "ui_name" of String, parameter
+           "short_hint" of String, parameter "description" of String,
+           parameter "field_type" of String, parameter "allow_multiple" of
+           type "boolean" (@range [0,1]), parameter "optional" of type
+           "boolean" (@range [0,1]), parameter "advanced" of type "boolean"
+           (@range [0,1]), parameter "disabled" of type "boolean" (@range
+           [0,1]), parameter "ui_class" of String, parameter "default_values"
+           of list of String, parameter "valid_file_types" of list of String,
+           parameter "text_options" of type "TextOptions" (valid_ws_types  -
+           list of valid ws types that can be used for input validate_as    
+           - int | float | nonnumeric | none is_output_name  - true if the
+           user is specifying an output name, false otherwise, default is
+           false) -> structure: parameter "valid_ws_types" of list of String,
+           parameter "validate_as" of String, parameter "is_output_name" of
+           type "boolean" (@range [0,1]), parameter "placeholder" of String,
            parameter "min_int" of Long, parameter "max_int" of Long,
            parameter "min_float" of Double, parameter "max_float" of Double,
            parameter "regex_constraint" of list of type "RegexMatcher" (regex
@@ -1293,87 +1331,97 @@ class NarrativeMethodStore(object):
            parameter "max" of Double, parameter "checkbox_options" of type
            "CheckboxOptions" -> structure: parameter "checked_value" of Long,
            parameter "unchecked_value" of Long, parameter "dropdown_options"
-           of type "DropdownOptions" -> structure: parameter "options" of
-           list of type "DropdownOption" (value is what is passed from the
-           form, display is how the selection is shown to the user) ->
-           structure: parameter "value" of String, parameter "display" of
-           String, parameter "dynamic_dropdown_options" of type
-           "DynamicDropdownOptions" (Defines a parameter field that allows
-           autocomplete based on a call to a dynamic service. For instance,
-           selection of files from the staging_service or from kbase_search.
-           It will appear as a text field with dropdown similar to selection
-           of other WS data objects. data_source - one of ftp_staging |
-           search | custom. Provides sensible defaults to for the following
-           parameters for a common type of dropdown which can be overwritten
-           service_function - name of SDK method including prefix with SDK
-           module started up as dynamic service (it's fully qualified method
-           name where module and method are separated by '.').
-           service_version - optional version of module used in
-           service_function (default value is 'release'). service_params -
-           The parameters that will be supplied to the dynamic service call
-           as JSON. The special text "{{dynamic_dropdown_input}}" will be
-           replaced by the value of user input at call time. selection_id -
-           The value of this key will be extracted from the item selected by
-           the user. The item is expected to be represented as a map.
-           description_template - Defines how the description of items is
-           rendered using Handlebar templates (use the keys in the items as
-           variable names) multiselection - If true, then multiple selections
-           are allowed in a single input field. This will override the
-           allow_multiple option (which allows user addition) of additional
-           fields.  If true, then this parameter will return a list. Default=
-           false query_on_empty_input - true, the default, to send a request
-           to the dynamic service even if there is no input.
-           result_array_index - The index of the result array returned from
-           the dynamic service from where the selection items will be
-           extracted. Default 0. path_to_selection_items - The path into the
-           result data object to the list of selection items. If missing, the
-           data at the specified result array index is used (defaulting to
-           the first returned value in the list). The selection items data
-           structure must be a list of mappings or structures. As an example
-           of correctly specifying where the selection items are within the
-           data structure returned from the dynamic service, if the data
-           structure is: [ "foo",                # return array position 0 { 
-           # return array position 1 "interesting_data": [ "baz", "boo", [
-           {"id": 1, "name": "foo" }, ... {"id": 42, "name": "wowbagger" } ],
-           "bat" ] }, "bar"                # return array position 2 ] Note
-           that KBase dynamic services all return an array of values, even
-           for single-value returns, as the KIDL spec allows specifying
-           multiple return values per function. In this case:
-           result_array_index would be 1 path_to_selection_items would be
-           ["interesting_data", "2"] selection_id would be "name" The
-           selection items would be the 42 items represented by {"id": 1,
-           "name": "foo" }, ... {"id": 42, "name": "wowbagger" } Selection
-           items must always be a list of maps. The final value returned when
-           the user selects a value would be the "name" field - "foo" if the
-           first item is selected, and "wowbagger" if the last item is
-           selected.) -> structure: parameter "data_source" of String,
-           parameter "service_function" of String, parameter
-           "service_version" of String, parameter "service_params" of
-           unspecified object, parameter "selection_id" of String, parameter
-           "description_template" of String, parameter "multiselection" of
-           type "boolean" (@range [0,1]), parameter "query_on_empty_input" of
-           type "boolean" (@range [0,1]), parameter "result_array_index" of
-           Long, parameter "path_to_selection_items" of list of String,
-           parameter "radio_options" of type "RadioOptions" -> structure:
-           parameter "id_order" of list of String, parameter "ids_to_options"
-           of mapping from String to String, parameter "ids_to_tooltip" of
-           mapping from String to String, parameter "tab_options" of type
-           "TabOptions" -> structure: parameter "tab_id_order" of list of
-           String, parameter "tab_id_to_tab_name" of mapping from String to
-           String, parameter "tab_id_to_param_ids" of mapping from String to
-           list of String, parameter "textsubdata_options" of type
-           "TextSubdataOptions" (Defines a parameter field that allows
-           autocomplete based on subdata of an existing object.  For
-           instance, selection of feature ids from a Genome object.  It will
-           appear as a text field with dropdown similar to selection of other
-           WS data objects. placeholder - placeholder text to display in the
-           field multiselection - if true, then multiple selections are
-           allowed in a single input field.  This will override the
-           allow_multiple option (which allows user addition) of additional
-           fields.  If true, then this parameter will return a list. Default=
-           false show_src_obj - if true, then the dropdown will indicate the
-           ids along with some text indicating what data object the subdata
-           was retrieved from. Default=true allow_custom - if true, then user
+           of type "DropdownOptions" (Defines a parameter field that allows
+           users to select from a list of options. It will appear as a
+           dropdown (a 'select' HTML element). Parameters: options   - a list
+           of maps with keys 'value' and 'display'; 'display' is the text
+           presented to the user, and 'value' is what is passed from the
+           element when it is submitted. See the DropDownOption type for the
+           spec. multiselection - If true, multiple selections are allowed
+           from a single field, and the parameter will return a list, rather
+           than a single value. This parameter is optional. Default = false)
+           -> structure: parameter "options" of list of type "DropdownOption"
+           (value is what is passed from the form, display is how the
+           selection is shown to the user) -> structure: parameter "value" of
+           String, parameter "display" of String, parameter "multiselection"
+           of type "boolean" (@range [0,1]), parameter
+           "dynamic_dropdown_options" of type "DynamicDropdownOptions"
+           (Defines a parameter field that allows autocomplete based on a
+           call to a dynamic service. For instance, selection of files from
+           the staging_service or from kbase_search. It will appear as a text
+           field with dropdown similar to selection of other WS data objects.
+           data_source - one of ftp_staging | search | custom. Provides
+           sensible defaults to for the following parameters for a common
+           type of dropdown which can be overwritten service_function - name
+           of SDK method including prefix with SDK module started up as
+           dynamic service (it's fully qualified method name where module and
+           method are separated by '.'). service_version - optional version
+           of module used in service_function (default value is 'release').
+           service_params - The parameters that will be supplied to the
+           dynamic service call as JSON. The special text
+           "{{dynamic_dropdown_input}}" will be replaced by the value of user
+           input at call time. selection_id - The value of this key will be
+           extracted from the item selected by the user. The item is expected
+           to be represented as a map. description_template - Defines how the
+           description of items is rendered using Handlebar templates (use
+           the keys in the items as variable names) multiselection - If true,
+           then multiple selections are allowed in a single input field. This
+           will override the allow_multiple option (which allows user
+           addition) of additional fields.  If true, then this parameter will
+           return a list. Default= false query_on_empty_input - true, the
+           default, to send a request to the dynamic service even if there is
+           no input. result_array_index - The index of the result array
+           returned from the dynamic service from where the selection items
+           will be extracted. Default 0. path_to_selection_items - The path
+           into the result data object to the list of selection items. If
+           missing, the data at the specified result array index is used
+           (defaulting to the first returned value in the list). The
+           selection items data structure must be a list of mappings or
+           structures. As an example of correctly specifying where the
+           selection items are within the data structure returned from the
+           dynamic service, if the data structure is: [ "foo",               
+           # return array position 0 {                     # return array
+           position 1 "interesting_data": [ "baz", "boo", [ {"id": 1, "name":
+           "foo" }, ... {"id": 42, "name": "wowbagger" } ], "bat" ] }, "bar" 
+           # return array position 2 ] Note that KBase dynamic services all
+           return an array of values, even for single-value returns, as the
+           KIDL spec allows specifying multiple return values per function.
+           In this case: result_array_index would be 1
+           path_to_selection_items would be ["interesting_data", "2"]
+           selection_id would be "name" The selection items would be the 42
+           items represented by {"id": 1, "name": "foo" }, ... {"id": 42,
+           "name": "wowbagger" } Selection items must always be a list of
+           maps. The final value returned when the user selects a value would
+           be the "name" field - "foo" if the first item is selected, and
+           "wowbagger" if the last item is selected.) -> structure: parameter
+           "data_source" of String, parameter "service_function" of String,
+           parameter "service_version" of String, parameter "service_params"
+           of unspecified object, parameter "selection_id" of String,
+           parameter "description_template" of String, parameter
+           "multiselection" of type "boolean" (@range [0,1]), parameter
+           "query_on_empty_input" of type "boolean" (@range [0,1]), parameter
+           "result_array_index" of Long, parameter "path_to_selection_items"
+           of list of String, parameter "radio_options" of type
+           "RadioOptions" -> structure: parameter "id_order" of list of
+           String, parameter "ids_to_options" of mapping from String to
+           String, parameter "ids_to_tooltip" of mapping from String to
+           String, parameter "tab_options" of type "TabOptions" -> structure:
+           parameter "tab_id_order" of list of String, parameter
+           "tab_id_to_tab_name" of mapping from String to String, parameter
+           "tab_id_to_param_ids" of mapping from String to list of String,
+           parameter "textsubdata_options" of type "TextSubdataOptions"
+           (Defines a parameter field that allows autocomplete based on
+           subdata of an existing object.  For instance, selection of feature
+           ids from a Genome object.  It will appear as a text field with
+           dropdown similar to selection of other WS data objects.
+           placeholder - placeholder text to display in the field
+           multiselection - if true, then multiple selections are allowed in
+           a single input field.  This will override the allow_multiple
+           option (which allows user addition) of additional fields.  If
+           true, then this parameter will return a list. Default= false
+           show_src_obj - if true, then the dropdown will indicate the ids
+           along with some text indicating what data object the subdata was
+           retrieved from. Default=true allow_custom - if true, then user
            specified inputs not found in the list are accepted.  if false,
            users can only select from the valid list of selections.
            Default=false) -> structure: parameter "placeholder" of String,
@@ -1669,24 +1717,30 @@ class NarrativeMethodStore(object):
            an input parameter, output parameter, or just plain old parameter
            (input is generally an input data object, output is an output data
            object, and plain old parameter is more or less numbers, fixed
-           selections, etc) @optional text_options textarea_options
-           intslider_options floatslider_options @optional checkbox_options
-           dropdown_options radio_options tab_options
-           dynamic_dropdown_options) -> structure: parameter "id" of String,
-           parameter "ui_name" of String, parameter "short_hint" of String,
-           parameter "description" of String, parameter "field_type" of
-           String, parameter "allow_multiple" of type "boolean" (@range
-           [0,1]), parameter "optional" of type "boolean" (@range [0,1]),
-           parameter "advanced" of type "boolean" (@range [0,1]), parameter
-           "disabled" of type "boolean" (@range [0,1]), parameter "ui_class"
-           of String, parameter "default_values" of list of String, parameter
-           "text_options" of type "TextOptions" (valid_ws_types  - list of
-           valid ws types that can be used for input validate_as     - int |
-           float | nonnumeric | none is_output_name  - true if the user is
-           specifying an output name, false otherwise, default is false) ->
-           structure: parameter "valid_ws_types" of list of String, parameter
-           "validate_as" of String, parameter "is_output_name" of type
-           "boolean" (@range [0,1]), parameter "placeholder" of String,
+           selections, etc) valid_file_types - a list of staging area file
+           types that are valid for the method parameter. This might apply to
+           a text box, dropdown, dynamic dropdown, etc. depending on the
+           context. The file type is available in the mappings key of the
+           json response from staging service importer mappings endpoint.
+           Each mapping has a file_type key containing the type. @optional
+           text_options textarea_options intslider_options
+           floatslider_options @optional checkbox_options dropdown_options
+           radio_options tab_options dynamic_dropdown_options) -> structure:
+           parameter "id" of String, parameter "ui_name" of String, parameter
+           "short_hint" of String, parameter "description" of String,
+           parameter "field_type" of String, parameter "allow_multiple" of
+           type "boolean" (@range [0,1]), parameter "optional" of type
+           "boolean" (@range [0,1]), parameter "advanced" of type "boolean"
+           (@range [0,1]), parameter "disabled" of type "boolean" (@range
+           [0,1]), parameter "ui_class" of String, parameter "default_values"
+           of list of String, parameter "valid_file_types" of list of String,
+           parameter "text_options" of type "TextOptions" (valid_ws_types  -
+           list of valid ws types that can be used for input validate_as    
+           - int | float | nonnumeric | none is_output_name  - true if the
+           user is specifying an output name, false otherwise, default is
+           false) -> structure: parameter "valid_ws_types" of list of String,
+           parameter "validate_as" of String, parameter "is_output_name" of
+           type "boolean" (@range [0,1]), parameter "placeholder" of String,
            parameter "min_int" of Long, parameter "max_int" of Long,
            parameter "min_float" of Double, parameter "max_float" of Double,
            parameter "regex_constraint" of list of type "RegexMatcher" (regex
@@ -1705,87 +1759,97 @@ class NarrativeMethodStore(object):
            parameter "max" of Double, parameter "checkbox_options" of type
            "CheckboxOptions" -> structure: parameter "checked_value" of Long,
            parameter "unchecked_value" of Long, parameter "dropdown_options"
-           of type "DropdownOptions" -> structure: parameter "options" of
-           list of type "DropdownOption" (value is what is passed from the
-           form, display is how the selection is shown to the user) ->
-           structure: parameter "value" of String, parameter "display" of
-           String, parameter "dynamic_dropdown_options" of type
-           "DynamicDropdownOptions" (Defines a parameter field that allows
-           autocomplete based on a call to a dynamic service. For instance,
-           selection of files from the staging_service or from kbase_search.
-           It will appear as a text field with dropdown similar to selection
-           of other WS data objects. data_source - one of ftp_staging |
-           search | custom. Provides sensible defaults to for the following
-           parameters for a common type of dropdown which can be overwritten
-           service_function - name of SDK method including prefix with SDK
-           module started up as dynamic service (it's fully qualified method
-           name where module and method are separated by '.').
-           service_version - optional version of module used in
-           service_function (default value is 'release'). service_params -
-           The parameters that will be supplied to the dynamic service call
-           as JSON. The special text "{{dynamic_dropdown_input}}" will be
-           replaced by the value of user input at call time. selection_id -
-           The value of this key will be extracted from the item selected by
-           the user. The item is expected to be represented as a map.
-           description_template - Defines how the description of items is
-           rendered using Handlebar templates (use the keys in the items as
-           variable names) multiselection - If true, then multiple selections
-           are allowed in a single input field. This will override the
-           allow_multiple option (which allows user addition) of additional
-           fields.  If true, then this parameter will return a list. Default=
-           false query_on_empty_input - true, the default, to send a request
-           to the dynamic service even if there is no input.
-           result_array_index - The index of the result array returned from
-           the dynamic service from where the selection items will be
-           extracted. Default 0. path_to_selection_items - The path into the
-           result data object to the list of selection items. If missing, the
-           data at the specified result array index is used (defaulting to
-           the first returned value in the list). The selection items data
-           structure must be a list of mappings or structures. As an example
-           of correctly specifying where the selection items are within the
-           data structure returned from the dynamic service, if the data
-           structure is: [ "foo",                # return array position 0 { 
-           # return array position 1 "interesting_data": [ "baz", "boo", [
-           {"id": 1, "name": "foo" }, ... {"id": 42, "name": "wowbagger" } ],
-           "bat" ] }, "bar"                # return array position 2 ] Note
-           that KBase dynamic services all return an array of values, even
-           for single-value returns, as the KIDL spec allows specifying
-           multiple return values per function. In this case:
-           result_array_index would be 1 path_to_selection_items would be
-           ["interesting_data", "2"] selection_id would be "name" The
-           selection items would be the 42 items represented by {"id": 1,
-           "name": "foo" }, ... {"id": 42, "name": "wowbagger" } Selection
-           items must always be a list of maps. The final value returned when
-           the user selects a value would be the "name" field - "foo" if the
-           first item is selected, and "wowbagger" if the last item is
-           selected.) -> structure: parameter "data_source" of String,
-           parameter "service_function" of String, parameter
-           "service_version" of String, parameter "service_params" of
-           unspecified object, parameter "selection_id" of String, parameter
-           "description_template" of String, parameter "multiselection" of
-           type "boolean" (@range [0,1]), parameter "query_on_empty_input" of
-           type "boolean" (@range [0,1]), parameter "result_array_index" of
-           Long, parameter "path_to_selection_items" of list of String,
-           parameter "radio_options" of type "RadioOptions" -> structure:
-           parameter "id_order" of list of String, parameter "ids_to_options"
-           of mapping from String to String, parameter "ids_to_tooltip" of
-           mapping from String to String, parameter "tab_options" of type
-           "TabOptions" -> structure: parameter "tab_id_order" of list of
-           String, parameter "tab_id_to_tab_name" of mapping from String to
-           String, parameter "tab_id_to_param_ids" of mapping from String to
-           list of String, parameter "textsubdata_options" of type
-           "TextSubdataOptions" (Defines a parameter field that allows
-           autocomplete based on subdata of an existing object.  For
-           instance, selection of feature ids from a Genome object.  It will
-           appear as a text field with dropdown similar to selection of other
-           WS data objects. placeholder - placeholder text to display in the
-           field multiselection - if true, then multiple selections are
-           allowed in a single input field.  This will override the
-           allow_multiple option (which allows user addition) of additional
-           fields.  If true, then this parameter will return a list. Default=
-           false show_src_obj - if true, then the dropdown will indicate the
-           ids along with some text indicating what data object the subdata
-           was retrieved from. Default=true allow_custom - if true, then user
+           of type "DropdownOptions" (Defines a parameter field that allows
+           users to select from a list of options. It will appear as a
+           dropdown (a 'select' HTML element). Parameters: options   - a list
+           of maps with keys 'value' and 'display'; 'display' is the text
+           presented to the user, and 'value' is what is passed from the
+           element when it is submitted. See the DropDownOption type for the
+           spec. multiselection - If true, multiple selections are allowed
+           from a single field, and the parameter will return a list, rather
+           than a single value. This parameter is optional. Default = false)
+           -> structure: parameter "options" of list of type "DropdownOption"
+           (value is what is passed from the form, display is how the
+           selection is shown to the user) -> structure: parameter "value" of
+           String, parameter "display" of String, parameter "multiselection"
+           of type "boolean" (@range [0,1]), parameter
+           "dynamic_dropdown_options" of type "DynamicDropdownOptions"
+           (Defines a parameter field that allows autocomplete based on a
+           call to a dynamic service. For instance, selection of files from
+           the staging_service or from kbase_search. It will appear as a text
+           field with dropdown similar to selection of other WS data objects.
+           data_source - one of ftp_staging | search | custom. Provides
+           sensible defaults to for the following parameters for a common
+           type of dropdown which can be overwritten service_function - name
+           of SDK method including prefix with SDK module started up as
+           dynamic service (it's fully qualified method name where module and
+           method are separated by '.'). service_version - optional version
+           of module used in service_function (default value is 'release').
+           service_params - The parameters that will be supplied to the
+           dynamic service call as JSON. The special text
+           "{{dynamic_dropdown_input}}" will be replaced by the value of user
+           input at call time. selection_id - The value of this key will be
+           extracted from the item selected by the user. The item is expected
+           to be represented as a map. description_template - Defines how the
+           description of items is rendered using Handlebar templates (use
+           the keys in the items as variable names) multiselection - If true,
+           then multiple selections are allowed in a single input field. This
+           will override the allow_multiple option (which allows user
+           addition) of additional fields.  If true, then this parameter will
+           return a list. Default= false query_on_empty_input - true, the
+           default, to send a request to the dynamic service even if there is
+           no input. result_array_index - The index of the result array
+           returned from the dynamic service from where the selection items
+           will be extracted. Default 0. path_to_selection_items - The path
+           into the result data object to the list of selection items. If
+           missing, the data at the specified result array index is used
+           (defaulting to the first returned value in the list). The
+           selection items data structure must be a list of mappings or
+           structures. As an example of correctly specifying where the
+           selection items are within the data structure returned from the
+           dynamic service, if the data structure is: [ "foo",               
+           # return array position 0 {                     # return array
+           position 1 "interesting_data": [ "baz", "boo", [ {"id": 1, "name":
+           "foo" }, ... {"id": 42, "name": "wowbagger" } ], "bat" ] }, "bar" 
+           # return array position 2 ] Note that KBase dynamic services all
+           return an array of values, even for single-value returns, as the
+           KIDL spec allows specifying multiple return values per function.
+           In this case: result_array_index would be 1
+           path_to_selection_items would be ["interesting_data", "2"]
+           selection_id would be "name" The selection items would be the 42
+           items represented by {"id": 1, "name": "foo" }, ... {"id": 42,
+           "name": "wowbagger" } Selection items must always be a list of
+           maps. The final value returned when the user selects a value would
+           be the "name" field - "foo" if the first item is selected, and
+           "wowbagger" if the last item is selected.) -> structure: parameter
+           "data_source" of String, parameter "service_function" of String,
+           parameter "service_version" of String, parameter "service_params"
+           of unspecified object, parameter "selection_id" of String,
+           parameter "description_template" of String, parameter
+           "multiselection" of type "boolean" (@range [0,1]), parameter
+           "query_on_empty_input" of type "boolean" (@range [0,1]), parameter
+           "result_array_index" of Long, parameter "path_to_selection_items"
+           of list of String, parameter "radio_options" of type
+           "RadioOptions" -> structure: parameter "id_order" of list of
+           String, parameter "ids_to_options" of mapping from String to
+           String, parameter "ids_to_tooltip" of mapping from String to
+           String, parameter "tab_options" of type "TabOptions" -> structure:
+           parameter "tab_id_order" of list of String, parameter
+           "tab_id_to_tab_name" of mapping from String to String, parameter
+           "tab_id_to_param_ids" of mapping from String to list of String,
+           parameter "textsubdata_options" of type "TextSubdataOptions"
+           (Defines a parameter field that allows autocomplete based on
+           subdata of an existing object.  For instance, selection of feature
+           ids from a Genome object.  It will appear as a text field with
+           dropdown similar to selection of other WS data objects.
+           placeholder - placeholder text to display in the field
+           multiselection - if true, then multiple selections are allowed in
+           a single input field.  This will override the allow_multiple
+           option (which allows user addition) of additional fields.  If
+           true, then this parameter will return a list. Default= false
+           show_src_obj - if true, then the dropdown will indicate the ids
+           along with some text indicating what data object the subdata was
+           retrieved from. Default=true allow_custom - if true, then user
            specified inputs not found in the list are accepted.  if false,
            users can only select from the valid list of selections.
            Default=false) -> structure: parameter "placeholder" of String,
@@ -2081,24 +2145,30 @@ class NarrativeMethodStore(object):
            an input parameter, output parameter, or just plain old parameter
            (input is generally an input data object, output is an output data
            object, and plain old parameter is more or less numbers, fixed
-           selections, etc) @optional text_options textarea_options
-           intslider_options floatslider_options @optional checkbox_options
-           dropdown_options radio_options tab_options
-           dynamic_dropdown_options) -> structure: parameter "id" of String,
-           parameter "ui_name" of String, parameter "short_hint" of String,
-           parameter "description" of String, parameter "field_type" of
-           String, parameter "allow_multiple" of type "boolean" (@range
-           [0,1]), parameter "optional" of type "boolean" (@range [0,1]),
-           parameter "advanced" of type "boolean" (@range [0,1]), parameter
-           "disabled" of type "boolean" (@range [0,1]), parameter "ui_class"
-           of String, parameter "default_values" of list of String, parameter
-           "text_options" of type "TextOptions" (valid_ws_types  - list of
-           valid ws types that can be used for input validate_as     - int |
-           float | nonnumeric | none is_output_name  - true if the user is
-           specifying an output name, false otherwise, default is false) ->
-           structure: parameter "valid_ws_types" of list of String, parameter
-           "validate_as" of String, parameter "is_output_name" of type
-           "boolean" (@range [0,1]), parameter "placeholder" of String,
+           selections, etc) valid_file_types - a list of staging area file
+           types that are valid for the method parameter. This might apply to
+           a text box, dropdown, dynamic dropdown, etc. depending on the
+           context. The file type is available in the mappings key of the
+           json response from staging service importer mappings endpoint.
+           Each mapping has a file_type key containing the type. @optional
+           text_options textarea_options intslider_options
+           floatslider_options @optional checkbox_options dropdown_options
+           radio_options tab_options dynamic_dropdown_options) -> structure:
+           parameter "id" of String, parameter "ui_name" of String, parameter
+           "short_hint" of String, parameter "description" of String,
+           parameter "field_type" of String, parameter "allow_multiple" of
+           type "boolean" (@range [0,1]), parameter "optional" of type
+           "boolean" (@range [0,1]), parameter "advanced" of type "boolean"
+           (@range [0,1]), parameter "disabled" of type "boolean" (@range
+           [0,1]), parameter "ui_class" of String, parameter "default_values"
+           of list of String, parameter "valid_file_types" of list of String,
+           parameter "text_options" of type "TextOptions" (valid_ws_types  -
+           list of valid ws types that can be used for input validate_as    
+           - int | float | nonnumeric | none is_output_name  - true if the
+           user is specifying an output name, false otherwise, default is
+           false) -> structure: parameter "valid_ws_types" of list of String,
+           parameter "validate_as" of String, parameter "is_output_name" of
+           type "boolean" (@range [0,1]), parameter "placeholder" of String,
            parameter "min_int" of Long, parameter "max_int" of Long,
            parameter "min_float" of Double, parameter "max_float" of Double,
            parameter "regex_constraint" of list of type "RegexMatcher" (regex
@@ -2117,87 +2187,97 @@ class NarrativeMethodStore(object):
            parameter "max" of Double, parameter "checkbox_options" of type
            "CheckboxOptions" -> structure: parameter "checked_value" of Long,
            parameter "unchecked_value" of Long, parameter "dropdown_options"
-           of type "DropdownOptions" -> structure: parameter "options" of
-           list of type "DropdownOption" (value is what is passed from the
-           form, display is how the selection is shown to the user) ->
-           structure: parameter "value" of String, parameter "display" of
-           String, parameter "dynamic_dropdown_options" of type
-           "DynamicDropdownOptions" (Defines a parameter field that allows
-           autocomplete based on a call to a dynamic service. For instance,
-           selection of files from the staging_service or from kbase_search.
-           It will appear as a text field with dropdown similar to selection
-           of other WS data objects. data_source - one of ftp_staging |
-           search | custom. Provides sensible defaults to for the following
-           parameters for a common type of dropdown which can be overwritten
-           service_function - name of SDK method including prefix with SDK
-           module started up as dynamic service (it's fully qualified method
-           name where module and method are separated by '.').
-           service_version - optional version of module used in
-           service_function (default value is 'release'). service_params -
-           The parameters that will be supplied to the dynamic service call
-           as JSON. The special text "{{dynamic_dropdown_input}}" will be
-           replaced by the value of user input at call time. selection_id -
-           The value of this key will be extracted from the item selected by
-           the user. The item is expected to be represented as a map.
-           description_template - Defines how the description of items is
-           rendered using Handlebar templates (use the keys in the items as
-           variable names) multiselection - If true, then multiple selections
-           are allowed in a single input field. This will override the
-           allow_multiple option (which allows user addition) of additional
-           fields.  If true, then this parameter will return a list. Default=
-           false query_on_empty_input - true, the default, to send a request
-           to the dynamic service even if there is no input.
-           result_array_index - The index of the result array returned from
-           the dynamic service from where the selection items will be
-           extracted. Default 0. path_to_selection_items - The path into the
-           result data object to the list of selection items. If missing, the
-           data at the specified result array index is used (defaulting to
-           the first returned value in the list). The selection items data
-           structure must be a list of mappings or structures. As an example
-           of correctly specifying where the selection items are within the
-           data structure returned from the dynamic service, if the data
-           structure is: [ "foo",                # return array position 0 { 
-           # return array position 1 "interesting_data": [ "baz", "boo", [
-           {"id": 1, "name": "foo" }, ... {"id": 42, "name": "wowbagger" } ],
-           "bat" ] }, "bar"                # return array position 2 ] Note
-           that KBase dynamic services all return an array of values, even
-           for single-value returns, as the KIDL spec allows specifying
-           multiple return values per function. In this case:
-           result_array_index would be 1 path_to_selection_items would be
-           ["interesting_data", "2"] selection_id would be "name" The
-           selection items would be the 42 items represented by {"id": 1,
-           "name": "foo" }, ... {"id": 42, "name": "wowbagger" } Selection
-           items must always be a list of maps. The final value returned when
-           the user selects a value would be the "name" field - "foo" if the
-           first item is selected, and "wowbagger" if the last item is
-           selected.) -> structure: parameter "data_source" of String,
-           parameter "service_function" of String, parameter
-           "service_version" of String, parameter "service_params" of
-           unspecified object, parameter "selection_id" of String, parameter
-           "description_template" of String, parameter "multiselection" of
-           type "boolean" (@range [0,1]), parameter "query_on_empty_input" of
-           type "boolean" (@range [0,1]), parameter "result_array_index" of
-           Long, parameter "path_to_selection_items" of list of String,
-           parameter "radio_options" of type "RadioOptions" -> structure:
-           parameter "id_order" of list of String, parameter "ids_to_options"
-           of mapping from String to String, parameter "ids_to_tooltip" of
-           mapping from String to String, parameter "tab_options" of type
-           "TabOptions" -> structure: parameter "tab_id_order" of list of
-           String, parameter "tab_id_to_tab_name" of mapping from String to
-           String, parameter "tab_id_to_param_ids" of mapping from String to
-           list of String, parameter "textsubdata_options" of type
-           "TextSubdataOptions" (Defines a parameter field that allows
-           autocomplete based on subdata of an existing object.  For
-           instance, selection of feature ids from a Genome object.  It will
-           appear as a text field with dropdown similar to selection of other
-           WS data objects. placeholder - placeholder text to display in the
-           field multiselection - if true, then multiple selections are
-           allowed in a single input field.  This will override the
-           allow_multiple option (which allows user addition) of additional
-           fields.  If true, then this parameter will return a list. Default=
-           false show_src_obj - if true, then the dropdown will indicate the
-           ids along with some text indicating what data object the subdata
-           was retrieved from. Default=true allow_custom - if true, then user
+           of type "DropdownOptions" (Defines a parameter field that allows
+           users to select from a list of options. It will appear as a
+           dropdown (a 'select' HTML element). Parameters: options   - a list
+           of maps with keys 'value' and 'display'; 'display' is the text
+           presented to the user, and 'value' is what is passed from the
+           element when it is submitted. See the DropDownOption type for the
+           spec. multiselection - If true, multiple selections are allowed
+           from a single field, and the parameter will return a list, rather
+           than a single value. This parameter is optional. Default = false)
+           -> structure: parameter "options" of list of type "DropdownOption"
+           (value is what is passed from the form, display is how the
+           selection is shown to the user) -> structure: parameter "value" of
+           String, parameter "display" of String, parameter "multiselection"
+           of type "boolean" (@range [0,1]), parameter
+           "dynamic_dropdown_options" of type "DynamicDropdownOptions"
+           (Defines a parameter field that allows autocomplete based on a
+           call to a dynamic service. For instance, selection of files from
+           the staging_service or from kbase_search. It will appear as a text
+           field with dropdown similar to selection of other WS data objects.
+           data_source - one of ftp_staging | search | custom. Provides
+           sensible defaults to for the following parameters for a common
+           type of dropdown which can be overwritten service_function - name
+           of SDK method including prefix with SDK module started up as
+           dynamic service (it's fully qualified method name where module and
+           method are separated by '.'). service_version - optional version
+           of module used in service_function (default value is 'release').
+           service_params - The parameters that will be supplied to the
+           dynamic service call as JSON. The special text
+           "{{dynamic_dropdown_input}}" will be replaced by the value of user
+           input at call time. selection_id - The value of this key will be
+           extracted from the item selected by the user. The item is expected
+           to be represented as a map. description_template - Defines how the
+           description of items is rendered using Handlebar templates (use
+           the keys in the items as variable names) multiselection - If true,
+           then multiple selections are allowed in a single input field. This
+           will override the allow_multiple option (which allows user
+           addition) of additional fields.  If true, then this parameter will
+           return a list. Default= false query_on_empty_input - true, the
+           default, to send a request to the dynamic service even if there is
+           no input. result_array_index - The index of the result array
+           returned from the dynamic service from where the selection items
+           will be extracted. Default 0. path_to_selection_items - The path
+           into the result data object to the list of selection items. If
+           missing, the data at the specified result array index is used
+           (defaulting to the first returned value in the list). The
+           selection items data structure must be a list of mappings or
+           structures. As an example of correctly specifying where the
+           selection items are within the data structure returned from the
+           dynamic service, if the data structure is: [ "foo",               
+           # return array position 0 {                     # return array
+           position 1 "interesting_data": [ "baz", "boo", [ {"id": 1, "name":
+           "foo" }, ... {"id": 42, "name": "wowbagger" } ], "bat" ] }, "bar" 
+           # return array position 2 ] Note that KBase dynamic services all
+           return an array of values, even for single-value returns, as the
+           KIDL spec allows specifying multiple return values per function.
+           In this case: result_array_index would be 1
+           path_to_selection_items would be ["interesting_data", "2"]
+           selection_id would be "name" The selection items would be the 42
+           items represented by {"id": 1, "name": "foo" }, ... {"id": 42,
+           "name": "wowbagger" } Selection items must always be a list of
+           maps. The final value returned when the user selects a value would
+           be the "name" field - "foo" if the first item is selected, and
+           "wowbagger" if the last item is selected.) -> structure: parameter
+           "data_source" of String, parameter "service_function" of String,
+           parameter "service_version" of String, parameter "service_params"
+           of unspecified object, parameter "selection_id" of String,
+           parameter "description_template" of String, parameter
+           "multiselection" of type "boolean" (@range [0,1]), parameter
+           "query_on_empty_input" of type "boolean" (@range [0,1]), parameter
+           "result_array_index" of Long, parameter "path_to_selection_items"
+           of list of String, parameter "radio_options" of type
+           "RadioOptions" -> structure: parameter "id_order" of list of
+           String, parameter "ids_to_options" of mapping from String to
+           String, parameter "ids_to_tooltip" of mapping from String to
+           String, parameter "tab_options" of type "TabOptions" -> structure:
+           parameter "tab_id_order" of list of String, parameter
+           "tab_id_to_tab_name" of mapping from String to String, parameter
+           "tab_id_to_param_ids" of mapping from String to list of String,
+           parameter "textsubdata_options" of type "TextSubdataOptions"
+           (Defines a parameter field that allows autocomplete based on
+           subdata of an existing object.  For instance, selection of feature
+           ids from a Genome object.  It will appear as a text field with
+           dropdown similar to selection of other WS data objects.
+           placeholder - placeholder text to display in the field
+           multiselection - if true, then multiple selections are allowed in
+           a single input field.  This will override the allow_multiple
+           option (which allows user addition) of additional fields.  If
+           true, then this parameter will return a list. Default= false
+           show_src_obj - if true, then the dropdown will indicate the ids
+           along with some text indicating what data object the subdata was
+           retrieved from. Default=true allow_custom - if true, then user
            specified inputs not found in the list are accepted.  if false,
            users can only select from the valid list of selections.
            Default=false) -> structure: parameter "placeholder" of String,

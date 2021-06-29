@@ -412,6 +412,12 @@ module NarrativeMethodStore {
                    if it is an input parameter, output parameter, or just plain old parameter
                    (input is generally an input data object, output is an output data object,
                    and plain old parameter is more or less numbers, fixed selections, etc)
+                   
+        valid_file_types - a list of staging area file types that are valid for the method
+            parameter. This might apply to a text box, dropdown, dynamic dropdown, etc. depending
+            on the context. The file type is available in the mappings key of the json response
+            from staging service importer mappings endpoint. Each mapping has a file_type key
+            containing the type.
 
         @optional text_options textarea_options intslider_options floatslider_options
         @optional checkbox_options dropdown_options radio_options tab_options dynamic_dropdown_options
@@ -430,6 +436,7 @@ module NarrativeMethodStore {
         string ui_class;
 
         list<string> default_values;
+        list<string> valid_file_types;
 
         TextOptions text_options;
         TextAreaOptions textarea_options;

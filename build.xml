@@ -125,10 +125,10 @@
     <include name="apache_commons/commons-collections-3.2.1.jar"/>
     <!-- should probably make a testlib at some point -->
     <!-- mockito and dependencies -->
-    <include name="mockito/mockito-core-2.7.10.jar"/>
-    <include name="bytebuddy/byte-buddy-1.6.8.jar"/>
-    <include name="bytebuddy/byte-buddy-agent-1.6.8.jar"/>
-    <include name="objenesis/objenesis-2.5.1.jar"/>
+    <include name="mockito/mockito-core-3.0.0.jar"/>
+    <include name="bytebuddy/byte-buddy-1.9.10.jar"/>
+    <include name="bytebuddy/byte-buddy-agent-1.9.10.jar"/>
+    <include name="objenesis/objenesis-2.6.jar"/>
     <include name="apache_commons/commons-lang3-3.5.jar"/>
   </fileset>
 
