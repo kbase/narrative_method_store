@@ -964,6 +964,7 @@ DynamicDropdownOptions is a reference to a hash where the following keys are def
 	service_version has a value which is a string
 	service_params has a value which is an UnspecifiedObject, which can hold any non-null object
 	selection_id has a value which is a string
+	exact_match_on has a value which is a string
 	description_template has a value which is a string
 	multiselection has a value which is a NarrativeMethodStore.boolean
 	query_on_empty_input has a value which is a NarrativeMethodStore.boolean
@@ -1149,6 +1150,7 @@ DynamicDropdownOptions is a reference to a hash where the following keys are def
 	service_version has a value which is a string
 	service_params has a value which is an UnspecifiedObject, which can hold any non-null object
 	selection_id has a value which is a string
+	exact_match_on has a value which is a string
 	description_template has a value which is a string
 	multiselection has a value which is a NarrativeMethodStore.boolean
 	query_on_empty_input has a value which is a NarrativeMethodStore.boolean
@@ -2360,6 +2362,7 @@ DynamicDropdownOptions is a reference to a hash where the following keys are def
 	service_version has a value which is a string
 	service_params has a value which is an UnspecifiedObject, which can hold any non-null object
 	selection_id has a value which is a string
+	exact_match_on has a value which is a string
 	description_template has a value which is a string
 	multiselection has a value which is a NarrativeMethodStore.boolean
 	query_on_empty_input has a value which is a NarrativeMethodStore.boolean
@@ -2544,6 +2547,7 @@ DynamicDropdownOptions is a reference to a hash where the following keys are def
 	service_version has a value which is a string
 	service_params has a value which is an UnspecifiedObject, which can hold any non-null object
 	selection_id has a value which is a string
+	exact_match_on has a value which is a string
 	description_template has a value which is a string
 	multiselection has a value which is a NarrativeMethodStore.boolean
 	query_on_empty_input has a value which is a NarrativeMethodStore.boolean
@@ -3381,6 +3385,7 @@ DynamicDropdownOptions is a reference to a hash where the following keys are def
 	service_version has a value which is a string
 	service_params has a value which is an UnspecifiedObject, which can hold any non-null object
 	selection_id has a value which is a string
+	exact_match_on has a value which is a string
 	description_template has a value which is a string
 	multiselection has a value which is a NarrativeMethodStore.boolean
 	query_on_empty_input has a value which is a NarrativeMethodStore.boolean
@@ -3658,6 +3663,7 @@ DynamicDropdownOptions is a reference to a hash where the following keys are def
 	service_version has a value which is a string
 	service_params has a value which is an UnspecifiedObject, which can hold any non-null object
 	selection_id has a value which is a string
+	exact_match_on has a value which is a string
 	description_template has a value which is a string
 	multiselection has a value which is a NarrativeMethodStore.boolean
 	query_on_empty_input has a value which is a NarrativeMethodStore.boolean
@@ -3998,6 +4004,7 @@ DynamicDropdownOptions is a reference to a hash where the following keys are def
 	service_version has a value which is a string
 	service_params has a value which is an UnspecifiedObject, which can hold any non-null object
 	selection_id has a value which is a string
+	exact_match_on has a value which is a string
 	description_template has a value which is a string
 	multiselection has a value which is a NarrativeMethodStore.boolean
 	query_on_empty_input has a value which is a NarrativeMethodStore.boolean
@@ -4274,6 +4281,7 @@ DynamicDropdownOptions is a reference to a hash where the following keys are def
 	service_version has a value which is a string
 	service_params has a value which is an UnspecifiedObject, which can hold any non-null object
 	selection_id has a value which is a string
+	exact_match_on has a value which is a string
 	description_template has a value which is a string
 	multiselection has a value which is a NarrativeMethodStore.boolean
 	query_on_empty_input has a value which is a NarrativeMethodStore.boolean
@@ -4614,6 +4622,7 @@ DynamicDropdownOptions is a reference to a hash where the following keys are def
 	service_version has a value which is a string
 	service_params has a value which is an UnspecifiedObject, which can hold any non-null object
 	selection_id has a value which is a string
+	exact_match_on has a value which is a string
 	description_template has a value which is a string
 	multiselection has a value which is a NarrativeMethodStore.boolean
 	query_on_empty_input has a value which is a NarrativeMethodStore.boolean
@@ -4890,6 +4899,7 @@ DynamicDropdownOptions is a reference to a hash where the following keys are def
 	service_version has a value which is a string
 	service_params has a value which is an UnspecifiedObject, which can hold any non-null object
 	selection_id has a value which is a string
+	exact_match_on has a value which is a string
 	description_template has a value which is a string
 	multiselection has a value which is a NarrativeMethodStore.boolean
 	query_on_empty_input has a value which is a NarrativeMethodStore.boolean
@@ -6568,6 +6578,12 @@ appear as a text field with dropdown similar to selection of other WS data objec
     selection_id - The value of this key will be extracted from the item selected by the
                    user. The item is expected to be represented as a map.
 
+    exact_match_on - if exactly matching the user's input to the results from the dynamic
+                   service is required, this field contains the name of the key in
+                   the results document that contains the value to which the user's
+                   input should be matched. May or may not be the same key as
+                   'selection_id'.
+
     description_template - Defines how the description of items is rendered using
                    Handlebar templates (use the keys in the items as variable names)
 
@@ -6647,6 +6663,7 @@ service_function has a value which is a string
 service_version has a value which is a string
 service_params has a value which is an UnspecifiedObject, which can hold any non-null object
 selection_id has a value which is a string
+exact_match_on has a value which is a string
 description_template has a value which is a string
 multiselection has a value which is a NarrativeMethodStore.boolean
 query_on_empty_input has a value which is a NarrativeMethodStore.boolean
@@ -6665,6 +6682,7 @@ service_function has a value which is a string
 service_version has a value which is a string
 service_params has a value which is an UnspecifiedObject, which can hold any non-null object
 selection_id has a value which is a string
+exact_match_on has a value which is a string
 description_template has a value which is a string
 multiselection has a value which is a NarrativeMethodStore.boolean
 query_on_empty_input has a value which is a NarrativeMethodStore.boolean

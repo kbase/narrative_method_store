@@ -9,3 +9,5 @@ The Narrative Method Store has a CLI for developers and documenters to check the
 
 The Narrative Method Store can be deployed within a standard KBase runtime environment with the standard KBase deployment process. Briefly, from within the dev_container, clone this repo into the modules directory.  Rebuild any environment variables by running the dev_container bootstrap script and sourcing the user-env.sh file.  Within this repo directory, run `make`, optionally `make test`, and finally `make deploy TARGET=[deployment_directory]`.
 
+Note that the `mongod` executable must be on the path for the tests to pass.
+

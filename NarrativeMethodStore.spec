@@ -304,6 +304,12 @@ module NarrativeMethodStore {
             selection_id - The value of this key will be extracted from the item selected by the
                            user. The item is expected to be represented as a map.
 
+            exact_match_on - if exactly matching the user's input to the results from the dynamic
+                           service is required, this field contains the name of the key in
+                           the results document that contains the value to which the user's
+                           input should be matched. May or may not be the same key as
+                           'selection_id'.
+
             description_template - Defines how the description of items is rendered using
                            Handlebar templates (use the keys in the items as variable names)
 
@@ -379,6 +385,7 @@ module NarrativeMethodStore {
         string service_version;
         UnspecifiedObject service_params;
         string selection_id;
+        string exact_match_on;
         string description_template;
         boolean multiselection;
         boolean query_on_empty_input;
