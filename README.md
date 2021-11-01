@@ -9,5 +9,9 @@ The Narrative Method Store has a CLI for developers and documenters to check the
 
 The Narrative Method Store can be deployed within a standard KBase runtime environment with the standard KBase deployment process. Briefly, from within the dev_container, clone this repo into the modules directory.  Rebuild any environment variables by running the dev_container bootstrap script and sourcing the user-env.sh file.  Within this repo directory, run `make`, optionally `make test`, and finally `make deploy TARGET=[deployment_directory]`.
 
-Note that the `mongod` executable must be on the path for the tests to pass.
+Test requirements:
+
+* The `mongod` executable must be on the path
+* The `configobj` python library must be installed and python 2.7 must be on the path.
+  `pipenv shell` will set up an environment suitable for running tests. 
 
