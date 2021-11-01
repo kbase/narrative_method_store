@@ -10,7 +10,7 @@ RUN pip install configobj && \
     cd /tmp/narrative_method_store && \
     # do an end run around git submodule commands in makefile - breaks in docker hub
     ant compile -Djardir=/tmp/jars/lib/jars  && \ 
-    make deploy-service && \
+    make deploy-service ANT_OPTIONS=-Djardir=/tmp/jars/lib/jars && \
     mkdir -m 777 /kb/deployment/services/narrative_method_store/logs 
 
 FROM kbase/kb_jre:latest
