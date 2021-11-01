@@ -1321,9 +1321,9 @@ public class FullServerTest {
 	}
 
 	@Test
-	public void dynamicRepoWithValidFileTypes() throws Exception {
-		/* Tests that registering a repo with the valid_file_types key preserves that
-		 * key when fetching the module spec.
+	public void dynamicRepoWithValidFileTypesAndExactMatchOne() throws Exception {
+		/* Tests that registering a repo with the valid_file_types and exact_match_on keys
+		 * preserves those keys when fetching the module spec.
 		 */
 		final String moduleName = "nms_fake_type_test";
 		final String gitUrl = "https://github.com/kbasetest/nms_fake_type_test";
@@ -1343,6 +1343,8 @@ public class FullServerTest {
 		final MethodParameter param = spec.get(0).getParameters().get(0);
 		assertThat("correct valid file types", param.getValidFileTypes(),
 				is(Arrays.asList("FASTQ", "FASTQ-FWD")));
+		final DynamicDropdownOptions ddo = param.getDynamicDropdownOptions();
+		assertThat("correct exact match on", ddo.getExactMatchOn(), is("scientific_name"));
 		/* Unfortunately there doesn't appear to be a simple way to clear the database between
 		 * tests
 		 */
