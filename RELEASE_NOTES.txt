@@ -3,6 +3,12 @@ NARRATIVE METHOD STORE OVERVIEW
 The Narrative Method Store provides an API to dynamically access the available
 narrative method/app/type specifications and documentation.
 
+VERSION: 0.3.12 (Released TBD)
+------------------------------------
+
+UPDATED FEATURES:
+- Added the `exact_match_on` field to the dynamic dropdown options.
+
 VERSION: 0.3.11 (Released 6/29/2021)
 ------------------------------------
 

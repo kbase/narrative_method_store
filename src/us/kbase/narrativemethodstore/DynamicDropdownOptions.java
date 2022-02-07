@@ -32,6 +32,11 @@ import us.kbase.common.service.UObject;
  *                    the value of user input at call time.
  *     selection_id - The value of this key will be extracted from the item selected by the
  *                    user. The item is expected to be represented as a map.
+ *     exact_match_on - if exactly matching the user's input to the results from the dynamic
+ *                    service is required, this field contains the name of the key in
+ *                    the results document that contains the value to which the user's
+ *                    input should be matched. May or may not be the same key as
+ *                    'selection_id'.
  *     description_template - Defines how the description of items is rendered using
  *                    Handlebar templates (use the keys in the items as variable names)
  *     multiselection - If true, then multiple selections are allowed in a single input field.
@@ -97,6 +102,7 @@ import us.kbase.common.service.UObject;
     "service_version",
     "service_params",
     "selection_id",
+    "exact_match_on",
     "description_template",
     "multiselection",
     "query_on_empty_input",
@@ -115,6 +121,8 @@ public class DynamicDropdownOptions {
     private UObject serviceParams;
     @JsonProperty("selection_id")
     private java.lang.String selectionId;
+    @JsonProperty("exact_match_on")
+    private java.lang.String exactMatchOn;
     @JsonProperty("description_template")
     private java.lang.String descriptionTemplate;
     @JsonProperty("multiselection")
@@ -199,6 +207,21 @@ public class DynamicDropdownOptions {
 
     public DynamicDropdownOptions withSelectionId(java.lang.String selectionId) {
         this.selectionId = selectionId;
+        return this;
+    }
+
+    @JsonProperty("exact_match_on")
+    public java.lang.String getExactMatchOn() {
+        return exactMatchOn;
+    }
+
+    @JsonProperty("exact_match_on")
+    public void setExactMatchOn(java.lang.String exactMatchOn) {
+        this.exactMatchOn = exactMatchOn;
+    }
+
+    public DynamicDropdownOptions withExactMatchOn(java.lang.String exactMatchOn) {
+        this.exactMatchOn = exactMatchOn;
         return this;
     }
 
@@ -289,7 +312,7 @@ public class DynamicDropdownOptions {
 
     @Override
     public java.lang.String toString() {
-        return ((((((((((((((((((((((("DynamicDropdownOptions"+" [dataSource=")+ dataSource)+", serviceFunction=")+ serviceFunction)+", serviceVersion=")+ serviceVersion)+", serviceParams=")+ serviceParams)+", selectionId=")+ selectionId)+", descriptionTemplate=")+ descriptionTemplate)+", multiselection=")+ multiselection)+", queryOnEmptyInput=")+ queryOnEmptyInput)+", resultArrayIndex=")+ resultArrayIndex)+", pathToSelectionItems=")+ pathToSelectionItems)+", additionalProperties=")+ additionalProperties)+"]");
+        return ((((((((((((((((((((((((("DynamicDropdownOptions"+" [dataSource=")+ dataSource)+", serviceFunction=")+ serviceFunction)+", serviceVersion=")+ serviceVersion)+", serviceParams=")+ serviceParams)+", selectionId=")+ selectionId)+", exactMatchOn=")+ exactMatchOn)+", descriptionTemplate=")+ descriptionTemplate)+", multiselection=")+ multiselection)+", queryOnEmptyInput=")+ queryOnEmptyInput)+", resultArrayIndex=")+ resultArrayIndex)+", pathToSelectionItems=")+ pathToSelectionItems)+", additionalProperties=")+ additionalProperties)+"]");
     }
 
 }

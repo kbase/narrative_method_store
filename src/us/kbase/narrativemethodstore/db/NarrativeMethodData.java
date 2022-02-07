@@ -554,6 +554,7 @@ public class NarrativeMethodData {
 						.withDataSource(getTextOrNull(optNode.get("data_source")))
 						.withServiceParams(new UObject(optNode.get("service_params")))
 						.withSelectionId(getTextOrNull(optNode.get("selection_id")))
+						.withExactMatchOn(getTextOrNull(optNode.get("exact_match_on")))
 						.withQueryOnEmptyInput(
 								jsonBooleanToRPC(optNode.get("query_on_empty_input"), 1L))
 						.withResultArrayIndex(getLongOrNull(optNode.get("result_array_index"), 0L))
