@@ -12,5 +12,8 @@ The Narrative Method Store can be deployed within a standard KBase runtime envir
 Test requirements:
 
 * The `mongod` executable must be on the path
-* The `configobj` python library must be installed and python 2.7 must be on the path.
-  `pipenv shell` will set up an environment suitable for running tests. 
+
+To run tests:
+
+* Copy `test.cfg.example` to `test.cfg` and make any adjustments necessary
+* `ant test`
