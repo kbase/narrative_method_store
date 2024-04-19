@@ -13,9 +13,8 @@ var DEFAULT_URL = "https://ci.kbase.us/services/narrative_method_store/rpc"
 var LOC_NMS_SPEC = "$rootDir/NarrativeMethodStore.spec"
 var LOC_DOC_HTML = "$rootDir/docshtml"
 
-// TODO NOW update dockerfile
-// TODO NOW delete build.xml and Makefile
 // TODO NOW run tests from Eclipse w/o specifying classpath manually & remove sourceSets & classpath
+// TODO BUILD use jitpacked jars when available
 
 repositories {
 	mavenCentral()
