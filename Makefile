@@ -32,11 +32,8 @@ TESTCFG ?= test.cfg
 
 default: build-libs build-docs build-bin
 
-
-ANT_OPTIONS ?= -Djardir=submodules/jars/lib/jars
-
 build-libs: submodule-init
-	$(ANT) compile $(ANT_OPTIONS)
+	$(ANT) compile
 
 build-bin: build-nms-bin
 
@@ -50,7 +47,7 @@ submodule-init:
 
 build-docs:
 	mkdir -p docs
-	$(ANT) javadoc $(ANT_OPTIONS)
+	$(ANT) javadoc
 	-pod2html --infile=lib/Bio/KBase/$(SERVICE_CAPS)/Client.pm --outfile=docs/$(SERVICE_CAPS).html
 	rm -f pod2htm?.tmp
 	cp $(SPEC_FILE) docs/.
@@ -68,7 +65,7 @@ build-nms-bin:
 	echo "export PATH=$(DIR)/bin:\$$PATH" > bin/nms-env.sh
 
 build-java-client:
-	$(ANT) compile_client $(ANT_OPTIONS)
+	$(ANT) compile_client
 
 compile: compile-typespec compile-typespec-java
 
@@ -91,7 +88,7 @@ compile-typespec:
 		$(SPEC_FILE)
 
 build-classpath-list:
-	$(ANT) build_classpath_list $(ANT_OPTIONS)
+	$(ANT) build_classpath_list
 
 
 test: test-client test-service test-scripts
@@ -99,8 +96,7 @@ test: test-client test-service test-scripts
 test-client:
 
 test-service:
-	test/cfg_to_runner.py $(TESTCFG) "$(ANT_OPTIONS)"
-	test/run_tests.sh
+	ant test
 
 test-scripts:
 
@@ -137,7 +133,7 @@ deploy-service-libs:
 	  	echo "Error makefile variable SERVICE_DIR must be defined to deploy-service-libs"; \
 	  	exit 1; \
 	fi;
-	$(ANT) buildwar $(ANT_OPTIONS)
+	$(ANT) buildwar
 	mkdir -p $(SERVICE_DIR)
 	cp dist/$(WAR) $(SERVICE_DIR)
 	mkdir $(SERVICE_DIR)/webapps

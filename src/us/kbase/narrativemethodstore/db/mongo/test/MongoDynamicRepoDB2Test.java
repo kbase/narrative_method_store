@@ -9,6 +9,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
@@ -17,6 +18,8 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.ini4j.Ini;
+import org.ini4j.Profile.Section;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -52,9 +55,16 @@ public class MongoDynamicRepoDB2Test {
     
     @BeforeClass
     public static void beforeClass() throws Exception {
-        // the key is not actually settable via make or ant, but it's the same as FullServerTest
-        // *shrug*
-        MONGO.startup(System.getProperty("test.mongo-exe-path"));
+        // Parse the test config variables
+        final String testcfg = System.getProperty("test.cfg");
+        final Ini cfgini = new Ini(new File(testcfg));
+        final String secName = "NarrativeMethodStoreTest";
+        final Section sec = cfgini.get(secName);
+        if (sec == null) {
+            throw new Exception(String.format(
+                    "Missing section %s in config file %s", secName, testcfg));
+        }
+        MONGO.startup(sec.get("test.mongo-exe-path"));
     }
     
     @AfterClass

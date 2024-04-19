@@ -1411,13 +1411,21 @@ public class FullServerTest {
         });
 
 		// Parse the test config variables
-		tempDirName = System.getProperty("test.temp-dir");
-
-		gitRepo = System.getProperty("test.method-spec-git-repo");
-		gitRepoBranch = System.getProperty("test.method-spec-git-repo-branch");
-		gitRepoRefreshRate = System.getProperty("test.method-spec-git-repo-refresh-rate");
-		gitRepoCacheSize = System.getProperty("test.method-spec-cache-size");
-		mongoExePath = System.getProperty("test.mongo-exe-path");
+		final String testcfg = System.getProperty("test.cfg");
+		final Ini cfgini = new Ini(new File(testcfg));
+		final String secName = "NarrativeMethodStoreTest";
+		final Section sec = cfgini.get(secName);
+		if (sec == null) {
+			throw new Exception(String.format(
+					"Missing section %s in config file %s", secName, testcfg));
+		}
+		
+		tempDirName = sec.get("test.temp-dir");
+		gitRepo = sec.get("test.method-spec-git-repo");
+		gitRepoBranch = sec.get("test.method-spec-git-repo-branch");
+		gitRepoRefreshRate = sec.get("test.method-spec-git-repo-refresh-rate");
+		gitRepoCacheSize = sec.get("test.method-spec-cache-size");
+		mongoExePath = sec.get("test.mongo-exe-path");
 
 		String s = System.getProperty("test.remove-temp-dir");
 		removeTempDir = false;
@@ -1426,8 +1434,8 @@ public class FullServerTest {
 				removeTempDir = true;
 			}
 		}
-        String authServiceUrl = System.getProperty("test.auth-service-url");
-        String authInsecure = System.getProperty("test.auth-service-url-allow-insecure");
+        String authServiceUrl = sec.get("test.auth-service-url");
+        String authInsecure = sec.get("test.auth-service-url-allow-insecure");
 
 		System.out.println("test.temp-dir    = " + tempDirName);
 		System.out.println("test.method-spec-git-repo              = " + gitRepo);

@@ -13,16 +13,22 @@ RUN pip install configobj && \
     make deploy-service ANT_OPTIONS=-Djardir=/tmp/jars/lib/jars && \
     mkdir -m 777 /kb/deployment/services/narrative_method_store/logs 
 
+
 FROM kbase/kb_jre:latest
+
 # These ARGs values are passed in via the docker build command
 ARG BUILD_DATE
 ARG VCS_REF
 ARG BRANCH 
+
+# TODO BUILD we really need to switch to a newer image
+RUN echo "deb http://archive.debian.org/debian stretch main" > /etc/apt/sources.list
+
+RUN apt update -y && apt install -y git
+
 ENV KB_DEPLOYMENT_CONFIG "/kb/deployment/conf/deployment.cfg"
 
 COPY --from=build /kb/deployment /kb/deployment/
-
-RUN apt-get update -y && apt-get install -y git
 
 LABEL org.label-schema.build-date=$BUILD_DATE \
       org.label-schema.vcs-url="https://github.com/kbase/narrative_method_store.git" \
