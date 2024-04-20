@@ -20,8 +20,6 @@ import java.util.regex.Pattern;
 
 import org.ini4j.Ini;
 
-import us.kbase.auth.AuthConfig;
-import us.kbase.auth.ConfigurableAuthService;
 import us.kbase.narrativemethodstore.db.NarrativeCategoriesIndex;
 import us.kbase.narrativemethodstore.db.ServiceUrlTemplateEvaluater;
 import us.kbase.narrativemethodstore.db.Validator;
@@ -57,10 +55,6 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
     public static final String   CFG_PROP_MONGO_PASSWORD = "method-spec-mongo-password";
     public static final String   CFG_PROP_MONGO_READONLY = "method-spec-mongo-readonly";
     public static final String      CFG_PROP_ADMIN_USERS = "method-spec-admin-users";
-    public static final String        CFG_PROP_SHOCK_URL = "method-spec-shock-url";
-    public static final String       CFG_PROP_SHOCK_USER = "method-spec-shock-user";
-    public static final String   CFG_PROP_SHOCK_PASSWORD = "method-spec-shock-password";
-    public static final String      CFG_PROP_SHOCK_TOKEN = "method-spec-shock-token";
     public static final String    CFG_PROP_ENDPOINT_BASE = "endpoint-base";
     public static final String    CFG_PROP_ENDPOINT_HOST = "endpoint-host";
     public static final String      CFG_PROP_DEFAULT_TAG = "method-spec-default-tag";
@@ -202,20 +196,6 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
             System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_MONGO_READONLY +" = " + mongoRO);
             System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_ADMIN_USERS +" = " + getAdminUsers());
             List<String> adminUsers = Arrays.asList(getAdminUsers().trim().split(Pattern.quote(",")));
-            String shockUrl = config().get(CFG_PROP_SHOCK_URL);
-            System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_SHOCK_URL +" = " + (shockUrl == null ? "<not-set>" : shockUrl));
-            String shockUser = config().get(CFG_PROP_SHOCK_USER);
-            if (shockUser != null && shockUser.trim().isEmpty()) {
-                shockUser = null;
-            }
-            String shockPwd = config().get(CFG_PROP_SHOCK_PASSWORD);
-            String shockTokenText = config().get(CFG_PROP_SHOCK_TOKEN);
-            if (shockTokenText != null && shockTokenText.trim().isEmpty()) {
-                shockTokenText = null;
-            }
-            System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_SHOCK_USER +" = " + (shockUser == null ? "<not-set>" : shockUser));
-            System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_SHOCK_PASSWORD +" = " + (shockPwd == null ? "<not-set>" : "[*****]"));
-            System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_SHOCK_TOKEN +" = " + (shockTokenText == null ? "<not-set>" : "[*****]"));
             String endpointHost = config().get(CFG_PROP_ENDPOINT_HOST);
             System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_ENDPOINT_HOST +" = " + (endpointHost == null ? "<not-set>" : endpointHost));
             String endpointBase = config().get(CFG_PROP_ENDPOINT_BASE);
@@ -232,21 +212,10 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
             String authAllowInsecure = config().get(CFG_PROP_AUTH_INSECURE);
             System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_AUTH_INSECURE +" = " +
                     (authAllowInsecure == null ? "<not-set> ('false' will be used)" : authAllowInsecure));
-            AuthToken shockToken = null;
-            if (shockUser != null || shockTokenText != null) {
-                ConfigurableAuthService authService = new ConfigurableAuthService(
-                        new AuthConfig().withKBaseAuthServerURL(new URL(authServiceUrl))
-                        .withAllowInsecureURLs("true".equals(authAllowInsecure)));
-                if (shockTokenText == null) {
-                    shockToken = authService.login(shockUser, shockPwd == null ? "" : shockPwd).getToken();
-                } else {
-                    shockToken = authService.validateToken(shockTokenText);
-                }
-            }
             localGitDB = new LocalGitDB(new URL(getGitRepo()), getGitBranch(), new File(getGitLocalDir()), getGitRefreshRate(), getCacheSize(),
-                    new MongoDynamicRepoDB(getMongoHost(), getMongoDbname(), dbUser, dbPwd, adminUsers, mongoRO,
-                            shockUrl == null ? null : new URL(shockUrl), shockToken), new File(getTempDir()),
-                            new ServiceUrlTemplateEvaluater(endpointHost, endpointBase), RepoTag.valueOf(defaultTag));
+                    new MongoDynamicRepoDB(getMongoHost(), getMongoDbname(), dbUser, dbPwd, adminUsers, mongoRO),
+                    new File(getTempDir()),
+                    new ServiceUrlTemplateEvaluater(endpointHost, endpointBase), RepoTag.valueOf(defaultTag));
         }
         return localGitDB;
     }

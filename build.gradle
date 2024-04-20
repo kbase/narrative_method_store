@@ -233,17 +233,6 @@ dependencies {
 	// needed for syslog4j
 	implementation 'net.java.dev.jna:jna:3.4.0'
 	
-	// ### Blobstore / Shock client and dependencies ###
-	// TODO BUILD can the code that uses these be removed? I don't think the NMS
-	//            talks to Shock any more
-	
-	implementation fromURL(
-		'https://github.com/kbase/jars/raw/master/lib/jars/kbase/shock/shock-client-0.0.15.jar',
-		'shock-client-0.0.15'
-	)
-	implementation 'org.apache.httpcomponents:httpclient:4.3.1'
-	implementation 'org.apache.httpcomponents:httpmime:4.3.1'
-	
 	// ### Test ###
 	
 	testImplementation 'junit:junit:4.12'
