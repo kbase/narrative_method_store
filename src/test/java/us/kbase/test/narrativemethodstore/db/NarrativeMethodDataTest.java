@@ -1,4 +1,4 @@
-package us.kbase.narrativemethodstore.db.test;
+package us.kbase.test.narrativemethodstore.db;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;

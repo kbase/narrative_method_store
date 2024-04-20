@@ -1,4 +1,4 @@
-package us.kbase.narrativemethodstore.db.test;
+package us.kbase.test.narrativemethodstore.db;
 
 import java.io.File;
 import java.util.Collections;
