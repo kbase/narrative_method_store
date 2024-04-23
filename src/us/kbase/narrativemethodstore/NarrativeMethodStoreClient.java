@@ -26,7 +26,7 @@ public class NarrativeMethodStoreClient {
     private static URL DEFAULT_URL = null;
     static {
         try {
-            DEFAULT_URL = new URL("https://kbase.us/services/narrative_method_store/rpc");
+            DEFAULT_URL = new URL("https://ci.kbase.us/services/narrative_method_store/rpc");
         } catch (MalformedURLException mue) {
             throw new RuntimeException("Compile error in client - bad url compiled");
         }

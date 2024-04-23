@@ -8,6 +8,7 @@ VERSION: 0.3.12 (Released TBD)
 
 UPDATED FEATURES:
 - Added the `exact_match_on` field to the dynamic dropdown options.
+- Changed the build system from Make / Ant to Gradle.
 
 VERSION: 0.3.11 (Released 6/29/2021)
 ------------------------------------
