@@ -32,18 +32,12 @@ TESTCFG ?= test.cfg
 
 default: build-libs build-docs build-bin
 
-build-libs: submodule-init
+build-libs:
 	$(ANT) compile
 
 build-bin: build-nms-bin
 
 deploy-cfg:
-
-
-submodule-init:
-	git submodule init
-	git submodule update
-	#$(MAKE) -C submodules/module_builder
 
 build-docs:
 	mkdir -p docs
