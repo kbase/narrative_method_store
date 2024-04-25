@@ -44,7 +44,6 @@ import us.kbase.narrativemethodstore.db.RepoProvider;
 import us.kbase.narrativemethodstore.db.DynamicRepoDB.RepoState;
 import us.kbase.narrativemethodstore.db.github.FileRepoProvider;
 import us.kbase.narrativemethodstore.db.github.GitHubRepoProvider;
-import us.kbase.narrativemethodstore.db.github.PySrvRepoPreparator;
 import us.kbase.narrativemethodstore.db.github.YamlUtils;
 import us.kbase.narrativemethodstore.db.mongo.MongoDynamicRepoDB;
 import us.kbase.narrativemethodstore.db.mongo.OutputComparatorStream;
@@ -214,7 +213,6 @@ public class MongoDynamicRepoDBTest {
         String dockerCommands = "RUN DEBIAN_FRONTEND=noninteractive apt-get update;" + 
                 "apt-get -y upgrade;apt-get install -y libblas3gf liblapack3gf libhdf5-serial-dev\n" +
                 "RUN pip install tables";
-        PySrvRepoPreparator.prepare(userId, moduleName, methodSpec, pythonCode, dockerCommands, repoDir);
         String implText = TextUtils.text(new File(repoDir, "service/" + moduleName + "Impl.py"));
         Assert.assertTrue(implText.contains("class " + moduleName));
         Assert.assertTrue(implText.contains("        " + pythonCode));

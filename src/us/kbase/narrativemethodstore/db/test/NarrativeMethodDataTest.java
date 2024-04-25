@@ -16,8 +16,8 @@ import org.junit.rules.ExpectedException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableMap;
 
-import jersey.repackaged.com.google.common.collect.ImmutableMap;
 import us.kbase.narrativemethodstore.DropdownOptions;
 import us.kbase.narrativemethodstore.DynamicDropdownOptions;
 import us.kbase.narrativemethodstore.MethodParameterGroup;
