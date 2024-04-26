@@ -8,16 +8,28 @@ plugins {
 	id 'jacoco'
 }
 
+group = 'com.github.kbase'
+
+var VER_JAVA_COMMON = "0.3.0"
+var VER_AUTH2_CLIENT = "0.5.0"
+
 var DEFAULT_URL = "https://ci.kbase.us/services/narrative_method_store/rpc"
 
 var LOC_NMS_SPEC = "$rootDir/NarrativeMethodStore.spec"
 var LOC_DOC_HTML = "$rootDir/docshtml"
 
-// TODO BUILD use jitpacked jars when available
-
 repositories {
 	mavenCentral()
+	maven {
+		name = "Jitpack"
+		url = 'https://jitpack.io'
+	}
+	maven {
+		name = "Clojars"
+		url = "https://repo.clojars.org/"
+	}
 }
+
 compileJava {
 	// TODO BUILD remove when we no longer support java 8, use `options.release = 11` if needed
 	java.sourceCompatibility = JavaVersion.VERSION_1_8
@@ -29,11 +41,12 @@ javadoc {
 	 * building the client javadocs. If we ever need the full javadocs make a new task for the
 	 * client java docs
 	 */
-	// TODO DOCS currently java-common and auth links don't work. ROI for fixing them is low.
 	failOnError = false  // fixing this would be a lot of work
 	options {
 		// I don't know why this isn't working, but it's not worth spending time on right now
 		links "https://docs.oracle.com/javase/8/docs/api/"
+		links "https://javadoc.jitpack.io/com/github/kbase/auth2_client_java/$VER_AUTH2_CLIENT/javadoc/"
+		links "https://javadoc.jitpack.io/com/github/kbase/java_common/$VER_JAVA_COMMON/javadoc/"
 	}
 	include "**/narrativemethodstore/*.java"
 	exclude "**/narrativemethodstore/NarrativeMethodStoreServer.java"
@@ -156,27 +169,14 @@ configurations {
 	testimpl.extendsFrom testImplementation
 }
 
-def fromURL = { url, name ->
-	File file = new File("$buildDir/download/${name}.jar")
-	file.parentFile.mkdirs()
-	if (!file.exists()) {
-		new URL(url).withInputStream { downloadStream ->
-			file.withOutputStream { fileOut ->
-				fileOut << downloadStream
-			}
-		}
-	}
-	files(file.absolutePath)
-}
-
 dependencies {
 
-	// ### General application dependencies ###
-
-	implementation fromURL(
-		'https://github.com/kbase/jars/raw/master/lib/jars/kbase/auth/kbase-auth-0.4.4.jar',
-		'kbase-auth-0.4.4'
-	)
+	implementation("com.github.kbase:auth2_client_java:$VER_AUTH2_CLIENT") {
+		exclude group: 'com.fasterxml.jackson.core'  // breaks everything if we upgrade
+	}
+	implementation("com.github.kbase:java_common:$VER_JAVA_COMMON") {
+		exclude group: 'com.fasterxml.jackson.core'  // breaks everything if we upgrade
+	}
 	implementation 'org.ini4j:ini4j:0.5.2'
 	implementation 'com.fasterxml.jackson.core:jackson-annotations:2.2.3'
 	implementation 'com.fasterxml.jackson.core:jackson-databind:2.2.3'
@@ -185,35 +185,11 @@ dependencies {
 	implementation 'org.apache.velocity:velocity:1.7'
 	implementation 'commons-io:commons-io:2.4'
 	implementation 'com.google.guava:guava:14.0.1'
-
-	// ###
-	// Server dependencies, specifically for java_common JsonServerServlet and
-	// NarrativeMethodServer
-	// ###
-	
-	implementation fromURL(
-		'https://github.com/kbase/jars/raw/master/lib/jars/kbase/common/kbase-common-0.0.22.jar',
-		'kbase-common-0.0.22'
-	)
-	implementation 'ch.qos.logback:logback-classic:1.1.2'
-	implementation 'org.slf4j:slf4j-api:1.7.7'
-	// TODO DEPS Need to rework the java common logger to not use syslog4j at all since it's abandonware
-	// and has a ton of CVEs, even in the newer versions.
-	implementation fromURL(
-		'https://github.com/kbase/jars/raw/master/lib/jars/syslog4j/syslog4j-0.9.46.jar',
-		'syslog4j-0.9.46'
-	)
 	implementation 'javax.annotation:javax.annotation-api:1.2'
 	implementation 'javax.servlet:servlet-api:2.5'
-	// joda-time is required for kbase-common and syslog4j
-	implementation 'joda-time:joda-time:2.2'
 	// this is OOOOOOLD. But that probably means updating java_common
 	implementation 'org.eclipse.jetty.aggregate:jetty-all:7.0.0.v20091005'
-	// needed for syslog4j
-	implementation 'net.java.dev.jna:jna:3.4.0'
-	
-	// ### Test ###
-	
+
 	testImplementation 'junit:junit:4.12'
 	testImplementation 'org.mockito:mockito-core:3.0.0'
 	testImplementation 'org.apache.commons:commons-lang3:3.5'
