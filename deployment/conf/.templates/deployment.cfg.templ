@@ -4,9 +4,7 @@
 method-spec-git-repo = {{ default .Env.method_spec_git_repo "https://github.com/kbase/narrative_method_specs" }}
 method-spec-git-repo-branch = {{ default .Env.method_spec_git_repo_branch "dev" }}
 
-# local file location (relative to the glassfish domain where the service starts, ie
-# deployment/services/narrative_method_store/glasfish_domain/NarrativeMethodStore/config/.)
-# where the method specification repo should be created.
+# local file location where the method specification repo should be created.
 # WARNING! this directory will be deleted and recloned on service startup, so be
 # careful where you point this!
 method-spec-git-repo-local-dir = {{ default .Env.method_spec_git_repo_local_dir "narrative_method_specs" }}
@@ -35,7 +33,7 @@ max-memory = {{ default .Env.max_memory "1500" }}
 method-spec-temp-dir = {{ default .Env.method_spec_temp_dir "/scratch/narrative_method_store_temp" }}
 method-spec-mongo-host = {{ default .Env.method_spec_mongo_host "localhost:27017" }}
 method-spec-mongo-dbname = {{ default .Env.method_spec_mongo_dbname "method_store_repo_db" }}
-method-spec-mongo-user = {{ default .Env.method_spec_mongo_user "mongouser" }}
+method-spec-mongo-user = {{ default .Env.method_spec_mongo_user "" }}
 method-spec-mongo-password = {{ default .Env.method_spec_mongo_password "" }}
 method-spec-admin-users = {{ default .Env.method_spec_admin_users "kbaseadmin,kbaseadmin2" }}
 # method-spec-shock-url = {{ default .Env.method_spec_shock_url "" }}
