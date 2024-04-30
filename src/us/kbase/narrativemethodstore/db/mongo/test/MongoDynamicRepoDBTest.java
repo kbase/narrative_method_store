@@ -1,7 +1,5 @@
 package us.kbase.narrativemethodstore.db.mongo.test;
 
-import static us.kbase.narrativemethodstore.db.mongo.MongoUtils.toMap;
-
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -25,12 +23,8 @@ import org.junit.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.mongodb.DB;
-import com.mongodb.DBCollection;
-import com.mongodb.DBCursor;
-import com.mongodb.DBObject;
 import com.mongodb.MongoClient;
 
-import us.kbase.auth.AuthToken;
 import us.kbase.common.service.UObject;
 import us.kbase.narrativemethodstore.MethodBriefInfo;
 import us.kbase.narrativemethodstore.MethodParameter;
@@ -50,17 +44,12 @@ import us.kbase.narrativemethodstore.db.mongo.OutputComparatorStream;
 import us.kbase.narrativemethodstore.exceptions.NarrativeMethodStoreException;
 import us.kbase.narrativemethodstore.util.FileUtils;
 import us.kbase.narrativemethodstore.util.TextUtils;
-import us.kbase.shock.client.BasicShockClient;
-import us.kbase.shock.client.ShockNodeId;
 
 // It'd be nice to know why this is ignored
 @Ignore
 public class MongoDynamicRepoDBTest {
     private static final String dbName = "test_repo_registry_mongo";
     private static final MongoDBHelper dbHelper = new MongoDBHelper("registry");
-
-    private static URL shockUrl = null;
-    private static AuthToken shockToken = null;
 
     @BeforeClass
     public static void beforeClass() throws Exception {
@@ -90,7 +79,7 @@ public class MongoDynamicRepoDBTest {
 
         String host = "localhost:" + dbHelper.getMongoPort();
         MongoDynamicRepoDB db = new MongoDynamicRepoDB(host, dbName, null, null, 
-                Arrays.asList(globalAdmin), false, shockUrl, shockToken);
+                Arrays.asList(globalAdmin), false);
         Assert.assertEquals(0, db.listRepoModuleNames().size());
         RepoProvider pvd = localFiles ? new FileRepoProvider(new File(localPath)) :
             new GitHubRepoProvider(new URL(gitUrl), null, dbHelper.getWorkDir());
@@ -220,7 +209,7 @@ public class MongoDynamicRepoDBTest {
         String globalAdmin = "admin";
         String host = "localhost:" + dbHelper.getMongoPort();
         MongoDynamicRepoDB db = new MongoDynamicRepoDB(host, dbName, null, null, 
-                Arrays.asList(globalAdmin), false, shockUrl, shockToken);
+                Arrays.asList(globalAdmin), false);
         Assert.assertEquals(0, db.listRepoModuleNames().size());
         RepoProvider pvd = new FileRepoProvider(repoDir);
         db.registerRepo(userId, pvd);
@@ -286,24 +275,6 @@ public class MongoDynamicRepoDBTest {
         String host = "localhost:" + dbHelper.getMongoPort();
         final MongoClient mc = new MongoClient(host);
         final DB db = mc.getDB(dbName);
-        if (shockUrl != null) {
-            try {
-                final DBCollection files = db.getCollection("repo_files");
-                final DBCursor it = files.find();
-                for (final DBObject dbo: it) {
-                    Map<String, Object> obj = toMap(dbo);
-                    String fileName = (String)obj.get("file_name");
-                    String shockNodeId = (String)obj.get("shock_node_id");
-                    if (shockNodeId != null) {
-                        System.out.println("Deleting shock node for " + fileName);
-                        BasicShockClient cl = new BasicShockClient(shockUrl, shockToken);
-                        cl.deleteNode(new ShockNodeId(shockNodeId));
-                    }
-                }
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-        }
         db.dropDatabase();
         mc.close();
     }

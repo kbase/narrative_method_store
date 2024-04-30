@@ -9,7 +9,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -29,7 +28,6 @@ import com.mongodb.MongoClientOptions;
 import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
 
-import us.kbase.auth.AuthToken;
 import us.kbase.narrativemethodstore.db.DynamicRepoDB;
 import us.kbase.narrativemethodstore.db.FileId;
 import us.kbase.narrativemethodstore.db.FilePointer;
@@ -38,18 +36,11 @@ import us.kbase.narrativemethodstore.db.RepoProvider;
 import us.kbase.narrativemethodstore.db.JsonRepoProvider.RepoData;
 import us.kbase.narrativemethodstore.db.github.RepoTag;
 import us.kbase.narrativemethodstore.exceptions.NarrativeMethodStoreException;
-import us.kbase.shock.client.BasicShockClient;
-import us.kbase.shock.client.ShockNodeId;
-import us.kbase.shock.client.exceptions.InvalidShockUrlException;
-import us.kbase.shock.client.exceptions.ShockHttpException;
 
 public class MongoDynamicRepoDB implements DynamicRepoDB {
     private final DB db;
     private final Set<String> globalAdmins;
     private final boolean isReadOnly;
-    private final URL shockUrl;
-    private final AuthToken serviceToken;
-    public static final long MAX_MONGO_FILE_LENGTH = 1024 * 1024;
     ////////////////////////////////////////////////////////////////////
     private static final String TABLE_REPO_INFO = "repo_info";
     private static final String FIELD_RI_MODULE_NAME = "module_name";
@@ -75,12 +66,15 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
     private static final String FIELD_RF_HEX_DATA = "hex_data";
     private static final String FIELD_RF_SHOCK_NODE_ID = "shock_node_id";
 
-    public MongoDynamicRepoDB(String host, String database, String dbUser, String dbPwd,
-            List<String> globalAdminUserIds, boolean isReadOnly, URL shockUrl,
-            AuthToken serviceToken) throws NarrativeMethodStoreException {
+    public MongoDynamicRepoDB(
+            final String host,
+            final String database,
+            final String dbUser,
+            final String dbPwd,
+            final List<String> globalAdminUserIds,
+            final boolean isReadOnly)
+            throws NarrativeMethodStoreException {
         this.isReadOnly = isReadOnly;
-        this.shockUrl = shockUrl;
-        this.serviceToken = serviceToken;
         try {
             db = getDB(host, database, dbUser, dbPwd);
             if (!isReadOnly)
@@ -158,7 +152,7 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
     private void throwChangeOperation()
             throws NarrativeMethodStoreException {
         throw new NarrativeMethodStoreException("Change operation couldn't be performed in " +
-        		"read-only mode");
+                "read-only mode");
     }
 
     @Override
@@ -512,16 +506,9 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
         String shockNodeId = null;
         is = file.openStream();
         try {
-            if (length <= MAX_MONGO_FILE_LENGTH || shockUrl == null) {
-                hexData = MongoUtils.streamToHex(is);
-            } else {
-                try {
-                    BasicShockClient cl = new BasicShockClient(shockUrl, serviceToken);
-                    shockNodeId = cl.addNode(is, fileName, "JSON").getId().getId();
-                } catch (Exception ex) {
-                    throw new NarrativeMethodStoreException(ex);
-                }
-            }
+            // note that mongo can take ~16MB of data this way tops or it'll throw an error
+            // it's been running in production for years this way so I guess it works...?
+            hexData = MongoUtils.streamToHex(is);
         } finally {
             try {
                 is.close();
@@ -585,20 +572,8 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
             throws NarrativeMethodStoreException {
         try {
             String hexData = (String)obj.get(FIELD_RF_HEX_DATA);
-            if (hexData == null) {
-                String shockNodeId = (String)obj.get(FIELD_RF_SHOCK_NODE_ID);
-                BasicShockClient cl = new BasicShockClient(shockUrl, serviceToken);
-                cl.getFile(new ShockNodeId(shockNodeId), target);
-            } else {
-                target.write(MongoUtils.hexToBytes(hexData));
-            }
+            target.write(MongoUtils.hexToBytes(hexData));
         } catch (IOException ex) {
-            throw new NarrativeMethodStoreException(ex);
-        } catch (InvalidShockUrlException ex) {
-            throw new NarrativeMethodStoreException(ex);
-        } catch (ShockHttpException ex) {
-            throw new NarrativeMethodStoreException(ex);
-        } catch (IllegalArgumentException ex) {
             throw new NarrativeMethodStoreException(ex);
         }
     }

@@ -303,9 +303,7 @@ public class MongoDynamicRepoDB2Test {
                 null,
                 null,
                 admins,
-                false,
-                null,
-                null);
+                false);
     }
     
 }
