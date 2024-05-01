@@ -1,4 +1,4 @@
-package us.kbase.narrativemethodstore.db.mongo.test;
+package us.kbase.test.narrativemethodstore.db.mongo;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;

@@ -1,4 +1,4 @@
-package us.kbase.narrativemethodstore.test;
+package us.kbase.test.narrativemethodstore;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
@@ -38,7 +38,7 @@ import us.kbase.common.service.ServerException;
 import us.kbase.common.service.Tuple4;
 import us.kbase.narrativemethodstore.*;
 import us.kbase.narrativemethodstore.db.DynamicRepoDB;
-import us.kbase.narrativemethodstore.db.mongo.test.MongoDBHelper;
+import us.kbase.test.narrativemethodstore.db.mongo.MongoDBHelper;
 
 /**
  * Client-server JSON-RPC test for Narrative Method Store.

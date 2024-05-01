@@ -1,4 +1,4 @@
-package us.kbase.narrativemethodstore.db.mongo.test;
+package us.kbase.test.narrativemethodstore.db.mongo;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
