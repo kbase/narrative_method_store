@@ -10,6 +10,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import com.mongodb.client.MongoCursor;
+import com.mongodb.client.model.Projections;
 import org.bson.BSONObject;
 import org.bson.LazyBSONList;
 import org.bson.types.BasicBSONList;
@@ -21,10 +23,8 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
-import com.mongodb.BasicDBObject;
-import com.mongodb.DBCollection;
-import com.mongodb.DBCursor;
-import com.mongodb.DBObject;
+import com.mongodb.client.MongoCollection;
+import org.bson.Document;
 
 public class MongoUtils {
     private static final String HEXES = "0123456789abcdef";
@@ -37,15 +37,18 @@ public class MongoUtils {
 
     @SuppressWarnings({ "unchecked" })
     public static <T> List<T> getProjection(
-            final DBCollection infos,
-            final DBObject whereCondition,
+            final MongoCollection<Document> infos,
+            final Document whereCondition,
             final String selectField,
             final Class<T> type)
             throws NarrativeMethodStoreException {
-        final DBCursor cur = infos.find(whereCondition, new BasicDBObject(selectField, 1));
+        MongoCursor<Document> cursor = infos.find(whereCondition)
+                .projection(Projections.include(selectField))
+                .iterator();
+
         final List<Map<String, Object>> data = new LinkedList<>();
-        for (final DBObject dbo: cur) {
-            data.add(toMap(dbo));
+        while (cursor.hasNext()) {
+            data.add(toMap(cursor.next()));
         }
         
         List<T> ret = new ArrayList<T>();
@@ -58,13 +61,15 @@ public class MongoUtils {
         return ret;
     }
 
-    /** Map an object to a MongoDB {@link DBObject}. The object must be serializable by
+    /**
+     * Map an object to a MongoDB {@link Document}. The object must be serializable by
      * an {@link ObjectMapper} configured so private fields are visible.
+     *
      * @param obj the object to map.
-     * @return the new mongo compatible object.
+     * @return the new mongo document.
      */
-    public static DBObject toDBObject(final Object obj) {
-        return new BasicDBObject(objToMap(obj));
+    public static Document toDocument(final Object obj) {
+        return new Document(objToMap(obj));
     }
     
     private static Map<String, Object> objToMap(final Object obj) {
@@ -72,29 +77,27 @@ public class MongoUtils {
     }
     
     
-    /** Map a MongoDB {@link DBObject} to a class.
+    /** Map a MongoDB {@link Document} to a class.
      * This method expects that all maps and lists in the objects are implemented as
      * {@link BSONObject}s or derived classes, not standard maps, lists, or other classes.
      * The object must be deserializable by an {@link ObjectMapper} configured so private
      * fields are visible.
-     * @param dbo the MongoDB object to transform.
+     * @param doc the MongoDB document to transform.
      * @param clazz the class to which the object will be transformed.
      * @return the transformed object.
      */
-    public static <T> T toObject(final DBObject dbo, final Class<T> clazz) {
-        return dbo == null ? null : MAPPER.convertValue(toMap(dbo), clazz);
+    public static <T> T toObject(final Document doc, final Class<T> clazz) {
+        return doc == null ? null : MAPPER.convertValue(doc, clazz);
     }
     
-    /** Map a MongoDB {@link BSONObject} to a standard map.
+    /** Map a MongoDB {@link Document} to a standard map.
      * This method expects that all maps and lists in the objects are implemented as
      * {@link BSONObject}s or derived classes, not standard maps, lists, or other classes.
-     * @param dbo the MongoDB object to transform to a standard map.
+     * @param doc the MongoDB document to transform to a standard map.
      * @return the transformed object, or null if the argument was null.
      */
-    public static Map<String, Object> toMap(final BSONObject dbo) {
-        @SuppressWarnings("unchecked")
-        final Map<String, Object> ret = (Map<String, Object>) cleanObject(dbo);
-        return ret;
+    public static Map<String, Object> toMap(final Document doc) {
+        return doc;
     }
     
     // this assumes there aren't BSONObjects embedded in standard objects, which should
