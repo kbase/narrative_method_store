@@ -78,7 +78,7 @@ public class MongoDynamicRepoDB2Test {
     
     @Before
     public void before() throws Exception {
-        try (MongoClient mc = MongoClients.create("localhost:" + MONGO.getMongoPort())) {
+        try (MongoClient mc = MongoClients.create("mongodb://localhost:" + MONGO.getMongoPort())) {
             MongoDatabase db = mc.getDatabase(DB_NAME);
             for (final String collectionName: db.listCollectionNames()) {
                 if (!collectionName.startsWith("system.")) {
