@@ -25,10 +25,8 @@ jobs:
           # the current production setup
           - java: '8'
             mongo: 'mongodb-linux-x86_64-3.6.13'
-            wired_tiger: 'false'
           - java: '11'
             mongo: 'mongodb-linux-x86_64-ubuntu2204-7.0.4'
-            wired_tiger: 'false'
     steps:
       - uses: actions/checkout@v3
 
