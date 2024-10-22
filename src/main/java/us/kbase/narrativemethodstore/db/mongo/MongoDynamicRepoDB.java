@@ -197,7 +197,7 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
         hist.insertOne(new Document()
                 .append(FIELD_RH_MODULE_NAME, repoModuleName)
                 .append(FIELD_RH_VERSION, newVersion)
-                .append(FIELD_RH_REPO_DATA, repoData));
+                .append(FIELD_RH_REPO_DATA, toDocument(repoData)));
         
         final MongoCollection<Document> data = db.getCollection(TABLE_REPO_INFO);
         //should just do an upsert rather than handling the logic application side
