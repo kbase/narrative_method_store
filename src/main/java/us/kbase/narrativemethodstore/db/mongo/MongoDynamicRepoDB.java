@@ -18,6 +18,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.mongodb.MongoClientSettings;
 import com.mongodb.DuplicateKeyException;
 import com.mongodb.MongoCredential;
@@ -634,6 +635,7 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
     // it is actually used, just some of the fields aren't explicitly used. They're populated
     // by Jackson though.
     @SuppressWarnings("unused")
+    @JsonIgnoreProperties(ignoreUnknown = true)
     private static class RepoHistory {
         String module_name;
         Long version;
