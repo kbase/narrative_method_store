@@ -83,7 +83,7 @@ public class MongoDynamicRepoDB2Test {
             for (final String collectionName: db.listCollectionNames()) {
                 if (!collectionName.startsWith("system.")) {
                     MongoCollection<Document> collection = db.getCollection(collectionName);
-                    collection.drop(); // Drops the collection along with indexes
+                    collection.deleteMany(new Document()); // Delete all documents without dropping the indexes
                 }
             }
         }

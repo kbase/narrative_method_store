@@ -1,7 +1,6 @@
 package us.kbase.narrativemethodstore.db.mongo;
 
 import static us.kbase.narrativemethodstore.db.mongo.MongoUtils.toDocument;
-import static us.kbase.narrativemethodstore.db.mongo.MongoUtils.toMap;
 import static us.kbase.narrativemethodstore.db.mongo.MongoUtils.toObject;
 
 import java.io.File;
@@ -201,17 +200,12 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
                 .append(FIELD_RH_REPO_DATA, toDocument(repoData)));
         
         final MongoCollection<Document> data = db.getCollection(TABLE_REPO_INFO);
-        //should just do an upsert rather than handling the logic application side
         if (wasReg) {
-            Document existingInfo = data.find(Filters.eq(FIELD_RI_MODULE_NAME, repoModuleName)).first();
+            data.updateOne(Filters.eq(FIELD_RI_MODULE_NAME, repoModuleName),
+                    new Document("$set", new Document()
+                            .append(FIELD_RI_LAST_VERSION, newVersion)
+                            .append(FIELD_RI_STATE, RepoState.ready.toString())));
 
-            if (existingInfo != null) {
-                existingInfo.put(FIELD_RI_LAST_VERSION, newVersion);
-                existingInfo.put(FIELD_RI_STATE, RepoState.ready.toString());
-
-                // update the existing document
-                data.replaceOne(Filters.eq(FIELD_RI_MODULE_NAME, repoModuleName), existingInfo);
-            }
         } else {
             data.insertOne(new Document()
                     .append(FIELD_RI_MODULE_NAME, repoModuleName)
@@ -274,10 +268,10 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
 
         List<String> ret = new ArrayList<String>();
 
-        FindIterable<Document> docs = db.getCollection(TABLE_REPO_INFO).find()
+        final FindIterable<Document> docs = db.getCollection(TABLE_REPO_INFO).find()
                 .projection(Projections.include(FIELD_RI_MODULE_NAME, FIELD_RI_STATE));
 
-        for (Document doc : docs) {
+        for (final Document doc : docs) {
             if (RepoState.valueOf(doc.getString(FIELD_RI_STATE)) != RepoState.disabled) {
                 ret.add(doc.getString(FIELD_RI_MODULE_NAME));
             }
@@ -341,11 +335,7 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
         if (tag == null || tag.equals(RepoTag.dev))
             return;
         final MongoCollection<Document> data = db.getCollection(TABLE_REPO_INFO);
-        Document info = data.find(Filters.eq(FIELD_RI_MODULE_NAME, repoModuleName)).first();
-
-        if (info == null) {
-            throw new NarrativeMethodStoreException("repository not found: " + repoModuleName);
-        }
+        final Document info = data.find(Filters.eq(FIELD_RI_MODULE_NAME, repoModuleName)).first();
 
         long version = info.getLong(FIELD_RI_LAST_VERSION);
         Long betaVer = info.getLong(FIELD_RI_LAST_BETA_VERSION);
@@ -366,8 +356,8 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
         } else {
             throw new NarrativeMethodStoreException("Unsupported tag: " + tag);
         }
-
-        data.replaceOne(Filters.eq(FIELD_RI_MODULE_NAME, repoModuleName), info);
+        // race condition here
+        data.updateOne(Filters.eq(FIELD_RI_MODULE_NAME, repoModuleName), new Document("$set", info));
 
         final MongoCollection<Document> data2 = db.getCollection(TABLE_REPO_HISTORY);
 
@@ -382,10 +372,10 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
             hist.is_release = 1L;
         }
 
-        data2.replaceOne(Filters.and(
+        data2.updateOne(Filters.and(
                 Filters.eq(FIELD_RH_MODULE_NAME, repoModuleName),
                 Filters.eq(FIELD_RH_VERSION, changedVer)),
-                toDocument(hist));
+                new Document("$set", toDocument(hist)));
     }
     
     @Override
@@ -449,9 +439,9 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
         }*/
         checkAdmin(userId);
         final MongoCollection<Document> info = db.getCollection(TABLE_REPO_INFO);
-        Document doc = info.find(Filters.eq(FIELD_RI_MODULE_NAME, repoModuleName)).first();
-        doc.put(FIELD_RI_STATE, state.toString());
-        info.replaceOne(Filters.eq(FIELD_RI_MODULE_NAME, repoModuleName), doc);
+        info.updateOne(
+                Filters.eq(FIELD_RI_MODULE_NAME, repoModuleName),
+                new Document("$set", new Document(FIELD_RI_STATE, state.toString())));
     }
     
     @Override
@@ -492,20 +482,21 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
         }
 
         final MongoCollection<Document> files = db.getCollection(TABLE_REPO_FILES);
-        final Document existingFileDoc = files.find(Filters.and(
-                Filters.eq(FIELD_RF_MODULE_NAME, moduleName),
-                Filters.eq(FIELD_RF_FILE_NAME, fileName),
-                Filters.eq(FIELD_RF_LENGTH, length),
-                Filters.eq(FIELD_RF_MD5, md5)
-        )).first();
+        final Document query = new Document(FIELD_RF_MODULE_NAME, moduleName)
+                .append(FIELD_RF_FILE_NAME, fileName)
+                .append(FIELD_RF_LENGTH, length)
+                .append(FIELD_RF_MD5, md5);
 
-        if (existingFileDoc != null) {
+        final FindIterable<Document> iterable = files.find(query);
+
+        for (final Document doc: iterable) {
+            Map<String, Object> obj = doc;
             is = file.openStream();
             try {
                 OutputComparatorStream ocs = new OutputComparatorStream(is);
-                loadFile(toMap(existingFileDoc), ocs);
+                loadFile(obj, ocs);
                 if (!ocs.isDifferent()) {
-                    String fileId = existingFileDoc.getString(FIELD_RF_FILE_ID);
+                    String fileId = (String) obj.get(FIELD_RF_FILE_ID);
                     return new FileId(fileId);
                 }
             } finally {
@@ -519,6 +510,7 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
         // We couldn't find file which is equal to save request. 
         // Let's store original copy of it.
         String hexData;
+        String shockNodeId = null;
         is = file.openStream();
         try {
             // note that mongo can take ~16MB of data this way tops or it'll throw an error
@@ -548,26 +540,27 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
         // if no shock url is configured the file is saved in a normal mongo object. Since the
         // file is converted to hex, that means a file > ~8MB will throw a mongo error
         String fileId = String.valueOf(fileIdNum);
-        Document fileDoc = new Document(FIELD_RF_FILE_ID, fileId)
-                .append(FIELD_RF_MODULE_NAME, moduleName)
-                .append(FIELD_RF_FILE_NAME, fileName)
-                .append(FIELD_RF_LENGTH, length)
-                .append(FIELD_RF_MD5, md5)
-                .append(FIELD_RF_HEX_DATA, hexData)
-                .append(FIELD_RF_SHOCK_NODE_ID, null);
-
-        files.updateOne(Filters.eq(FIELD_RF_FILE_ID, fileId), new Document("$set", fileDoc));
+        files.updateOne(
+                Filters.eq(FIELD_RF_FILE_ID, fileId),
+                new Document("$set", new Document(FIELD_RF_MODULE_NAME, moduleName)
+                        .append(FIELD_RF_FILE_NAME, fileName)
+                        .append(FIELD_RF_LENGTH, length)
+                        .append(FIELD_RF_MD5, md5)
+                        .append(FIELD_RF_HEX_DATA, hexData)
+                        .append(FIELD_RF_SHOCK_NODE_ID, shockNodeId)
+                )
+        );
         return new FileId(fileId);
     }
     
     private Map<String, Object> getFileObject(FileId fileId) 
             throws NarrativeMethodStoreException {
-        MongoCollection<Document> filesCollection = db.getCollection(TABLE_REPO_FILES);
-        Document doc =  filesCollection.find(Filters.eq(FIELD_RF_FILE_ID, fileId.getId())).first();
+        final MongoCollection<Document> filesCollection = db.getCollection(TABLE_REPO_FILES);
+        final Document doc = filesCollection.find(Filters.eq(FIELD_RF_FILE_ID, fileId.getId())).first();
         if (doc == null)
             throw new NarrativeMethodStoreException("File with id=" + fileId.getId() + 
                     " is not found");
-        return toMap(doc);
+        return doc;
     }
     
     @Override

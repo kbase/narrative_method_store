@@ -44,9 +44,10 @@ public class MongoUtils {
 
         final List<Map<String, Object>> data = new LinkedList<>();
         while (cursor.hasNext()) {
-            data.add(toMap(cursor.next()));
+            Map<String, Object> map = cursor.next();
+            data.add(map);
         }
-        
+
         List<T> ret = new ArrayList<T>();
         for (Map<?,?> item : data) {
             Object value = item.get(selectField);
@@ -79,14 +80,6 @@ public class MongoUtils {
      */
     public static <T> T toObject(final Document doc, final Class<T> clazz) {
         return doc == null ? null : MAPPER.convertValue(doc, clazz);
-    }
-    
-    /** Map a MongoDB {@link Document} to a standard map.
-     * @param doc the MongoDB document to transform to a standard map.
-     * @return the transformed object, or null if the argument was null.
-     */
-    public static Map<String, Object> toMap(final Document doc) {
-        return doc;
     }
 
     public static String stringToHex(String text) {
