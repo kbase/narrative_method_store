@@ -22,8 +22,9 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.mongodb.DB;
-import com.mongodb.MongoClient;
+import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
 
 import us.kbase.common.service.UObject;
 import us.kbase.narrativemethodstore.MethodBriefInfo;
@@ -272,10 +273,9 @@ public class MongoDynamicRepoDBTest {
     @Before 
     @After
     public void cleanup() throws Exception {
-        String host = "localhost:" + dbHelper.getMongoPort();
-        final MongoClient mc = new MongoClient(host);
-        final DB db = mc.getDB(dbName);
-        db.dropDatabase();
-        mc.close();
+        final String host = "mongodb://localhost:" + dbHelper.getMongoPort();
+        try (final MongoClient mc = MongoClients.create(host)) {
+            mc.getDatabase(dbName).drop();
+        }
     }
 }

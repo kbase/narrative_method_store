@@ -5,14 +5,12 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.bson.BSONObject;
-import org.bson.LazyBSONList;
-import org.bson.types.BasicBSONList;
+import com.mongodb.client.MongoCursor;
+import com.mongodb.client.model.Projections;
 
 import us.kbase.common.service.UObject;
 import us.kbase.narrativemethodstore.exceptions.NarrativeMethodStoreException;
@@ -21,10 +19,8 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.introspect.VisibilityChecker;
-import com.mongodb.BasicDBObject;
-import com.mongodb.DBCollection;
-import com.mongodb.DBCursor;
-import com.mongodb.DBObject;
+import com.mongodb.client.MongoCollection;
+import org.bson.Document;
 
 public class MongoUtils {
     private static final String HEXES = "0123456789abcdef";
@@ -37,17 +33,21 @@ public class MongoUtils {
 
     @SuppressWarnings({ "unchecked" })
     public static <T> List<T> getProjection(
-            final DBCollection infos,
-            final DBObject whereCondition,
+            final MongoCollection<Document> infos,
+            final Document whereCondition,
             final String selectField,
             final Class<T> type)
             throws NarrativeMethodStoreException {
-        final DBCursor cur = infos.find(whereCondition, new BasicDBObject(selectField, 1));
+        MongoCursor<Document> cursor = infos.find(whereCondition)
+                .projection(Projections.include(selectField))
+                .iterator();
+
         final List<Map<String, Object>> data = new LinkedList<>();
-        for (final DBObject dbo: cur) {
-            data.add(toMap(dbo));
+        while (cursor.hasNext()) {
+            final Map<String, Object> map = cursor.next();
+            data.add(map);
         }
-        
+
         List<T> ret = new ArrayList<T>();
         for (Map<?,?> item : data) {
             Object value = item.get(selectField);
@@ -58,81 +58,30 @@ public class MongoUtils {
         return ret;
     }
 
-    /** Map an object to a MongoDB {@link DBObject}. The object must be serializable by
+    /**
+     * Map an object to a MongoDB {@link Document}. The object must be serializable by
      * an {@link ObjectMapper} configured so private fields are visible.
+     *
      * @param obj the object to map.
-     * @return the new mongo compatible object.
+     * @return the new mongo document.
      */
-    public static DBObject toDBObject(final Object obj) {
-        return new BasicDBObject(objToMap(obj));
+    public static Document toDocument(final Object obj) {
+        return new Document(objToMap(obj));
     }
     
     private static Map<String, Object> objToMap(final Object obj) {
         return MAPPER.convertValue(obj, new TypeReference<Map<String, Object>>() {});
     }
-    
-    
-    /** Map a MongoDB {@link DBObject} to a class.
-     * This method expects that all maps and lists in the objects are implemented as
-     * {@link BSONObject}s or derived classes, not standard maps, lists, or other classes.
+
+    /** Map a MongoDB {@link Document} to a class.
      * The object must be deserializable by an {@link ObjectMapper} configured so private
      * fields are visible.
-     * @param dbo the MongoDB object to transform.
+     * @param doc the MongoDB document to transform.
      * @param clazz the class to which the object will be transformed.
      * @return the transformed object.
      */
-    public static <T> T toObject(final DBObject dbo, final Class<T> clazz) {
-        return dbo == null ? null : MAPPER.convertValue(toMap(dbo), clazz);
-    }
-    
-    /** Map a MongoDB {@link BSONObject} to a standard map.
-     * This method expects that all maps and lists in the objects are implemented as
-     * {@link BSONObject}s or derived classes, not standard maps, lists, or other classes.
-     * @param dbo the MongoDB object to transform to a standard map.
-     * @return the transformed object, or null if the argument was null.
-     */
-    public static Map<String, Object> toMap(final BSONObject dbo) {
-        @SuppressWarnings("unchecked")
-        final Map<String, Object> ret = (Map<String, Object>) cleanObject(dbo);
-        return ret;
-    }
-    
-    // this assumes there aren't BSONObjects embedded in standard objects, which should
-    // be the case for stuff returned from mongo
-    
-    // Unimplemented error for dbo.toMap()
-    // dbo is read only
-    // can't call ObjectMapper.convertValue() on dbo since it has a 'size' field outside of
-    // the internal map
-    // and just weird shit happens when you do anyway
-    private static Object cleanObject(final Object dbo) {
-        // sometimes it's lazy, sometimes it's basic. Not sure when or why.
-        if (dbo instanceof LazyBSONList) {
-            final List<Object> ret = new LinkedList<>();
-            // don't stream, sometimes has issues with nulls
-            for (final Object obj: (LazyBSONList) dbo) {
-                ret.add(cleanObject(obj));
-            }
-            return ret;
-        } else if (dbo instanceof BasicBSONList) {
-            final List<Object> ret = new LinkedList<>();
-            // don't stream, sometimes has issues with nulls
-            for (final Object obj: (BasicBSONList) dbo) {
-                ret.add(cleanObject(obj));
-            }
-        } else if (dbo instanceof BSONObject) {
-            // can't stream because streams don't like null values at HashMap.merge()
-            final BSONObject m = (BSONObject) dbo;
-            final Map<String, Object> ret = new HashMap<>();
-            for (final String k: m.keySet()) {
-                if (!k.equals("_id")) {
-                    final Object v = m.get(k);
-                    ret.put(k, cleanObject(v));
-                }
-            }
-            return ret;
-        }
-        return dbo;
+    public static <T> T toObject(final Document doc, final Class<T> clazz) {
+        return doc == null ? null : MAPPER.convertValue(doc, clazz);
     }
 
     public static String stringToHex(String text) {

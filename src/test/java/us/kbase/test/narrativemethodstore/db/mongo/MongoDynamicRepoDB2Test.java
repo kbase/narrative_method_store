@@ -25,9 +25,11 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.mongodb.BasicDBObject;
-import com.mongodb.DB;
-import com.mongodb.MongoClient;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoClients;
+import org.bson.Document;
 
 import us.kbase.narrativemethodstore.db.DynamicRepoDB.FileProvider;
 import us.kbase.narrativemethodstore.db.DynamicRepoDB.RepoState;
@@ -76,12 +78,12 @@ public class MongoDynamicRepoDB2Test {
     
     @Before
     public void before() throws Exception {
-        final MongoClient mc = new MongoClient("localhost:" + MONGO.getMongoPort());
-        final DB db = mc.getDB(DB_NAME);
-        for (final String name: db.getCollectionNames()) {
-            if (!name.startsWith("system.")) {
-                // dropping collection also drops indexes
-                db.getCollection(name).remove(new BasicDBObject());
+        try (final MongoClient mc = MongoClients.create("mongodb://localhost:" + MONGO.getMongoPort())) {
+            final MongoDatabase db = mc.getDatabase(DB_NAME);
+            for (final String collectionName: db.listCollectionNames()) {
+                if (!collectionName.startsWith("system.")) {
+                    db.getCollection(collectionName).deleteMany(new Document()); // Delete all documents without dropping the indexes
+                }
             }
         }
     }
