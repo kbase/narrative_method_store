@@ -273,10 +273,9 @@ public class MongoDynamicRepoDBTest {
     @Before 
     @After
     public void cleanup() throws Exception {
-        String host = "mongodb://localhost:" + dbHelper.getMongoPort();
-        try (MongoClient mc = MongoClients.create(host)) {
-            MongoDatabase db = mc.getDatabase(dbName);
-            db.drop();
+        final String host = "mongodb://localhost:" + dbHelper.getMongoPort();
+        try (final MongoClient mc = MongoClients.create(host)) {
+            mc.getDatabase(dbName).drop();
         }
     }
 }

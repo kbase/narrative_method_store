@@ -371,7 +371,7 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
         } else {
             hist.is_release = 1L;
         }
-
+        // race condition here
         data2.updateOne(Filters.and(
                 Filters.eq(FIELD_RH_MODULE_NAME, repoModuleName),
                 Filters.eq(FIELD_RH_VERSION, changedVer)),
@@ -490,13 +490,13 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
         final FindIterable<Document> iterable = files.find(query);
 
         for (final Document doc: iterable) {
-            Map<String, Object> obj = doc;
+            final Map<String, Object> obj = doc;
             is = file.openStream();
             try {
                 OutputComparatorStream ocs = new OutputComparatorStream(is);
                 loadFile(obj, ocs);
                 if (!ocs.isDifferent()) {
-                    String fileId = (String) obj.get(FIELD_RF_FILE_ID);
+                    final String fileId = (String) obj.get(FIELD_RF_FILE_ID);
                     return new FileId(fileId);
                 }
             } finally {
@@ -526,7 +526,7 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
         long fileIdNum = System.currentTimeMillis();
         while (true) {
             try {
-                Document newFileDoc = new Document(FIELD_RF_FILE_ID, String.valueOf(fileIdNum));
+                final Document newFileDoc = new Document(FIELD_RF_FILE_ID, String.valueOf(fileIdNum));
                 files.insertOne(newFileDoc);
                 break;
             } catch (DuplicateKeyException ex) {

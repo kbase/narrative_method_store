@@ -44,7 +44,7 @@ public class MongoUtils {
 
         final List<Map<String, Object>> data = new LinkedList<>();
         while (cursor.hasNext()) {
-            Map<String, Object> map = cursor.next();
+            final Map<String, Object> map = cursor.next();
             data.add(map);
         }
 
@@ -74,6 +74,8 @@ public class MongoUtils {
     }
 
     /** Map a MongoDB {@link Document} to a class.
+     * The object must be deserializable by an {@link ObjectMapper} configured so private
+     * fields are visible.
      * @param doc the MongoDB document to transform.
      * @param clazz the class to which the object will be transformed.
      * @return the transformed object.
