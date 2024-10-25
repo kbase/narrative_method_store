@@ -18,6 +18,8 @@ public class MongoDBHelper {
     private File mongoDir = null;
     private int mongoPort = -1;
 
+    private static MongoController mongo;
+
     public MongoDBHelper(String testName) {
         this.testName = testName;
     }
@@ -42,7 +44,7 @@ public class MongoDBHelper {
     }
     
     public void shutdown(boolean deleteTempDir) throws Exception {
-        killPid(mongoDir);
+        destroy(mongoDir);
         if (deleteTempDir && mongoDir.exists())
             deleteRecursively(mongoDir);
     }
@@ -52,23 +54,20 @@ public class MongoDBHelper {
             mongodExePath = "mongod";
         if (!dir.exists())
             dir.mkdirs();
-        MongoController mongo = new MongoController(mongodExePath, dir.toPath(), true);
+        mongo = new MongoController(mongodExePath, dir.toPath(), true);
         System.out.println(String.format("Testing against mongo executable %s on port %s",
                 mongodExePath, mongo.getServerPort()));
         return mongo.getServerPort();
     }
 
-    private static void killPid(File dir) {
+    private static void destroy(File dir) {
         if (dir == null)
             return;
-        try {
-            File pidFile = new File(dir, "pid.txt");
-            if (pidFile.exists()) {
-                String pid = TextUtils.lines(pidFile).get(0).trim();
-                ProcessHelper.cmd("kill", pid).exec(dir);
-                System.out.println(dir.getName() + " was stopped");
-            }
-        } catch (Exception ignore) {}
+        if (mongo != null) {
+            try {
+                mongo.destroy(true);
+            } catch (Exception ignore) {}
+        }
     }
     
     private static int findFreePort() {
