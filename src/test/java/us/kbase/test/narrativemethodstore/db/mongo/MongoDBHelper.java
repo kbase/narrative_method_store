@@ -4,10 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.nio.file.Files;
-import java.util.Arrays;
 
-import us.kbase.common.utils.ProcessHelper;
-import us.kbase.narrativemethodstore.util.TextUtils;
 import us.kbase.testutils.controllers.mongo.MongoController;
 
 public class MongoDBHelper {
