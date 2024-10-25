@@ -628,7 +628,7 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
     // it is actually used, just some of the fields aren't explicitly used. They're populated
     // by Jackson though.
     @SuppressWarnings("unused")
-    @JsonIgnoreProperties(ignoreUnknown = true)
+    @JsonIgnoreProperties({"_id"})
     private static class RepoHistory {
         String module_name;
         Long version;
