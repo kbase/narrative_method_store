@@ -77,11 +77,12 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
             final String dbUser,
             final String dbPwd,
             final List<String> globalAdminUserIds,
-            final boolean isReadOnly)
+            final boolean isReadOnly,
+            final boolean retryWrites)
             throws NarrativeMethodStoreException {
         this.isReadOnly = isReadOnly;
         try {
-            db = getDB(host, database, dbUser, dbPwd);
+            db = getDB(host, database, dbUser, dbPwd, retryWrites);
             if (!isReadOnly)
                 ensureIndeces();
             globalAdmins = new HashSet<String>(globalAdminUserIds);
@@ -90,9 +91,11 @@ public class MongoDynamicRepoDB implements DynamicRepoDB {
         }
     }
     
-    private MongoDatabase getDB(final String host, final String db, final String user, final String pwd) {
-        final MongoClientSettings.Builder mongoBuilder = MongoClientSettings.builder().applyToClusterSettings(
-                builder -> builder.hosts(Arrays.asList(new ServerAddress(host))));
+    private MongoDatabase getDB(final String host, final String db, final String user,
+                                final String pwd, final boolean retryWrites) {
+        final MongoClientSettings.Builder mongoBuilder = MongoClientSettings.builder()
+                .retryWrites(retryWrites)
+                .applyToClusterSettings(builder -> builder.hosts(Arrays.asList(new ServerAddress(host))));
         final MongoClient cli;
         if (user != null) {
             final MongoCredential creds = MongoCredential.createCredential(user, db, pwd.toCharArray());

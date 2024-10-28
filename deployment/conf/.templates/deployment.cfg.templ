@@ -35,6 +35,7 @@ method-spec-mongo-host = {{ default .Env.method_spec_mongo_host "localhost:27017
 method-spec-mongo-dbname = {{ default .Env.method_spec_mongo_dbname "method_store_repo_db" }}
 method-spec-mongo-user = {{ default .Env.method_spec_mongo_user "" }}
 method-spec-mongo-password = {{ default .Env.method_spec_mongo_password "" }}
+method-sepc-mongo-retrywrites={{ default .Env.method_spec_mongo_retrywrites "false" }}
 method-spec-admin-users = {{ default .Env.method_spec_admin_users "kbaseadmin,kbaseadmin2" }}
 endpoint-host={{ default .Env.endpoint_host "https://ci.kbase.us" }}
 endpoint-base={{ default .Env.endpoint_base "/services" }}

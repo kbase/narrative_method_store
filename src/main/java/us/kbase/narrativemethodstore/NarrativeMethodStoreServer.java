@@ -54,6 +54,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
     public static final String       CFG_PROP_MONGO_USER = "method-spec-mongo-user";
     public static final String   CFG_PROP_MONGO_PASSWORD = "method-spec-mongo-password";
     public static final String   CFG_PROP_MONGO_READONLY = "method-spec-mongo-readonly";
+    public static final String   CFG_PROP_MONGO_RETRY_WRITES = "method-spec-mongo-retrywrites";
     public static final String      CFG_PROP_ADMIN_USERS = "method-spec-admin-users";
     public static final String    CFG_PROP_ENDPOINT_BASE = "endpoint-base";
     public static final String    CFG_PROP_ENDPOINT_HOST = "endpoint-host";
@@ -190,6 +191,10 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
             String dbPwd = nullIfWhitespace(config().get(CFG_PROP_MONGO_PASSWORD));
             System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_MONGO_USER +" = " + (dbUser == null ? "<not-set>" : dbUser));
             System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_MONGO_PASSWORD +" = " + (dbPwd == null ? "<not-set>" : "[*****]"));
+
+            final boolean retryWrites = config().get(CFG_PROP_MONGO_RETRY_WRITES).equals("ture");
+            System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_MONGO_RETRY_WRITES +" = " + retryWrites);
+
             String mongoReadOnlyText = config().get(CFG_PROP_MONGO_READONLY);
             boolean mongoRO = mongoReadOnlyText != null && (mongoReadOnlyText.equals("1") || mongoReadOnlyText.equals("true") ||
                     mongoReadOnlyText.equals("y") || mongoReadOnlyText.equals("yes"));
@@ -213,7 +218,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
             System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_AUTH_INSECURE +" = " +
                     (authAllowInsecure == null ? "<not-set> ('false' will be used)" : authAllowInsecure));
             localGitDB = new LocalGitDB(new URL(getGitRepo()), getGitBranch(), new File(getGitLocalDir()), getGitRefreshRate(), getCacheSize(),
-                    new MongoDynamicRepoDB(getMongoHost(), getMongoDbname(), dbUser, dbPwd, adminUsers, mongoRO),
+                    new MongoDynamicRepoDB(getMongoHost(), getMongoDbname(), dbUser, dbPwd, adminUsers, mongoRO, retryWrites),
                     new File(getTempDir()),
                     new ServiceUrlTemplateEvaluater(endpointHost, endpointBase), RepoTag.valueOf(defaultTag));
         }
