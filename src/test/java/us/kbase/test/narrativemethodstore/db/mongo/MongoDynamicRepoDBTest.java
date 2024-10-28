@@ -79,7 +79,7 @@ public class MongoDynamicRepoDBTest {
 
         String host = "localhost:" + dbHelper.getMongoPort();
         MongoDynamicRepoDB db = new MongoDynamicRepoDB(host, dbName, null, null, 
-                Arrays.asList(globalAdmin), false);
+                Arrays.asList(globalAdmin), false, false);
         Assert.assertEquals(0, db.listRepoModuleNames().size());
         RepoProvider pvd = localFiles ? new FileRepoProvider(new File(localPath)) :
             new GitHubRepoProvider(new URL(gitUrl), null, dbHelper.getWorkDir());
@@ -209,7 +209,7 @@ public class MongoDynamicRepoDBTest {
         String globalAdmin = "admin";
         String host = "localhost:" + dbHelper.getMongoPort();
         MongoDynamicRepoDB db = new MongoDynamicRepoDB(host, dbName, null, null, 
-                Arrays.asList(globalAdmin), false);
+                Arrays.asList(globalAdmin), false, false);
         Assert.assertEquals(0, db.listRepoModuleNames().size());
         RepoProvider pvd = new FileRepoProvider(repoDir);
         db.registerRepo(userId, pvd);

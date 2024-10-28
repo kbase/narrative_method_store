@@ -1472,6 +1472,7 @@ public class FullServerTest {
 		ws.add("method-spec-temp-dir", dbHelper.getWorkDir());
 		ws.add("method-spec-mongo-host", "localhost:" + dbHelper.getMongoPort());
 		ws.add("method-spec-mongo-dbname", dbName);
+		ws.add("method-spec-mongo-retrywrites", "false");
 		ws.add("method-spec-admin-users", admin1 + "," + admin2);
         ws.add("endpoint-host", "https://ci.kbase.us");
         ws.add("endpoint-base", "/services");

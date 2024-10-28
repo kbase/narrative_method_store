@@ -3,10 +3,12 @@ NARRATIVE METHOD STORE OVERVIEW
 The Narrative Method Store provides an API to dynamically access the available
 narrative method/app/type specifications and documentation.
 
-VERSION: 0.3.12 (Released TBD)
+VERSION: 0.3.12 (Released 10/28/2024)
 ------------------------------------
 
 UPDATED FEATURES:
+- The MongoDB clients have been updated to the most recent version.
+- Added the ``mongo-retrywrites`` configuration setting in ``deploy.cfg``, defaulting to ``false``.
 - Added the `exact_match_on` field to the dynamic dropdown options.
 - Changed the build system from Make / Ant to Gradle.
 
