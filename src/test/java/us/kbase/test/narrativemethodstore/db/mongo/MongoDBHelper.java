@@ -4,10 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.nio.file.Files;
-import java.util.Arrays;
 
-import us.kbase.common.utils.ProcessHelper;
-import us.kbase.narrativemethodstore.util.TextUtils;
+import us.kbase.testutils.controllers.mongo.MongoController;
 
 public class MongoDBHelper {
     private String tempDirName = "test/temp";
@@ -16,6 +14,8 @@ public class MongoDBHelper {
     private File workDir = null;
     private File mongoDir = null;
     private int mongoPort = -1;
+
+    private static MongoController mongo;
 
     public MongoDBHelper(String testName) {
         this.testName = testName;
@@ -41,7 +41,7 @@ public class MongoDBHelper {
     }
     
     public void shutdown(boolean deleteTempDir) throws Exception {
-        killPid(mongoDir);
+        destroy(mongoDir);
         if (deleteTempDir && mongoDir.exists())
             deleteRecursively(mongoDir);
     }
@@ -51,58 +51,20 @@ public class MongoDBHelper {
             mongodExePath = "mongod";
         if (!dir.exists())
             dir.mkdirs();
-        File dataDir = new File(dir, "data");
-        dataDir.mkdir();
-        File logFile = new File(dir, "mongodb.log");
-        int port = findFreePort();
-        File configFile = new File(dir, "mongod.conf");
-        TextUtils.writeLines(Arrays.asList(
-                "dbpath=" + dataDir.getAbsolutePath(),
-                "logpath=" + logFile.getAbsolutePath(),
-                "logappend=true",
-                "port=" + port,
-                "bind_ip=127.0.0.1"
-                ), configFile);
-        File scriptFile = new File(dir, "start_mongo.sh");
-        TextUtils.writeLines(Arrays.asList(
-                "#!/bin/bash",
-                "cd " + dir.getAbsolutePath(),
-                mongodExePath + " --nojournal --config " + configFile.getAbsolutePath() + " >out.txt 2>err.txt & pid=$!",
-                "echo $pid > pid.txt"
-                ), scriptFile);
-        ProcessHelper.cmd("bash", scriptFile.getCanonicalPath()).exec(dir);
-        boolean ready = false;
-        int waitSec = 120;
-        for (int n = 0; n < waitSec; n++) {
-            Thread.sleep(1000);
-            if (logFile.exists()) {
-                if (TextUtils.grep(TextUtils.lines(logFile), "waiting for connections on port " + port).size() > 0) {
-                    ready = true;
-                    break;
-                }
-            }
-        }
-        if (!ready) {
-            if (logFile.exists())
-                for (String l : TextUtils.lines(logFile))
-                    System.err.println("MongoDB log: " + l);
-            throw new IllegalStateException("MongoDB couldn't startup in " + waitSec + " seconds");
-        }
-        System.out.println(dir.getName() + " was started up");
-        return port;
+        mongo = new MongoController(mongodExePath, dir.toPath(), true);
+        System.out.println(String.format("Testing against mongo executable %s on port %s",
+                mongodExePath, mongo.getServerPort()));
+        return mongo.getServerPort();
     }
 
-    private static void killPid(File dir) {
+    private static void destroy(File dir) {
         if (dir == null)
             return;
-        try {
-            File pidFile = new File(dir, "pid.txt");
-            if (pidFile.exists()) {
-                String pid = TextUtils.lines(pidFile).get(0).trim();
-                ProcessHelper.cmd("kill", pid).exec(dir);
-                System.out.println(dir.getName() + " was stopped");
-            }
-        } catch (Exception ignore) {}
+        if (mongo != null) {
+            try {
+                mongo.destroy(true);
+            } catch (Exception ignore) {}
+        }
     }
     
     private static int findFreePort() {

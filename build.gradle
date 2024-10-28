@@ -180,7 +180,10 @@ dependencies {
 	implementation 'org.ini4j:ini4j:0.5.2'
 	implementation 'com.fasterxml.jackson.core:jackson-annotations:2.2.3'
 	implementation 'com.fasterxml.jackson.core:jackson-databind:2.2.3'
-	implementation 'org.mongodb:mongo-java-driver:3.10.1'
+	implementation 'org.mongodb:mongodb-driver-core:4.11.1'
+	implementation 'org.mongodb:mongodb-driver-sync:4.11.1'
+	implementation 'org.mongodb:bson-record-codec:4.11.1'
+	implementation 'org.mongodb:bson:4.11.1'
 	implementation 'org.yaml:snakeyaml:1.11'
 	implementation 'org.apache.velocity:velocity:1.7'
 	implementation 'commons-io:commons-io:2.4'
@@ -193,6 +196,9 @@ dependencies {
 	testImplementation 'junit:junit:4.12'
 	testImplementation 'org.mockito:mockito-core:3.0.0'
 	testImplementation 'org.apache.commons:commons-lang3:3.5'
+	testImplementation('com.github.kbase:java_test_utilities:0.1.0') {
+		exclude group: 'com.fasterxml.jackson.core'  // upgrading breaks stuff
+	}
 }
 
 task showTestClassPath {
