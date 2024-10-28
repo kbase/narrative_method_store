@@ -192,7 +192,7 @@ public class NarrativeMethodStoreServer extends JsonServerServlet {
             System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_MONGO_USER +" = " + (dbUser == null ? "<not-set>" : dbUser));
             System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_MONGO_PASSWORD +" = " + (dbPwd == null ? "<not-set>" : "[*****]"));
 
-            final boolean retryWrites = config().get(CFG_PROP_MONGO_RETRY_WRITES).equals("ture");
+            final boolean retryWrites = config().get(CFG_PROP_MONGO_RETRY_WRITES).equals("true");
             System.out.println(NarrativeMethodStoreServer.class.getName() + ": " + CFG_PROP_MONGO_RETRY_WRITES +" = " + retryWrites);
 
             String mongoReadOnlyText = config().get(CFG_PROP_MONGO_READONLY);
