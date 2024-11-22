@@ -37,7 +37,7 @@ sub new
     
     if (!defined($url))
     {
-	$url = 'https://kbase.us/services/narrative_method_store/rpc';
+	$url = 'https://ci.kbase.us/services/narrative_method_store/rpc';
     }
 
     my $self = {

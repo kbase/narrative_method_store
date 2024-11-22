@@ -1,0 +1,1535 @@
+package us.kbase.test.narrativemethodstore;
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.lang.reflect.Field;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeSet;
+
+import junit.framework.Assert;
+
+import org.apache.commons.io.FileUtils;
+import org.eclipse.jetty.util.log.Log;
+import org.eclipse.jetty.util.log.Logger;
+import org.ini4j.Ini;
+import org.ini4j.Profile.Section;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+import us.kbase.common.service.JsonServerSyslog;
+import us.kbase.common.service.ServerException;
+import us.kbase.common.service.Tuple4;
+import us.kbase.narrativemethodstore.*;
+import us.kbase.narrativemethodstore.db.DynamicRepoDB;
+import us.kbase.test.narrativemethodstore.db.mongo.MongoDBHelper;
+
+/**
+ * Client-server JSON-RPC test for Narrative Method Store.
+ *
+ * Test data comes from the `test` branch of
+ * https://github.com/kbase/narrative_method_specs
+ *
+ */
+public class FullServerTest {
+
+	private static File tempDir;
+
+	private static NarrativeMethodStoreServer SERVER;
+	private static NarrativeMethodStoreClient CLIENT;
+
+	private static boolean removeTempDir;
+
+	private static String tempDirName;
+	private static String gitRepo;
+	private static String gitRepoBranch;
+	private static String gitRepoRefreshRate;
+	private static String gitRepoCacheSize;
+
+	private static String mongoExePath;
+	private static MongoDBHelper dbHelper;
+
+    private static final String dbName = "method_store_full_server_test_temp_db";
+    private static final String admin1 = "admin1";
+    private static final String admin2 = "admin2";
+
+	private static class ServerThread extends Thread {
+		private NarrativeMethodStoreServer server;
+		private ServerThread(NarrativeMethodStoreServer server) {
+			this.server = server;
+		}
+		public void run() {
+			try {
+				server.startupServer();
+			} catch (Exception e) {
+				System.err.println("Can't start server:");
+				e.printStackTrace();
+			}
+		}
+	}
+
+	//http://quirkygba.blogspot.com/2009/11/setting-environment-variables-in-java.html
+	@SuppressWarnings("unchecked")
+	private static Map<String, String> getenv() throws NoSuchFieldException,
+			SecurityException, IllegalArgumentException, IllegalAccessException {
+		Map<String, String> unmodifiable = System.getenv();
+		Class<?> cu = unmodifiable.getClass();
+		Field m = cu.getDeclaredField("m");
+		m.setAccessible(true);
+		return (Map<String, String>) m.get(unmodifiable);
+	}
+
+
+	@Test
+	public void testVersion() throws Exception {
+		String ver = CLIENT.ver();
+		assertTrue("Testing that ver() returns a version string that looks valid",
+				ver.matches("^\\d+\\.\\d+\\.\\d+(\\-.+)?$"));
+		System.out.println("Testing NMS Server Version "+ver);
+	}
+
+	@Test
+	public void testStatus() throws Exception {
+		Status status = CLIENT.status();
+
+		assertTrue("Testing that status() returns a git spec branch that is not null",
+				status.getGitSpecBranch()!=null);
+		assertTrue("Testing that status() returns a git spec branch that is not empty",
+				status.getGitSpecBranch().length()>0);
+		assertTrue("Testing that status() returns a git spec commit that is not null",
+				status.getGitSpecCommit()!=null);
+		assertTrue("Testing that status() returns a git spec commit that is not empty",
+				status.getGitSpecCommit().length()>0);
+		assertTrue("Testing that status() returns a git spec repo url that is not null",
+				status.getGitSpecUrl()!=null);
+		assertTrue("Testing that status() returns a git spec repo url that is not empty",
+				status.getGitSpecUrl().length()>0);
+		assertTrue("Testing that status() returns a git spec update interval that is not null",
+				status.getUpdateInterval()!=null);
+		assertTrue("Testing that status() returns a git spec update interval that is not empty",
+				status.getUpdateInterval().length()>0);
+	}
+
+
+	@Test
+	public void testListMethodIds() throws Exception {
+		Map<String, String> methods = CLIENT.listMethodIdsAndNames(new ListMethodIdsAndNamesParams());
+		assertTrue("Testing that test_method_1 returns from listMethodIdsAndNames()",
+				methods.get("test_method_1").equals("Test Method 1"));
+	}
+
+
+	@Test
+	public void testListMethods() throws Exception {
+		ListParams params = new ListParams();
+		List<MethodBriefInfo> methods = CLIENT.listMethods(params);
+		boolean foundTestMethod1 = false;
+		boolean foundTestMethod8 = false;
+		for(MethodBriefInfo m : methods) {
+
+			// check specific things in specific test methods
+			if(m.getId().equals("test_method_1")) {
+				foundTestMethod1 = true;
+
+				assertTrue("Testing that test_method_1 name in brief info from listMethods is correct",
+						m.getName().equals("Test Method 1"));
+				assertTrue("Testing that test_method_1 ver in brief info from listMethods is correct",
+						m.getVer().equals("1.0.1"));
+				assertTrue("Testing that test_method_1 id in brief info from listMethods is correct",
+						m.getId().equals("test_method_1"));
+				assertTrue("Testing that test_method_1 categories in brief info from listMethods is correct",
+						m.getCategories().get(0).equals("testmethods"));
+			}
+			if(m.getId().equals("test_method_8")) {
+				foundTestMethod8 = true;
+			}
+		}
+
+		assertTrue("Testing that test_method_1 was returned from listMethods",
+				foundTestMethod1);
+		assertTrue("Testing that test_method_8 was returned from listMethods",
+				foundTestMethod8);
+	}
+
+
+	@Test
+	public void testGetCategory() throws Exception {
+		//first just check that we didn't get anything if we didn't ask for anything
+		GetCategoryParams params = new GetCategoryParams().withIds(new ArrayList<String>());
+		List<Category> categories = CLIENT.getCategory(params);
+		assertTrue("Get categories without categories should return an empty list", categories.size()==0);
+
+		//next check that what we asked for is returned
+		params = new GetCategoryParams().withIds(Arrays.asList("testmethods"));
+		categories = CLIENT.getCategory(params);
+		assertTrue("Get categories with one valid category should return exactly one thing", categories.size()==1);
+		assertTrue("The one category should be the one we asked for", categories.get(0).getId().compareTo("testmethods")==0);
+		assertTrue("The one category should have the right name", categories.get(0).getName().compareTo("Test Methods")==0);
+
+		// test that we don't get something if it doesn't exist
+		try {
+			params = new GetCategoryParams().withIds(Arrays.asList("blah_blah_blah_category"));
+			categories = CLIENT.getCategory(params);
+			fail("Get category with an invalid category id worked, but it shouldn't");
+		} catch (ServerException e) {
+			assertTrue("Getting an invalid category throws an error, and the error has the correct message",
+					e.getMessage().compareTo("No category with id=blah_blah_blah_category")==0);
+		}
+	}
+
+
+	@Test
+	public void testListCategories() throws Exception {
+		ListCategoriesParams params = new ListCategoriesParams().withLoadMethods(0L);
+		Tuple4<Map<String,Category>, Map<String,MethodBriefInfo>, Map<String,AppBriefInfo>, Map<String,TypeInfo>> methods = CLIENT.listCategories(params);
+
+		//first just check that the method did not return methods if we did not request them
+		assertTrue("We should not get methods from listCategories if we did not ask.", methods.getE2().size()==0);
+		assertTrue("We should get categories from listCategories.", methods.getE1().size()>0);
+		assertTrue("We should get the proper category name for testmethods.", methods.getE1().get("testmethods").getName().equals("Test Methods"));
+
+		params = new ListCategoriesParams().withLoadMethods(1L);
+		methods = CLIENT.listCategories(params);
+
+		//check that the method did not return methods if we did not request them
+		assertTrue("We should get methods from listCategories if we asked for it.", methods.getE2().size()>0);
+		assertTrue("We should get a proper method in the methods returned by listCategories.", methods.getE2().get("test_method_1").getName().equals("Test Method 1"));
+		assertTrue("We should get categories from listCategories.", methods.getE1().size()>0);
+		assertTrue("We should get the proper category name for testmethods.", methods.getE1().get("testmethods").getName().equals("Test Methods"));
+
+	}
+
+
+
+
+	@Test
+	public void testListMethodsBriefInfo() throws Exception {
+		ListParams params = new ListParams();
+		List<MethodBriefInfo> methods = CLIENT.listMethods(params);
+		boolean foundTestMethod1 = false;
+		boolean foundTestMethod7 = false;
+		for(MethodBriefInfo m : methods) {
+
+			// check specific things in specific test methods
+			if(m.getId().equals("test_method_1")) {
+				foundTestMethod1 = true;
+
+				assertTrue("Testing that test_method_1 name from listMethodsFullInfo is correct",
+						m.getName().equals("Test Method 1"));
+				assertTrue("Testing that test_method_1 ver from listMethodsFullInfo is correct",
+						m.getVer().equals("1.0.1"));
+				assertTrue("Testing that test_method_1 id from listMethodsFullInfo is correct",
+						m.getId().equals("test_method_1"));
+				assertTrue("Testing that test_method_1 categories from listMethodsFullInfo is correct",
+						m.getCategories().get(0).equals("testmethods"));
+
+				assertTrue("Testing that test_method_1 does not have an icon",
+						m.getIcon()==null);
+			}
+
+			// check specific things in specific test methods
+			if(m.getId().equals("test_method_7")) {
+				foundTestMethod7 = true;
+				assertTrue("Testing that test_method_7 has an icon",
+						m.getIcon()!=null);
+				assertTrue("Testing that test_method_7 has an icon url",
+						m.getIcon().getUrl()!=null);
+				assertEquals("img?method_id=test_method_7&image_name=icon.png",m.getIcon().getUrl());
+			}
+		}
+		assertTrue("Testing that test_method_1 was returned from listMethodsFullInfo",
+				foundTestMethod1);
+		assertTrue("Testing that test_method_7 was returned from listMethodsFullInfo",
+				foundTestMethod7);
+	}
+
+
+	@Test
+	public void testListAppIdsAndNames() throws Exception {
+		Map<String, String> apps = CLIENT.listAppIdsAndNames();
+
+		assertTrue("listing apps and names got test_app_1",apps.containsKey("test_app_1"));
+		assertTrue("listing apps and names got test_app_1, and name is correct",apps.get("test_app_1").compareTo("Test All 1")==0);
+		assertTrue("listing apps and names got test_app_2",apps.containsKey("test_app_2"));
+		assertTrue("listing apps and names got test_app_2, and name is correct",apps.get("test_app_1").compareTo("Test All 1")==0);
+	}
+
+	@Test
+	public void testListAppSpecs() throws Exception {
+		List<AppSpec> apps = CLIENT.listAppsSpec(new ListParams());
+		boolean foundApp1 = false; boolean foundApp2 = false;
+		for(AppSpec a:apps) {
+			if(a.getInfo().getId().compareTo("test_app_1")==0) {
+				foundApp1 = true;
+			} else if (a.getInfo().getId().compareTo("test_app_2")==0) {
+				foundApp2 = true;
+			}
+		}
+		assertTrue("Testing that test_app_1 was returned from listAppsSpec",
+				foundApp1);
+		assertTrue("Testing that test_app_2 was returned from listAppsSpec",
+				foundApp2);
+	}
+
+	@Test
+	public void testGetAppBriefInfo() throws Exception {
+		GetAppParams params = new GetAppParams().withIds(Arrays.asList("test_app_1"));
+		List<AppBriefInfo> apps = CLIENT.getAppBriefInfo(params);
+
+		boolean foundTestApp1 = false;
+		boolean foundTestApp2 = false;
+		assertTrue("Testing that exactly one app was returned as requested",apps.size()==1);
+		for(AppBriefInfo a : apps) {
+			// check specific things in specific test methods
+			if(a.getId().equals("test_app_1")) {
+				foundTestApp1 = true;
+				assertTrue("Testing that test_app_1 does not have an icon",
+						a.getIcon()==null);
+			}
+			if(a.getId().equals("test_app_2")) {
+				foundTestApp2 = true;
+			}
+		}
+
+		assertTrue("Testing that test_app_1 was returned from getAppBriefInfo",
+				foundTestApp1);
+		assertFalse("Testing that test_app_2 was not returned from getAppBriefInfo because it was not in arguements",
+				foundTestApp2);
+	}
+
+	@Test
+	public void testListApps() throws Exception {
+		ListParams params = new ListParams();
+		List<AppBriefInfo> apps = CLIENT.listApps(params);
+
+		boolean foundTestApp1 = false;
+		boolean foundTestApp2 = false;
+		for(AppBriefInfo a : apps) {
+
+			// check specific things in specific test methods
+			if(a.getId().equals("test_app_1")) {
+				foundTestApp1 = true;
+				assertTrue("Testing that test_app_1 does not have an icon",
+						a.getIcon()==null);
+			}
+			if(a.getId().equals("test_app_2")) {
+				foundTestApp2 = true;
+				assertTrue("Testing that test_app_2 has an icon",
+						a.getIcon()!=null);
+				assertTrue("Testing that test_app_2 has an icon url",
+						a.getIcon().getUrl()!=null);
+				assertEquals("img?method_id=test_app_2&image_name=someIcon.png",a.getIcon().getUrl());
+			}
+		}
+
+		assertTrue("Testing that test_app_1 was returned from listApps",
+				foundTestApp1);
+		assertTrue("Testing that test_app_2 was returned from listApps",
+				foundTestApp2);
+	}
+
+	@Test
+	public void testListAppsFullInfo() throws Exception {
+		ListParams params = new ListParams();
+		List<AppFullInfo> methods = CLIENT.listAppsFullInfo(params);
+		boolean foundTestApp1 = false;
+		boolean foundTestApp2 = false;
+		for(AppFullInfo a : methods) {
+
+			// check specific things in specific test methods
+			if(a.getId().equals("test_app_1")) {
+				foundTestApp1 = true;
+
+				assertTrue("Testing that test_app_1 does not have an icon",
+						a.getIcon()==null);
+
+				assertTrue("Testing that test_app_1 has suggestions defined",
+						a.getSuggestions()!=null);
+				assertTrue("Testing that test_app_1 has suggestions for related apps defined",
+						a.getSuggestions().getRelatedApps()!=null);
+				assertTrue("Testing that test_app_1 has suggestions for next apps defined",
+						a.getSuggestions().getNextApps()!=null);
+				assertTrue("Testing that test_app_1 has suggestions for related methods defined",
+						a.getSuggestions().getRelatedMethods()!=null);
+				assertTrue("Testing that test_app_1 has suggestions for next methods defined",
+						a.getSuggestions().getNextMethods()!=null);
+				assertTrue("Testing that test_app_1 has no suggestions for related apps",
+						a.getSuggestions().getRelatedApps().size()==0);
+				assertTrue("Testing that test_app_1 has no suggestions for next apps",
+						a.getSuggestions().getNextApps().size()==0);
+				assertTrue("Testing that test_app_1 has no suggestions for related methods",
+						a.getSuggestions().getRelatedMethods().size()==0);
+				assertTrue("Testing that test_app_1 has no suggestions for next methods",
+						a.getSuggestions().getNextMethods().size()==0);
+
+			}
+
+			// check specific things in specific test methods
+			if(a.getId().equals("test_app_2")) {
+				foundTestApp2 = true;
+				assertTrue("Testing that test_app_2 technical description is empty",
+						a.getTechnicalDescription().trim().length()==0);
+				assertTrue("Testing that test_app_2 has an icon",
+						a.getIcon()!=null);
+				assertTrue("Testing that test_app_2 has an icon url",
+						a.getIcon().getUrl()!=null);
+				assertEquals("img?method_id=test_app_2&image_name=someIcon.png",a.getIcon().getUrl());
+
+
+				assertTrue("Testing that test_app_2 has suggestions defined",
+						a.getSuggestions()!=null);
+				assertTrue("Testing that test_app_2 has suggestions for related apps defined",
+						a.getSuggestions().getRelatedApps()!=null);
+				assertTrue("Testing that test_app_2 has suggestions for next apps defined",
+						a.getSuggestions().getNextApps()!=null);
+				assertTrue("Testing that test_app_2 has suggestions for related methods defined",
+						a.getSuggestions().getRelatedMethods()!=null);
+				assertTrue("Testing that test_app_2 has suggestions for next methods defined",
+						a.getSuggestions().getNextMethods()!=null);
+
+				assertTrue("Testing that test_app_2 has suggestions for related apps",
+						a.getSuggestions().getRelatedApps().size()==1);
+				assertTrue("Testing that test_app_2 has suggestions for next apps",
+						a.getSuggestions().getNextApps().size()==1);
+				assertTrue("Testing that test_app_2 has no suggestions for related methods",
+						a.getSuggestions().getRelatedMethods().size()==0);
+				assertTrue("Testing that test_app_2 has no suggestions for next methods",
+						a.getSuggestions().getNextMethods().size()==0);
+
+			}
+		}
+		assertTrue("Testing that test_app_1 was returned from listAppsFullInfo",
+				foundTestApp1);
+		assertTrue("Testing that test_app_2 was returned from listAppsFullInfo",
+				foundTestApp2);
+	}
+
+
+	@Test
+	public void testListMethodsFullInfo() throws Exception {
+		ListParams params = new ListParams();
+		List<MethodFullInfo> methods = CLIENT.listMethodsFullInfo(params);
+		boolean foundTestMethod1 = false;
+		boolean foundTestMethod7 = false;
+		boolean foundTestMethod8 = false;
+		for(MethodFullInfo m : methods) {
+
+			// check specific things in specific test methods
+			if(m.getId().equals("test_method_1")) {
+				foundTestMethod1 = true;
+
+				assertTrue("Testing that test_method_1 name from listMethodsFullInfo is correct",
+						m.getName().equals("Test Method 1"));
+				assertTrue("Testing that test_method_1 ver from listMethodsFullInfo is correct",
+						m.getVer().equals("1.0.1"));
+				assertTrue("Testing that test_method_1 id from listMethodsFullInfo is correct",
+						m.getId().equals("test_method_1"));
+				assertTrue("Testing that test_method_1 categories from listMethodsFullInfo is correct",
+						m.getCategories().get(0).equals("testmethods"));
+
+				assertTrue("Testing that test_method_1 description from listMethodsFullInfo is present",
+						m.getDescription().trim().length()>0);
+				assertTrue("Testing that test_method_1 technical description from listMethodsFullInfo is present",
+						m.getTechnicalDescription().trim().length()>0);
+				assertTrue("Testing that test_method_1 does not have an icon",
+						m.getIcon()==null);
+
+
+				assertTrue("Testing that test_method_1 has suggestions defined",
+						m.getSuggestions()!=null);
+				assertTrue("Testing that test_method_1 has suggestions for related apps defined",
+						m.getSuggestions().getRelatedApps()!=null);
+				assertTrue("Testing that test_method_1 has suggestions for next apps defined",
+						m.getSuggestions().getNextApps()!=null);
+				assertTrue("Testing that test_method_1 has suggestions for related methods defined",
+						m.getSuggestions().getRelatedMethods()!=null);
+				assertTrue("Testing that test_method_1 has suggestions for next methods defined",
+						m.getSuggestions().getNextMethods()!=null);
+				assertTrue("Testing that test_method_1 has no suggestions for related apps",
+						m.getSuggestions().getRelatedApps().size()==0);
+				assertTrue("Testing that test_method_1 has no suggestions for next apps",
+						m.getSuggestions().getNextApps().size()==0);
+				assertTrue("Testing that test_method_1 has no suggestions for related methods",
+						m.getSuggestions().getRelatedMethods().size()==0);
+				assertTrue("Testing that test_method_1 has no suggestions for next methods",
+						m.getSuggestions().getNextMethods().size()==0);
+
+			}
+
+			// check specific things in specific test methods
+			if(m.getId().equals("test_method_7")) {
+				foundTestMethod7 = true;
+				assertTrue("Testing that test_method_7 technical description is empty",
+						m.getTechnicalDescription().trim().length()==0);
+				assertTrue("Testing that test_method_7 has an icon",
+						m.getIcon()!=null);
+				assertTrue("Testing that test_method_7 has an icon url",
+						m.getIcon().getUrl()!=null);
+				assertEquals("img?method_id=test_method_7&image_name=icon.png",m.getIcon().getUrl());
+
+
+				assertTrue("Testing that test_method_7 has suggestions defined",
+						m.getSuggestions()!=null);
+				assertTrue("Testing that test_method_7 has suggestions for related apps defined",
+						m.getSuggestions().getRelatedApps()!=null);
+				assertTrue("Testing that test_method_7 has suggestions for next apps defined",
+						m.getSuggestions().getNextApps()!=null);
+				assertTrue("Testing that test_method_7 has suggestions for related methods defined",
+						m.getSuggestions().getRelatedMethods()!=null);
+				assertTrue("Testing that test_method_7 has suggestions for next methods defined",
+						m.getSuggestions().getNextMethods()!=null);
+
+				assertTrue("Testing that test_method_7 has suggestions for related apps",
+						m.getSuggestions().getRelatedApps().size()==1);
+				assertTrue("Testing that test_method_7 has suggestions for next apps",
+						m.getSuggestions().getNextApps().size()==1);
+				assertTrue("Testing that test_method_7 has suggestions for related methods",
+						m.getSuggestions().getRelatedMethods().size()==1);
+				assertEquals("test_method_3",
+						m.getSuggestions().getRelatedMethods().get(0));
+				assertTrue("Testing that test_method_7 has suggestions for next methods",
+						m.getSuggestions().getNextMethods().size()==2);
+				assertEquals("test_method_1",
+						m.getSuggestions().getNextMethods().get(0));
+				assertEquals("test_method_2",
+						m.getSuggestions().getNextMethods().get(1));
+
+			}
+
+			// check subdata parameter in test_method_8
+			if(m.getId().equals("test_method_8")) {
+				foundTestMethod8 = true;
+				assertTrue("Testing that test_method_8 technical description is empty",
+					m.getTechnicalDescription().trim().length()==0);
+				assertTrue("Testing that test_method_8 has no icon",
+					m.getIcon() == null);
+			}
+
+		}
+		assertTrue("Testing that test_method_1 was returned from listMethodsFullInfo",
+				foundTestMethod1);
+		assertTrue("Testing that test_method_7 was returned from listMethodsFullInfo",
+				foundTestMethod7);
+		assertTrue("Testing that test_method_8 was returned from listMethodsFullInfo",
+				foundTestMethod8);
+	}
+
+
+	@Test
+	public void testListMethodsSpec() throws Exception {
+		ListParams params = new ListParams();
+		List<MethodSpec> methods = CLIENT.listMethodsSpec(params);
+		boolean foundTestMethod1 = false;
+		boolean foundTestMethod3 = false;
+		boolean foundTestMethod4 = false;
+		boolean foundTestMethod5 = false;
+		boolean foundTestMethod7 = false;
+		boolean foundTestMethod8 = false;
+		boolean foundTestMethod10 = false;
+		boolean foundTestMethod12 = false;
+		for(MethodSpec m : methods) {
+			// check specific things in specific test methods
+			if(m.getInfo().getId().equals("test_method_1")) {
+				foundTestMethod1 = true;
+				assertEquals(0, m.getFixedParameters().size());
+
+				assertTrue("Testing that test_method_1 name from listMethodSpec is correct",
+						m.getInfo().getName().equals("Test Method 1"));
+				assertTrue("Testing that test_method_1 ver from listMethodSpec is correct",
+						m.getInfo().getVer().equals("1.0.1"));
+				assertTrue("Testing that test_method_1 id from listMethodSpec is correct",
+						m.getInfo().getId().equals("test_method_1"));
+				assertTrue("Testing that test_method_1 categories from listMethodSpec is correct",
+						m.getInfo().getCategories().get(0).equals("testmethods"));
+
+				assertTrue("Testing that test_method_1 from listMethodSpec has 2 parameters",
+						m.getParameters().size()==2);
+
+				assertTrue("Testing that test_method_1 from listMethodSpec parameter id is correct",
+						m.getParameters().get(0).getId().equals("genome"));
+				assertTrue("Testing that test_method_1 from listMethodSpec parameter name is correct",
+						m.getParameters().get(0).getUiName().equals("Genome"));
+				assertTrue("Testing that test_method_1 from listMethodSpec parameter short hint is correct",
+						m.getParameters().get(0).getShortHint().equals("The genome object you wish to test."));
+				assertTrue("Testing that test_method_1 from listMethodSpec parameter short hint is correct",
+						m.getParameters().get(0).getShortHint().equals("The genome object you wish to test."));
+				assertTrue("Testing that test_method_1 from listMethodSpec parameter valid ws type is correct",
+						m.getParameters().get(0).getTextOptions().getValidWsTypes().get(0).equals("KBaseGenomes.Genome"));
+				assertTrue("Testing that test_method_1 from listMethodSpec parameter valid ws type is correct",
+						m.getParameters().get(0).getTextOptions().getValidWsTypes().get(1).equals("KBaseGenomes.PlantGenome"));
+
+				assertTrue("Testing that test_method_1 output widget from listMethodSpec is correct",
+						m.getWidgets().getOutput().equals("KBaseDefaultViewer"));
+			} else if (m.getInfo().getId().equals("test_method_3")) {
+				foundTestMethod3 = true;
+
+				assertEquals(7, m.getParameters().size());
+				assertEquals(0, m.getFixedParameters().size());
+				////////////////////////
+				assertEquals("param0", m.getParameters().get(0).getId());
+				assertEquals("checkbox", m.getParameters().get(0).getFieldType());
+				assertEquals(10L, (long)m.getParameters().get(0).getCheckboxOptions().getCheckedValue());
+				assertEquals(-10L, (long)m.getParameters().get(0).getCheckboxOptions().getUncheckedValue());
+				////////////////////////
+				assertEquals("param0.1", m.getParameters().get(1).getId());
+				assertEquals("text", m.getParameters().get(1).getFieldType());
+				assertEquals("parameter",m.getParameters().get(1).getUiClass());
+				////////////////////////
+				assertEquals("param1", m.getParameters().get(2).getId());
+				assertEquals("floatslider", m.getParameters().get(2).getFieldType());
+				assertEquals(1.0, (double)m.getParameters().get(2).getFloatsliderOptions().getMin(), 1e-10);
+				assertEquals(10.0, (double)m.getParameters().get(2).getFloatsliderOptions().getMax(), 1e-10);
+				////////////////////////
+				assertEquals("param2", m.getParameters().get(3).getId());
+				assertEquals("textarea", m.getParameters().get(3).getFieldType());
+				assertEquals(10L, (long)m.getParameters().get(3).getTextareaOptions().getNRows());
+				assertEquals("place holder here", m.getParameters().get(3).getTextareaOptions().getPlaceholder());
+				////////////////////////
+				assertEquals("param2.2", m.getParameters().get(4).getId());
+				assertEquals("textarea", m.getParameters().get(4).getFieldType());
+				assertEquals(10L, (long)m.getParameters().get(4).getTextareaOptions().getNRows());
+				assertEquals("", m.getParameters().get(4).getTextareaOptions().getPlaceholder());
+				////////////////////////
+				assertEquals("param3", m.getParameters().get(5).getId());
+				assertEquals("dropdown", m.getParameters().get(5).getFieldType());
+				assertEquals(2, m.getParameters().get(5).getDropdownOptions().getOptions().size());
+				assertEquals("item0", m.getParameters().get(5).getDropdownOptions().getOptions().get(0).getValue());
+				////////////////////////
+				assertEquals("param4", m.getParameters().get(6).getId());
+				assertEquals("radio", m.getParameters().get(6).getFieldType());
+				assertEquals(2, m.getParameters().get(6).getRadioOptions().getIdsToOptions().size());
+				assertEquals("First", m.getParameters().get(6).getRadioOptions().getIdsToOptions().get("item0"));
+				assertEquals("First tooltip", m.getParameters().get(6).getRadioOptions().getIdsToTooltip().get("item0"));
+			} else if (m.getInfo().getId().equals("test_method_4")) {
+				foundTestMethod4 = true;
+				assertEquals(0, m.getFixedParameters().size());
+				assertEquals("Test Method 4 was run on {{genome}} to produce a new genome named {{output_genome}}.", m.getReplacementText());
+				assertEquals(new Long(1), m.getParameters().get(1).getTextOptions().getIsOutputName());
+				assertEquals("output",m.getParameters().get(1).getUiClass());
+				assertEquals("select a genome", m.getParameters().get(0).getTextOptions().getPlaceholder());
+				assertEquals("input",m.getParameters().get(0).getUiClass());
+			} else if (m.getInfo().getId().equals("test_method_5")) {
+				foundTestMethod5 = true;
+
+				assertEquals(4, m.getParameters().size());
+				assertEquals(0, m.getFixedParameters().size());
+
+				assertEquals("text_int_number", m.getParameters().get(0).getId());
+				assertEquals("text", m.getParameters().get(0).getFieldType());
+				assertEquals(new Long(0), m.getParameters().get(0).getTextOptions().getMinInt());
+				assertEquals(new Long(20), m.getParameters().get(0).getTextOptions().getMaxInt());
+				assertEquals(new Long(0), m.getParameters().get(0).getDisabled());
+				assertEquals("parameter",m.getParameters().get(0).getUiClass());
+
+				assertEquals("text_int_number_disabled", m.getParameters().get(1).getId());
+				assertEquals("text", m.getParameters().get(1).getFieldType());
+				assertEquals(new Long(0), m.getParameters().get(1).getTextOptions().getMinInt());
+				assertEquals(new Long(20), m.getParameters().get(1).getTextOptions().getMaxInt());
+				assertEquals(new Long(1), m.getParameters().get(1).getDisabled());
+				assertEquals("parameter",m.getParameters().get(1).getUiClass());
+
+				assertEquals("text_float_number", m.getParameters().get(2).getId());
+				assertEquals("text", m.getParameters().get(2).getFieldType());
+				assertEquals(new Double(0.5), m.getParameters().get(2).getTextOptions().getMinFloat());
+				assertEquals(new Double(20.2), m.getParameters().get(2).getTextOptions().getMaxFloat());
+				assertEquals("parameter",m.getParameters().get(2).getUiClass());
+
+				assertEquals("regex", m.getParameters().get(3).getId());
+				assertEquals("text", m.getParameters().get(3).getFieldType());
+				assertEquals("parameter",m.getParameters().get(3).getUiClass());
+				List<RegexMatcher> rm = m.getParameters().get(3).getTextOptions().getRegexConstraint();
+				assertEquals(new Long(1), rm.get(0).getMatch());
+				assertEquals("^good", rm.get(0).getRegex());
+				assertEquals("input must start with good", rm.get(0).getErrorText());
+
+				assertEquals(new Long(0), rm.get(1).getMatch());
+				assertEquals("bad$", rm.get(1).getRegex());
+				assertEquals("input cannot end in bad", rm.get(1).getErrorText());
+			} else if (m.getInfo().getId().equals("test_method_7")) {
+				foundTestMethod7 = true;
+				assertEquals(2, m.getFixedParameters().size());
+
+				assertEquals("FixedParam1", m.getFixedParameters().get(0).getUiName());
+				assertEquals("a fixed parameter", m.getFixedParameters().get(0).getDescription());
+				assertEquals("FixedParam2", m.getFixedParameters().get(1).getUiName());
+				assertEquals("another fixed parameter", m.getFixedParameters().get(1).getDescription());
+			} else if (m.getInfo().getId().equals("test_method_8")) {
+				foundTestMethod8 = true;
+				assertEquals(3, m.getParameters().size());
+				assertEquals("genome_input", m.getParameters().get(0).getId());
+				assertEquals("text", m.getParameters().get(0).getFieldType());
+				assertNotNull(m.getParameters().get(0).getTextOptions());
+				assertNull(m.getParameters().get(0).getTextsubdataOptions());
+
+				assertEquals("feature_input", m.getParameters().get(1).getId());
+				assertEquals("textsubdata", m.getParameters().get(1).getFieldType());
+				assertNotNull(m.getParameters().get(1).getTextsubdataOptions());
+				TextSubdataOptions tso = m.getParameters().get(1).getTextsubdataOptions();
+				assertNotNull(tso.getSubdataSelection());
+				assertEquals(new Long(0), tso.getMultiselection());
+				assertEquals(new Long(1), tso.getShowSrcObj());
+				assertEquals(new Long(0), tso.getAllowCustom());
+				assertEquals("genome_input", tso.getSubdataSelection().getParameterId());
+				assertNull(tso.getSubdataSelection().getConstantRef());
+				assertEquals(3, tso.getSubdataSelection().getSubdataIncluded().size());
+				assertEquals("features/[*]/id", tso.getSubdataSelection().getSubdataIncluded().get(0));
+				assertEquals("features/[*]/aliases", tso.getSubdataSelection().getSubdataIncluded().get(1));
+				assertEquals("features/[*]/function", tso.getSubdataSelection().getSubdataIncluded().get(2));
+				assertEquals(1, tso.getSubdataSelection().getPathToSubdata().size());
+				assertEquals("features", tso.getSubdataSelection().getPathToSubdata().get(0));
+				assertEquals("id", tso.getSubdataSelection().getSelectionId());
+				assertEquals(2, tso.getSubdataSelection().getSelectionDescription().size());
+				assertEquals("aliases", tso.getSubdataSelection().getSelectionDescription().get(0));
+				assertEquals("function", tso.getSubdataSelection().getSelectionDescription().get(1));
+				assertEquals("({{aliases}}, {{function}})", tso.getSubdataSelection().getDescriptionTemplate());
+
+				assertEquals("more_features", m.getParameters().get(2).getId());
+				assertEquals("textsubdata", m.getParameters().get(2).getFieldType());
+				assertNotNull(m.getParameters().get(2).getTextsubdataOptions());
+				tso = m.getParameters().get(2).getTextsubdataOptions();
+				assertNotNull(tso.getSubdataSelection());
+				assertEquals(new Long(1), tso.getMultiselection());
+				assertEquals(new Long(1), tso.getShowSrcObj());
+				assertEquals(new Long(0), tso.getAllowCustom());
+
+				assertNull(tso.getSubdataSelection().getParameterId());
+				assertEquals(2,tso.getSubdataSelection().getConstantRef().size());
+				assertEquals("12/31",tso.getSubdataSelection().getConstantRef().get(0));
+				assertEquals("ws/MyObj",tso.getSubdataSelection().getConstantRef().get(1));
+				assertEquals(2, tso.getSubdataSelection().getSubdataIncluded().size());
+				assertEquals("features/[*]/id", tso.getSubdataSelection().getSubdataIncluded().get(0));
+				assertEquals("features/[*]/aliases", tso.getSubdataSelection().getSubdataIncluded().get(1));
+				assertEquals(1, tso.getSubdataSelection().getPathToSubdata().size());
+				assertEquals("features", tso.getSubdataSelection().getPathToSubdata().get(0));
+				assertEquals("id", tso.getSubdataSelection().getSelectionId());
+				assertNull(tso.getSubdataSelection().getSelectionDescription());
+				assertNull(tso.getSubdataSelection().getDescriptionTemplate());
+			} else if (m.getInfo().getId().equals("test_method_10")) {
+				foundTestMethod10 = true;
+				assertEquals(3, m.getParameters().size());
+				assertEquals("ftp", m.getParameters().get(0).getId());
+				assertEquals("dynamic_dropdown", m.getParameters().get(0).getFieldType());
+				DynamicDropdownOptions ddo0 = m.getParameters().get(0).getDynamicDropdownOptions();
+				assertNotNull(ddo0);
+				assertEquals("ftp_staging", ddo0.getDataSource());
+
+				assertEquals("search", m.getParameters().get(1).getId());
+				assertEquals("dynamic_dropdown", m.getParameters().get(1).getFieldType());
+				DynamicDropdownOptions ddo1 = m.getParameters().get(1).getDynamicDropdownOptions();
+				assertNotNull(ddo1);
+				assertEquals(new Long(0), ddo1.getMultiselection());
+				assertNotNull(ddo1.getServiceParams().toString());
+				assertEquals("taxon_name", ddo1.getSelectionId());
+				assertEquals("<strong>{{scientific_name}}</strong>: {{scientific_lineage}}", ddo1.getDescriptionTemplate());
+
+				assertEquals("custom", m.getParameters().get(2).getId());
+				assertEquals("dynamic_dropdown", m.getParameters().get(2).getFieldType());
+				DynamicDropdownOptions ddo2 = m.getParameters().get(2).getDynamicDropdownOptions();
+				assertNotNull(ddo2);
+				assertEquals(new Long(1), ddo2.getMultiselection());
+				assertEquals("BiochemistryAPI.get_reactions", ddo2.getServiceFunction());
+				assertEquals("beta", ddo2.getServiceVersion());
+				assertEquals("UObject [userObj=[{\"reactions\":[\"{{dynamic_dropdown_input}}\"]}]]", ddo2.getServiceParams().toString());
+				assertEquals("id", ddo2.getSelectionId());
+				assertEquals("<strong>{{name}}</strong>: {{equation}}", ddo2.getDescriptionTemplate());
+
+			} else if (m.getInfo().getId().equals("test_method_12")) {
+        foundTestMethod12 = true;
+        int listSize = 6;
+        assertEquals(listSize, m.getParameters().size());
+
+        // names of the parameters, minus the initial "param_"
+        String[] ParamNameList = {
+          "multiselection_false",
+          "multiselection_true",
+          "multiselection_default",
+          "multiselection_false_allow_multiple",
+          "multiselection_true_allow_multiple",
+          "multiselection_default_allow_multiple",
+        };
+        // whether or not the multiselection parameter is true
+        int[] IsTrueList = {0, 1, 0, 0, 1, 0};
+
+        for (int n = 0; n < listSize; n++) {
+          String ParamName = ParamNameList[n];
+          int IsTrue = IsTrueList[n];
+          assertEquals("param_" + ParamName, m.getParameters().get(n).getId());
+          assertEquals("dropdown", m.getParameters().get(n).getFieldType());
+          assertEquals(2, m.getParameters().get(n).getDropdownOptions().getOptions().size());
+          DropdownOptions ddo = m.getParameters().get(n).getDropdownOptions();
+          assertNotNull(ddo);
+          assertEquals(new Long(IsTrue), ddo.getMultiselection());
+          assertEquals("item_" + ParamName + "_0", ddo.getOptions().get(0).getValue());
+        }
+      }
+		}
+		assertTrue("Testing that test_method_1 was returned from listMethodSpec",
+				foundTestMethod1);
+		assertTrue("Testing that test_method_3 was returned from listMethodSpec",
+				foundTestMethod3);
+		assertTrue("Testing that test_method_4 was returned from listMethodSpec",
+				foundTestMethod4);
+		assertTrue("Testing that test_method_5 was returned from listMethodSpec",
+				foundTestMethod5);
+		assertTrue("Testing that test_method_7 was returned from listMethodSpec",
+				foundTestMethod7);
+		assertTrue("Testing that test_method_8 was returned from listMethodSpec",
+				foundTestMethod8);
+		assertTrue("Testing that test_method_10 was returned from listMethodSpec", foundTestMethod10);
+		assertTrue("Testing that test_method_12 was returned from listMethodSpec", foundTestMethod12);
+	}
+
+
+	@Test
+	public void getMethodBriefInfo() throws Exception {
+		GetMethodParams params = new GetMethodParams().withIds(Arrays.asList("test_method_1"));
+		List<MethodBriefInfo> methods = CLIENT.getMethodBriefInfo(params);
+		assertTrue("Testing that test_method_1 can be fetched from getMethodBriefInfo",
+				methods.size()==1);
+
+		MethodBriefInfo m = methods.get(0);
+		assertTrue("Testing that test_method_1 name from getMethodBriefInfo is correct",
+				m.getName().equals("Test Method 1"));
+		assertTrue("Testing that test_method_1 ver from getMethodBriefInfo is correct",
+				m.getVer().equals("1.0.1"));
+		assertTrue("Testing that test_method_1 id from getMethodBriefInfo is correct",
+				m.getId().equals("test_method_1"));
+		assertTrue("Testing that test_method_1 categories from getMethodBriefInfo is correct",
+				m.getCategories().get(0).equals("testmethods"));
+
+		m = CLIENT.getMethodBriefInfo(new GetMethodParams().withIds(Arrays.asList("test_method_4"))).get(0);
+
+		assertTrue(new TreeSet<String>(m.getAuthors()).contains("wstester1"));
+        assertEquals(2, m.getInputTypes().size());
+        assertEquals(1, m.getOutputTypes().size());
+        assertEquals("KBaseGenomes.Genome", m.getOutputTypes().get(0));
+	}
+
+    @Test
+    public void getAppType() throws Exception {
+        GetMethodParams params = new GetMethodParams().withIds(Arrays.asList("test_method_9"));
+        Assert.assertEquals("editor", CLIENT.getMethodBriefInfo(params).get(0).getAppType());
+        Assert.assertEquals("editor", CLIENT.getMethodFullInfo(params).get(0).getAppType());
+    }
+
+	@Test
+	public void testGetMethodFullInfo() throws Exception {
+		GetMethodParams params = new GetMethodParams().withIds(Arrays.asList("test_method_1"));
+		List<MethodFullInfo> methods = CLIENT.getMethodFullInfo(params);
+		assertTrue("Testing that test_method_1 can be fetched from getMethodFullInfo",
+				methods.size()==1);
+
+		MethodFullInfo m = methods.get(0);
+		assertTrue("Testing that test_method_1 name from getMethodFullInfo is correct",
+				m.getName().equals("Test Method 1"));
+		assertTrue("Testing that test_method_1 ver from getMethodFullInfo is correct",
+				m.getVer().equals("1.0.1"));
+		assertTrue("Testing that test_method_1 id from getMethodFullInfo is correct",
+				m.getId().equals("test_method_1"));
+		assertTrue("Testing that test_method_1 categories from getMethodFullInfo is correct",
+				m.getCategories().get(0).equals("testmethods"));
+
+		assertTrue("Testing that test_method_1 description from getMethodFullInfo is present",
+				m.getDescription().trim().length()>0);
+		assertTrue("Testing that test_method_1 technical description from getMethodFullInfo is present",
+				m.getTechnicalDescription().trim().length()>0);
+
+
+		List<Publication> pubs = m.getPublications();
+		assertTrue("Publications are returned",pubs!=null);
+		assertTrue("4 publications are present",pubs.size()==4);
+		assertEquals("pub 0 pmid is correct",pubs.get(0).getPmid(),"2231712");
+		assertEquals("pub 0 text is correct",pubs.get(0).getDisplayText(),"Basic local alignment search tool.");
+		assertEquals("pub 0 link is correct",pubs.get(0).getLink(),"http://www.ncbi.nlm.nih.gov/pubmed/2231712");
+		assertEquals("pub 1 pmid is correct",pubs.get(1).getPmid(),null);
+		assertEquals("pub 1 text is correct",pubs.get(1).getDisplayText(),"Some made up paper");
+		assertEquals("pub 1 link is correct",pubs.get(1).getLink(),null);
+		assertEquals("pub 2 pmid is correct",pubs.get(2).getPmid(),null);
+		assertEquals("pub 2 text is correct",pubs.get(2).getDisplayText(),"http://www.ncbi.nlm.nih.gov/pubmed/2231712");
+		assertEquals("pub 2 link is correct",pubs.get(2).getLink(),"http://www.ncbi.nlm.nih.gov/pubmed/2231712");
+		assertEquals("pub 3 pmid is correct",pubs.get(3).getPmid(),"2231712");
+		assertEquals("pub 3 text is correct",pubs.get(3).getDisplayText(),"2231712");
+		assertEquals("pub 3 link is correct",pubs.get(3).getLink(),null);
+
+		List<String> authors = m.getAuthors();
+		assertTrue("Authors are returned",authors!=null);
+		assertTrue("4 publications are present",authors.size()==2);
+		assertEquals("first author",authors.get(0),"msneddon");
+		assertEquals("second author",authors.get(1),"wstester1");
+		List<String> kb_contributors = m.getKbContributors();
+		assertTrue("KB Contributers are returned",kb_contributors!=null);
+		assertEquals("first contributer",kb_contributors.get(0),"wstester3");
+	}
+
+
+	@Test
+	public void testGetMethodSpec() throws Exception {
+		GetMethodParams params = new GetMethodParams().withIds(Arrays.asList("test_method_1"));
+		List<MethodSpec> methods = CLIENT.getMethodSpec(params);
+		assertTrue("Testing that test_method_1 can be fetched from getMethodSpec",
+				methods.size()==1);
+
+		MethodSpec m = methods.get(0);
+		assertTrue("Testing that test_method_1 name from listMethodSpec is correct",
+				m.getInfo().getName().equals("Test Method 1"));
+		assertTrue("Testing that test_method_1 ver from listMethodSpec is correct",
+				m.getInfo().getVer().equals("1.0.1"));
+		assertTrue("Testing that test_method_1 id from listMethodSpec is correct",
+				m.getInfo().getId().equals("test_method_1"));
+		assertTrue("Testing that test_method_1 categories from listMethodSpec is correct",
+				m.getInfo().getCategories().get(0).equals("testmethods"));
+
+		assertTrue("Testing that test_method_1 from listMethodSpec has 2 parameters",
+				m.getParameters().size()==2);
+
+		assertTrue("Testing that test_method_1 from listMethodSpec parameter id is correct",
+				m.getParameters().get(0).getId().equals("genome"));
+		assertTrue("Testing that test_method_1 from listMethodSpec parameter name is correct",
+				m.getParameters().get(0).getUiName().equals("Genome"));
+		assertTrue("Testing that test_method_1 from listMethodSpec parameter short hint is correct",
+				m.getParameters().get(0).getShortHint().equals("The genome object you wish to test."));
+		assertTrue("Testing that test_method_1 from listMethodSpec parameter short hint is correct",
+				m.getParameters().get(0).getShortHint().equals("The genome object you wish to test."));
+		assertTrue("Testing that test_method_1 from listMethodSpec parameter valid ws type is correct",
+				m.getParameters().get(0).getTextOptions().getValidWsTypes().get(0).equals("KBaseGenomes.Genome"));
+		assertTrue("Testing that test_method_1 from listMethodSpec parameter valid ws type is correct",
+				m.getParameters().get(0).getTextOptions().getValidWsTypes().get(1).equals("KBaseGenomes.PlantGenome"));
+
+		assertTrue("Testing that test_method_1 output widget from listMethodSpec is correct",
+				m.getWidgets().getOutput().equals("KBaseDefaultViewer"));
+	}
+
+	@Test
+	public void testErrors() throws Exception {
+		Tuple4<Map<String,Category>, Map<String,MethodBriefInfo>, Map<String,AppBriefInfo>, Map<String,TypeInfo>> ret =
+				CLIENT.listCategories(new ListCategoriesParams().withLoadMethods(1L).withLoadApps(1L).withLoadTypes(1L));
+		Map<String, MethodBriefInfo> methodBriefInfo = ret.getE2();
+		MethodBriefInfo error1 = methodBriefInfo.get("test_error_1");
+		Assert.assertTrue(error1.getLoadingError(), error1.getLoadingError().contains("Unexpected character ('{' (code 123)): was expecting double-quote to start field name\n at [Source: java.io.StringReader"));
+		MethodBriefInfo error2 = methodBriefInfo.get("test_error_2");
+		Assert.assertEquals(error2.getLoadingError(), "Can't find sub-node [parameters] within path [/] in spec.json");
+		MethodBriefInfo error3 = methodBriefInfo.get("test_error_3");
+		Assert.assertEquals(error3.getLoadingError(), "Can't find sub-node [id] within path [parameters/0] in spec.json");
+		MethodBriefInfo error4 = methodBriefInfo.get("test_error_4");
+		Assert.assertEquals(error4.getLoadingError(), "Can't find property [name] within path [/] in display.yaml");
+		MethodBriefInfo error5 = methodBriefInfo.get("test_error_5");
+		Assert.assertEquals(error5.getLoadingError(), "Can't find property [ui-name] within path [parameters/genome] in display.yaml");
+		for (String errorId : methodBriefInfo.keySet()) {
+			if (methodBriefInfo.get(errorId).getLoadingError() != null && !errorId.startsWith("test_error_")) {
+				System.out.println("Unexpected error [" + errorId + "]: " + methodBriefInfo.get(errorId).getLoadingError());
+				Assert.fail(methodBriefInfo.get(errorId).getLoadingError());
+			}
+		}
+		Map<String, AppBriefInfo> appBriefInfo = ret.getE3();
+		for (String errorId : appBriefInfo.keySet()) {
+			if (appBriefInfo.get(errorId).getLoadingError() != null && !errorId.startsWith("test_error_")) {
+				System.out.println("Unexpected error[" + errorId + "]: " + appBriefInfo.get(errorId).getLoadingError());
+				Assert.fail(appBriefInfo.get(errorId).getLoadingError());
+			}
+		}
+		Map<String, TypeInfo> typeInfo = ret.getE4();
+		for (String errorId : typeInfo.keySet()) {
+			if (typeInfo.get(errorId).getLoadingError() != null && !errorId.startsWith("Test.Error")) {
+				System.out.println("Unexpected error[" + errorId + "]: " + typeInfo.get(errorId).getLoadingError());
+				Assert.fail(typeInfo.get(errorId).getLoadingError());
+			}
+		}
+		MethodFullInfo err6 = CLIENT.getMethodFullInfo(new GetMethodParams().withIds(Arrays.asList("test_error_6"))).get(0);
+		String text = err6.getPublications().get(0).getDisplayText();
+		int pos1 = text.indexOf("977");
+		int pos2 = text.indexOf("982");
+		Assert.assertTrue(pos1 > 0 && pos2 > 0);
+	}
+
+	@Test
+	public void testApp() throws Exception {
+		Map<String, AppBriefInfo> appBriefInfo = CLIENT.listCategories(new ListCategoriesParams().withLoadMethods(1L).withLoadApps(1L)).getE3();
+		assertNotNull(appBriefInfo.get("test_app_1"));
+		//System.out.println(appBriefInfo.get("test_app_1"));
+		AppSpec as = CLIENT.getAppSpec(new GetAppParams().withIds(Arrays.asList("test_app_1"))).get(0);
+		assertEquals(2, as.getSteps().size());
+		assertEquals("step_1", as.getSteps().get(0).getStepId());
+		assertEquals("step_1", as.getSteps().get(1).getInputMapping().get(0).getStepSource());
+
+
+		List<AppSpec> spec = CLIENT.getAppSpec(new GetAppParams().withIds(Arrays.asList("test_app_1")));
+		//System.out.println(spec.get(0));
+		assertEquals(1, spec.size());
+	}
+
+	@Test
+	public void testServiceParamMapping() throws Exception {
+		MethodSpec spec = CLIENT.getMethodSpec(new GetMethodParams().withIds(Arrays.asList("test_method_2"))).get(0);
+		assertEquals("https://ci.kbase.us:555/services/neverservice", spec.getBehavior().getKbServiceUrl());
+		assertNotNull(spec.getBehavior().getKbServiceName());
+		assertNotNull(spec.getBehavior().getKbServiceMethod());
+		assertEquals("genome", spec.getBehavior().getKbServiceInputMapping().get(0).getInputParameter());
+		assertNotNull(spec.getBehavior().getKbServiceInputMapping().get(0).getTargetProperty());
+		assertNotNull(spec.getBehavior().getKbServiceInputMapping().get(0).getTargetTypeTransform());
+		assertEquals("genome_", spec.getBehavior().getKbServiceInputMapping().get(0).getGeneratedValue().getPrefix());
+		assertEquals(8L, (long)spec.getBehavior().getKbServiceInputMapping().get(0).getGeneratedValue().getSymbols());
+		assertEquals(".obj", spec.getBehavior().getKbServiceInputMapping().get(0).getGeneratedValue().getSuffix());
+		assertEquals("workspace", spec.getBehavior().getKbServiceInputMapping().get(1).getNarrativeSystemVariable());
+		assertNotNull(spec.getBehavior().getKbServiceInputMapping().get(1).getTargetArgumentPosition());
+		assertEquals("[0,\"1\",2.0]", spec.getBehavior().getKbServiceOutputMapping().get(0).getConstantValue().toJsonString());
+		assertEquals("ret1", spec.getBehavior().getKbServiceOutputMapping().get(0).getTargetProperty());
+		assertEquals("[key1, key2]", spec.getBehavior().getKbServiceOutputMapping().get(1).getServiceMethodOutputPath().toString());
+		assertEquals("re2", spec.getBehavior().getKbServiceOutputMapping().get(1).getTargetProperty());
+		assertEquals("re2", spec.getJobIdOutputField());
+	}
+
+	@Test
+	public void testListTypes() throws Exception {
+		List<TypeInfo> typeInfo = CLIENT.listTypes(new ListParams());
+		assertTrue("Got list of types", typeInfo.size()>0);
+		boolean foundTestType1 = false;
+		for(TypeInfo ti : typeInfo) {
+			if(ti.getTypeName().compareTo("Test.Type1")==0) {
+				foundTestType1 = true;
+				assertTrue("Test.Type1 has name Genome", ti.getName().compareTo("Genome")==0);
+				assertEquals(1, ti.getExportFunctions().size());
+                assertTrue("Unexpected exporting function name",
+                        ti.getExportFunctions().get("TSV").contains("/"));
+			}
+		}
+		assertTrue("Type1 was returned successfully in list types.",foundTestType1);
+	}
+
+	@Test
+	public void testType() throws Exception {
+		Map<String, TypeInfo> typeInfo = CLIENT.listCategories(new ListCategoriesParams().withLoadTypes(1L)).getE4();
+		TypeInfo ti = typeInfo.get("Test.Type1");
+		assertNotNull(ti);
+		assertEquals("Genome", ti.getName());
+		assertEquals(1, ti.getViewMethodIds().size());
+		assertEquals(1, ti.getImportMethodIds().size());
+		assertEquals("genomes", ti.getLandingPageUrlPrefix());
+		ti = CLIENT.getTypeInfo(new GetTypeParams().withTypeNames(Arrays.asList("Test.Type1"))).get(0);
+		assertEquals("Genome", ti.getName());
+		assertEquals(1, ti.getViewMethodIds().size());
+		assertEquals(1, ti.getImportMethodIds().size());
+		assertEquals("genomes", ti.getLandingPageUrlPrefix());
+	}
+
+	@Test
+	public void testValidateMethod() throws Exception {
+		// Test a valid spec
+		ValidateMethodParams params =
+				new ValidateMethodParams()
+					.withId("test_method_1")
+					.withDisplayYaml(getTestFileFromSpecsRepo("methods/test_method_1/display.yaml"))
+					.withSpecJson(getTestFileFromSpecsRepo("methods/test_method_1/spec.json"));
+		ValidationResults results = CLIENT.validateMethod(params);
+		assertTrue("Method validation results of test_method_1 returns is valid", results.getIsValid()==1L);
+		assertTrue("Method validation contains an empty error report",results.getErrors().isEmpty());
+		assertTrue("Method validation results of test_method_1 spec is not null", results.getMethodSpec()!=null);
+		assertTrue("Method validation results of test_method_1 full info is not null", results.getMethodFullInfo()!=null);
+		assertTrue("Method validation results of test_method_1 app spec is null", results.getAppSpec()==null);
+		assertTrue("Method validation results of test_method_1 app full info info is null", results.getAppFullInfo()==null);
+		assertTrue("Method validation results of test_method_1 type info is null", results.getTypeInfo()==null);
+
+		// Test an error case
+		params =
+				new ValidateMethodParams()
+					.withId("test_error_1")
+					.withDisplayYaml(getTestFileFromSpecsRepo("methods/test_error_1/display.yaml"))
+					.withSpecJson(getTestFileFromSpecsRepo("methods/test_error_1/spec.json"));
+		results = CLIENT.validateMethod(params);
+		assertTrue("Method validation results of test_error_1 returns is not valid", results.getIsValid()==0L);
+		assertTrue("Method validation contains some error report",results.getErrors().size()>0);
+		assertTrue("Method validation results of test_method_1 spec is null", results.getMethodSpec()==null);
+		assertTrue("Method validation results of test_method_1 full info is null", results.getMethodFullInfo()==null);
+		assertTrue("Method validation results of test_method_1 app spec is null", results.getAppSpec()==null);
+		assertTrue("Method validation results of test_method_1 app full info info is null", results.getAppFullInfo()==null);
+		assertTrue("Method validation results of test_method_1 type info is null", results.getTypeInfo()==null);
+
+		results = CLIENT.validateMethod(new ValidateMethodParams().withId("test_method_9")
+		        .withDisplayYaml(getTestFileFromSpecsRepo("methods/test_method_9/display.yaml"))
+		        .withSpecJson(getTestFileFromSpecsRepo("methods/test_method_9/spec.json")));
+		assertTrue(results.getIsValid() == 1L);
+	}
+
+	@Test
+	public void testValidateMethodWithEstimator() throws Exception {
+		ValidateMethodParams params =
+			new ValidateMethodParams()
+				.withId("test_method_11")
+				.withDisplayYaml(getTestFileFromSpecsRepo("methods/test_method_11/display.yaml"))
+				.withSpecJson(getTestFileFromSpecsRepo("methods/test_method_11/spec.json"));
+		ValidationResults results = CLIENT.validateMethod(params);
+		assertTrue("Method validation results of test_method_11 returns is valid", results.getIsValid()==1L);
+		assertTrue("Method validation contains an empty error report", results.getErrors().isEmpty());
+		assertTrue("Method validation results of test_method_11 got the right name", results.getMethodFullInfo().getName().compareTo("Test Method Estimator")==0);
+		assertTrue("Method validation results of test_method_11 got the right estimator module", results.getMethodSpec().getBehavior().getResourceEstimatorModule().compareTo("SomeService")==0);
+		assertTrue("Method validation results of test_method_11 got the right estimator method", results.getMethodSpec().getBehavior().getResourceEstimatorMethod().compareTo("estimator_method")==0);
+		assertTrue("Method validation results of test_method_11 spec is not null", results.getMethodSpec()!=null);
+		assertTrue("Method validation results of test_method_11 full info is not null", results.getMethodFullInfo()!=null);
+		assertTrue("Method validation results of test_method_11 app spec is null", results.getAppSpec()==null);
+		assertTrue("Method validation results of test_method_11 app full info info is null", results.getAppFullInfo()==null);
+		assertTrue("Method validation results of test_method_11 type info is null", results.getTypeInfo()==null);
+	}
+
+	@Test
+	public void testValidateMethodWithEstimatorError() throws Exception {
+		ValidateMethodParams params =
+			new ValidateMethodParams()
+				.withId("test_error_7")
+				.withDisplayYaml(getTestFileFromSpecsRepo("methods/test_error_7/display.yaml"))
+				.withSpecJson(getTestFileFromSpecsRepo("methods/test_error_7/spec.json"));
+		ValidationResults results = CLIENT.validateMethod(params);
+		assertTrue("Method validation results of test_error_7 returns is not valid", results.getIsValid()==0L);
+		assertTrue("Method validation contains an error report", !results.getErrors().isEmpty());
+		assertTrue("Method validation error looks right", results.getErrors().get(0).contains("If resource_estimator_module is defined, then resource_estimator_method must also be defined."));
+		assertTrue("Method validation results of test_error_7 spec is null", results.getMethodSpec()==null);
+		assertTrue("Method validation results of test_error_7 full info is null", results.getMethodFullInfo()==null);
+		assertTrue("Method validation results of test_error_7 app spec is null", results.getAppSpec()==null);
+		assertTrue("Method validation results of test_error_7 app full info is null", results.getAppFullInfo()==null);
+		assertTrue("Method validation results of test_error_7 type info is null", results.getTypeInfo()==null);
+	}
+
+
+	@Test
+	public void testValidateApp() throws Exception {
+		// Test a valid spec
+		ValidateAppParams params =
+				new ValidateAppParams()
+					.withId("test_method_1")
+					.withDisplayYaml(getTestFileFromSpecsRepo("apps/test_app_1/display.yaml"))
+					.withSpecJson(getTestFileFromSpecsRepo("apps/test_app_1/spec.json"));
+		ValidationResults results = CLIENT.validateApp(params);
+		assertTrue("App validation results of test_app_1 returns is valid", results.getIsValid()==1L);
+		assertTrue("App validation contains an empty error report",results.getErrors().isEmpty());
+		assertTrue("App validation results of test_app_1 spec is not null", results.getAppSpec()!=null);
+		assertTrue("App validation results of test_app_1 full info is not null", results.getAppFullInfo()!=null);
+		assertTrue("App validation results of test_app_1 method spec is null", results.getMethodSpec()==null);
+		assertTrue("App validation results of test_app_1 method full info info is null", results.getMethodFullInfo()==null);
+		assertTrue("App validation results of test_app_1 type info is null", results.getTypeInfo()==null);
+		assertTrue("App validation results of test_app_1 got the right name", results.getAppFullInfo().getName().compareTo("Test All 1")==0);
+
+		// Test an error case
+		params =
+				new ValidateAppParams()
+					.withId("test_error_1")
+					.withDisplayYaml("madeup: nothing")
+					.withSpecJson(getTestFileFromSpecsRepo("methods/test_error_1/spec.json"));
+		results = CLIENT.validateApp(params);
+		assertTrue("App validation results of test_error_1 returns is not valid", results.getIsValid()==0L);
+		assertTrue("App validation contains some error report",results.getErrors().size()>0);
+		assertTrue("App validation results of test_method_1 spec is null", results.getMethodSpec()==null);
+		assertTrue("App validation results of test_method_1 full info is null", results.getMethodFullInfo()==null);
+		assertTrue("App validation results of test_method_1 app spec is null", results.getAppSpec()==null);
+		assertTrue("App validation results of test_method_1 app full info info is null", results.getAppFullInfo()==null);
+		assertTrue("App validation results of test_method_1 type info is null", results.getTypeInfo()==null);
+	}
+
+	@Test
+	public void testValidateType() throws Exception {
+		// Test a valid spec
+		ValidateTypeParams params =
+				new ValidateTypeParams()
+					.withId("Test.Type1")
+					.withDisplayYaml(getTestFileFromSpecsRepo("types/Test.Type1/display.yaml"))
+					.withSpecJson(getTestFileFromSpecsRepo("types/Test.Type1/spec.json"));
+		ValidationResults results = CLIENT.validateType(params);
+		assertTrue("Type validation results of Test.Type1 returns is valid", results.getIsValid()==1L);
+		assertTrue("Type validation contains an empty error report",results.getErrors().isEmpty());
+		assertTrue("Type validation results of Test.Type1 spec is null", results.getMethodSpec()==null);
+		assertTrue("Type validation results of Test.Type1 full info is null", results.getMethodFullInfo()==null);
+		assertTrue("Type validation results of Test.Type1 app spec is null", results.getAppSpec()==null);
+		assertTrue("Type validation results of Test.Type1 app full info info is null", results.getAppFullInfo()==null);
+		assertTrue("Type validation results of Test.Type1 type info is not null", results.getTypeInfo()!=null);
+		assertTrue("Type validation results of Test.Type1 got the right name", results.getTypeInfo().getName().compareTo("Genome")==0);
+
+		// Test an error case
+		params =
+				new ValidateTypeParams()
+					.withId("Test.Type1")
+					.withDisplayYaml("not a field: 23\n\n").withSpecJson("{}");
+		results = CLIENT.validateType(params);
+		assertTrue("Type validation results of test_error_1 returns is not valid", results.getIsValid()==0L);
+		assertTrue("Type validation contains some error report",results.getErrors().size()>0);
+		assertTrue("Type validation results of test_method_1 spec is null", results.getMethodSpec()==null);
+		assertTrue("Type validation results of test_method_1 full info is null", results.getMethodFullInfo()==null);
+		assertTrue("Type validation results of test_method_1 app spec is null", results.getAppSpec()==null);
+		assertTrue("Type validation results of test_method_1 app full info info is null", results.getAppFullInfo()==null);
+		assertTrue("Type validation results of test_method_1 type info is null", results.getTypeInfo()==null);
+	}
+
+	@SuppressWarnings("static-access")
+    @Test
+    public void testDynamicRepos() throws Exception {
+        try {
+            String moduleName = "onerepotest";
+            String gitUrl = "https://github.com/kbaseIncubator/onerepotest";
+            String methodId = moduleName + "/send_data";
+            Map<String,MethodBriefInfo> methods = CLIENT.listCategories(new ListCategoriesParams().withLoadMethods(1L)).getE2();
+            MethodBriefInfo bi = methods.get(methodId);
+            Assert.assertNull(bi);
+            SERVER.getLocalGitDB().registerRepo(admin1, gitUrl, null);
+            /* As there doesn't seem to be a way to easily clear the DB between tests, we
+             * need to account for the fact that the other dynamic repo test may have run
+             * before or after this one.
+             */
+            final int lMCnt = CLIENT.listMethods(new ListParams().withTag("dev")).size() -
+                    CLIENT.listMethods(new ListParams().withTag("release")).size();
+            assertThat("incorrect listMethods count: " + lMCnt, lMCnt > 1 && lMCnt < 4, is(true));
+            final int lMSCnt = CLIENT.listMethodsSpec(new ListParams().withTag("dev")).size() -
+                    CLIENT.listMethodsSpec(new ListParams().withTag("release")).size();
+            assertThat("incorrect listMethodsSpec count: " + lMSCnt,
+                    lMSCnt > 1 && lMSCnt < 4, is(true));
+            final int lMFICnt = CLIENT.listMethodsFullInfo(
+                    new ListParams().withTag("dev")).size() - CLIENT.listMethodsFullInfo(
+                            new ListParams().withTag("release")).size();
+            assertThat("incorrect listMethodsFullInfo count: " + lMFICnt,
+                    lMFICnt > 1 && lMFICnt < 4, is(true));
+            final int lMINCnt = CLIENT.listMethodIdsAndNames(
+                    new ListMethodIdsAndNamesParams().withTag("dev")).size() -
+                    CLIENT.listMethodIdsAndNames(
+                            new ListMethodIdsAndNamesParams().withTag("release")).size();
+            assertThat("incorrect listMethodIdsAndNames count: " + lMINCnt,
+                    lMINCnt > 1 && lMINCnt < 4, is(true));
+            Assert.assertNull(CLIENT.listCategories(new ListCategoriesParams().withLoadMethods(1L).withTag("beta")).getE2().get(methodId));
+            SERVER.getLocalGitDB().pushRepoToTag(moduleName, "beta", admin1);
+            Assert.assertNotNull(CLIENT.listCategories(new ListCategoriesParams().withLoadMethods(1L).withTag("beta")).getE2().get(methodId));
+	        methods = CLIENT.listCategories(new ListCategoriesParams().withLoadMethods(1L).withTag("dev")).getE2();
+	        bi = methods.get(methodId);
+	        Assert.assertNotNull(bi);
+	        Assert.assertEquals("Async Docker Test", bi.getName());
+	        Assert.assertEquals("Perform Async Docker Test.", bi.getTooltip().trim());
+	        Assert.assertEquals("[active]", bi.getCategories().toString());
+	        Assert.assertEquals(moduleName, bi.getModuleName());
+	        Assert.assertEquals("0.0.2", bi.getVer());
+	        MethodFullInfo fi = CLIENT.getMethodFullInfo(new GetMethodParams().withIds(Arrays.asList(methodId)).withTag("dev")).get(0);
+	        Assert.assertNotNull(fi);
+	        Assert.assertTrue("Description: " + fi.getDescription(), fi.getDescription().contains("Async Docker Test"));
+	        Assert.assertEquals(moduleName, fi.getModuleName());
+	        MethodSpec ms = CLIENT.getMethodSpec(new GetMethodParams().withIds(Arrays.asList(methodId)).withTag("dev")).get(0);
+	        Assert.assertNotNull(ms);
+	        Assert.assertEquals(2, ms.getParameters().size());
+	        Assert.assertEquals("param0", ms.getParameters().get(0).getId());
+	        Assert.assertEquals("Genome1 ID", ms.getParameters().get(0).getUiName().trim());
+	        Assert.assertEquals("Source genome 1", ms.getParameters().get(0).getShortHint().trim());
+	        Assert.assertEquals("text", ms.getParameters().get(0).getFieldType());
+	        Assert.assertEquals("[KBaseGenomes.Genome]", ms.getParameters().get(0).getTextOptions().getValidWsTypes().toString());
+	        DynamicRepoDB db = SERVER.getLocalGitDB().getDynamicRepos();
+	        Assert.assertEquals(1, db.listRepoVersions(moduleName, null).size());
+	        String commitHash1 = db.getRepoDetails(moduleName, null).getGitCommitHash();
+	        Assert.assertEquals(40, commitHash1.length());
+	        Assert.assertEquals(commitHash1, ms.getBehavior().getKbServiceVersion());
+	        RepoDetails rd = SERVER.getLocalGitDB().getRepoDetails(moduleName, null, null, null);
+	        Assert.assertEquals(moduleName, rd.getModuleName());
+	        Assert.assertEquals("[ResultView.js]", rd.getWidgetIds().toString());
+	        Assert.assertNotNull(CLIENT.loadWidgetJavaScript(new LoadWidgetParams().withModuleName(moduleName)
+	                .withWidgetId("ResultView.js").withTag("dev")));
+	        Assert.assertEquals("img?method_id=onerepotest/send_data&image_name=icon.png&tag=dev", fi.getIcon().getUrl());
+	        String owner = "rsutormin";
+	        try {
+	            SERVER.getLocalGitDB().registerRepo(owner, gitUrl, null);
+	            Assert.fail("Only admin can register dynamic repos");
+	        } catch (Exception ex) {
+	            Assert.assertEquals("User " + owner + " is not global admin", ex.getMessage());
+	        }
+	        String commitHash2 = "00f008a265785ddfa70f21794738953bbf5895d0";
+	        SERVER.getLocalGitDB().registerRepo(admin1, gitUrl, commitHash2);
+            Assert.assertNull(CLIENT.listCategories(new ListCategoriesParams().withLoadMethods(1L)).getE2().get(methodId));
+            checkMethod(methodId, 2, "genomeA", "Genome A", "dev");
+            MethodBriefInfo mbi2 = CLIENT.getMethodBriefInfo(new GetMethodParams().withIds(Arrays.asList(methodId)).withTag("dev")).get(0);
+            Assert.assertEquals(mbi2.getGitCommitHash(), commitHash2);
+            mbi2 = CLIENT.getMethodBriefInfo(new GetMethodParams().withIds(Arrays.asList(methodId)).withTag(commitHash2)).get(0);
+            Assert.assertEquals(mbi2.getGitCommitHash(), commitHash2);
+            MethodFullInfo mfi2 = CLIENT.getMethodFullInfo(new GetMethodParams().withIds(Arrays.asList(methodId)).withTag("dev")).get(0);
+            Assert.assertEquals(mfi2.getGitCommitHash(), commitHash2);
+            MethodSpec ms2 = CLIENT.getMethodSpec(new GetMethodParams().withIds(Arrays.asList(methodId)).withTag("dev")).get(0);
+            Assert.assertEquals(ms2.getInfo().getGitCommitHash(), commitHash2);
+            checkMethod(methodId, 2, "param0", "Genome1 ID", "beta");
+            SERVER.getLocalGitDB().pushRepoToTag(moduleName, "release", admin1);
+            SERVER.getLocalGitDB().pushRepoToTag(moduleName, "beta", admin1);
+            checkMethod(methodId, 2, "genomeA", "Genome A", "beta");
+            checkMethod(methodId, 2, "param0", "Genome1 ID", "release");
+            checkMethod(methodId, 2, "param0", "Genome1 ID", null);
+            SERVER.getLocalGitDB().pushRepoToTag(moduleName, "release", admin1);
+            checkMethod(methodId, 2, "genomeA", "Genome A", null);
+            checkMethod(methodId, 2, "param0", "Genome1 ID", commitHash1);
+            checkMethod(methodId, 2, "genomeA", "Genome A", commitHash2);
+            try {
+                checkMethod(methodId, 2, "genomeA", "Genome A", "unknown_version");
+                Assert.fail("Unexpected tags shouldn't be supported");
+            } catch (Exception ex) {
+                Assert.assertEquals("Repo-tag [unknown_version] is not supported", ex.getMessage());
+            }
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            SERVER.getLocalGitDB().saveScreenshotIntoStream(moduleName, "send_data", "icon.png", commitHash1, baos);
+            Assert.assertEquals(62124, baos.toByteArray().length);
+	        methods = null;
+	        bi = null;
+	        fi = null;
+	        try {
+	            SERVER.getLocalGitDB().setRepoState(owner, moduleName, "disabled");
+	            Assert.fail("Only admin can disable dynamic repos");
+	        } catch (Exception ex) {
+	            Assert.assertEquals("User " + owner + " is not global admin", ex.getMessage());
+	        }
+	        SERVER.getLocalGitDB().setRepoState(admin1, moduleName, "disabled");
+	        methods = CLIENT.listCategories(new ListCategoriesParams().withLoadMethods(1L)).getE2();
+	        bi = methods.get(methodId);
+	        Assert.assertNull(bi);
+	        String gitUrl2 = "https://github.com/kbaseIncubator/contigcount";
+	        String moduleName2 = "contigcount";
+	        String methodId2 = "contigcount/count_contigs_in_set_async";
+	        SERVER.getLocalGitDB().registerRepo(admin1, gitUrl2, "0a11f2d6d2011f5590dd07ccfa6679b0166dd922");
+	        try {
+	            SERVER.getLocalGitDB().pushRepoToTag(moduleName2, "release", admin1);
+	            Assert.fail("Pushing to release cannot be done before pushing to beta");
+	        } catch (Exception ex) {
+	            Assert.assertEquals("Repository contigcount cannot be released cause it was never pushed to beta tag", ex.getMessage());
+	        }
+            SERVER.getLocalGitDB().pushRepoToTag(moduleName2, "beta", admin1);
+            SERVER.getLocalGitDB().pushRepoToTag(moduleName2, "release", admin1);
+            checkMethod(methodId2, 1, "contigset_id", "Contig Set Id", "dev");
+            checkMethod(methodId2, 1, "contigset_id", "Contig Set Id", "beta");
+            checkMethod(methodId2, 1, "contigset_id", "Contig Set Id", "release");
+            // try to disable, method should be gone and enable again, method should exists
+            SERVER.getLocalGitDB().setRepoState(admin1, moduleName, "disabled");
+            methods = CLIENT.listCategories(new ListCategoriesParams().withLoadMethods(1L)).getE2();
+            bi = methods.get(methodId);
+            Assert.assertNull(bi);
+            SERVER.getLocalGitDB().setRepoState(admin1, moduleName, "ready");
+            methods = CLIENT.listCategories(new ListCategoriesParams().withLoadMethods(1L)).getE2();
+            checkMethod(methodId2, 1, "contigset_id", "Contig Set Id", "dev");
+            checkMethod(methodId2, 1, "contigset_id", "Contig Set Id", "beta");
+            checkMethod(methodId2, 1, "contigset_id", "Contig Set Id", "release");
+	    } catch (ServerException ex) {
+	        System.err.println(ex.getData());
+	        throw ex;
+	    }
+	}
+
+	@Test
+	public void dynamicRepoWithValidFileTypesAndExactMatchOne() throws Exception {
+		/* Tests that registering a repo with the valid_file_types and exact_match_on keys
+		 * preserves those keys when fetching the module spec.
+		 */
+		final String moduleName = "nms_fake_type_test";
+		final String gitUrl = "https://github.com/kbasetest/nms_fake_type_test";
+		final String methodId = moduleName + "/run_" + moduleName;
+		/* Ideally we'd register the repo via the client, but auth is set up to use a remote
+		 * server, so that's not possible currently without using a pre-made token.
+		 * Long term set up a local auth server and run it as part of the tests like other
+		 * repos. To register via the client do:
+		 * CLIENT.registerRepo(new RegisterRepoParams().withGitUrl(gitUrl));
+		 */
+		SERVER.getLocalGitDB().registerRepo(admin1, gitUrl, null);
+		// note apps and methods are different. This apparently is a method.
+		final List<MethodSpec> spec = CLIENT.getMethodSpec(new GetMethodParams()
+				.withIds(Arrays.asList(methodId)).withTag("dev"));
+		assertThat("correct spec size", spec.size(), is(1));
+		assertThat("correct parameter counts", spec.get(0).getParameters().size(), is(1));
+		final MethodParameter param = spec.get(0).getParameters().get(0);
+		assertThat("correct valid file types", param.getValidFileTypes(),
+				is(Arrays.asList("FASTQ", "FASTQ-FWD")));
+		final DynamicDropdownOptions ddo = param.getDynamicDropdownOptions();
+		assertThat("correct exact match on", ddo.getExactMatchOn(), is("scientific_name"));
+		/* Unfortunately there doesn't appear to be a simple way to clear the database between
+		 * tests
+		 */
+	}
+
+    private static void checkMethod(String methodId, int paramCount, String param1id,
+            String param1name, String tag) throws Exception {
+        MethodSpec ms = CLIENT.getMethodSpec(new GetMethodParams().withIds(Arrays.asList(methodId)).withTag(tag)).get(0);
+        Assert.assertEquals(paramCount, ms.getParameters().size());
+        Assert.assertEquals(param1id, ms.getParameters().get(0).getId());
+        Assert.assertEquals(param1name, ms.getParameters().get(0).getUiName().trim());
+    }
+
+	private static String getTestFileFromSpecsRepo(String path) {
+		StringBuilder content = new StringBuilder();
+		try {
+			URL githubFile = new URL(gitRepo + "/raw/" + gitRepoBranch + "/"+path);
+	        BufferedReader in = new BufferedReader(new InputStreamReader(githubFile.openStream()));
+	        String line;
+	        while ((line = in.readLine()) != null) {
+	        	content.append(line+"\n");
+	        }
+	        in.close();
+		} catch (IOException e) {
+			throw new IllegalStateException(e);
+		}
+
+		return content.toString();
+	}
+
+	@BeforeClass
+	public static void setUpClass() throws Exception {
+        Log.setLog(new Logger() {
+            @Override
+            public void warn(String arg0, Object arg1, Object arg2) {}
+            @Override
+            public void warn(String arg0, Throwable arg1) {}
+            @Override
+            public void warn(String arg0) {}
+            @Override
+            public void setDebugEnabled(boolean arg0) {}
+            @Override
+            public boolean isDebugEnabled() {
+                return false;
+            }
+            @Override
+            public void info(String arg0, Object arg1, Object arg2) {}
+            @Override
+            public void info(String arg0) {}
+            @Override
+            public String getName() {
+                return null;
+            }
+            @Override
+            public Logger getLogger(String arg0) {
+                return this;
+            }
+            @Override
+            public void debug(String arg0, Object arg1, Object arg2) {}
+            @Override
+            public void debug(String arg0, Throwable arg1) {}
+            @Override
+            public void debug(String arg0) {}
+        });
+
+		// Parse the test config variables
+		final String testcfg = System.getProperty("test.cfg");
+		final Ini cfgini = new Ini(new File(testcfg));
+		final String secName = "NarrativeMethodStoreTest";
+		final Section sec = cfgini.get(secName);
+		if (sec == null) {
+			throw new Exception(String.format(
+					"Missing section %s in config file %s", secName, testcfg));
+		}
+		
+		tempDirName = sec.get("test.temp-dir");
+		gitRepo = sec.get("test.method-spec-git-repo");
+		gitRepoBranch = sec.get("test.method-spec-git-repo-branch");
+		gitRepoRefreshRate = sec.get("test.method-spec-git-repo-refresh-rate");
+		gitRepoCacheSize = sec.get("test.method-spec-cache-size");
+		mongoExePath = sec.get("test.mongo-exe-path");
+
+		String s = System.getProperty("test.remove-temp-dir");
+		removeTempDir = false;
+		if(s!=null) {
+			if(s.trim().equals("1") || s.trim().equals("yes") || s.trim().equals("true")) {
+				removeTempDir = true;
+			}
+		}
+        String authServiceUrl = sec.get("test.auth-service-url");
+        String authInsecure = sec.get("test.auth-service-url-allow-insecure");
+
+		System.out.println("test.temp-dir    = " + tempDirName);
+		System.out.println("test.method-spec-git-repo              = " + gitRepo);
+		System.out.println("test.method-spec-git-repo-branch       = " + gitRepoBranch);
+		System.out.println("test.method-spec-git-repo-refresh-rate = " + gitRepoRefreshRate);
+		System.out.println("test.method-spec-cache-size            = " + gitRepoCacheSize);
+        System.out.println("test.mongo-exe-path                    = " + mongoExePath);
+        System.out.println("test.auth-service-url                  = " + authServiceUrl);
+        System.out.println("test.auth-service-url-allow-insecure   = " + authInsecure);
+
+		//create the temp directory for this test
+		tempDir = new File(tempDirName);
+		if (!tempDir.exists())
+			tempDir.mkdirs();
+
+		//create the server config file
+		File iniFile = File.createTempFile("test", ".cfg", tempDir);
+		if (iniFile.exists()) {
+			iniFile.delete();
+		}
+
+        dbHelper = new MongoDBHelper("narrative_method_db", tempDirName);
+        dbHelper.startup(mongoExePath);
+
+        System.out.println("Created temporary config file: " + iniFile.getAbsolutePath());
+
+		Ini ini = new Ini();
+		Section ws = ini.add("NarrativeMethodStore");
+		ws.add("method-spec-git-repo", gitRepo);
+		ws.add("method-spec-git-repo-branch", gitRepoBranch);
+		ws.add("method-spec-git-repo-local-dir", tempDir.getAbsolutePath()+"/narrative_method_specs");
+		ws.add("method-spec-git-repo-refresh-rate", gitRepoRefreshRate);
+		ws.add("method-spec-cache-size", gitRepoCacheSize);
+		ws.add("method-spec-temp-dir", dbHelper.getWorkDir());
+		ws.add("method-spec-mongo-host", "localhost:" + dbHelper.getMongoPort());
+		ws.add("method-spec-mongo-dbname", dbName);
+		ws.add("method-spec-mongo-retrywrites", "false");
+		ws.add("method-spec-admin-users", admin1 + "," + admin2);
+        ws.add("endpoint-host", "https://ci.kbase.us");
+        ws.add("endpoint-base", "/services");
+        ws.add(NarrativeMethodStoreServer.CFG_PROP_DEFAULT_TAG, "release");
+        ws.add(NarrativeMethodStoreServer.CFG_PROP_AUTH_SERVICE_URL, authServiceUrl);
+        if (authInsecure != null) {
+            ws.add(NarrativeMethodStoreServer.CFG_PROP_AUTH_INSECURE, authInsecure);
+        }
+
+		ini.store(iniFile);
+
+		Map<String, String> env = getenv();
+		env.put("KB_DEPLOYMENT_CONFIG", iniFile.getAbsolutePath());
+		env.put("KB_SERVICE_NAME", "NarrativeMethodStore");
+
+        JsonServerSyslog.setStaticUseSyslog(false);
+        JsonServerSyslog.setStaticMlogFile(new File(tempDir, "service.log").getAbsolutePath());
+
+		SERVER = new NarrativeMethodStoreServer();
+		new ServerThread(SERVER).start();
+		System.out.println("Main thread waiting for server to start up");
+		while (SERVER.getServerPort() == null) {
+			Thread.sleep(100);
+		}
+		System.out.println("Test server listening on "+SERVER.getServerPort() );
+		CLIENT = new NarrativeMethodStoreClient(new URL("http://localhost:" + SERVER.getServerPort()));
+		System.out.println("Server status: " + CLIENT.status());
+	}
+
+	@AfterClass
+	public static void tearDownClass() throws Exception {
+	    try {
+	        if (SERVER != null) {
+	            System.out.print("Killing narrative method store server... ");
+	            SERVER.stopServer();
+	            System.out.println("Done");
+	        }
+	    } finally {
+	        try {
+	            if (dbHelper != null)
+	                dbHelper.shutdown(removeTempDir);
+	        } finally {
+	            if (removeTempDir)
+	                FileUtils.deleteDirectory(tempDir);
+	        }
+		}
+	}
+
+	public static void main(String[] args) throws Exception {
+	    setUpClass();
+        int port = SERVER.getServerPort();
+        System.out.println("NarrativeMethodStore was started up on port: " + port);
+        String moduleName = "onerepotest";
+        String gitUrl = "https://github.com/kbaseIncubator/onerepotest";
+        NarrativeMethodStoreServer.getLocalGitDB().registerRepo(admin1, gitUrl, null);
+        DynamicRepoDB db = NarrativeMethodStoreServer.getLocalGitDB().getDynamicRepos();
+        String commitHash = db.getRepoDetails(moduleName, null).getGitCommitHash();
+        System.out.println("Repo " + moduleName + " was registered with version: " + commitHash);
+    }
+}

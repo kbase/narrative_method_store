@@ -25,7 +25,7 @@ class NarrativeMethodStore(object):
             trust_all_ssl_certificates=False,
             auth_svc='https://ci.kbase.us/services/auth/api/legacy/KBase/Sessions/Login'):
         if url is None:
-            url = 'https://kbase.us/services/narrative_method_store/rpc'
+            url = 'https://ci.kbase.us/services/narrative_method_store/rpc'
         self._service_ver = None
         self._client = _BaseClient(
             url, timeout=timeout, user_id=user_id, password=password,
