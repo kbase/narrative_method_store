@@ -207,3 +207,17 @@ task showTestClassPath {
 	}
 }
 
+task generateClasspathFile {
+    description = 'Generates the jar.classpath.txt file with .jar files and prints the location.'
+
+    doLast {
+        def outputFile = file('jar.classpath.txt')
+        def classpath = sourceSets.main.runtimeClasspath.filter { it.name.endsWith('.jar') }
+
+        // Join the .jar files with a semicolon and write to the file
+        outputFile.text = classpath.join(';')
+
+        // Print the location of the generated file
+        println "Generated classpath file: ${outputFile.absolutePath}"
+    }
+}
