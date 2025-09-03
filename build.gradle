@@ -6,6 +6,7 @@ plugins {
 	id 'java'
 	id 'war'
 	id 'jacoco'
+	id 'maven-publish'
 }
 
 group = 'com.github.kbase'
@@ -34,6 +35,11 @@ compileJava {
 	// TODO BUILD remove when we no longer support java 8, use `options.release = 11` if needed
 	java.sourceCompatibility = JavaVersion.VERSION_1_8
 	java.targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+java {
+	withSourcesJar()
+	withJavadocJar()
 }
 
 javadoc {
@@ -87,6 +93,14 @@ jar {
 	exclude "us/kbase/narrativemethodstore/ImageServlet*.class"  // exclude anonymous classes
 	include "us/kbase/common/service/Tuple*.class"
 	archiveAppendix = 'client'
+}
+
+publishing {
+	publications {
+		maven(MavenPublication) {
+			from components.java
+		}
+	}
 }
 
 war {
@@ -167,6 +181,10 @@ task sdkCompile {
 configurations {
 	// can't directly access testImplementation, so extend and access
 	testimpl.extendsFrom testImplementation
+}
+
+task buildAll {
+	dependsOn jar
 }
 
 dependencies {
