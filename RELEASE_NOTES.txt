@@ -3,8 +3,14 @@ NARRATIVE METHOD STORE OVERVIEW
 The Narrative Method Store provides an API to dynamically access the available
 narrative method/app/type specifications and documentation.
 
+VERSION: 0.3.13 (Released 09/03/2025)
+-------------------------------------
+
+UPDATED FEATURES:
+- Added JITPack build for Java client
+
 VERSION: 0.3.12 (Released 10/28/2024)
-------------------------------------
+-------------------------------------
 
 UPDATED FEATURES:
 - The MongoDB clients have been updated to the most recent version.
